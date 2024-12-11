@@ -1,0 +1,353 @@
+functions {
+  // auxiliary functions (88 lines)
+#include utils/aux-functions.stan
+// function to simulate population (213 lines)
+#include utils/theoretical_mean.stan
+// custom prior distributions
+#include utils/custom_priors.stan  
+// custom prior densities
+#include utils/custom_lpdf.stan
+}
+data {
+  //--- survey data  ---
+  int N; // n_patches * n_time
+  int n_ages; // number of ages
+  int n_patches; // number of patches
+  int n_time; // years for training
+  vector[N] y;
+  //--- toggles ---
+  int<lower = 0, upper = 1> p_error;
+  int<lower = 0, upper = 1> movement;
+  int<lower = 0, upper = 1> est_mort; // estimate mortality?
+  int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for theta
+  int<lower = 0, upper = 1> qr_t; // use qr parametrization for theta?
+  int<lower = 0, upper = 1> qr_r; // use qr parametrization for logrec?
+  int<lower = 0, upper = 1> qr_m; // use qr parametrization for mortality?
+  int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
+                                        // Gamma, 3 = log-Logistic)
+  //--- suitability (for theta) ----
+  int<lower = 1> K_t;
+  matrix[N, K_t] X_t;
+  //--- fish mortality data ----
+  matrix[n_ages, n_time] f;
+  array[est_mort ? 0 : 1] real m; // total mortality
+  //--- movement related quantities ----
+  matrix[movement ? n_patches: 1, movement ? n_patches : 1] adj_mat;
+  array[movement] int age_at_maturity;
+  vector[n_ages] selectivity_at_age;
+  //--- environmental data ----
+  //--- * for mortality ----
+  array[est_mort ? 1 : 0] int<lower = 1> K_m;
+  matrix[est_mort ? N : 1, est_mort ? K_m[1] : 1] X_m;
+  //--- * for recruitment ----
+  int<lower = 1> K_r;
+  matrix[N, K_r] X_r;
+  //--- priors hyperparameters ----
+  real pr_sigma_obs_mu; 
+  real pr_sigma_obs_sd; // formerly sigma_obs_cv
+  real pr_phi_a; // revise this. It is for phi in gamma, loglogistic, and
+                 // inverse-gaussian
+  real pr_phi_b;
+  // * now AR SD parameters have pcpriors
+  real pr_sd_r_u; 
+  real pr_sd_r_alpha;
+  real pr_rho_u; 
+  real pr_rho_alpha;
+  vector[K_t] pr_coef_t_mu;
+  vector[K_t] pr_coef_t_sd;
+  vector[est_mort ? K_m[1] : 0] pr_coef_m_mu;
+  vector[est_mort ? K_m[1] : 0] pr_coef_m_sd;
+  vector[K_r] pr_coef_r_mu;
+  vector[K_r] pr_coef_r_sd;
+}
+transformed data {
+  //--- Movement ----
+  // `identity_mat` is a "patch X patch" identity matrix used to apply the
+  // "reflexive" movement.
+  matrix[movement ? n_patches : 0, movement ? n_patches : 0] identity_mat;
+  if (movement)
+    identity_mat = identity_matrix(n_patches);
+  //--- Mortality ----
+  // `fixed_m` is a "time X patch" constant matrix. All of its positions are
+  // equal to the fishing mortality `m`. The purpose of this matrix is the make
+  // the changes in the code when not estimating `m` minimal.
+  matrix[est_mort ? 0 : n_time, est_mort ? 0 : n_patches] fixed_m;
+  if (!est_mort)
+    fixed_m = rep_matrix(- m[1], n_time, n_patches);
+  //--- thin-QR parametrization (improves sampler at almost no cost) ----
+  // * detection prob
+  matrix[qr_t ? N : 0,
+         qr_t ? K_t : 0] Q_t;
+  matrix[qr_t ? K_t : 0,
+         qr_t ? K_t : 0] R_t;
+  matrix[qr_t ? K_t : 0,
+         qr_t ? K_t : 0] R_t_inv;
+  if (qr_t) {
+    Q_t = qr_thin_Q(X_t) * sqrt(N - 1);
+    R_t = qr_thin_R(X_t) / sqrt(N - 1);
+    R_t_inv = inverse(R_t);
+  }
+  // * recruitment
+  matrix[qr_r ? N : 0, qr_r ? K_r : 0] Q_r;
+  matrix[qr_r ? K_r : 0, qr_r ? K_r : 0] R_r;
+  matrix[qr_r ? K_r : 0, qr_r ? K_r : 0] R_r_inv;
+  if (qr_r) {
+    Q_r = qr_thin_Q(X_r) * sqrt(N - 1);
+    R_r = qr_thin_R(X_r) / sqrt(N - 1);
+    R_r_inv = inverse(R_r);
+  }
+  // * mortality
+  matrix[qr_m ? N : 0, qr_m ? K_m[1] : 0] Q_m;
+  matrix[qr_m ? K_m[1] : 0, qr_m ? K_m[1] : 0] R_m;
+  matrix[qr_m ? K_m[1] : 0, qr_m ? K_m[1] : 0] R_m_inv;
+  if (qr_m) {
+    Q_m = qr_thin_Q(X_m) * sqrt(N - 1);
+    R_m = qr_thin_R(X_m) / sqrt(N - 1);
+    R_m_inv = inverse(R_m);
+  }
+  //--- Vectorizing zero-inflation ----
+  int N_nz;
+  N_nz = num_non_zero_fun(y);
+  int N_z = N - N_nz;
+  array[N_nz] int id_nz;
+  array[N_z] int id_z;
+  id_nz = non_zero_index_fun(y, N_nz);
+  id_z = zero_index_fun(y, N_z);
+}
+parameters {
+  // parameter associated to the likelihood 
+  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
+  array[likelihood > 0 ? 1 : 0] real log_phi;
+  // coefficients for recruitment (it is a log-linear model)
+  vector[K_r] coef_r0;
+  // parameter associated with "encounter probability"
+  vector[K_t] coef_t0;
+  // coefficients for mortality/survival (it is a log-linear model)
+  vector[est_mort ? K_m[1] : 0] coef_m0;
+  //--- * AR process parameters ----
+  // conditional SD
+  array[p_error] real log_sigma_r;
+  // autocorrelation
+  array[p_error] real<lower = -1, upper = 1> rho;
+  // aux latent variable
+  vector[p_error ? n_time : 0] raw;
+  // logit of the probability of staying in the same patch
+  array[movement] real logit_not_mov_prob;
+}
+transformed parameters {
+  array[likelihood > 0 ? 1 : 0] real phi;
+  if (likelihood > 0)
+    phi = exp(log_phi);
+  //--- Recruitment ----
+  // we are working with "log recruitment" here
+  vector[N] log_rec;
+  if (qr_r) {
+    log_rec = Q_r * coef_r0;
+  } else {
+    log_rec = X_r * coef_r0;
+  }
+  //--- AR process ----
+  array[p_error] real sigma_r;
+  vector[p_error ? n_time : 0] rec_dev;
+  vector[p_error ? n_time : 0] lagged_rec_dev;
+  if (p_error) {
+    sigma_r[1] = exp(log_sigma_r[1]);
+    rec_dev = sigma_r[1] * raw;
+    for (tp in 2:n_time) {
+      lagged_rec_dev[tp] = rec_dev[tp - 1];
+      rec_dev[tp] += rho[1] * lagged_rec_dev[tp];
+    }
+  }
+  //--- Mortality ----
+  vector[est_mort ? N : 0] mortality;
+  if (est_mort)
+    mortality = qr_m ? (Q_m * coef_m0) : (X_m * coef_m0);
+  // Expected density at specific time/patch combinations by age
+  array[n_ages] matrix[n_time, n_patches] lambda;
+  // filling lambda according to our "simplest model"
+  lambda =
+    simplest(n_patches, n_time, n_ages,
+             f,
+             est_mort ? to_matrix(mortality, n_time, n_patches) : fixed_m,
+             p_error ?
+             exp(add_pe(log_rec, rec_dev)) :
+             to_matrix(exp(log_rec), n_time, n_patches));
+  //--- Movement ----
+  // probability of staying in the current patch
+  array[movement] real not_mov_prob;
+  // movement matrix
+  matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+  if (movement) {
+    not_mov_prob = inv_logit(logit_not_mov_prob);
+    // probability of movement is evenly distributed across neighbors
+    real d = (1 - not_mov_prob[1]);
+    mov_mat = not_mov_prob[1] * identity_mat;
+    // It is super important that the adj_mat is setup correctly. Note that,
+    // this matrix is "row standardized". That is, its rows add up to 1.
+    mov_mat += d * adj_mat;
+    lambda = apply_movement(lambda, mov_mat, age_at_maturity[1]);
+  }
+
+  //--- quantities used in the likelihood ----
+  // probability of encounter at specific time/patch combinations
+  vector[N] theta;
+  // Expected density at specific time/patch combinations
+  vector[N] mu =
+    rep_vector(0.0, N);
+
+  // theta now hasa "regression like" type
+  if (cloglog) {
+    matrix[N, K_t] X_aux;
+    X_aux = qr_t ? Q_t : X_t;
+    theta =
+      inv_cloglog(X_aux * coef_t0);
+  } else {
+    matrix[N, K_t] X_aux;
+    X_aux = qr_t ? Q_t : X_t;
+    theta =
+      inv_logit(X_aux * coef_t0);
+  }
+  {
+    matrix[n_time, n_patches] mu_aux =
+      rep_matrix(0.0, n_time, n_patches);
+    //--- filling mu ----
+    for (time in 1 : n_time) {
+      for (p in 1 : n_patches) {
+        real mu_aux2;
+        mu_aux2 = dot_product(to_vector(lambda[1:n_ages, time, p]),
+                              selectivity_at_age);
+        if (!is_nan(mu_aux2)) {
+          mu_aux[time, p] = mu_aux2;
+        }
+      } // close patches
+    }
+    mu = to_vector(mu_aux);
+  }
+}
+// close transformed parameters block
+model {
+  //--- AR process ----
+  if (p_error) {
+    target += std_normal_lpdf(raw);
+    target += pcp_logsd_lpdf(log_sigma_r[1] | pr_sd_r_alpha, pr_sd_r_u);
+    target += pcp_ar0_lpdf(rho[1] | pr_rho_alpha, pr_rho_u); 
+  }
+  //--- Movement ----
+  if (movement) {
+    target += std_normal_lpdf(logit_not_mov_prob);
+  }
+  //--- Mortality ----
+  if (est_mort)
+    target += normal_lpdf(coef_m0 | pr_coef_m_mu, pr_coef_m_sd);
+  //--- Recruitment ----
+  target += normal_lpdf(coef_r0 | pr_coef_r_mu, pr_coef_r_sd);
+  //--- suitability ----
+  target += normal_lpdf(coef_t0 | pr_coef_t_mu, pr_coef_t_sd);
+  //--- Likelihood ----
+  if (likelihood == 0) {
+    target += normal_lpdf(sigma_obs[1] | pr_sigma_obs_mu, pr_sigma_obs_sd) -
+      1.0 * normal_lccdf(0 | pr_sigma_obs_mu, pr_sigma_obs_sd);
+  } else {
+    // change these parameters (PC prior for exponential?)
+    target += student_t_lpdf(log_phi[1] | 3, pr_phi_a, pr_phi_b);
+  }
+  // only evaluate density if there are length comps to evaluate
+  target += sum(log(theta[id_z]));
+  if (likelihood == 0) {
+    vector[N_nz] loc_par;
+    loc_par = log(mu[id_nz]) + square(sigma_obs[1]) / 2;
+    target += log1m(theta[id_nz]);
+    target += lognormal_lpdf(y[id_nz] | loc_par, sigma_obs[1]);
+  } else if (likelihood == 1) {
+    vector[N_nz] mu_ln;
+    vector[N_nz] sigma_ln;
+    sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[id_nz])));
+    mu_ln = log(square(mu[id_nz]) .*
+                inv_sqrt(square(mu[id_nz]) + phi[1]));
+    target += log1m(theta[id_nz]);
+    target += lognormal_lpdf(y[id_nz] | mu_ln, sigma_ln);
+  } else if (likelihood == 2) {
+    vector[N_nz] b_g;
+    b_g = phi[1] / mu[id_nz];
+    target += log1m(theta[id_nz]);
+    target += gamma_lpdf(y[id_nz] | phi[1], b_g);
+  } else {
+    vector[N_nz] a_ll;
+    real b_ll;
+    b_ll = phi[1] + 1;
+    a_ll = sin(pi() / b_ll) * mu[id_nz] * inv(pi() * b_ll);
+    target += log1m(theta[id_nz]);
+    target += loglogistic_lpdf(y[id_nz] | a_ll, b_ll);
+  }
+}
+generated quantities {
+  vector[N] log_lik;
+  vector[N] y_pp;
+  vector[K_t] coef_t;
+  vector[K_r] coef_r;
+  vector[K_m[1]] coef_m;
+
+  for (n in 1:N) {
+    if (likelihood == 0) {
+      real loc_par;
+      loc_par = log(mu[n]) + square(sigma_obs[1]) / 2;
+      y_pp[n] = (1 - bernoulli_rng(theta[n])) *
+        lognormal_rng(loc_par, sigma_obs[1]);
+      if (y[n] == 0) {
+        // only evaluate density if there are length comps to evaluate
+        log_lik[n] = log(theta[n]);
+      } else {
+        log_lik[n] = log1m(theta[n]) +
+          lognormal_lpdf(y[n] | loc_par, sigma_obs[1]);
+      }
+    } else if (likelihood == 1) {
+      real mu_ln;
+      real sigma_ln;
+      sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[n])));
+      mu_ln = log(square(mu[n]) * inv_sqrt(square(mu[n]) + phi[1]));
+      y_pp[n] = (1 - bernoulli_rng(theta[n])) *
+        lognormal_rng(mu_ln, sigma_ln);
+      if (y[n] == 0) {
+        log_lik[n] = log(theta[n]);
+      } else {
+        log_lik[n] = log1m(theta[n]) +
+          ln_mu_lpdf(y[n] | mu[n], phi[1]);
+      }
+    } else if (likelihood == 2) {
+      real gamma_beta;
+      gamma_beta = phi[1] / mu[n];
+      y_pp[n] = (1 - bernoulli_rng(theta[n])) *
+        gamma_rng(phi[1], gamma_beta);
+      if (y[n] == 0) {
+        log_lik[n] = log(theta[n]);
+      } else {
+        log_lik[n] = log1m(theta[n]) +
+          gamma_lpdf(y[n] | phi[1], gamma_beta);
+      }
+    } else if (likelihood == 3) {
+      real a_ll;
+      real b_ll;
+      b_ll = phi[1] + 1;
+      a_ll = sin(pi() / b_ll) * mu[n] * inv(pi() * b_ll);
+      y_pp[n] = (1 - bernoulli_rng(theta[n])) *
+        loglogistic_rng(a_ll, b_ll);
+      if (y[n] == 0) {
+        log_lik[n] = log(theta[n]);
+      } else {
+        log_lik[n] = log1m(theta[n]) +
+          loglogistic_lpdf(y[n] | a_ll, b_ll);
+      }
+    }
+  }
+  if (qr_t) {
+    coef_t = R_t_inv * coef_t0;
+  } else coef_t = coef_t0;
+  if (qr_r) {
+    coef_r = R_r_inv * coef_r0;
+  } else coef_r = coef_r0;
+  if (qr_m) {
+    coef_m = R_m_inv * coef_m0;
+  } else if (est_mort) {
+    coef_m = coef_m0;
+  }
+}

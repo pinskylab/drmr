@@ -1,0 +1,167 @@
+functions {
+#include utils/aux-functions.stan
+#include utils/theoretical_mean.stan
+#include utils/custom_lpdf.stan
+}
+data {
+  //--- survey data  ---
+  int N;
+  int n_ages; // number of ages
+  int n_patches; // number of patches
+  int n_time; // years for forecasts
+  int n_time_train; // years for training
+  //--- toggles ---
+  int<lower = 0, upper = 1> p_error;
+  int<lower = 0, upper = 1> movement;
+  int<lower = 0, upper = 1> est_mort; // estimate mortality?
+  int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for theta
+  int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
+                                        // Gamma, 3 = log-Logistic)
+  //--- suitability (for theta) ----
+  int<lower = 1> K_t;
+  matrix[N, K_t] X_t;
+  //--- fish mortality data ----
+  matrix[n_ages, n_time] f;
+  matrix[n_ages, n_time_train] f_past;
+  array[est_mort ? 0 : 1] real m; // total mortality
+  //--- movement related quantities ----
+  array[movement] int age_at_maturity;
+  vector[n_ages] selectivity_at_age;
+  //--- environmental data ----
+  //--- * for mortality ----
+  array[est_mort ? 1 : 0] int<lower = 1> K_m;
+  matrix[est_mort ? N : 1, est_mort ? K_m[1] : 1] X_m;
+  matrix[est_mort ? n_patches : 1, est_mort ? K_m[1] : 1] X_m_past;
+  //--- * for recruitment ----
+  int<lower = 1> K_r;
+  matrix[N, K_r] X_r;
+}
+parameters {
+  //--- "regression" coefficients ----
+  vector[K_t] coef_t;
+  vector[K_r] coef_r;
+  vector[est_mort ? K_m[1] : 0] coef_m;
+  //--- parameters from AR process ----
+  vector[p_error ? n_time_train : 0] rec_dev;
+  array[p_error] real rho;
+  array[p_error ? 1 : 0] real sigma_r;
+  //--- pop dyn parameters ----
+  array[n_ages] matrix[n_time_train, n_patches] lambda;
+  //--- movement matrix ---
+  matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+  //--- additional parameter for different lik functions ----
+  array[likelihood > 0 ? 1 : 0] real phi;
+  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
+}
+generated quantities {
+  //--- projected expected density by age ---
+  array[n_ages] matrix[n_time, n_patches] lambda_proj;
+  //--- projected expected density ----
+  vector[n_time * n_patches] mu_proj;
+  //--- projected total density ----
+  vector[n_time * n_patches] y_proj;
+  //--- projected absence probability ----
+  vector[n_time * n_patches] theta_proj;
+  //--- AR term ----
+  vector[p_error ? n_time : 0] rec_proj;
+  if (p_error) {
+    {
+      vector[n_time] raw;
+      vector[p_error ? n_time - 1 : 0] lagged_rec;
+      raw[1] = std_normal_rng();
+      rec_proj[1] = rho[1] * rec_dev[n_time_train] +
+        sigma_r[1] * raw[1];
+      for (tp in 2:n_time) {
+        raw[tp] = std_normal_rng();
+        lagged_rec[tp - 1] = rec_proj[tp - 1];
+        rec_proj[tp] = rho[1] * lagged_rec[tp - 1] +
+          sigma_r[1] * raw[tp];
+      }
+    }
+  }
+  //--- lambda_proj calculations ----
+  {
+    vector[N] log_rec;
+    log_rec = X_r * coef_r;
+    vector[n_patches] past_m;
+    matrix[n_time, n_patches] current_m;
+    if (!est_mort) {
+      current_m = rep_matrix(- m[1], n_time, n_patches);
+      past_m = rep_vector(- m[1], n_patches);
+    } else {
+      current_m = to_matrix(X_m * coef_m, n_time, n_patches);
+      past_m = X_m_past * coef_m;
+    }
+    // forecast_simplest is a function in the utils/theoretical_mean.stan file
+    lambda_proj = forecast_simplest(n_patches,
+                                    n_time,
+                                    n_ages,
+                                    f,
+                                    current_m,
+                                    p_error ?
+                                    exp(add_pe(log_rec, rec_proj)) :
+                                    to_matrix(exp(log_rec),
+                                              n_time,
+                                              n_patches),
+                                    lambda,
+                                    f_past,
+                                    past_m);
+  }
+  if (movement) {
+    lambda_proj =
+      apply_movement(lambda_proj, mov_mat, age_at_maturity[1]);
+  }
+  //--- mu_proj calculations ----
+  {
+    matrix[n_time, n_patches] mu_aux =
+      rep_matrix(0.0, n_time, n_patches);
+    //--- filling mu ----
+    for (time in 1 : n_time) {
+      for (p in 1 : n_patches) {
+        real mu_aux2;
+        mu_aux2 = dot_product(to_vector(lambda_proj[1:n_ages, time, p]),
+                              selectivity_at_age);
+        if (!is_nan(mu_aux2)) {
+          mu_aux[time, p] = mu_aux2;
+        }
+      } // close patches
+    }
+    mu_proj = to_vector(mu_aux);
+  }
+  //--- absence probabilities ----
+  if (cloglog) {
+    theta_proj =
+      inv_cloglog(X_t * coef_t);
+  } else {
+    theta_proj =
+      inv_logit(X_t * coef_t);
+  }
+  //--- y_proj calculations ----
+  for (n in 1:N) {
+    if (likelihood == 0) {
+      real loc_par;
+      loc_par = log(mu_proj[n]) + square(sigma_obs[1]) / 2;
+      y_proj[n] = (1 - bernoulli_rng(theta_proj[n])) *
+        lognormal_rng(loc_par, sigma_obs[1]);
+    } else if (likelihood == 1) {
+      real mu_ln;
+      real sigma_ln;
+      sigma_ln = sqrt(log1p(phi[1] * inv_square(mu_proj[n])));
+      mu_ln = log(square(mu_proj[n]) * inv_sqrt(square(mu_proj[n]) + phi[1]));
+      y_proj[n] = (1 - bernoulli_rng(theta_proj[n])) *
+        lognormal_rng(mu_ln, sigma_ln);
+    } else if (likelihood == 2) {
+      real gamma_beta;
+      gamma_beta = phi[1] / mu_proj[n];
+      y_proj[n] = (1 - bernoulli_rng(theta_proj[n])) *
+        gamma_rng(phi[1], gamma_beta);
+    } else if (likelihood == 3) {
+      real a_ll;
+      real b_ll;
+      b_ll = phi[1] + 1;
+      a_ll = sin(pi() / b_ll) * mu_proj[n] * inv(pi() * b_ll);
+      y_proj[n] = (1 - bernoulli_rng(theta_proj[n])) *
+        loglogistic_rng(a_ll, b_ll);
+    }
+  }
+}
