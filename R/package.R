@@ -1,7 +1,6 @@
-#' example: Example Package With Instantiate
-#' @docType package
-#' @name example-package
-#' @description An example package using `instantiate`.
-#' @family help
-#' @importFrom instantiate stan_package_model
-NULL
+##' drmr: Dynamic Range Models in Stan
+##' @name drmr
+##' @description Fitting process-based species distribution models in stan.
+##' @family help
+##' @importFrom instantiate stan_package_model
+"_PACKAGE"

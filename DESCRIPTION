@@ -12,12 +12,14 @@ Description: pre-compiled stan drms.
 Depends:
   R (>= 4.0.0)
 Imports:
-  instantiate
+  instantiate,
+  sf,
+  spdep
 Additional_repositories:
   https://mc-stan.org/r-packages/
 SystemRequirements: CmdStan (https://mc-stan.org/users/interfaces/cmdstan)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 Language: en-US
