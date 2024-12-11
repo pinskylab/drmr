@@ -14,7 +14,7 @@ run_bernoulli_model <- function(y, ...) {
   stopifnot(is.numeric(y) && all(y >= 0 & y <= 1))
   model <- instantiate::stan_package_model(
     name = "bernoulli",
-    package = "drm"
+    package = "drmr"
   )
   fit <- model$sample(data = list(N = length(y), y = y), ...)
   fit$summary()
