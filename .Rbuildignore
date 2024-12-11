@@ -8,3 +8,5 @@
 ^\.Rproj\.user$
 ^NOTICE$
 setup.R
+^cran-comments\.md$
+Makefile
