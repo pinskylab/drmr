@@ -17,7 +17,8 @@ check_cran:
 	rm -f .$(PKG_NAME)_*.tar.gz
 
 render_md:
-	Rscript -e "rmarkdown::render('README.Rmd')"
+	Rscript -e "rmarkdown::render('README.Rmd', output_format = 'github_document')"
+	@rm README.html
 
 build_site:
 	Rscript -e "pkgdown::build_site()"
