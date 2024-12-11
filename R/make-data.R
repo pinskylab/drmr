@@ -3,6 +3,7 @@
 ##' @param x an \code{sf} object representing the patches.
 ##' @return an adjacency \code{matrix}
 ##' @author lcgodoy
+##' @export
 gen_adj <- function(x) {
   if (!inherits(x, "sfc")) {
     message("Assuming patches are 1d and ordered in such a way that the first and last patches have only one neighbor.")
@@ -22,30 +23,13 @@ gen_adj <- function(x) {
     as.matrix()
 }
 
-##' Returns default quantities for the DRM model.
-##'
-##' Based on Alexa's Summer Flounder project.
-##' @title Default quantities
-##' @return a `list` with (explain values)
-##' @author lcgodoy
-default_qt <- function() {
-  list(k = 0.14,
-       l_inf = 83.6,
-       t0 = -.2,
-       sel_100 = 3,
-       min_age = 0,
-       max_age = 15,
-       length_50_sel_guess = 20,
-       age_sel = 0,
-       h = 0.8)
-}
-
 ##' Returns default priors' hyperparameters for the DRM model.
 ##'
 ##' Based on Alexa's Summer Flounder project.
 ##' @title Default priors' hyperparameters
 ##' @return a `list` with (explain values)
 ##' @author lcgodoy
+##' @export
 default_priors <- function() {
   list(pr_sigma_obs_mu = 0,
        pr_sigma_obs_sd = 1,
@@ -69,6 +53,7 @@ default_priors <- function() {
 ##' @title Default toggles
 ##' @return a `list` with (explain values)
 ##' @author lcgodoy
+##' @export
 default_toggles <- function() {
   list(cloglog = 0,
        movement = 0,
@@ -154,6 +139,7 @@ safe_modify <- function(original, replacements) {
 ##'   by site and time, respectively.
 ##' @return a \code{list} to be used as the input for a \code{stan} model
 ##' @author lcgodoy
+##' @export
 make_data <- function(y,
                       time,
                       site,
