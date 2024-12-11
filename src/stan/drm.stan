@@ -1,12 +1,232 @@
 functions {
-  // auxiliary functions (88 lines)
-#include utils/aux-functions.stan
-// function to simulate population (213 lines)
-#include utils/theoretical_mean.stan
-// custom prior distributions
-#include utils/custom_priors.stan  
-// custom prior densities
-#include utils/custom_lpdf.stan
+  // counting number of zeros
+  int num_non_zero_fun(vector y) {
+    int A = 0;
+    int N = size(y);
+    
+    for (n in 1 : N) {
+      if (y[n] != 0) {
+        A += 1;
+      }
+    }
+    return A;
+  }
+  
+  array[] int non_zero_index_fun(vector y, int A) {
+    int N = size(y);
+    array[A] int non_zero_index;
+    int counter = 0;
+    for (n in 1 : N) {
+      if (y[n] != 0) {
+        counter += 1;
+        non_zero_index[counter] = n;
+      }
+    }
+    return non_zero_index;
+  }
+  
+  array[] int zero_index_fun(vector y, int Z) {
+    int N = size(y);
+    array[Z] int zero_index;
+    int counter = 0;
+    for (n in 1 : N) {
+      if (y[n] == 0) {
+        counter += 1;
+        zero_index[counter] = n;
+      }
+    }
+    return zero_index;
+  }
+  /**
+   * @title Generate theoretical mean according to the simplest model possible
+   *
+   * @description
+   * 
+   * @param n_patches number of patches
+   * @param n_time number of years of training data
+   * @param n_ages number of age classes
+   * @param f_a_t f_{at}?
+   * @param neg_mort minus natural mortality (instantaneous) rate
+   * @param init a n_time by n_patches matrix of initialization for age-group
+   *   "1". In the simplest case, it can be the recruitment.
+   * 
+   * @return an array of numbers by age, year and patch
+   */
+  array[] matrix simplest(int n_patches,
+                          int n_time,
+                          int n_ages,
+                          // Mortality parameter
+                          matrix f_a_t,
+                          matrix neg_mort,
+                          // initialization (currently with recruitment)
+                          matrix init) {
+    // initializing output with zeros
+    array[n_ages] matrix[n_time, n_patches] output
+      = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
+    output[1] += init;
+    for (i in 2 : n_time) {
+      for (p in 1 : n_patches) {
+        for (a in 2 : n_ages) {
+          output[a, i, p] = output[a - 1, i - 1, p]
+            * exp(neg_mort[i - 1, p] - f_a_t[a - 1, i - 1]);
+        }
+      }
+    }
+    return output;
+  }
+  /**
+   * @title Adding process error
+   *
+   * @description
+   * 
+   * @param lrec log recruitment for each site
+   * @param z "process error"
+   * 
+   * @return an array of numbers by age, year and patch
+   */
+  matrix add_pe(vector lrec, vector z) {
+    array[3] int dimensions;
+    int nt = num_elements(z);
+    int np = num_elements(lrec) %/% nt; // %/% is integer division!
+    matrix[nt, np] output = to_matrix(lrec, nt, np);
+    for (p in 1:np) {
+      output[, p] += z;
+    }
+    return output;
+  }
+
+  /**
+   * @title Applying movement
+   *
+   * @description
+   * 
+   * @param lambda array of number of individuals per age, time, and patch
+   * @param M movement matrix
+   * @param mov_age age at which movement starts (this can be generalized)
+   * 
+   * @return an array of numbers by age, year and patch
+   */
+  array[] matrix apply_movement(array[] matrix lambda, matrix M,
+                                int mov_age) {
+    array[3] int dimensions;
+    dimensions = dims(lambda);
+    array[dimensions[1]] matrix[dimensions[2], dimensions[3]] output;
+    output = lambda;
+    for (a in mov_age:dimensions[1]) {
+      for (time in 1:dimensions[2]) {
+        output[a, time, 1:dimensions[3]] =
+          lambda[a, time, 1:dimensions[3]] * M';
+      }
+    }
+    return output;
+  }
+
+  /**
+   * Penalized complexity prior for the AR(1) correlation. This prior assumes:
+   * P(|x| > u) = alpha A reasonable strategy here is to set u as a possibly high
+   * autocorrelation and alpha as a small probability.
+   *
+   * Reference: https://doi.org/10.1111/jtsa.12242
+   * 
+   * @param x autocorrelation parameter
+   * @param u upper bound for |x|
+   * @param alpha prior probability of exceeding the upper bound u.
+   * 
+   * @return an array of numbers by age, year and patch
+   */
+  real pcp_ar0_lpdf(real x, real alpha, real u) {
+    real aux = - log(1 - square(x));
+    real theta = - log(alpha) / sqrt(- log(1 - square(u)));
+    return log(theta) - log(2) - theta * sqrt(aux) +
+      log(abs(x)) + aux - 0.5 * log(aux);
+  }
+
+  /**
+   * Penalized complexity prior for the log-transformed standard deviation of a
+   * random effect. It assumes: P(exp(x) > u) = alpha.
+   * 
+   * @param x log-sd parameter
+   * @param u upper bound for conditional SD
+   * @param alpha prior probability of exceeding the upper bound u.
+   * 
+   * @return an array of numbers by age, year and patch
+   */
+  real pcp_logsd_lpdf(real x, real alpha, real u) {
+    real lambda = - log(alpha) / u;
+    return log(lambda) + x - lambda * exp(x);
+  }
+
+  /**
+   * Gamma lpdf reparametrized.
+   *
+   * Reference: https://doi.org/10.1111/jtsa.12242
+   * 
+   * @param x non-negative random variable
+   * @param mu theoretical mean of X
+   * @param phi inverse scale parameter.
+   * 
+   * @return a log-pdf
+   */
+  real gamma_mu_lpdf(real x, real mu, real phi) {
+    return - lgamma(phi) + lmultiply(phi, phi) - lmultiply(phi, mu) +
+      lmultiply(phi, x) - phi * x * inv(mu);
+  }
+
+  /**
+   * Log-Normal lpdf reparametrized.
+   *
+   * Reference: https://doi.org/10.1111/jtsa.12242
+   * 
+   * @param x non-negative random variable
+   * @param mu theoretical mean of X
+   * @param phi weird parameter parameter.
+   * 
+   * @return a log-pdf
+   */
+  real ln_mu_lpdf(real x, real mu, real phi) {
+    real f_mu_phi;
+    f_mu_phi = log1p(phi * inv_square(mu));
+    real output = 0;
+    output += log2() + log(pi()) + log(f_mu_phi) + log(x) +
+      square(log(x) + log2() - 0.5 * f_mu_phi) * inv(f_mu_phi);
+    return - 0.5 * output;
+  }
+
+  /**
+   * Inverse Gaussian lpdf reparametrized.
+   *
+   * Reference: https://doi.org/10.1111/jtsa.12242
+   * 
+   * @param x non-negative random variable
+   * @param mu theoretical mean of X
+   * @param phi weird parameter parameter.
+   * 
+   * @return a log-pdf
+   */
+  real igaus_mu_lpdf(real x, real mu, real phi) {
+    real f_mu_phi;
+    real output = 0;
+    output += log2() + log(pi()) + 3 * log(x) - log(phi) +
+      log(phi) * square(x - mu) * inv(mu * mu * x);
+    return - 0.5 * output;
+  }
+
+  real igaus_mu_rng(real mu, real phi) {
+    real nu;
+    real output;
+    real z;
+    nu = std_normal_rng();
+    z = uniform_rng(0, 1);
+    output = square(nu);
+    output = mu + square(mu) * output * inv(2 * phi) -
+      mu * inv(2 * phi) *
+      sqrt(4 * mu * phi * output + square(mu * output));
+    if (z <= mu * inv(mu + output)) {
+      return output;
+    } else {
+      return square(mu) * inv(output);
+    }
+  }
 }
 data {
   //--- survey data  ---
