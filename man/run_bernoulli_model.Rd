@@ -9,8 +9,8 @@ run_bernoulli_model(y, ...)
 \arguments{
 \item{y}{Numeric vector of Bernoulli observations (zeroes and ones).}
 
-\item{...}{Named arguments to the `sample()` method of CmdStan model
-objects: <https://mc-stan.org/cmdstanr/reference/model-method-sample.html>}
+\item{...}{Named arguments to the \code{sample()} method of CmdStan model
+objects: \url{https://mc-stan.org/cmdstanr/reference/model-method-sample.html}}
 }
 \value{
 A data frame of posterior summaries.

@@ -10,3 +10,5 @@
 setup.R
 ^cran-comments\.md$
 Makefile
+^LICENSE\.md$
+README.Rmd

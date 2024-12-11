@@ -1,6 +1,7 @@
 Package: drmr
 Type: Package
-Title: An R package for dynamic range models (Pagel and Schur 2012 <doi:10.1111/J.1466-8238.2011.00663.X>
+Title: An R package for dynamic range models (Pagel and Schur 2012
+  <doi:10.1111/J.1466-8238.2011.00663.X>
 Version: 0.0.1
 Authors@R: 
     person(given = "Lucas",
@@ -9,17 +10,24 @@ Authors@R:
            email = "lcgodoy@duck.com",
            comment = c(ORCID = "0000-0003-4265-972X"))
 Description: pre-compiled stan drms.
+BugReports: https://github.com/pinskylab/drmr/issues/
 Depends:
   R (>= 4.0.0)
 Imports:
   instantiate,
   sf,
-  spdep
+  spdep,
+  utils
+Suggests: 
+    knitr,
+    rmarkdown
 Additional_repositories:
   https://mc-stan.org/r-packages/
 SystemRequirements: CmdStan (https://mc-stan.org/users/interfaces/cmdstan)
 Encoding: UTF-8
 LazyData: true
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 Language: en-US
+License: GPL (>= 3)

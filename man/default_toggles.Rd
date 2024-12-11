@@ -7,7 +7,7 @@
 default_toggles()
 }
 \value{
-a `list` with (explain values)
+a \code{list} with (explain values)
 }
 \description{
 Returns default toggles for the DRM model.

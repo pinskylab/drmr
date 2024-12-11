@@ -96,7 +96,7 @@ default_toggles <- function() {
 safe_modify <- function(original, replacements) {
   if (!missing(replacements)) {
     stopifnot(all(names(replacements) %in% names(original)))
-    out <- modifyList(original, replacements)
+    out <- utils::modifyList(original, replacements)
   } else {
     out <- original
   }

@@ -7,7 +7,7 @@
 default_qt()
 }
 \value{
-a `list` with (explain values)
+a \code{list} with (explain values)
 }
 \description{
 Returns default quantities for the DRM model.
