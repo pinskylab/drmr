@@ -17,7 +17,7 @@ check_cran:
 	rm -f .$(PKG_NAME)_*.tar.gz
 
 render_md:
-	Rscript -e "knitr::knit('README.Rmd')"
+	Rscript -e "rmarkdown::render('README.Rmd')"
 
 build_site:
 	Rscript -e "pkgdown::build_site()"
