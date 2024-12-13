@@ -19,3 +19,6 @@ usethis::use_lifecycle_badge("experimental")
 ## creating a vignette
 if (!file.exists("vignettes/get-started.Rmd"))
   usethis::use_vignette(name = "get-started")
+
+## build pkgdown website
+usethis::use_pkgdown_github_pages()

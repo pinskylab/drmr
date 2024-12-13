@@ -12,3 +12,6 @@ setup.R
 Makefile
 ^LICENSE\.md$
 README.Rmd
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
