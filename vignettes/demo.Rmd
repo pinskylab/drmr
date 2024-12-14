@@ -27,6 +27,14 @@ library(dplyr)
 Now, we load the data.
 
 ```{r data}
+map_name <- system.file("maps/sum_fl.shp", package = "drmr")
+
+map <- st_read(map_name)
+
+fmat <-
+  system.file("fmat.rds", package = "drmr") |>
+  readRDS()
+
 data(sum_fl)
 ```
 
@@ -42,9 +50,13 @@ first_year_forecast <- max(sum_fl$year) - 5
 first_id_forecast <-
   first_year_forecast - min(sum_fl$year) + 1
 
-years_all <- length(unique(sum_fl$year))
+years_all <- seq_len(NCOL(fmat))
 years_train <- years_all[years_all < first_id_forecast]
 years_test <- years_all[years_all >= first_id_forecast]
+
+## splitting instantaneous fishing mortality rates
+f_train <- fmat[, years_train]
+f_test  <- fmat[, years_test]
 
 ## splitting data
 dat_test <- sum_fl |>
@@ -52,6 +64,37 @@ dat_test <- sum_fl |>
 
 dat_train <- sum_fl |>
   filter(year < first_year_forecast)
+```
+
+For improved MCMC efficiency, I will center the explanatory
+variables. Specifically, for each variable, I will subtract its mean calculated
+during the training period.
+
+```{r centering}
+avgs <- c("stemp" = mean(dat_train$stemp),
+          "btemp" = mean(dat_train$btemp),
+          "depth" = mean(dat_train$depth),
+          "lat" = mean(dat_train$lat),
+          "lon" = mean(dat_train$lon))
+
+min_year <- dat_train$year |>
+  min()
+
+dat_train <- dat_train |>
+  mutate(stemp = stemp - avgs["stemp"],
+         btemp = btemp - avgs["btemp"],
+         depth = depth - avgs["depth"],
+         lat   = lat - avgs["lat"],
+         lon   = lon - avgs["lon"],
+         time  = year - min_year)
+
+dat_test <- dat_test |>
+  mutate(stemp = stemp - avgs["stemp"],
+         btemp = btemp - avgs["btemp"],
+         depth = depth - avgs["depth"],
+         lat   = lat - avgs["lat"],
+         lon   = lon - avgs["lon"],
+         time  = year - min_year)
 ```
 
 Finally, I transform our response variable into a density.
@@ -81,7 +124,7 @@ data <-
   make_data(y = dat_train$dens,
             time = dat_train$year,
             site = dat_train$patch,
-            n_ages = 8,
+            n_ages = nrow(f_train),
             age_at_maturity = integer(0),
             m = 0.25) # fishing mortality
 ```
@@ -109,29 +152,8 @@ To get MCMC samples from the posterior, run:
 ```{r drm_mcmc}
 mcmc_samples <-
   drm_compiled$sample(data = data,
-                      seed = 2025,
+                      iter_sampling = 1000,
+                      iter_warmup = 1000,
                       chains = 4,
-                      parallel_chains = 4) ## for reproducibility
-```
-
-## Sampler convergence
-
-In general, the chains mix well:
-
-```{r traceplot}
-mcmc_samples$draws(variables = c("sigma_obs",
-                                 "sigma_r", "rho",
-                                 "coef_t",
-                                 "coef_r")) |>
-  mcmc_trace()
-```
-
-And the posterior densities estimates are similar for the four chains ran:
-
-```{r traceplot}
-mcmc_samples$draws(variables = c("sigma_obs",
-                                 "sigma_r", "rho",
-                                 "coef_t",
-                                 "coef_r")) |>
-  mcmc_dens_overlay()
+                      parallel_chains = 4)
 ```

@@ -34,3 +34,14 @@ The installation of the development version from GitHub can be done via
 remotes::install_github("pinskylab/drmr")
 ## or devtools::install_github("pinskylab/drmr")
 ```
+
+## TODO list
+
+- [ ] List all parameters (and their respective meaning) for each model
+      configuration
+      
+- [ ] Include more vignettes
+
+- [ ] Implement the centroids and trailing edges
+
+- [ ] Functions for visualizations

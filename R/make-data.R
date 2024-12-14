@@ -180,7 +180,7 @@ make_data <- function(y,
     time <- time[my_ord]
   }
   if (missing(f_mort))
-    f_mort <- matrix(0, nrow = n_time, ncol = n_ages)
+    f_mort <- matrix(0, nrow = n_ages, ncol = n_time)
   if (missing(age_selectivity))
     selectivity_at_age <- rep(1, n_ages)
   if (toggles$movement) {

@@ -17,11 +17,14 @@ Imports:
   instantiate,
   sf,
   spdep,
-  utils,
-  ggplot2
+  utils
 Suggests: 
-    knitr,
-    rmarkdown
+  knitr,
+  rmarkdown,
+  ggplot2,
+  dplyr,
+  tidyr,
+  bayesplot
 Additional_repositories:
   https://mc-stan.org/r-packages/
 SystemRequirements: CmdStan (https://mc-stan.org/users/interfaces/cmdstan)

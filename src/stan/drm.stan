@@ -505,7 +505,7 @@ generated quantities {
   vector[N] y_pp;
   vector[K_t] coef_t;
   vector[K_r] coef_r;
-  vector[K_m[1]] coef_m;
+  vector[est_mort ? K_m[1] : 0] coef_m;
 
   for (n in 1:N) {
     if (likelihood == 0) {
