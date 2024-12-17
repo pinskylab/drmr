@@ -2,7 +2,7 @@
 title: "Get Started"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{get-started}
+  %\VignetteIndexEntry{Get Started}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -128,7 +128,7 @@ mcmc_samples$draws(variables = c("sigma_obs",
 
 And the posterior densities estimates are similar for the four chains ran:
 
-```{r traceplot}
+```{r post_densities}
 mcmc_samples$draws(variables = c("sigma_obs",
                                  "sigma_r", "rho",
                                  "coef_t",
