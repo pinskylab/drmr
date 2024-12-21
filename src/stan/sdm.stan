@@ -192,7 +192,7 @@ transformed data {
   if (qr_z) {
     Q_z = qr_thin_Q(Z) * sqrt(N - 1);
     R_z = qr_thin_R(Z) / sqrt(N - 1);
-    R_z_inv = inverse(Z);
+    R_z_inv = inverse(R_z);
   }
   // * Count
   matrix[qr_x ? N : 0, qr_x ? K_x : 0] Q_x;

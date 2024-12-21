@@ -3,7 +3,6 @@ functions {
 data {
   //--- survey data  ---
   int N;
-  int n_ages; // number of ages
   int n_patches; // number of patches
   int n_time; // years for forecasts
   int n_time_train; // years for training
