@@ -18,6 +18,7 @@
 ##'             m = 0.25) |>
 ##'   run_drm()
 ##' }
+##' @author lcgodoy
 run_drm <- function(data_list, ...) {
   model <- instantiate::stan_package_model(
     name = "drm",

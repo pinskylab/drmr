@@ -33,4 +33,7 @@ if (instantiate::stan_cmdstan_exists()) {
 \seealso{
 \code{\link[=make_data]{make_data()}}
 }
+\author{
+lcgodoy
+}
 \concept{models}
