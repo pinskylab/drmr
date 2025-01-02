@@ -146,6 +146,8 @@ make_data <- function(y,
     } else {
       age_at_maturity <- array(age_at_maturity, dim = 1)
     }
+  } else if (missing(age_at_maturity)) {
+    age_at_maturity <- integer(0)
   }
   ## if (toggles$x_dep_movement) {
   ##   stopifnot(ncol(adj_m) == nrow(adj_m) &&
