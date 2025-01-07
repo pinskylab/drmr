@@ -13,7 +13,7 @@ make_data(
   x_t,
   x_m,
   x_r,
-  n_ages,
+  n_ages = 1,
   age_selectivity,
   age_at_maturity,
   adj_mat = matrix(0, ncol = 1, nrow = 1),
