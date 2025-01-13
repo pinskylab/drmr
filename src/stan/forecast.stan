@@ -130,10 +130,10 @@ data {
   int<lower = 0, upper = 1> p_error;
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_mort; // estimate mortality?
-  int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for theta
+  int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic)
-  //--- suitability (for theta) ----
+  //--- suitability (for rho) ----
   int<lower = 1> K_t;
   matrix[N, K_t] X_t;
   //--- fish mortality data ----
@@ -158,9 +158,9 @@ parameters {
   vector[K_r] coef_r;
   vector[est_mort ? K_m[1] : 0] coef_m;
   //--- parameters from AR process ----
-  vector[p_error ? n_time_train : 0] rec_dev;
-  array[p_error] real rho;
-  array[p_error ? 1 : 0] real sigma_r;
+  vector[p_error ? n_time_train : 0] z_t;
+  array[p_error] real alpha;
+  array[p_error ? 1 : 0] real tau;
   //--- pop dyn parameters ----
   array[n_ages] matrix[n_time_train, n_patches] lambda;
   //--- movement matrix ---
@@ -177,21 +177,21 @@ generated quantities {
   //--- projected total density ----
   vector[n_time * n_patches] y_proj;
   //--- projected absence probability ----
-  vector[n_time * n_patches] theta_proj;
+  vector[n_time * n_patches] rho_proj;
   //--- AR term ----
-  vector[p_error ? n_time : 0] rec_proj;
+  vector[p_error ? n_time : 0] z_tp;
   if (p_error) {
     {
       vector[n_time] raw;
       vector[p_error ? n_time - 1 : 0] lagged_rec;
       raw[1] = std_normal_rng();
-      rec_proj[1] = rho[1] * rec_dev[n_time_train] +
-        sigma_r[1] * raw[1];
+      z_tp[1] = alpha[1] * z_t[n_time_train] +
+        tau[1] * raw[1];
       for (tp in 2:n_time) {
         raw[tp] = std_normal_rng();
-        lagged_rec[tp - 1] = rec_proj[tp - 1];
-        rec_proj[tp] = rho[1] * lagged_rec[tp - 1] +
-          sigma_r[1] * raw[tp];
+        lagged_rec[tp - 1] = z_tp[tp - 1];
+        z_tp[tp] = alpha[1] * lagged_rec[tp - 1] +
+          tau[1] * raw[tp];
       }
     }
   }
@@ -215,7 +215,7 @@ generated quantities {
                                     f,
                                     current_m,
                                     p_error ?
-                                    exp(add_pe(log_rec, rec_proj)) :
+                                    exp(add_pe(log_rec, z_tp)) :
                                     to_matrix(exp(log_rec),
                                               n_time,
                                               n_patches),
@@ -246,10 +246,10 @@ generated quantities {
   }
   //--- absence probabilities ----
   if (cloglog) {
-    theta_proj =
+    rho_proj =
       inv_cloglog(X_t * coef_t);
   } else {
-    theta_proj =
+    rho_proj =
       inv_logit(X_t * coef_t);
   }
   //--- y_proj calculations ----
@@ -257,26 +257,26 @@ generated quantities {
     if (likelihood == 0) {
       real loc_par;
       loc_par = log(mu_proj[n]) + square(sigma_obs[1]) / 2;
-      y_proj[n] = (1 - bernoulli_rng(theta_proj[n])) *
+      y_proj[n] = (1 - bernoulli_rng(rho_proj[n])) *
         lognormal_rng(loc_par, sigma_obs[1]);
     } else if (likelihood == 1) {
       real mu_ln;
       real sigma_ln;
       sigma_ln = sqrt(log1p(phi[1] * inv_square(mu_proj[n])));
       mu_ln = log(square(mu_proj[n]) * inv_sqrt(square(mu_proj[n]) + phi[1]));
-      y_proj[n] = (1 - bernoulli_rng(theta_proj[n])) *
+      y_proj[n] = (1 - bernoulli_rng(rho_proj[n])) *
         lognormal_rng(mu_ln, sigma_ln);
     } else if (likelihood == 2) {
       real gamma_beta;
       gamma_beta = phi[1] / mu_proj[n];
-      y_proj[n] = (1 - bernoulli_rng(theta_proj[n])) *
+      y_proj[n] = (1 - bernoulli_rng(rho_proj[n])) *
         gamma_rng(phi[1], gamma_beta);
     } else if (likelihood == 3) {
       real a_ll;
       real b_ll;
       b_ll = phi[1] + 1;
       a_ll = sin(pi() / b_ll) * mu_proj[n] * inv(pi() * b_ll);
-      y_proj[n] = (1 - bernoulli_rng(theta_proj[n])) *
+      y_proj[n] = (1 - bernoulli_rng(rho_proj[n])) *
         loglogistic_rng(a_ll, b_ll);
     }
   }

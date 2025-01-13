@@ -269,10 +269,10 @@ data {
                  // inverse-gaussian
   real pr_phi_b;
   // * now AR SD parameters have pcpriors
-  real pr_sd_r_u; 
-  real pr_sd_r_alpha;
-  real pr_rho_u; 
-  real pr_rho_alpha;
+  real pr_logsd_r_mu; 
+  real pr_logsd_r_sd;
+  real pr_alpha0; 
+  real pr_palpha;
   vector[K_t] pr_coef_t_mu;
   vector[K_t] pr_coef_t_sd;
   vector[est_mort ? K_m[1] : 0] pr_coef_m_mu;
@@ -346,13 +346,13 @@ parameters {
   vector[est_mort ? K_m[1] : 0] coef_m0;
   //--- * AR process parameters ----
   // conditional SD
-  array[p_error] real log_sigma_r;
+  array[p_error] real log_tau;
   // autocorrelation
-  array[p_error] real<lower = -1, upper = 1> rho;
+  array[p_error] real<lower = -1, upper = 1> alpha;
   // aux latent variable
   vector[p_error ? n_time : 0] raw;
   // logit of the probability of staying in the same patch
-  array[movement] real logit_not_mov_prob;
+  array[movement] real logit_zeta;
 }
 transformed parameters {
   array[likelihood > 0 ? 1 : 0] real phi;
@@ -367,15 +367,15 @@ transformed parameters {
     log_rec = X_r * coef_r0;
   }
   //--- AR process ----
-  array[p_error] real sigma_r;
-  vector[p_error ? n_time : 0] rec_dev;
-  vector[p_error ? n_time : 0] lagged_rec_dev;
+  array[p_error] real tau;
+  vector[p_error ? n_time : 0] z_t;
+  vector[p_error ? n_time : 0] lagged_z_t;
   if (p_error) {
-    sigma_r[1] = exp(log_sigma_r[1]);
-    rec_dev = sigma_r[1] * raw;
+    tau[1] = exp(log_tau[1]);
+    z_t = tau[1] * raw;
     for (tp in 2:n_time) {
-      lagged_rec_dev[tp] = rec_dev[tp - 1];
-      rec_dev[tp] += rho[1] * lagged_rec_dev[tp];
+      lagged_z_t[tp] = z_t[tp - 1];
+      z_t[tp] += alpha[1] * lagged_z_t[tp];
     }
   }
   //--- Mortality ----
@@ -390,18 +390,18 @@ transformed parameters {
              f,
              est_mort ? to_matrix(mortality, n_time, n_patches) : fixed_m,
              p_error ?
-             exp(add_pe(log_rec, rec_dev)) :
+             exp(add_pe(log_rec, z_t)) :
              to_matrix(exp(log_rec), n_time, n_patches));
   //--- Movement ----
   // probability of staying in the current patch
-  array[movement] real not_mov_prob;
+  array[movement] real zeta;
   // movement matrix
   matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
   if (movement) {
-    not_mov_prob = inv_logit(logit_not_mov_prob);
+    zeta = inv_logit(logit_zeta);
     // probability of movement is evenly distributed across neighbors
-    real d = (1 - not_mov_prob[1]);
-    mov_mat = not_mov_prob[1] * identity_mat;
+    real d = (1 - zeta[1]);
+    mov_mat = zeta[1] * identity_mat;
     // It is super important that the adj_mat is setup correctly. Note that,
     // this matrix is "row standardized". That is, its rows add up to 1.
     mov_mat += d * adj_mat;
@@ -449,12 +449,12 @@ model {
   //--- AR process ----
   if (p_error) {
     target += std_normal_lpdf(raw);
-    target += pcp_logsd_lpdf(log_sigma_r[1] | pr_sd_r_alpha, pr_sd_r_u);
-    target += pcp_ar0_lpdf(rho[1] | pr_rho_alpha, pr_rho_u); 
+    target += normal_lpdf(log_tau[1] | pr_logsd_r_mu, pr_logsd_r_sd);
+    target += pcp_ar0_lpdf(alpha[1] | pr_palpha, pr_alpha0); 
   }
   //--- Movement ----
   if (movement) {
-    target += std_normal_lpdf(logit_not_mov_prob);
+    target += std_normal_lpdf(logit_zeta);
   }
   //--- Mortality ----
   if (est_mort)

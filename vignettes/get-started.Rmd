@@ -119,7 +119,7 @@ In general, the chains mix well:
 
 ```{r traceplot}
 mcmc_samples$draws(variables = c("sigma_obs",
-                                 "sigma_r", "rho",
+                                 "tau", "alpha",
                                  "coef_t",
                                  "coef_r")) |>
   mcmc_trace()
@@ -129,7 +129,7 @@ And the posterior densities estimates are similar for the four chains ran:
 
 ```{r post_densities}
 mcmc_samples$draws(variables = c("sigma_obs",
-                                 "sigma_r", "rho",
+                                 "tau", "alpha",
                                  "coef_t",
                                  "coef_r")) |>
   mcmc_dens_overlay()
