@@ -108,29 +108,19 @@ To get MCMC samples from the posterior, run:
 ```{r drm_mcmc}
 mcmc_samples <-
   drm_compiled$sample(data = data,
-                      seed = 2025,
+                      seed = 2025, ## for reproducibility
                       chains = 4,
-                      parallel_chains = 4) ## for reproducibility
+                      parallel_chains = 4)
 ```
 
 ## Sampler convergence
 
-In general, the chains mix well:
-
+In general, the chains mix well and the posterior densities estimates are
+similar for the four chains ran:
 ```{r traceplot}
 mcmc_samples$draws(variables = c("sigma_obs",
-                                 "tau", "alpha",
                                  "coef_t",
                                  "coef_r")) |>
-  mcmc_trace()
-```
-
-And the posterior densities estimates are similar for the four chains ran:
-
-```{r post_densities}
-mcmc_samples$draws(variables = c("sigma_obs",
-                                 "tau", "alpha",
-                                 "coef_t",
-                                 "coef_r")) |>
-  mcmc_dens_overlay()
+  mcmc_combo(combo = c("trace", "dens_overlay"),
+             facet_args = list(labeller = label_parsed))
 ```
