@@ -127,7 +127,7 @@ data {
   int n_time; // years for forecasts
   int n_time_train; // years for training
   //--- toggles ---
-  int<lower = 0, upper = 1> p_error;
+  int<lower = 0, upper = 1> time_ar;
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_mort; // estimate mortality?
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
@@ -158,9 +158,9 @@ parameters {
   vector[K_r] coef_r;
   vector[est_mort ? K_m[1] : 0] coef_m;
   //--- parameters from AR process ----
-  vector[p_error ? n_time_train : 0] z_t;
-  array[p_error] real alpha;
-  array[p_error ? 1 : 0] real tau;
+  vector[time_ar ? n_time_train : 0] z_t;
+  array[time_ar] real alpha;
+  array[time_ar ? 1 : 0] real tau;
   //--- pop dyn parameters ----
   array[n_ages] matrix[n_time_train, n_patches] lambda;
   //--- movement matrix ---
@@ -179,11 +179,11 @@ generated quantities {
   //--- projected absence probability ----
   vector[n_time * n_patches] rho_proj;
   //--- AR term ----
-  vector[p_error ? n_time : 0] z_tp;
-  if (p_error) {
+  vector[time_ar ? n_time : 0] z_tp;
+  if (time_ar) {
     {
       vector[n_time] raw;
-      vector[p_error ? n_time - 1 : 0] lagged_rec;
+      vector[time_ar ? n_time - 1 : 0] lagged_rec;
       raw[1] = std_normal_rng();
       z_tp[1] = alpha[1] * z_t[n_time_train] +
         tau[1] * raw[1];
@@ -214,7 +214,7 @@ generated quantities {
                                     n_ages,
                                     f,
                                     current_m,
-                                    p_error ?
+                                    time_ar ?
                                     exp(add_pe(log_rec, z_tp)) :
                                     to_matrix(exp(log_rec),
                                               n_time,

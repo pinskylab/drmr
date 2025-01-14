@@ -8,7 +8,7 @@ data {
   int n_time_train; // years for training
   array[N] int time;
   //--- toggles ---
-  int<lower = 0, upper = 1> p_error;
+  int<lower = 0, upper = 1> time_ar;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic)
@@ -24,9 +24,9 @@ parameters {
   vector[K_z] coef_t;
   vector[K_x] coef_r;
   //--- parameters from AR process ----
-  vector[p_error ? n_time_train : 0] z_t;
-  array[p_error] real alpha;
-  array[p_error] real tau;
+  vector[time_ar ? n_time_train : 0] z_t;
+  array[time_ar] real alpha;
+  array[time_ar] real tau;
   //--- additional parameter for different lik functions ----
   array[likelihood > 0 ? 1 : 0] real phi;
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
@@ -39,11 +39,11 @@ generated quantities {
   //--- projected absence probability ----
   vector[n_time * n_patches] rho_proj;
   //--- AR term ----
-  vector[p_error ? n_time : 0] rec_proj;
-  if (p_error) {
+  vector[time_ar ? n_time : 0] rec_proj;
+  if (time_ar) {
     {
       vector[n_time] raw;
-      vector[p_error ? n_time - 1 : 0] lagged_rec;
+      vector[time_ar ? n_time - 1 : 0] lagged_rec;
       raw[1] = std_normal_rng();
       rec_proj[1] = alpha[1] * z_t[n_time_train] +
         tau[1] * raw[1];
@@ -59,7 +59,7 @@ generated quantities {
   {
     vector[N] lmu;
     lmu = X * coef_r;
-    if (p_error) {
+    if (time_ar) {
       for (n in 1:N)
         lmu[n] += z_t[time[n]];
     }

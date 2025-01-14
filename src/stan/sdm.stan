@@ -151,7 +151,7 @@ data {
   array[N] int<lower = 1, upper = n_time> time;
   vector[N] y;
   //--- toggles ---
-  int<lower = 0, upper = 1> p_error;
+  int<lower = 0, upper = 1> time_ar;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for theta
   int<lower = 0, upper = 1> qr_z; // use qr parametrization for theta?
   int<lower = 0, upper = 1> qr_x; // use qr parametrization for logrec?
@@ -222,22 +222,22 @@ parameters {
   vector[K_z] coef_t0;
   //--- * AR process parameters ----
   // conditional SD
-  array[p_error] real log_tau;
+  array[time_ar] real log_tau;
   // autocorrelation
-  array[p_error] real<lower = -1, upper = 1> alpha;
+  array[time_ar] real<lower = -1, upper = 1> alpha;
   // aux latent variable
-  vector[p_error ? n_time : 0] raw;
+  vector[time_ar ? n_time : 0] raw;
 }
 transformed parameters {
   array[likelihood > 0 ? 1 : 0] real phi;
   if (likelihood > 0)
     phi = exp(log_phi);
   //--- AR process ----
-  array[p_error] real tau;
-  vector[p_error ? n_time : 0] z_t;
+  array[time_ar] real tau;
+  vector[time_ar ? n_time : 0] z_t;
   {
-    vector[p_error ? n_time : 0] lagged_z_t;
-    if (p_error) {
+    vector[time_ar ? n_time : 0] lagged_z_t;
+    if (time_ar) {
       tau[1] = exp(log_tau[1]);
       z_t = tau[1] * raw;
       for (tp in 2:n_time) {
@@ -269,7 +269,7 @@ transformed parameters {
     vector[N] lmu;
     X_aux = qr_x ? Q_x : X;
     lmu = X_aux * coef_r0;
-    if (p_error) {
+    if (time_ar) {
       for (n in 1:N)
         lmu[n] += z_t[time[n]];
     }
@@ -279,7 +279,7 @@ transformed parameters {
 // close transformed parameters block
 model {
   //--- AR process ----
-  if (p_error) {
+  if (time_ar) {
     target += std_normal_lpdf(raw);
     target += normal_lpdf(log_tau[1] | pr_logsd_r_mu, pr_logsd_r_sd);
     target += pcp_ar0_lpdf(alpha[1] | pr_palpha, pr_alpha0); 

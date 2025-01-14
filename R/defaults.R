@@ -33,7 +33,7 @@ default_toggles <- function() {
   list(cloglog = 0,
        movement = 0,
        est_mort = 0,
-       p_error = 0,
+       time_ar = 0,
        qr_t = 0,
        qr_r = 0,
        qr_m = 0,

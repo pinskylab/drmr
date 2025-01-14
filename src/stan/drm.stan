@@ -236,7 +236,7 @@ data {
   int n_time; // years for training
   vector[N] y;
   //--- toggles ---
-  int<lower = 0, upper = 1> p_error;
+  int<lower = 0, upper = 1> time_ar;
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_mort; // estimate mortality?
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for theta
@@ -346,11 +346,11 @@ parameters {
   vector[est_mort ? K_m[1] : 0] coef_m0;
   //--- * AR process parameters ----
   // conditional SD
-  array[p_error] real log_tau;
+  array[time_ar] real log_tau;
   // autocorrelation
-  array[p_error] real<lower = -1, upper = 1> alpha;
+  array[time_ar] real<lower = -1, upper = 1> alpha;
   // aux latent variable
-  vector[p_error ? n_time : 0] raw;
+  vector[time_ar ? n_time : 0] raw;
   // logit of the probability of staying in the same patch
   array[movement] real logit_zeta;
 }
@@ -367,10 +367,10 @@ transformed parameters {
     log_rec = X_r * coef_r0;
   }
   //--- AR process ----
-  array[p_error] real tau;
-  vector[p_error ? n_time : 0] z_t;
-  vector[p_error ? n_time : 0] lagged_z_t;
-  if (p_error) {
+  array[time_ar] real tau;
+  vector[time_ar ? n_time : 0] z_t;
+  vector[time_ar ? n_time : 0] lagged_z_t;
+  if (time_ar) {
     tau[1] = exp(log_tau[1]);
     z_t = tau[1] * raw;
     for (tp in 2:n_time) {
@@ -389,7 +389,7 @@ transformed parameters {
     simplest(n_patches, n_time, n_ages,
              f,
              est_mort ? to_matrix(mortality, n_time, n_patches) : fixed_m,
-             p_error ?
+             time_ar ?
              exp(add_pe(log_rec, z_t)) :
              to_matrix(exp(log_rec), n_time, n_patches));
   //--- Movement ----
@@ -447,7 +447,7 @@ transformed parameters {
 // close transformed parameters block
 model {
   //--- AR process ----
-  if (p_error) {
+  if (time_ar) {
     target += std_normal_lpdf(raw);
     target += normal_lpdf(log_tau[1] | pr_logsd_r_mu, pr_logsd_r_sd);
     target += pcp_ar0_lpdf(alpha[1] | pr_palpha, pr_alpha0); 
