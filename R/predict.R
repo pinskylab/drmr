@@ -38,7 +38,8 @@ fitted_pars_sdm <- function(data_list) {
 ##'   the output from the [make_data] function.
 ##' @param model a \code{character} indicating which model forecasts are sought
 ##'   for. This input admits two possible entries: "drm" (default) or "sdm".
-##' @return
+##' @return a \code{character} vector of labels indicating the parameters
+##'   necessary for the forecast.
 ##' @author Lucas Godoy
 get_fitted_pars <- function(data_list, model = "drm") {
   stopifnot(inherits(data_list, "list"))
