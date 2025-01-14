@@ -153,21 +153,22 @@ data {
   matrix[N, K_r] X_r;
 }
 parameters {
-  //--- "regression" coefficients ----
+  //--- "regression" coefficients for absence and recr ----
   vector[K_t] coef_t;
   vector[K_r] coef_r;
+  //--- pop dyn parameters ----
+  array[n_ages] matrix[n_time_train, n_patches] lambda;
+  //--- additional parameter for different lik functions ----
+  array[likelihood > 0 ? 1 : 0] real phi;
+  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
+  //--- movement matrix ---
+  matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+  //--- reg for mortality ---
   vector[est_mort ? K_m[1] : 0] coef_m;
   //--- parameters from AR process ----
   vector[time_ar ? n_time_train : 0] z_t;
   array[time_ar] real alpha;
   array[time_ar ? 1 : 0] real tau;
-  //--- pop dyn parameters ----
-  array[n_ages] matrix[n_time_train, n_patches] lambda;
-  //--- movement matrix ---
-  matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
-  //--- additional parameter for different lik functions ----
-  array[likelihood > 0 ? 1 : 0] real phi;
-  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
 }
 generated quantities {
   //--- projected expected density by age ---
