@@ -100,8 +100,8 @@ predict_drm <- function(drm,
                         ntime_for,
                         x_tt,
                         x_rt,
-                        x_mt,
-                        x_mpast,
+                        x_mt = matrix(1, ncol = 1),
+                        x_mpast = matrix(1, ncol = 1),
                         f_test,
                         seed = 1,
                         cores = 1) {
@@ -109,7 +109,7 @@ predict_drm <- function(drm,
   stopifnot(inherits(drm, "CmdStanFit"))
   stopifnot(NCOL(x_tt) == drm_data$K_t)
   stopifnot(NCOL(x_rt) == drm_data$K_r)
-  if (drm_data$K_m > 0) {
+  if (length(drm_data$K_m) > 0) {
     stopifnot(!missing(x_mt))
     stopifnot(!missing(x_mpast))
     stopifnot(NCOL(x_mt) == drm_data$K_m)
