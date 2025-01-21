@@ -11,8 +11,8 @@ predict_drm(
   ntime_for,
   x_tt,
   x_rt,
-  x_mt,
-  x_mpast,
+  x_mt = matrix(1, ncol = 1),
+  x_mpast = matrix(1, ncol = 1),
   f_test,
   seed = 1,
   cores = 1
