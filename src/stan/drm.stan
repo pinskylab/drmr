@@ -238,6 +238,7 @@ data {
   //--- toggles ---
   int<lower = 0, upper = 1> time_ar;
   int<lower = 0, upper = 1> movement;
+  int<lower = 0, upper = 1> hurdle;
   int<lower = 0, upper = 1> est_mort; // estimate mortality?
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for theta
   int<lower = 0, upper = 1> qr_t; // use qr parametrization for theta?
@@ -246,8 +247,8 @@ data {
   int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic)
   //--- suitability (for theta) ----
-  int<lower = 1> K_t;
-  matrix[N, K_t] X_t;
+  array[hurdle] int<lower = 1> K_t;
+  matrix[hurdle ? N : 1, hurdle ? K_t[1] : 1] X_t;
   //--- fish mortality data ----
   matrix[n_ages, n_time] f;
   array[est_mort ? 0 : 1] real m; // total mortality
@@ -257,7 +258,7 @@ data {
   vector[n_ages] selectivity_at_age;
   //--- environmental data ----
   //--- * for mortality ----
-  array[est_mort ? 1 : 0] int<lower = 1> K_m;
+  array[est_mort] int<lower = 1> K_m;
   matrix[est_mort ? N : 1, est_mort ? K_m[1] : 1] X_m;
   //--- * for recruitment ----
   int<lower = 1> K_r;
@@ -273,8 +274,8 @@ data {
   real pr_logsd_r_sd;
   real pr_alpha0; 
   real pr_palpha;
-  vector[K_t] pr_coef_t_mu;
-  vector[K_t] pr_coef_t_sd;
+  vector[hurdle ? K_t[1] : 0] pr_coef_t_mu;
+  vector[hurdle ? K_t[1] : 0] pr_coef_t_sd;
   vector[est_mort ? K_m[1] : 0] pr_coef_m_mu;
   vector[est_mort ? K_m[1] : 0] pr_coef_m_sd;
   vector[K_r] pr_coef_r_mu;
@@ -297,11 +298,11 @@ transformed data {
   //--- thin-QR parametrization (improves sampler at almost no cost) ----
   // * detection prob
   matrix[qr_t ? N : 0,
-         qr_t ? K_t : 0] Q_t;
-  matrix[qr_t ? K_t : 0,
-         qr_t ? K_t : 0] R_t;
-  matrix[qr_t ? K_t : 0,
-         qr_t ? K_t : 0] R_t_inv;
+         qr_t ? K_t[1] : 0] Q_t;
+  matrix[qr_t ? K_t[1] : 0,
+         qr_t ? K_t[1] : 0] R_t;
+  matrix[qr_t ? K_t[1] : 0,
+         qr_t ? K_t[1] : 0] R_t_inv;
   if (qr_t) {
     Q_t = qr_thin_Q(X_t) * sqrt(N - 1);
     R_t = qr_thin_R(X_t) / sqrt(N - 1);
@@ -326,13 +327,16 @@ transformed data {
     R_m_inv = inverse(R_m);
   }
   //--- Vectorizing zero-inflation ----
-  int N_nz;
-  N_nz = num_non_zero_fun(y);
-  int N_z = N - N_nz;
-  array[N_nz] int id_nz;
-  array[N_z] int id_z;
-  id_nz = non_zero_index_fun(y, N_nz);
-  id_z = zero_index_fun(y, N_z);
+  array[hurdle] int N_nz;
+  array[hurdle] int N_z;
+  if (hurdle) {
+    N_nz[1] = num_non_zero_fun(y);
+    N_z[1] = N - N_nz[1];
+    array[hurdle ? N_nz[1] : 0] int id_nz;
+    array[hurdle ? N_z[1] : 0] int id_z;
+    id_nz = non_zero_index_fun(y, N_nz[1]);
+    id_z = zero_index_fun(y, N_z[1]);
+  }
 }
 parameters {
   // parameter associated to the likelihood 
@@ -341,7 +345,7 @@ parameters {
   // coefficients for recruitment (it is a log-linear model)
   vector[K_r] coef_r0;
   // parameter associated with "encounter probability"
-  vector[K_t] coef_t0;
+  vector[hurdle ? K_t[1] : 0] coef_t0;
   // coefficients for mortality/survival (it is a log-linear model)
   vector[est_mort ? K_m[1] : 0] coef_m0;
   //--- * AR process parameters ----
@@ -407,25 +411,26 @@ transformed parameters {
     mov_mat += d * adj_mat;
     lambda = apply_movement(lambda, mov_mat, age_at_maturity[1]);
   }
-
   //--- quantities used in the likelihood ----
   // probability of encounter at specific time/patch combinations
-  vector[N] theta;
+  vector[hurdle ? N : 0] theta;
   // Expected density at specific time/patch combinations
   vector[N] mu =
     rep_vector(0.0, N);
 
   // theta now hasa "regression like" type
-  if (cloglog) {
-    matrix[N, K_t] X_aux;
-    X_aux = qr_t ? Q_t : X_t;
-    theta =
-      inv_cloglog(X_aux * coef_t0);
-  } else {
-    matrix[N, K_t] X_aux;
-    X_aux = qr_t ? Q_t : X_t;
-    theta =
-      inv_logit(X_aux * coef_t0);
+  if (hurdle) {
+    if (cloglog) {
+      matrix[N, K_t] X_aux;
+      X_aux = qr_t ? Q_t : X_t;
+      theta =
+        inv_cloglog(X_aux * coef_t0);
+    } else {
+      matrix[N, K_t] X_aux;
+      X_aux = qr_t ? Q_t : X_t;
+      theta =
+        inv_logit(X_aux * coef_t0);
+    }
   }
   {
     matrix[n_time, n_patches] mu_aux =
@@ -472,52 +477,78 @@ model {
     target += student_t_lpdf(log_phi[1] | 3, pr_phi_a, pr_phi_b);
   }
   // only evaluate density if there are length comps to evaluate
-  target += sum(log(theta[id_z]));
-  if (likelihood == 0) {
-    vector[N_nz] loc_par;
-    loc_par = log(mu[id_nz]) + square(sigma_obs[1]) / 2;
-    target += log1m(theta[id_nz]);
-    target += lognormal_lpdf(y[id_nz] | loc_par, sigma_obs[1]);
-  } else if (likelihood == 1) {
-    vector[N_nz] mu_ln;
-    vector[N_nz] sigma_ln;
-    sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[id_nz])));
-    mu_ln = log(square(mu[id_nz]) .*
-                inv_sqrt(square(mu[id_nz]) + phi[1]));
-    target += log1m(theta[id_nz]);
-    target += lognormal_lpdf(y[id_nz] | mu_ln, sigma_ln);
-  } else if (likelihood == 2) {
-    vector[N_nz] b_g;
-    b_g = phi[1] / mu[id_nz];
-    target += log1m(theta[id_nz]);
-    target += gamma_lpdf(y[id_nz] | phi[1], b_g);
+  if (hurdle) {
+    target += sum(log(theta[id_z]));
+    if (likelihood == 0) {
+      vector[N_nz] loc_par;
+      loc_par = log(mu[id_nz]) + square(sigma_obs[1]) / 2;
+      target += log1m(theta[id_nz]);
+      target += lognormal_lpdf(y[id_nz] | loc_par, sigma_obs[1]);
+    } else if (likelihood == 1) {
+      vector[N_nz] mu_ln;
+      vector[N_nz] sigma_ln;
+      sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[id_nz])));
+      mu_ln = log(square(mu[id_nz]) .*
+                  inv_sqrt(square(mu[id_nz]) + phi[1]));
+      target += log1m(theta[id_nz]);
+      target += lognormal_lpdf(y[id_nz] | mu_ln, sigma_ln);
+    } else if (likelihood == 2) {
+      vector[N_nz] b_g;
+      b_g = phi[1] / mu[id_nz];
+      target += log1m(theta[id_nz]);
+      target += gamma_lpdf(y[id_nz] | phi[1], b_g);
+    } else {
+      vector[N_nz] a_ll;
+      real b_ll;
+      b_ll = phi[1] + 1;
+      a_ll = sin(pi() / b_ll) * mu[id_nz] * inv(pi() * b_ll);
+      target += log1m(theta[id_nz]);
+      target += loglogistic_lpdf(y[id_nz] | a_ll, b_ll);
+    }
   } else {
-    vector[N_nz] a_ll;
-    real b_ll;
-    b_ll = phi[1] + 1;
-    a_ll = sin(pi() / b_ll) * mu[id_nz] * inv(pi() * b_ll);
-    target += log1m(theta[id_nz]);
-    target += loglogistic_lpdf(y[id_nz] | a_ll, b_ll);
-  }
+    if (likelihood == 0) {
+      vector[N] loc_par;
+      loc_par = log(mu) + square(sigma_obs[1]) / 2;
+      target += lognormal_lpdf(y | loc_par, sigma_obs[1]);
+    } else if (likelihood == 1) {
+      vector[N] mu_ln;
+      vector[N] sigma_ln;
+      sigma_ln = sqrt(log1p(phi[1] * inv_square(mu)));
+      mu_ln = log(square(mu) .*
+                  inv_sqrt(square(mu) + phi[1]));
+      target += lognormal_lpdf(y | mu_ln, sigma_ln);
+    } else if (likelihood == 2) {
+      vector[N] b_g;
+      b_g = phi[1] / mu;
+      target += gamma_lpdf(y | phi[1], b_g);
+    } else {
+      vector[N] a_ll;
+      real b_ll;
+      b_ll = phi[1] + 1;
+      a_ll = sin(pi() / b_ll) * mu * inv(pi() * b_ll);
+      target += loglogistic_lpdf(y | a_ll, b_ll);
+    }
+  } 
 }
 generated quantities {
-  vector[N] log_lik;
+  vector[N] log_lik = rep_vector(0.0, N);
   vector[N] y_pp;
-  vector[K_t] coef_t;
+  vector[hurdle ? K_t : 0] coef_t;
   vector[K_r] coef_r;
   vector[est_mort ? K_m[1] : 0] coef_m;
-
+  // log_lik with hurdle on or off
   for (n in 1:N) {
     if (likelihood == 0) {
       real loc_par;
       loc_par = log(mu[n]) + square(sigma_obs[1]) / 2;
-      y_pp[n] = (1 - bernoulli_rng(theta[n])) *
-        lognormal_rng(loc_par, sigma_obs[1]);
+      y_pp[n] = lognormal_rng(loc_par, sigma_obs[1]);
+      if (hurdle)
+        y_pp[n] *= (1 - bernoulli_rng(theta[n]));
       if (y[n] == 0) {
         // only evaluate density if there are length comps to evaluate
-        log_lik[n] = log(theta[n]);
+        log_lik[n] += log(theta[n]);
       } else {
-        log_lik[n] = log1m(theta[n]) +
+        log_lik[n] +=
           lognormal_lpdf(y[n] | loc_par, sigma_obs[1]);
       }
     } else if (likelihood == 1) {
