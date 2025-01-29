@@ -329,11 +329,11 @@ transformed data {
   //--- Vectorizing zero-inflation ----
   array[hurdle] int N_nz;
   array[hurdle] int N_z;
+  array[hurdle ? N_nz[1] : 0] int id_nz;
+  array[hurdle ? N_z[1] : 0] int id_z;
   if (hurdle) {
     N_nz[1] = num_non_zero_fun(y);
     N_z[1] = N - N_nz[1];
-    array[hurdle ? N_nz[1] : 0] int id_nz;
-    array[hurdle ? N_z[1] : 0] int id_z;
     id_nz = non_zero_index_fun(y, N_nz[1]);
     id_z = zero_index_fun(y, N_z[1]);
   }
@@ -421,12 +421,12 @@ transformed parameters {
   // theta now hasa "regression like" type
   if (hurdle) {
     if (cloglog) {
-      matrix[N, K_t] X_aux;
+      matrix[N, K_t[1]] X_aux;
       X_aux = qr_t ? Q_t : X_t;
       theta =
         inv_cloglog(X_aux * coef_t0);
     } else {
-      matrix[N, K_t] X_aux;
+      matrix[N, K_t[1]] X_aux;
       X_aux = qr_t ? Q_t : X_t;
       theta =
         inv_logit(X_aux * coef_t0);
@@ -480,25 +480,25 @@ model {
   if (hurdle) {
     target += sum(log(theta[id_z]));
     if (likelihood == 0) {
-      vector[N_nz] loc_par;
+      vector[N_nz[1]] loc_par;
       loc_par = log(mu[id_nz]) + square(sigma_obs[1]) / 2;
       target += log1m(theta[id_nz]);
       target += lognormal_lpdf(y[id_nz] | loc_par, sigma_obs[1]);
     } else if (likelihood == 1) {
-      vector[N_nz] mu_ln;
-      vector[N_nz] sigma_ln;
+      vector[N_nz[1]] mu_ln;
+      vector[N_nz[1]] sigma_ln;
       sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[id_nz])));
       mu_ln = log(square(mu[id_nz]) .*
                   inv_sqrt(square(mu[id_nz]) + phi[1]));
       target += log1m(theta[id_nz]);
       target += lognormal_lpdf(y[id_nz] | mu_ln, sigma_ln);
     } else if (likelihood == 2) {
-      vector[N_nz] b_g;
+      vector[N_nz[1]] b_g;
       b_g = phi[1] / mu[id_nz];
       target += log1m(theta[id_nz]);
       target += gamma_lpdf(y[id_nz] | phi[1], b_g);
     } else {
-      vector[N_nz] a_ll;
+      vector[N_nz[1]] a_ll;
       real b_ll;
       b_ll = phi[1] + 1;
       a_ll = sin(pi() / b_ll) * mu[id_nz] * inv(pi() * b_ll);
@@ -533,7 +533,7 @@ model {
 generated quantities {
   vector[N] log_lik = rep_vector(0.0, N);
   vector[N] y_pp;
-  vector[hurdle ? K_t : 0] coef_t;
+  vector[hurdle ? K_t[1] : 0] coef_t;
   vector[K_r] coef_r;
   vector[est_mort ? K_m[1] : 0] coef_m;
   // log_lik with hurdle on or off
@@ -542,11 +542,16 @@ generated quantities {
       real loc_par;
       loc_par = log(mu[n]) + square(sigma_obs[1]) / 2;
       y_pp[n] = lognormal_rng(loc_par, sigma_obs[1]);
-      if (hurdle)
+      if (hurdle) {
         y_pp[n] *= (1 - bernoulli_rng(theta[n]));
-      if (y[n] == 0) {
-        // only evaluate density if there are length comps to evaluate
-        log_lik[n] += log(theta[n]);
+        if (y[n] == 0) {
+          // only evaluate density if there are length comps to evaluate
+          log_lik[n] += log(theta[n]);
+        } else {
+          log_lik[n] +=
+            log1m(theta[n]) +
+            lognormal_lpdf(y[n] | loc_par, sigma_obs[1]);
+        }
       } else {
         log_lik[n] +=
           lognormal_lpdf(y[n] | loc_par, sigma_obs[1]);
@@ -556,23 +561,34 @@ generated quantities {
       real sigma_ln;
       sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[n])));
       mu_ln = log(square(mu[n]) * inv_sqrt(square(mu[n]) + phi[1]));
-      y_pp[n] = (1 - bernoulli_rng(theta[n])) *
+      y_pp[n] =
         lognormal_rng(mu_ln, sigma_ln);
-      if (y[n] == 0) {
-        log_lik[n] = log(theta[n]);
+      if (hurdle) {
+        y_pp[n] *= (1 - bernoulli_rng(theta[n]));
+        if (y[n] == 0) {
+          log_lik[n] += log(theta[n]);
+        } else {
+          log_lik[n] += log1m(theta[n]) +
+            ln_mu_lpdf(y[n] | mu[n], phi[1]);
+        }
       } else {
-        log_lik[n] = log1m(theta[n]) +
-          ln_mu_lpdf(y[n] | mu[n], phi[1]);
+        log_lik[n] += ln_mu_lpdf(y[n] | mu[n], phi[1]);
       }
     } else if (likelihood == 2) {
       real gamma_beta;
       gamma_beta = phi[1] / mu[n];
       y_pp[n] = (1 - bernoulli_rng(theta[n])) *
         gamma_rng(phi[1], gamma_beta);
-      if (y[n] == 0) {
-        log_lik[n] = log(theta[n]);
+      if (hurdle) {
+        y_pp[n] *= (1 - bernoulli_rng(theta[n]));
+        if (y[n] == 0) {
+          log_lik[n] = log(theta[n]);
+        } else {
+          log_lik[n] = log1m(theta[n]) +
+            gamma_lpdf(y[n] | phi[1], gamma_beta);
+        }
       } else {
-        log_lik[n] = log1m(theta[n]) +
+        log_lik[n] =
           gamma_lpdf(y[n] | phi[1], gamma_beta);
       }
     } else if (likelihood == 3) {
@@ -580,19 +596,27 @@ generated quantities {
       real b_ll;
       b_ll = phi[1] + 1;
       a_ll = sin(pi() / b_ll) * mu[n] * inv(pi() * b_ll);
-      y_pp[n] = (1 - bernoulli_rng(theta[n])) *
+      y_pp[n] =
         loglogistic_rng(a_ll, b_ll);
-      if (y[n] == 0) {
-        log_lik[n] = log(theta[n]);
+      if (hurdle) {
+        y_pp[n] *= (1 - bernoulli_rng(theta[n]));
+        if (y[n] == 0) {
+          log_lik[n] += log(theta[n]);
+        } else {
+          log_lik[n] += log1m(theta[n]) +
+            loglogistic_lpdf(y[n] | a_ll, b_ll);
+        }
       } else {
-        log_lik[n] = log1m(theta[n]) +
+        log_lik[n] +=
           loglogistic_lpdf(y[n] | a_ll, b_ll);
       }
     }
   }
   if (qr_t) {
     coef_t = R_t_inv * coef_t0;
-  } else coef_t = coef_t0;
+  } else if (hurdle) {
+    coef_t = coef_t0;
+  }
   if (qr_r) {
     coef_r = R_r_inv * coef_r0;
   } else coef_r = coef_r0;
