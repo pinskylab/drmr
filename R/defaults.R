@@ -36,6 +36,5 @@ default_toggles <- function() {
        time_ar = 0,
        qr_t = 0,
        qr_r = 0,
-       qr_m = 0,
-       likelihood = 0)
+       qr_m = 0)
 }

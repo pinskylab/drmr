@@ -29,24 +29,26 @@
 ##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
 ##'   and zero otherwise.
 ##' @param .toggles a \code{list} of toggles for model components. The
-##'   components are:
-##'   \itemize{
-##'    \item \code{cloglog}: 1 to use the complementary log-log and 0 for the logit
-##'      link function for the absence probabilities.
-##'    \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
-##'    \item \code{est_mort}: 1 to estimate mortality and 0 otherwise.
-##'    \item \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.
-##'    \item \code{qr_t}: 1 to use QR parametrization for the absence probability
-##'     regression coefficients and 0 otherwise.
-##'    \item \code{qr_r}: 1 to use QR parametrization for the recruitment
-##'     regression coefficients and 0 otherwise.
-##'    \item \code{qr_m}: 1 to use QR parametrization for the survival
-##'     regression coefficients and 0 otherwise.
-##'   }
+##'   components are: \itemize{ \item \code{cloglog}: 1 to use the complementary
+##'   log-log and 0 for the logit link function for the absence probabilities.
+##'   \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
+##'   \item \code{est_mort}: 1 to estimate mortality and 0 otherwise.  \item
+##'   \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.  \item
+##'   \code{qr_t}: 1 to use QR parametrization for the absence probability
+##'   regression coefficients and 0 otherwise.  \item \code{qr_r}: 1 to use QR
+##'   parametrization for the recruitment regression coefficients and 0
+##'   otherwise.  \item \code{qr_m}: 1 to use QR parametrization for the
+##'   survival regression coefficients and 0 otherwise.  }
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
 ##'   reordered. The default is TRUE and means the data points will be ordered
 ##'   by site and time, respectively.
+##' @param family a \code{character} specifying the family of the probability
+##'   distribution assumed for density. The options are: \itemize{ \item
+##'   \code{"lognormal1"} (default): log-normal with the usual parametrization;
+##'   \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
+##'   \item \code{"gamma"}: gamma parametrized in terms of its mean; \item
+##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.}
 ##' @return a \code{list} to be used as the input for a \code{stan} model
 ##' @author lcgodoy
 ##' @export
@@ -66,10 +68,20 @@ make_data <- function(y,
                       ## age_zero = FALSE
                       .toggles,
                       .priors,
+                      family = "lognormal1",
                       reorder = TRUE) {
   ## getting the default toggles and using user options
+  stopifnot(length(family) == 1)
+  stopifnot(family %in% c("lognormal1", "lognormal2",
+                          "gamma", "loglogistic"))
+  likelihood <- switch(family,
+                       lognormal1  = 0,
+                       lognormal2  = 1,
+                       gamma       = 2,
+                       loglogistic = 3)
   toggles <- default_toggles() |>
-    safe_modify(.toggles)
+    safe_modify(.toggles) |>
+    c(list(likelihood = likelihood))
   ## getting the default "extra quantities" and using user options
   ## extra_qt <- default_qt() |>
   ##   safe_modify(.extra_qt)

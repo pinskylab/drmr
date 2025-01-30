@@ -19,6 +19,7 @@ make_data(
   adj_mat = matrix(0, ncol = 1, nrow = 1),
   .toggles,
   .priors,
+  family = "lognormal1",
   reorder = TRUE
 )
 }
@@ -62,22 +63,25 @@ from one patch to another. Individuals below this age threshold remain
 and zero otherwise.}
 
 \item{.toggles}{a \code{list} of toggles for model components. The
-components are:
-\itemize{
-\item \code{cloglog}: 1 to use the complementary log-log and 0 for the logit
-link function for the absence probabilities.
+components are: \itemize{ \item \code{cloglog}: 1 to use the complementary
+log-log and 0 for the logit link function for the absence probabilities.
 \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
-\item \code{est_mort}: 1 to estimate mortality and 0 otherwise.
-\item \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.
-\item \code{qr_t}: 1 to use QR parametrization for the absence probability
-regression coefficients and 0 otherwise.
-\item \code{qr_r}: 1 to use QR parametrization for the recruitment
-regression coefficients and 0 otherwise.
-\item \code{qr_m}: 1 to use QR parametrization for the survival
-regression coefficients and 0 otherwise.
-}}
+\item \code{est_mort}: 1 to estimate mortality and 0 otherwise.  \item
+\code{time_ar}: 1 to incorporate an AR(1) process for recruitment.  \item
+\code{qr_t}: 1 to use QR parametrization for the absence probability
+regression coefficients and 0 otherwise.  \item \code{qr_r}: 1 to use QR
+parametrization for the recruitment regression coefficients and 0
+otherwise.  \item \code{qr_m}: 1 to use QR parametrization for the
+survival regression coefficients and 0 otherwise.  }}
 
 \item{.priors}{a \code{list} of priors hyperparameters.}
+
+\item{family}{a \code{character} specifying the family of the probability
+distribution assumed for density. The options are: \itemize{ \item
+\code{"lognormal1"} (default): log-normal with the usual parametrization;
+\item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
+\item \code{"gamma"}: gamma parametrized in terms of its mean; \item
+\code{"loglogistic"}: log-logistic parametrized in terms of its mean.}}
 
 \item{reorder}{a \code{boolean} telling whether the data needs to be
 reordered. The default is TRUE and means the data points will be ordered
