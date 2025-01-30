@@ -193,27 +193,10 @@ make_data <- function(y,
 ##'   element of \code{y}.
 ##' @param site an \code{vector} indicating the sites associated to each element
 ##'   of \code{y}.
-##' @param f_mort an optional \code{matrix} informing the instantaneous fishing
-##'   mortality rates at each age (columns) and timepoint (rows).
-##' @param m a \code{numeric} value corresponding to the instantaneous natural
-##'   mortality rate.
-##' @param x_t a design \code{matrix} of variables associated to the probability
+##' @param z a design \code{matrix} of variables associated to the probability
 ##'   of absence at each site/time.
-##' @param x_m a design \code{matrix} of variables associated to survival.
-##' @param x_r a design \code{matrix} of variables associated to recruitment.
-##' @param n_ages an \code{integer} indicating the number of ages for the
-##'   underlying population dynamic model.
-##' @param age_selectivity an \code{numeric vector} with \code{n_ages} elements,
-##'   where each element indicates the selectivity of a respective age. All the
-##'   elements of this vector must lie between 0 and 1.
-##' @param age_at_maturity a \code{integer} indicating the age at which a
-##'   species attains maturity. This is used for movement. That is, every
-##'   individual with age greater or equal to \code{age_at_maturity} may move
-##'   from one patch to another. Individuals below this age threshold remain
-##'   "static".
-##' @param adj_mat an adjacency \code{matrix} of dimensions \code{sites}
-##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
-##'   and zero otherwise.
+##' @param x a design \code{matrix} of variables associated to the non-zero
+##'   densities.
 ##' @param .toggles a \code{list} of toggles for model components. The
 ##'   components are: \itemize{ \item \code{cloglog}: 1 to use the complementary
 ##'   log-log and 0 for the logit link function for the absence probabilities.
@@ -274,6 +257,7 @@ make_data_sdm <- function(y,
     y <- y[my_ord]
     site <- site[my_ord]
     time <- time[my_ord]
+    time <- time - min(time) + 1
   }
   if (missing(x)) {
     x <- matrix(1, nrow = n_time * n_patches)

@@ -2,8 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{predict_drm}
 \alias{predict_drm}
-\title{Value of a covariate that maximizes the response variable in a
-quadratic model.}
+\title{Forecasts based on DRM.}
 \usage{
 predict_drm(
   drm,
@@ -54,11 +53,8 @@ an object of class \code{"CmdStanGQ"} containing samples for the
 posterior predictive distribution for forecasting.
 }
 \description{
-Consider a linear predictor having linear and square terms
-associated with a variable \eqn{x}. Assume this variable was centered
-before being included in the linear predictor. This functions returns the
-value of \eqn{x} (on its original scale) such that the linear predictor is
-maximized (or minimized).
+Considering a new dataset (across the same patches), computes
+forecasts based on the DRM passed as \code{drm}.
 }
 \details{
 It is important that the rows of design matrices \code{x_tt},

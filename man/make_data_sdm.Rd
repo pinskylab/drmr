@@ -25,6 +25,12 @@ element of \code{y}.}
 \item{site}{an \code{vector} indicating the sites associated to each element
 of \code{y}.}
 
+\item{z}{a design \code{matrix} of variables associated to the probability
+of absence at each site/time.}
+
+\item{x}{a design \code{matrix} of variables associated to the non-zero
+densities.}
+
 \item{.toggles}{a \code{list} of toggles for model components. The
 components are: \itemize{ \item \code{cloglog}: 1 to use the complementary
 log-log and 0 for the logit link function for the absence probabilities.
@@ -49,36 +55,6 @@ distribution assumed for density. The options are: \itemize{ \item
 \item{reorder}{a \code{boolean} telling whether the data needs to be
 reordered. The default is TRUE and means the data points will be ordered
 by site and time, respectively.}
-
-\item{f_mort}{an optional \code{matrix} informing the instantaneous fishing
-mortality rates at each age (columns) and timepoint (rows).}
-
-\item{m}{a \code{numeric} value corresponding to the instantaneous natural
-mortality rate.}
-
-\item{x_t}{a design \code{matrix} of variables associated to the probability
-of absence at each site/time.}
-
-\item{x_m}{a design \code{matrix} of variables associated to survival.}
-
-\item{x_r}{a design \code{matrix} of variables associated to recruitment.}
-
-\item{n_ages}{an \code{integer} indicating the number of ages for the
-underlying population dynamic model.}
-
-\item{age_selectivity}{an \code{numeric vector} with \code{n_ages} elements,
-where each element indicates the selectivity of a respective age. All the
-elements of this vector must lie between 0 and 1.}
-
-\item{age_at_maturity}{a \code{integer} indicating the age at which a
-species attains maturity. This is used for movement. That is, every
-individual with age greater or equal to \code{age_at_maturity} may move
-from one patch to another. Individuals below this age threshold remain
-"static".}
-
-\item{adj_mat}{an adjacency \code{matrix} of dimensions \code{sites}
-\eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
-and zero otherwise.}
 }
 \value{
 a \code{list} to be used as the input for a \code{stan} model

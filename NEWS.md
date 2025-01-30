@@ -18,3 +18,5 @@
 # drmr 0.0.21
 
 * `make_data_drm` function (analogous to `make_data`) created for SDM.
+
+* `predict_drm` function (analogous to `predict_drm`) created for SDM.

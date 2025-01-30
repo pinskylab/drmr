@@ -51,14 +51,10 @@ get_fitted_pars <- function(data_list, model = "drm") {
   return(output)
 }
 
-##' @title Value of a covariate that maximizes the response variable in a
-##'   quadratic model.
+##' @title Forecasts based on DRM.
 ##' 
-##' @description Consider a linear predictor having linear and square terms
-##'   associated with a variable \eqn{x}. Assume this variable was centered
-##'   before being included in the linear predictor. This functions returns the
-##'   value of \eqn{x} (on its original scale) such that the linear predictor is
-##'   maximized (or minimized).
+##' @description Considering a new dataset (across the same patches), computes
+##'   forecasts based on the DRM passed as \code{drm}.
 ##' 
 ##' @param drm A \code{CmdStanFit} object containing samples from the posterior
 ##'   distribution.
@@ -149,6 +145,89 @@ predict_drm <- function(drm,
   ## load compiled forecast
   forecast_comp <-
     instantiate::stan_package_model(name = "forecast",
+                                    package = "drmr")
+  ## computing forecast
+  output <- forecast_comp$
+    generate_quantities(fitted_params = fitted_params,
+                        data = forecast_data,
+                        seed = seed,
+                        parallel_chains = cores)
+  return(output)
+}
+
+##' @title Forecasts based on SDM.
+##' 
+##' @description Considering a new dataset (across the same patches), computes
+##'   forecasts based on the SDM passed as \code{sdm}.
+##' 
+##' @description Consider a linear predictor having linear and square terms
+##'   associated with a variable \eqn{x}. Assume this variable was centered
+##'   before being included in the linear predictor. This functions returns the
+##'   value of \eqn{x} (on its original scale) such that the linear predictor is
+##'   maximized (or minimized).
+##' 
+##' @param drm A \code{CmdStanFit} object containing samples from the posterior
+##'   distribution.
+##' @param drm_data a \code{list} used as input for model fitting. Typically,
+##'   the output from the [make_data] function.
+##' @param ntime_for an \code{integer} denoting the number of timepoints for the
+##'   forecast.
+##' @param z_t a design \code{matrix} of variables associated to the probability
+##'   of absence at each site/time.
+##' @param x_t a design \code{matrix} of variables associated to the non-zero
+##'   densities.
+##' @param seed a seed used for the forecasts. Forecasts are obtained through
+##'   Monte Carlo samples from the posterior predictive distribution. Therefore,
+##'   a \code{seed} is needed to ensure the results' reproducibility.
+##' @param cores number of threads used for the forecast. If four chains were
+##'   used in the \code{drm}, then four (or less) threads are recommended.
+##'
+##' @details It is important ethat the rows of design matrices \code{z_t} and
+##'   \code{x_t} are associated to the same patch/site and timepoints. In
+##'   addition, the current version of the code assumes the data where forecasts
+##'   are needed is ordered by "patch" and "site" and, in addition, its patches
+##'   MUST be the same as the ones used to obtain the parameters' estimates from
+##'   the the \code{sdm} object.
+##' 
+##' @author Lucas Godoy
+##'
+##' @return an object of class \code{"CmdStanGQ"} containing samples for the
+##'   posterior predictive distribution for forecasting.
+##' 
+##' @export
+predict_sdm <- function(sdm,
+                        sdm_data,
+                        ntime_for,
+                        z_t,
+                        x_t,
+                        time_for,
+                        seed = 1,
+                        cores = 1) {
+  ## time points for forecasting
+  stopifnot(inherits(sdm, "CmdStanFit"))
+  stopifnot(NCOL(z_t) == sdm_data$K_z)
+  stopifnot(NCOL(x_t) == sdm_data$K_x)
+  ##--- pars from model fitted ----
+  pars <- get_fitted_pars(sdm_data, "sdm")
+  fitted_params <-
+    sdm$draws(variables = pars)
+  ##--- list for forecast object ----
+  forecast_data <-
+    list(n_patches = sdm_data$n_patches,
+         n_time = ntime_for,
+         n_time_train = sdm_data$n_time,
+         time = time_for - min(time_for) + 1,
+         time_ar = sdm_data$time_ar,
+         cloglog = sdm_data$cloglog,
+         likelihood = sdm_data$likelihood,
+         K_z = sdm_data$K_z,
+         Z = z_t,
+         K_x = sdm_data$K_x,
+         X = x_t)
+  forecast_data$N <- forecast_data$n_patches * forecast_data$n_time
+  ## load compiled forecast
+  forecast_comp <-
+    instantiate::stan_package_model(name = "forecast_sdm",
                                     package = "drmr")
   ## computing forecast
   output <- forecast_comp$
