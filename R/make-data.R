@@ -1,7 +1,7 @@
 ##' This function creates the \code{list} used as the input for the \code{stan}
 ##' model.
 ##'
-##' @title Make data for stan models
+##' @title Make data for DRM stan models
 ##' @param y a \code{numeric vector} of species' densities.
 ##' @param time an \code{vector} indicating the time point associated to each
 ##'   element of \code{y}.
@@ -57,7 +57,6 @@ make_data <- function(y,
                       site,
                       f_mort,
                       m = 0.25,
-                      ## x,
                       x_t,
                       x_m,
                       x_r,
@@ -65,7 +64,6 @@ make_data <- function(y,
                       age_selectivity,
                       age_at_maturity,
                       adj_mat = matrix(0, ncol = 1, nrow = 1),
-                      ## age_zero = FALSE
                       .toggles,
                       .priors,
                       family = "lognormal1",
@@ -82,19 +80,12 @@ make_data <- function(y,
   toggles <- default_toggles() |>
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
-  ## getting the default "extra quantities" and using user options
-  ## extra_qt <- default_qt() |>
-  ##   safe_modify(.extra_qt)
   ## getting the default priors and using user options
   priors <- default_priors() |>
     safe_modify(.priors)
   ## additional quantities that can be inferred from data
   n_patches <- length(unique(site))
-  ## patches <- seq_len(n_patches)
   n_time <- length(unique(time))
-  ## ages <- seq_len(n_ages)
-  ## if (age_zero)
-  ##   ages <- ages - 1
   if (reorder) {
     my_ord <- order(site, time)
     y <- y[my_ord]
@@ -116,12 +107,6 @@ make_data <- function(y,
   } else if (missing(age_at_maturity)) {
     age_at_maturity <- integer(0)
   }
-  ## if (toggles$x_dep_movement) {
-  ##   stopifnot(ncol(adj_m) == nrow(adj_m) &&
-  ##             nrow(adj_m) == n_patches)
-  ## } else {
-  ##   x <- matrix(0, nrow = 1, ncol = 1)
-  ## }
   if (!toggles$est_mort) {
     m <- array(m, dim = 1)
     x_m <- matrix(0, nrow = 1, ncol = 1)
@@ -173,25 +158,16 @@ make_data <- function(y,
       toggles$qr_r <- 0
     }
   }
-  if (toggles$qr_r) {
+  if (toggles$qr_m) {
     if (!toggles$est_mort || K_m == 1) {
       message("turning QR parametrization for mort off!")
       toggles$qr_m <- 0
     }
   }
-  ## if (toggles$sr_rel) {
-  ##   x_r <- matrix(0, nrow = 1, ncol = 1)
-  ##   K_r <- integer(0)
-  ## } else {
-  ##   K_r <- array(NCOL(x_r), dim = 1)
-  ## }
   output <- list(N = n_time * n_patches,
                  n_ages = n_ages, n_patches = n_patches,
                  n_time = n_time,
-                 ## ages = ages,
-                 ## patches = patches,
                  y = y,
-                 ## area = area,
                  f = f_mort,
                  m = m,
                  X_t = x_t,
@@ -203,6 +179,147 @@ make_data <- function(y,
                  adj_mat = adj_mat,
                  age_at_maturity = age_at_maturity,
                  selectivity_at_age = selectivity_at_age) |>
+    c(toggles,
+      priors)
+  return(output)
+}
+
+##' This function creates the \code{list} used as the input for the \code{stan}
+##' model.
+##'
+##' @title Make data for SDM stan models
+##' @param y a \code{numeric vector} of species' densities.
+##' @param time an \code{vector} indicating the time point associated to each
+##'   element of \code{y}.
+##' @param site an \code{vector} indicating the sites associated to each element
+##'   of \code{y}.
+##' @param f_mort an optional \code{matrix} informing the instantaneous fishing
+##'   mortality rates at each age (columns) and timepoint (rows).
+##' @param m a \code{numeric} value corresponding to the instantaneous natural
+##'   mortality rate.
+##' @param x_t a design \code{matrix} of variables associated to the probability
+##'   of absence at each site/time.
+##' @param x_m a design \code{matrix} of variables associated to survival.
+##' @param x_r a design \code{matrix} of variables associated to recruitment.
+##' @param n_ages an \code{integer} indicating the number of ages for the
+##'   underlying population dynamic model.
+##' @param age_selectivity an \code{numeric vector} with \code{n_ages} elements,
+##'   where each element indicates the selectivity of a respective age. All the
+##'   elements of this vector must lie between 0 and 1.
+##' @param age_at_maturity a \code{integer} indicating the age at which a
+##'   species attains maturity. This is used for movement. That is, every
+##'   individual with age greater or equal to \code{age_at_maturity} may move
+##'   from one patch to another. Individuals below this age threshold remain
+##'   "static".
+##' @param adj_mat an adjacency \code{matrix} of dimensions \code{sites}
+##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
+##'   and zero otherwise.
+##' @param .toggles a \code{list} of toggles for model components. The
+##'   components are: \itemize{ \item \code{cloglog}: 1 to use the complementary
+##'   log-log and 0 for the logit link function for the absence probabilities.
+##'   \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
+##'   \item \code{est_mort}: 1 to estimate mortality and 0 otherwise.  \item
+##'   \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.  \item
+##'   \code{qr_t}: 1 to use QR parametrization for the absence probability
+##'   regression coefficients and 0 otherwise.  \item \code{qr_r}: 1 to use QR
+##'   parametrization for the recruitment regression coefficients and 0
+##'   otherwise.  \item \code{qr_m}: 1 to use QR parametrization for the
+##'   survival regression coefficients and 0 otherwise.  }
+##' @param .priors a \code{list} of priors hyperparameters.
+##' @param reorder a \code{boolean} telling whether the data needs to be
+##'   reordered. The default is TRUE and means the data points will be ordered
+##'   by site and time, respectively.
+##' @param family a \code{character} specifying the family of the probability
+##'   distribution assumed for density. The options are: \itemize{ \item
+##'   \code{"lognormal1"} (default): log-normal with the usual parametrization;
+##'   \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
+##'   \item \code{"gamma"}: gamma parametrized in terms of its mean; \item
+##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.}
+##' @return a \code{list} to be used as the input for a \code{stan} model
+##' @author lcgodoy
+##' @export
+make_data_sdm <- function(y,
+                          time,
+                          site,
+                          z,
+                          x,
+                          ## age_zero = FALSE
+                          .toggles,
+                          .priors,
+                          family = "lognormal1",
+                          reorder = TRUE) {
+  ## getting the default toggles and using user options
+  stopifnot(length(family) == 1)
+  stopifnot(family %in% c("lognormal1", "lognormal2",
+                          "gamma", "loglogistic"))
+  likelihood <- switch(family,
+                       lognormal1  = 0,
+                       lognormal2  = 1,
+                       gamma       = 2,
+                       loglogistic = 3)
+  toggles <- list(time_ar = 0,
+                  cloglog = 0,
+                  qr_z = 0,
+                  qr_x = 0) |>
+    safe_modify(.toggles) |>
+    c(list(likelihood = likelihood))
+  ## getting the default priors and using user options
+  priors <- default_priors() |>
+    safe_modify(.priors)
+  ## additional quantities that can be inferred from data
+  n_patches <- length(unique(site))
+  n_time <- length(unique(time))
+  if (reorder) {
+    my_ord <- order(site, time)
+    y <- y[my_ord]
+    site <- site[my_ord]
+    time <- time[my_ord]
+  }
+  if (missing(x)) {
+    x <- matrix(1, nrow = n_time * n_patches)
+    K_x <- 1
+  } else {
+    K_x <- ncol(x)
+    if (reorder)
+      x <- x[my_ord, , drop = FALSE]
+    if (length(priors$pr_coef_r_mu) < K_x)
+      priors$pr_coef_r_mu <- rep(0, K_x)
+    if (length(priors$pr_coef_r_sd) < K_x)
+      priors$pr_coef_r_sd <- rep(1, K_x)
+  }
+  if (missing(z)) {
+    z <- matrix(1, nrow = n_time * n_patches)
+    K_z <- 1
+  } else {
+    K_z <- ncol(z)
+    if (reorder)
+      z <- z[my_ord, , drop = FALSE]
+    if (length(priors$pr_coef_t_mu) < K_z)
+      priors$pr_coef_t_mu <- rep(0, K_z)
+    if (length(priors$pr_coef_t_sd) < K_z)
+      priors$pr_coef_t_sd <- rep(1, K_z)
+  }
+  if (toggles$qr_z) {
+    if (K_z == 1) {
+      message("turning QR parametrization for theta off!")
+      toggles$qr_z <- 0
+    }
+  }
+  if (toggles$qr_x) {
+    if (K_x == 1) {
+      message("turning QR parametrization for logrec off!")
+      toggles$qr_x <- 0
+    }
+  }
+  output <- list(N = n_time * n_patches,
+                 n_patches = n_patches,
+                 n_time = n_time,
+                 time = time,
+                 y = y,
+                 X = x,
+                 K_x = K_x,
+                 Z = z,
+                 K_z = K_z) |>
     c(toggles,
       priors)
   return(output)
