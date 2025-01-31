@@ -108,8 +108,8 @@ fit_drm <- function(.data,
                         parallel_chains = parallel_chains,
                         init = drm_init)
   output <-
-    list(draws = "draws",
-         data  = "model_dat")
+    list("draws" = draws,
+         "data"  = model_dat)
 
   return(output)
 }

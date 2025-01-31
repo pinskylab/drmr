@@ -17,6 +17,14 @@
 
 # drmr 0.0.21
 
-* `make_data_drm` function (analogous to `make_data`) created for SDM.
+* `make_data_sdm` function (analogous to `make_data`) created for SDM.
 
-* `predict_drm` function (analogous to `predict_drm`) created for SDM.
+* `predict_sdm` function (analogous to `predict_drm`) created for SDM.
+
+# drmr 0.0.22
+
+* `fit_drm` function makes the model fitting slightly simpler.
+
+* `pr_phi_a` and `pr_phi_b` become `pr_phi_mu` and `pr_phi_sd`. The prior for
+  $\log(\phi)$ is a Student's t with 3 degrees of freedom, mean `pr_phi_mu` and
+  SD `pr_phi_sd`.

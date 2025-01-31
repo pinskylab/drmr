@@ -265,9 +265,9 @@ data {
   //--- priors hyperparameters ----
   real pr_sigma_obs_mu; 
   real pr_sigma_obs_sd; // formerly sigma_obs_cv
-  real pr_phi_a; // revise this. It is for phi in gamma, loglogistic, and
+  real pr_phi_mu; // revise this. It is for phi in gamma, loglogistic, and
                  // inverse-gaussian
-  real pr_phi_b;
+  real pr_phi_sd;
   // * now AR SD parameters have pcpriors
   real pr_logsd_r_mu; 
   real pr_logsd_r_sd;
@@ -469,7 +469,7 @@ model {
       1.0 * normal_lccdf(0 | pr_sigma_obs_mu, pr_sigma_obs_sd);
   } else {
     // change these parameters (PC prior for exponential?)
-    target += student_t_lpdf(log_phi[1] | 3, pr_phi_a, pr_phi_b);
+    target += student_t_lpdf(log_phi[1] | 3, pr_phi_mu, pr_phi_sd);
   }
   // only evaluate density if there are length comps to evaluate
   target += sum(log(theta[id_z]));
