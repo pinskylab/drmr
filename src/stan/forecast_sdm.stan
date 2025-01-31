@@ -23,13 +23,13 @@ parameters {
   //--- "regression" coefficients ----
   vector[K_z] coef_t;
   vector[K_x] coef_r;
+  //--- additional parameter for different lik functions ----
+  array[likelihood > 0 ? 1 : 0] real phi;
+  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
   //--- parameters from AR process ----
   vector[time_ar ? n_time_train : 0] z_t;
   array[time_ar] real alpha;
   array[time_ar] real tau;
-  //--- additional parameter for different lik functions ----
-  array[likelihood > 0 ? 1 : 0] real phi;
-  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
 }
 generated quantities {
   //--- projected expected density ----
@@ -39,18 +39,18 @@ generated quantities {
   //--- projected absence probability ----
   vector[n_time * n_patches] rho_proj;
   //--- AR term ----
-  vector[time_ar ? n_time : 0] rec_proj;
+  vector[time_ar ? n_time : 0] z_tp;
   if (time_ar) {
     {
       vector[n_time] raw;
       vector[time_ar ? n_time - 1 : 0] lagged_rec;
       raw[1] = std_normal_rng();
-      rec_proj[1] = alpha[1] * z_t[n_time_train] +
+      z_tp[1] = alpha[1] * z_t[n_time_train] +
         tau[1] * raw[1];
       for (tp in 2:n_time) {
         raw[tp] = std_normal_rng();
-        lagged_rec[tp - 1] = rec_proj[tp - 1];
-        rec_proj[tp] = alpha[1] * lagged_rec[tp - 1] +
+        lagged_rec[tp - 1] = z_tp[tp - 1];
+        z_tp[tp] = alpha[1] * lagged_rec[tp - 1] +
           tau[1] * raw[tp];
       }
     }
