@@ -113,3 +113,103 @@ fit_drm <- function(.data,
 
   return(output)
 }
+
+##' @title Fit a GLM based SDM
+##' @export
+##' @family models
+##' @description Fit the SDM Stan model (this function is not stable yet and
+##'   have not been fully tested).
+##' @param .data A \code{data frame} containing the data for the model.
+##' @param y_col A \code{character} specifying the name of the column in `.data`
+##'   that contains the response variable.
+##' @param time_col A \code{character} specifying the name of the column in
+##'   `.data` that contains the time variable.
+##' @param site_col A \code{character} specifying the name of the column in
+##'   `.data` that contains the site variable.
+##' @param family a \code{character} specifying the family of the probability
+##'   distribution assumed for density. The options are: \itemize{ \item
+##'   \code{"lognormal1"} (default): log-normal with the usual parametrization;
+##'   \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
+##'   \item \code{"gamma"}: gamma parametrized in terms of its mean; \item
+##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.}
+##' @param formula_zero A \code{formula} specifying the model for the zero
+##'   inflation component. Defaults to `~ 1` (intercept only).
+##' @param formula_dens A \code{formula} specifying the model for the non-zero
+##'   density component. Defaults to `~ 1` (intercept only).
+##' @param iter_warmup An \code{integer} specifying the number of warmup
+##'   iterations for the MCMC sampler. Defaults to 1000.
+##' @param iter_sampling An \code{integer} specifying the number of sampling
+##'   iterations for the MCMC sampler. Defaults to 1000.
+##' @param chains An \code{integer} specifying the number of MCMC chains.
+##'   Defaults to 4.
+##' @param parallel_chains An \code{integer} specifying the number of chains to
+##'   run in parallel. Defaults to 4.
+##' @param seed An \code{integer} specifying the random number seed.
+##' @param init A \code{character} specifying the initialization method.  Can be
+##'   "cmdstan_default" (the default) or "pathfinder".
+##' @param ... Passed on to the [make_data()] function used to build the input
+##'   \code{list} for our \code{cmdstanr} model.
+##' @return A \code{list} containing the MCMC draws and the model data.
+##'   Specifically: \itemize{ \item{\code{draws}: }{The MCMC draws from the
+##'   fitted model.}  \item{\code{data}: }{The data used to fit the model (as a
+##'   list).}  }
+##' @seealso [make_data()]
+##' @examples
+##' if (instantiate::stan_cmdstan_exists()) {
+##'   data(sum_fl)
+##'     fit_sdm(.data = sum_fl,
+##'             y_col = "y",
+##'             time_col = "time",
+##'             site_col = "site")$draws$summary()
+##' }
+##' @author lcgodoy
+fit_sdm <- function(.data,
+                    y_col,
+                    time_col,
+                    site_col,
+                    family = "lognormal1",
+                    formula_zero = ~ 1,
+                    formula_rec = ~ 1,
+                    iter_warmup   = 1000,
+                    iter_sampling = 1000,
+                    chains = 4,
+                    parallel_chains = 4,
+                    seed,
+                    init = "cmdstan_default",
+                    ...) {
+  stopifnot(init %in% c("cmdstan_default", "pathfinder"))
+  x_t <- model.matrix(formula_zero, data = .data)
+  x_r <- model.matrix(formula_rec, data = .data)
+  model_dat <- make_data(y = .data[[y_col]],
+                         time = .data[[time_col]],
+                         site = .data[[site_col]],
+                         family = family,
+                         x_t = x_t,
+                         x_r = x_r,
+                         ...)
+  model <- instantiate::stan_package_model(
+                            name = "sdm",
+                            package = "drmr"
+                        )
+  if (init == "cmdstan_default") {
+    sdm_init <- NULL
+  } else {
+    sdm_init <-
+      model$pathfinder(data = model_dat,
+                       seed = seed,
+                       num_paths = chains,
+                       save_single_paths = TRUE,
+                       psis_resample = FALSE)
+  }
+  draws <- model$sample(data = model_dat,
+                        iter_warmup = iter_warmup,
+                        iter_sampling = iter_sampling,
+                        seed = seed,
+                        chains = chains,
+                        parallel_chains = parallel_chains,
+                        init = sdm_init)
+  output <-
+    list("draws" = draws,
+         "data"  = model_dat)
+  return(output)
+}

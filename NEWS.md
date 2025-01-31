@@ -23,7 +23,7 @@
 
 # drmr 0.0.22
 
-* `fit_drm` function makes the model fitting slightly simpler.
+* `fit_drm` and `fit_sdm` functions to make model fitting slightly simpler.
 
 * `pr_phi_a` and `pr_phi_b` become `pr_phi_mu` and `pr_phi_sd`. The prior for
   $\log(\phi)$ is a Student's t with 3 degrees of freedom, mean `pr_phi_mu` and

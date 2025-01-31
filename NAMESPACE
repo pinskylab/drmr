@@ -3,6 +3,7 @@
 export(default_priors)
 export(default_toggles)
 export(fit_drm)
+export(fit_sdm)
 export(gen_adj)
 export(make_data)
 export(make_data_sdm)
