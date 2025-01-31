@@ -2,11 +2,11 @@
 
 export(default_priors)
 export(default_toggles)
+export(fit_drm)
 export(gen_adj)
 export(make_data)
 export(make_data_sdm)
 export(max_quad_x)
 export(predict_drm)
 export(predict_sdm)
-export(run_drm)
 importFrom(instantiate,stan_package_model)
