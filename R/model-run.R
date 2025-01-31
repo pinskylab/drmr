@@ -180,13 +180,13 @@ fit_sdm <- function(.data,
   stopifnot(init %in% c("cmdstan_default", "pathfinder"))
   x_t <- model.matrix(formula_zero, data = .data)
   x_r <- model.matrix(formula_rec, data = .data)
-  model_dat <- make_data(y = .data[[y_col]],
-                         time = .data[[time_col]],
-                         site = .data[[site_col]],
-                         family = family,
-                         x_t = x_t,
-                         x_r = x_r,
-                         ...)
+  model_dat <- make_data_sdm(y = .data[[y_col]],
+                             time = .data[[time_col]],
+                             site = .data[[site_col]],
+                             family = family,
+                             z = x_t,
+                             x = x_r,
+                             ...)
   model <- instantiate::stan_package_model(
                             name = "sdm",
                             package = "drmr"
