@@ -94,8 +94,12 @@ make_data <- function(y,
   }
   if (missing(f_mort))
     f_mort <- matrix(0, nrow = n_ages, ncol = n_time)
-  if (missing(age_selectivity))
+  if (missing(age_selectivity)) {
     selectivity_at_age <- rep(1, n_ages)
+  } else {
+    stopifnot(length(age_selectivity) == n_ages)
+    selectivity_at_age <- age_selectivity
+  }
   if (toggles$movement) {
     stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
               nrow(adj_mat) == n_patches)

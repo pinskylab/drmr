@@ -28,3 +28,6 @@
 * `pr_phi_a` and `pr_phi_b` become `pr_phi_mu` and `pr_phi_sd`. The prior for
   $\log(\phi)$ is a Student's t with 3 degrees of freedom, mean `pr_phi_mu` and
   SD `pr_phi_sd`.
+  
+* Selectivity in `make_data` was fixed, thanks to Mark. Before, it was not being
+  used when users input it.
