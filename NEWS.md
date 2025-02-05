@@ -48,3 +48,5 @@
   * "pathfinder": uses the
     [Pathfinder](https://mc-stan.org/docs/reference-manual/pathfinder.html)
     algorithm to initialize the parameters.
+
+* Fixed some issues with documentation.

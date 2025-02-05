@@ -68,7 +68,7 @@ fit_drm <- function(.data,
                     seed,
                     init = "cmdstan_default",
                     ...) {
-  stopifnot(init %in% c("cmdstan_default", "pathfinder"))
+  stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
   x_t <- stats::model.matrix(formula_zero, data = .data)
   x_r <- stats::model.matrix(formula_rec, data = .data)
   if (is.null(formula_surv)) {
@@ -187,7 +187,7 @@ fit_sdm <- function(.data,
                     seed,
                     init = "cmdstan_default",
                     ...) {
-  stopifnot(init %in% c("cmdstan_default", "pathfinder"))
+  stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
   x_t <- stats::model.matrix(formula_zero, data = .data)
   x_r <- stats::model.matrix(formula_dens, data = .data)
   model_dat <- make_data_sdm(y = .data[[y_col]],
