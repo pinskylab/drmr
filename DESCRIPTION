@@ -2,7 +2,7 @@ Package: drmr
 Type: Package
 Title: An R package for dynamic range models (Pagel and Schur 2012
   <doi:10.1111/J.1466-8238.2011.00663.X>
-Version: 0.0.22
+Version: 0.0.23
 Authors@R: 
     person(given = "Lucas",
            family = "da Cunha Godoy",

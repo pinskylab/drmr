@@ -65,7 +65,8 @@ run in parallel. Defaults to 4.}
 \item{seed}{An \code{integer} specifying the random number seed.}
 
 \item{init}{A \code{character} specifying the initialization method.  Can be
-"cmdstan_default" (the default) or "pathfinder".}
+"cmdstan_default" (the default), "prior" (to initialize the model
+parameters using samples from their prior) or "pathfinder".}
 
 \item{...}{Passed on to the \code{\link[=make_data]{make_data()}} function used to build the input
 \code{list} for our \code{cmdstanr} model.}

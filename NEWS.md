@@ -31,3 +31,20 @@
   
 * Selectivity in `make_data` was fixed, thanks to Mark. Before, it was not being
   used when users input it.
+
+# drmr 0.0.23
+
+* The prior for $\alpha$ has been modified. In particular, instead of a pcp
+  prior, now we put a Beta prior on $(\alpha + 1) / 2$. The hyperparameters of
+  this Beta distribution are `pr_alpha_a` and `pr_alpha_b`, respectively.
+  
+* New functions to initialize the parameters from the prior have been
+  introduced. Now the `init` parmeter from the `fit_sdm` and `fit_drm` functions
+  can take three possible values: 
+  * "default": the standard initialization in `Stan` (For details see [`Stan's
+    documentation`](https://mc-stan.org/docs/reference-manual/execution.html#random-initial-values)).
+  * "prior": initialize the parameters using samples from their respective prior
+    distributions;
+  * "pathfinder": uses the
+    [Pathfinder](https://mc-stan.org/docs/reference-manual/pathfinder.html)
+    algorithm to initialize the parameters.

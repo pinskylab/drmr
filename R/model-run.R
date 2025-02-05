@@ -32,7 +32,8 @@
 ##'   run in parallel. Defaults to 4.
 ##' @param seed An \code{integer} specifying the random number seed.
 ##' @param init A \code{character} specifying the initialization method.  Can be
-##'   "cmdstan_default" (the default) or "pathfinder".
+##'   "cmdstan_default" (the default), "prior" (to initialize the model
+##'   parameters using samples from their prior) or "pathfinder".
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws and the model data.
@@ -92,6 +93,9 @@ fit_drm <- function(.data,
                         )
   if (init == "cmdstan_default") {
     drm_init <- NULL
+  } else if (init == "prior") {
+    drm_init <-
+      prior_inits(model_dat, chains, "drm")
   } else {
     drm_init <-
       model$pathfinder(data = model_dat,
@@ -193,6 +197,9 @@ fit_sdm <- function(.data,
                         )
   if (init == "cmdstan_default") {
     sdm_init <- NULL
+  } else if (init == "prior") {
+    sdm_init <-
+      prior_inits(model_dat, chains, "sdm")
   } else {
     sdm_init <-
       model$pathfinder(data = model_dat,

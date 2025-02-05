@@ -173,8 +173,8 @@ data {
   // * now AR SD parameters have pcpriors
   real pr_logsd_r_mu; 
   real pr_logsd_r_sd;
-  real pr_alpha0; 
-  real pr_palpha;
+  real pr_alpha_a; 
+  real pr_alpha_b;
   vector[K_z] pr_coef_t_mu;
   vector[K_z] pr_coef_t_sd;
   vector[K_x] pr_coef_r_mu;
@@ -224,7 +224,7 @@ parameters {
   // conditional SD
   array[time_ar] real log_tau;
   // autocorrelation
-  array[time_ar] real<lower = -1, upper = 1> alpha;
+  array[time_ar] real<lower = 0, upper = 1> shift_alpha;
   // aux latent variable
   vector[time_ar ? n_time : 0] raw;
 }
@@ -234,11 +234,13 @@ transformed parameters {
     phi = exp(log_phi);
   //--- AR process ----
   array[time_ar] real tau;
+  array[time_ar] real alpha;
   vector[time_ar ? n_time : 0] z_t;
   {
     vector[time_ar ? n_time : 0] lagged_z_t;
     if (time_ar) {
       tau[1] = exp(log_tau[1]);
+      alpha[1] = 2.0 * shift_alpha[1] - 1.0;
       z_t = tau[1] * raw;
       for (tp in 2:n_time) {
         lagged_z_t[tp] = z_t[tp - 1];
@@ -282,7 +284,7 @@ model {
   if (time_ar) {
     target += std_normal_lpdf(raw);
     target += normal_lpdf(log_tau[1] | pr_logsd_r_mu, pr_logsd_r_sd);
-    target += pcp_ar0_lpdf(alpha[1] | pr_palpha, pr_alpha0); 
+    target += beta_lpdf(shift_alpha[1] | pr_alpha_a, pr_alpha_b); 
   }
   //--- Counts ----
   target += normal_lpdf(coef_r0 | pr_coef_r_mu, pr_coef_r_sd);
