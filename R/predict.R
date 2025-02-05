@@ -40,7 +40,7 @@ fitted_pars_sdm <- function(data_list) {
 ##'   for. This input admits two possible entries: "drm" (default) or "sdm".
 ##' @return a \code{character} vector of labels indicating the parameters
 ##'   necessary for the forecast.
-##' @author Lucas Godoy
+##' @author lcgodoy
 get_fitted_pars <- function(data_list, model = "drm") {
   stopifnot(inherits(data_list, "list"))
   stopifnot(length(model) == 1)
@@ -85,7 +85,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'   addition, its patches MUST be the same as the ones used to obtain the
 ##'   parameters' estimates from the the \code{drm} object.
 ##' 
-##' @author Lucas Godoy
+##' @author lcgodoy
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.
@@ -166,12 +166,14 @@ predict_drm <- function(drm,
 ##'   value of \eqn{x} (on its original scale) such that the linear predictor is
 ##'   maximized (or minimized).
 ##' 
-##' @param drm A \code{CmdStanFit} object containing samples from the posterior
+##' @param sdm A \code{CmdStanFit} object containing samples from the posterior
 ##'   distribution.
-##' @param drm_data a \code{list} used as input for model fitting. Typically,
+##' @param sdm_data a \code{list} used as input for model fitting. Typically,
 ##'   the output from the [make_data] function.
 ##' @param ntime_for an \code{integer} denoting the number of timepoints for the
 ##'   forecast.
+##' @param time_for an \code{integer vector} indicating timepoints for
+##'   forecasting.
 ##' @param z_t a design \code{matrix} of variables associated to the probability
 ##'   of absence at each site/time.
 ##' @param x_t a design \code{matrix} of variables associated to the non-zero
@@ -189,7 +191,7 @@ predict_drm <- function(drm,
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{sdm} object.
 ##' 
-##' @author Lucas Godoy
+##' @author lcgodoy
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.

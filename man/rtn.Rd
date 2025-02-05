@@ -28,7 +28,7 @@ drawn from the specified truncated normal distribution.
 Generates random numbers from a truncated Normal distribution.
 }
 \seealso{
-\code{\link[=rnorm]{rnorm()}}, \code{\link[=qnorm]{qnorm()}}
+\code{\link[stats:Normal]{stats::rnorm()}}, \code{\link[stats:Normal]{stats::qnorm()}}
 }
 \author{
 lcgodoy

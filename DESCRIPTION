@@ -17,6 +17,7 @@ Imports:
   instantiate,
   sf,
   spdep,
+  stats,
   utils
 Suggests: 
   knitr,

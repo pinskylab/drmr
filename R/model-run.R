@@ -11,11 +11,12 @@
 ##' @param site_col A \code{character} specifying the name of the column in
 ##'   `.data` that contains the site variable.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{ \item
-##'   \code{"lognormal1"} (default): log-normal with the usual parametrization;
+##'   distribution assumed for density. The options are: \itemize{
+##'   \item \code{"lognormal1"} (default): log-normal with the usual parametrization;
 ##'   \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"gamma"}: gamma parametrized in terms of its mean; \item
-##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.}
+##'   \item \code{"gamma"}: gamma parametrized in terms of its mean;
+##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+##' }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_rec A \code{formula} specifying the model for the recruitment
@@ -37,17 +38,19 @@
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws and the model data.
-##'   Specifically: \itemize{ \item{\code{draws}: }{The MCMC draws from the
-##'   fitted model.}  \item{\code{data}: }{The data used to fit the model (as a
-##'   list).}  }
+##'   Specifically: \itemize{
+##'     \item \code{draws}: The MCMC draws from the fitted model.
+##'    \item\code{data}: The data used to fit the model (as a list).
+##'   }
 ##' @seealso [make_data()]
 ##' @examples
 ##' if (instantiate::stan_cmdstan_exists()) {
 ##'   data(sum_fl)
-##'     fit_drm(.data = sum_fl,
-##'             y_col = "y",
-##'             time_col = "time",
-##'             site_col = "site")$draws$summary()
+##'   fit_drm(.data = sum_fl,
+##'           y_col = "y",
+##'           time_col = "year",
+##'           site_col = "patch",
+##'           seed = 2025)$draws$summary()
 ##' }
 ##' @author lcgodoy
 fit_drm <- function(.data,
@@ -66,8 +69,8 @@ fit_drm <- function(.data,
                     init = "cmdstan_default",
                     ...) {
   stopifnot(init %in% c("cmdstan_default", "pathfinder"))
-  x_t <- model.matrix(formula_zero, data = .data)
-  x_r <- model.matrix(formula_rec, data = .data)
+  x_t <- stats::model.matrix(formula_zero, data = .data)
+  x_r <- stats::model.matrix(formula_rec, data = .data)
   if (is.null(formula_surv)) {
     model_dat <- make_data(y = .data[[y_col]],
                            time = .data[[time_col]],
@@ -77,7 +80,7 @@ fit_drm <- function(.data,
                            x_r = x_r,
                            ...)
   } else {
-    x_m <- model.matrix(formula_surv, data = .data)
+    x_m <- stats::model.matrix(formula_surv, data = .data)
     model_dat <- make_data(y = .data[[y_col]],
                            time = .data[[time_col]],
                            site = .data[[site_col]],
@@ -131,11 +134,12 @@ fit_drm <- function(.data,
 ##' @param site_col A \code{character} specifying the name of the column in
 ##'   `.data` that contains the site variable.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{ \item
-##'   \code{"lognormal1"} (default): log-normal with the usual parametrization;
+##'   distribution assumed for density. The options are: \itemize{
+##'   \item \code{"lognormal1"} (default): log-normal with the usual parametrization;
 ##'   \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"gamma"}: gamma parametrized in terms of its mean; \item
-##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.}
+##'   \item \code{"gamma"}: gamma parametrized in terms of its mean;
+##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+##' }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_dens A \code{formula} specifying the model for the non-zero
@@ -154,17 +158,19 @@ fit_drm <- function(.data,
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws and the model data.
-##'   Specifically: \itemize{ \item{\code{draws}: }{The MCMC draws from the
-##'   fitted model.}  \item{\code{data}: }{The data used to fit the model (as a
-##'   list).}  }
+##'    \itemize{
+##'     \item \code{draws}: The MCMC draws from the fitted model.
+##'    \item\code{data}: The data used to fit the model (as a list).
+##'   }
 ##' @seealso [make_data()]
 ##' @examples
 ##' if (instantiate::stan_cmdstan_exists()) {
 ##'   data(sum_fl)
-##'     fit_sdm(.data = sum_fl,
-##'             y_col = "y",
-##'             time_col = "time",
-##'             site_col = "site")$draws$summary()
+##'   fit_sdm(.data = sum_fl,
+##'           y_col = "y",
+##'           time_col = "year",
+##'           site_col = "patch",
+##'           seed = 2025)$draws$summary()
 ##' }
 ##' @author lcgodoy
 fit_sdm <- function(.data,
@@ -173,7 +179,7 @@ fit_sdm <- function(.data,
                     site_col,
                     family = "lognormal1",
                     formula_zero = ~ 1,
-                    formula_rec = ~ 1,
+                    formula_dens = ~ 1,
                     iter_warmup   = 1000,
                     iter_sampling = 1000,
                     chains = 4,
@@ -182,8 +188,8 @@ fit_sdm <- function(.data,
                     init = "cmdstan_default",
                     ...) {
   stopifnot(init %in% c("cmdstan_default", "pathfinder"))
-  x_t <- model.matrix(formula_zero, data = .data)
-  x_r <- model.matrix(formula_rec, data = .data)
+  x_t <- stats::model.matrix(formula_zero, data = .data)
+  x_r <- stats::model.matrix(formula_dens, data = .data)
   model_dat <- make_data_sdm(y = .data[[y_col]],
                              time = .data[[time_col]],
                              site = .data[[site_col]],

@@ -19,5 +19,5 @@ This function identifies the parameters necessary for carrying
 out forecasts based on the data used to fit a DRM (or SDM).
 }
 \author{
-Lucas Godoy
+lcgodoy
 }

@@ -30,7 +30,7 @@ A numeric vector of the same length as \code{x}, containing the
 Calculates the density of a truncated Normal distribution.
 }
 \seealso{
-\code{\link[=dnorm]{dnorm()}}, \code{\link[=pnorm]{pnorm()}}
+\code{\link[stats:Normal]{stats::dnorm()}}, \code{\link[stats:Normal]{stats::pnorm()}}
 }
 \author{
 lcgodoy

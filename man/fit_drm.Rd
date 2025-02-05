@@ -35,11 +35,12 @@ that contains the response variable.}
 \code{.data} that contains the site variable.}
 
 \item{family}{a \code{character} specifying the family of the probability
-distribution assumed for density. The options are: \itemize{ \item
-\code{"lognormal1"} (default): log-normal with the usual parametrization;
+distribution assumed for density. The options are: \itemize{
+\item \code{"lognormal1"} (default): log-normal with the usual parametrization;
 \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
-\item \code{"gamma"}: gamma parametrized in terms of its mean; \item
-\code{"loglogistic"}: log-logistic parametrized in terms of its mean.}}
+\item \code{"gamma"}: gamma parametrized in terms of its mean;
+\item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+}}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero
 inflation component. Defaults to \code{~ 1} (intercept only).}
@@ -73,9 +74,10 @@ parameters using samples from their prior) or "pathfinder".}
 }
 \value{
 A \code{list} containing the MCMC draws and the model data.
-Specifically: \itemize{ \item{\code{draws}: }{The MCMC draws from the
-fitted model.}  \item{\code{data}: }{The data used to fit the model (as a
-list).}  }
+Specifically: \itemize{
+\item \code{draws}: The MCMC draws from the fitted model.
+\item\code{data}: The data used to fit the model (as a list).
+}
 }
 \description{
 Fit the DRM Stan model (this function is not stable yet and
@@ -84,10 +86,11 @@ have not been fully tested).
 \examples{
 if (instantiate::stan_cmdstan_exists()) {
   data(sum_fl)
-    fit_drm(.data = sum_fl,
-            y_col = "y",
-            time_col = "time",
-            site_col = "site")$draws$summary()
+  fit_drm(.data = sum_fl,
+          y_col = "y",
+          time_col = "year",
+          site_col = "patch",
+          seed = 2025)$draws$summary()
 }
 }
 \seealso{

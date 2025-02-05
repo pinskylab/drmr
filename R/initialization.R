@@ -14,16 +14,16 @@
 ##'   density is returned.  Defaults to \code{FALSE}.
 ##' @return A numeric vector of the same length as \code{x}, containing the
 ##'   (log) density values of the truncated t distribution.
-##' @seealso [dt()], [pt()]
+##' @seealso [stats::dt()], [stats::pt()]
 ##' @export
 ##' @author lcgodoy
 dtt <- function(x, ncp = 0, sd = 1,
                 df = 3, range = c(0, Inf),
                 log = FALSE) {
-  ll <- pt(q = min(range) / sd, ncp = ncp, df = df)
-  hh <- pt(q = max(range) / sd, ncp = ncp, df = df)
+  ll <- stats::pt(q = min(range) / sd, ncp = ncp, df = df)
+  hh <- stats::pt(q = max(range) / sd, ncp = ncp, df = df)
   ## 1/sd is the Jacobian of the transformation.
-  out <- dt(x / sd, df = df, ncp = ncp, log = TRUE) -
+  out <- stats::dt(x / sd, df = df, ncp = ncp, log = TRUE) -
     log(hh - ll) +
     log(sd)
   if (!log)
@@ -49,15 +49,15 @@ dtt <- function(x, ncp = 0, sd = 1,
 ##'   from below at 0.
 ##' @return A \code{numeric vector} of length \code{n} containing random numbers
 ##'   drawn from the specified truncated t distribution.
-##' @seealso [rt()], [qt()]
+##' @seealso [stats::rt()], [stats::qt()]
 ##' @export
 ##' @author lcgodoy
 rtt <- function(n, ncp = 0, sd = 1,
                 df = 3, range = c(0, Inf)) {
-  ll <- pt(q = min(range) / sd, ncp = ncp, df = df)
-  hh <- pt(q = max(range) / sd, ncp = ncp, df = df)
-  u  <- runif(n, min = ll, max = hh)
-  qt(p = u, df = df, ncp = ncp) * sd
+  ll <- stats::pt(q = min(range) / sd, ncp = ncp, df = df)
+  hh <- stats::pt(q = max(range) / sd, ncp = ncp, df = df)
+  u  <- stats::runif(n, min = ll, max = hh)
+  stats::qt(p = u, df = df, ncp = ncp) * sd
 }
 
 ##' @title Density of a truncated Normal distribution
@@ -74,15 +74,15 @@ rtt <- function(n, ncp = 0, sd = 1,
 ##'   density is returned. Defaults to \code{FALSE}.
 ##' @return A numeric vector of the same length as \code{x}, containing the
 ##'   (log) density values of the truncated normal distribution.
-##' @seealso [dnorm()], [pnorm()]
+##' @seealso [stats::dnorm()], [stats::pnorm()]
 ##' @export
 ##' @author lcgodoy
 dtn <- function(x, mean = 0, sd = 1, range = c(0, Inf),
                 log = FALSE) {
-  ll <- pnorm(q = min(range), mean = mean, sd = sd)
-  hh <- pnorm(q = max(range), mean = mean, sd = sd)
-  out <- dnorm(x, mean = mean, sd = sd,
-               log = TRUE) - log(hh - ll)
+  ll <- stats::pnorm(q = min(range), mean = mean, sd = sd)
+  hh <- stats::pnorm(q = max(range), mean = mean, sd = sd)
+  out <- stats::dnorm(x, mean = mean, sd = sd,
+                      log = TRUE) - log(hh - ll)
   if (!log)
     out <- exp(out)
   return(out)
@@ -101,14 +101,14 @@ dtn <- function(x, mean = 0, sd = 1, range = c(0, Inf),
 ##'   truncation from below at 0.
 ##' @return A \code{numeric vector} of length \code{n} containing random numbers
 ##'   drawn from the specified truncated normal distribution.
-##' @seealso [rnorm()], [qnorm()]
+##' @seealso [stats::rnorm()], [stats::qnorm()]
 ##' @export
 ##' @author lcgodoy
 rtn <- function(n, mean = 0, sd = 1, range = c(0, Inf)) {
-  ll <- pnorm(q = min(range), mean = mean, sd = sd)
-  hh <- pnorm(q = max(range), mean = mean, sd = sd)
-  u  <- runif(n, min = ll, max = hh)
-  qnorm(p = u, mean = mean, sd = sd)
+  ll <- stats::pnorm(q = min(range), mean = mean, sd = sd)
+  hh <- stats::pnorm(q = max(range), mean = mean, sd = sd)
+  u  <- stats::runif(n, min = ll, max = hh)
+  stats::qnorm(p = u, mean = mean, sd = sd)
 }
 
 ##' @title Validate input data for [prior_sample()]
@@ -151,12 +151,12 @@ check_pars <- function(dat, model) {
 prior_sample <- function(dat, model = "drm") {
   check_pars(dat, model)
   out <-
-    list(coef_r0 = rnorm(dat$K_r,
-                         mean = dat$pr_coef_r_mu,
-                         sd = dat$pr_coef_r_sd),
-         coef_t0 = rnorm(dat$K_t,
-                         mean = dat$pr_coef_t_mu,
-                         sd = dat$pr_coef_t_sd))
+    list(coef_r0 = stats::rnorm(dat$K_r,
+                                mean = dat$pr_coef_r_mu,
+                                sd = dat$pr_coef_r_sd),
+         coef_t0 = stats::rnorm(dat$K_t,
+                                mean = dat$pr_coef_t_mu,
+                                sd = dat$pr_coef_t_sd))
   if (dat$likelihood == 0) {
     out <-
       c(out,
@@ -178,24 +178,25 @@ prior_sample <- function(dat, model = "drm") {
   if (dat$time_ar) {
     out <-
       c(out,
-        list(log_tau = array(rnorm(1),
+        list(log_tau = array(stats::rnorm(1),
                              dim = 1),
-             shift_alpha   = array(rbeta(1, data$pr_alpha_a,
-                                         data$pr_alpha_b),
+             shift_alpha   = array(stats::rbeta(1,
+                                                dat$pr_alpha_a,
+                                                dat$pr_alpha_b),
                                    dim = 1),
-             raw     = rnorm(dat$n_time)))
+             raw     = stats::rnorm(dat$n_time)))
   }
   if (model == "drm") {
     if (dat$movement) {
       out <- c(out,
-               list(logit_zeta = array(rnorm(1),
+               list(logit_zeta = array(stats::rnorm(1),
                                        dim = 1)))
     }
     if (dat$est_m) {
       out <- c(out,
-               list(coef_m0 = rnorm(dat$K_m,
-                                    mean = dat$pr_coef_m_mu,
-                                    sd = dat$pr_coef_m_sd)))
+               list(coef_m0 = stats::rnorm(dat$K_m,
+                                           mean = dat$pr_coef_m_mu,
+                                           sd = dat$pr_coef_m_sd)))
     }
   }
   return(out)

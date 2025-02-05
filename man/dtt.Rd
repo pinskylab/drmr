@@ -33,7 +33,7 @@ A numeric vector of the same length as \code{x}, containing the
 Calculates the density of a truncated Student's t distribution.
 }
 \seealso{
-\code{\link[=dt]{dt()}}, \code{\link[=pt]{pt()}}
+\code{\link[stats:TDist]{stats::dt()}}, \code{\link[stats:TDist]{stats::pt()}}
 }
 \author{
 lcgodoy
