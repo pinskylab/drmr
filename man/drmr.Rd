@@ -11,6 +11,7 @@ Fitting process-based species distribution models in stan.
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://pinskylab.github.io/drmr/}
   \item Report bugs at \url{https://github.com/pinskylab/drmr/issues/}
 }
 

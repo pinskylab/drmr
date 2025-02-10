@@ -1,0 +1,1236 @@
+---
+title: "Examples"
+vignette: >
+  %\VignetteIndexEntry{examples}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+## TL; DR {.unnumbered}
+
+This document demonstrates the functionalities of the `drmr` R package for
+fitting Dynamic Range and Species Distribution Models (DRMs and SDMs,
+respectively) using pre-compiled `Stan` models.
+
+
+We'll explore increasingly complex models, showcasing the package's capabilities
+with the help of five additional `R` packages:
+
+* `sf`: for spatial data manipulation and visualization
+* `ggplot2`: for creating graphs
+* `bayesplot`: for visualizing MCMC outputs
+* `dplyr`: for data wrangling
+* `skimr`: for quick descriptive statistics
+
+## Installing the `drmr` package {#sec-drmr}
+
+The `drmr` package provides pre-compiled `cmdstanr` [@gabry2024cmdstanr] models
+powered by the `instantiate` package [@landau2024instantiate]. These
+pre-compiled models allow us to make inferences about the DRM (and SDM) using
+`cmdstan` algorithms, such as the HMC NUTS Sampler.
+
+
+The package is not on CRAN yet. To install the version hosted on GitHub, run:
+```{r}
+#| eval: false
+
+remotes::install_github("pinskylab/drmr")
+```
+
+Finally, the code below loads the packages necessary to reproduce the examples
+in this document.
+
+```{r}
+#| label: setup
+
+library(drmr)
+library(sf) ## "mapping"
+library(ggplot2) ## graphs
+library(bayesplot) ## and more graphs
+library(dplyr)
+```
+
+## Data {#sec-data}
+
+This example uses Summer Flounder data from Alexa's project.  We begin by
+loading the dataset and calculating a density variable (raw counts divided by
+patch area):
+
+```{r}
+#| label: data-load
+
+## loads the data
+data(sum_fl)
+
+## computing density
+sum_fl <- sum_fl |>
+  mutate(dens = y / area_km2,
+         .before = y)
+```
+
+A quick exploration of the data in @tbl-summary reveals the following:
+
+* Surface salinity (ssalin) and bottom salinity (bsalin) have missing values
+  (around 30% missing for each).
+* At least 25% of the density (`dens`) values are zero.
+
+```{r}
+#| label: tbl-summary
+#| tbl-cap: "Summary statistics of all the variables in the dataset."
+
+## Density is being multiplied by 10000 because the non-negative densities are
+## too small
+skimr::skim_without_charts(mutate(sum_fl, dens = 10000 * dens))
+```
+
+Finally, we split the data, reserving the last five years for evaluating
+predictions:
+
+```{r}
+#| label: data-split
+
+## 5 years-ahead predictions
+first_year_forecast <- max(sum_fl$year) - 5
+
+first_id_forecast <-
+  first_year_forecast - min(sum_fl$year) + 1
+
+## splitting data
+dat_test <- sum_fl |>
+  filter(year >= first_year_forecast)
+
+dat_train <- sum_fl |>
+  filter(year < first_year_forecast)
+```
+
+
+## Loading pre-compiled models
+
+
+To load the pre-compiled SDM described in @sec-sdm, run:
+```{r}
+#| label: load-sdm
+
+sdm_compiled <-
+  instantiate::stan_package_model(name = "sdm",
+                                  package = "drmr")
+```
+
+
+Similarly, to load the pre-compiled DRM, we run:
+```{r}
+#| label: load-drm
+
+drm_compiled <-
+  instantiate::stan_package_model(name = "drm",
+                                  package = "drmr")
+```
+
+
+These models also have associated pre-compiled `forecast` objects. They can be
+loaded as follows:
+```{r}
+#| label: load-forecasts
+
+forecast_sdm <-
+  instantiate::stan_package_model(name = "forecast_sdm",
+                                  package = "drmr")
+
+forecast_drm <-
+  instantiate::stan_package_model(name = "forecast",
+                                  package = "drmr")
+```
+
+Lastly, to calculate density-weighted centroids, the following pre-compiled
+object is available:
+```{r}
+#| label: load-centroids
+
+centroids_compiled <-
+  instantiate::stan_package_model(name = "centroid",
+                                  package = "drmr")
+```
+
+
+All of the pre-compiled models are of class `CmdStanModel` and they work just as
+any other compiled `cmdstanr`
+[model](https://mc-stan.org/cmdstanr/reference/CmdStanModel.html#model-fitting).
+
+
+## Preparing data & fitting models
+
+
+Currently, in addition to the pre-compiled models, the `drmr` package has three
+functions. They are the following:
+
+* `make_data`: creates a `list` that will be used as the input for a `drm` model
+  (see `?drmr::make_data` for all the function arguments).
+
+* `default_priors` is a function that takes no arguments and return the default
+   hyperparameters for the priors from the model;
+
+* `default_toggles` is another function taking no arguments. This one return the
+   default "toggles" for the `drm` the model. The toggles turn features of the
+   model (e.g., movement) on and off.
+
+
+Let us start fitting the simplest DRM available in the package. The first step,
+is always to use the `make_data` function to create the input for the `cmdstan`
+model. This function takes a set of inputs, and turn them into the appropriate
+format for our code. Below, we only provide three inputs for the function:
+
+* `y` the vector of densities
+
+* `time` the vector of time points
+
+* `site` the vector of patches/sites.
+
+```{r}
+#| label: simplest_makedata
+
+data <-
+  make_data(y = dat_train$dens, ## response variable: density
+            time = dat_train$year, ## vector of time points
+            site = dat_train$patch, ## vector of patches
+            n_ages = 8, ## number of age groups
+            .toggles = list(likelihood = 1))
+
+## checking the elements of the list:
+class(data)
+names(data)
+```
+
+The output of `names(data)` displays the "names" of the elements of the output
+list from the `make_data`. Some of these elements are inferred from `y`, `time`,
+and `site` and others take default values. For example:
+
+* `n_ages` is the total number of (unobserved) ages $A$. If not provided,
+  `n_ages` is taken to be 1.
+
+* `f` represents $f_{a, t}$ from @eq-surv. Its default value is $f_{a, t} = 0$ for
+  every age and time point.
+
+* `m` is the mortality rate $m$ in @eq-surv. Its default value is 0.25 [^2].
+
+* `X_t` is a matrix such that its $i$-th row is as in $\mathbf{x}^{(1)}_{t, i}$
+  in @eq-linpreds. While `K_t` represents the number of columns in `X_t`. If no
+  input is given, `X_t` has a single column and $N = T \cdot P$ rows.
+  
+* `X_r` is a matrix such that its $i$-th row is as in $\mathbf{x}^{(r)}_{t, i}$
+  in @eq-lmrec. While `K_r` represents the number of columns in `X_r`. If no
+  input is given, `X_r` has a single column and $N = T \cdot P$ rows.
+  
+* `X_m` is a matrix such that its $i$-th row is as in $\mathbf{x}^{(m)}_{t, i}$
+  in @eq-lmsurv. While `K_m` represents the number of columns in `X_m`. If no
+  input is given, `X_m` is "empty".
+  
+* `adj_mat` is the adjacency matrix used to encode movement as $\mathbf{A}$,
+  while `age_at_maturity` is $a_0$ in @sec-movement.
+
+* `selectivity_at_age` is a vector of length `n_ages` informing the selectivity
+  at each age group.
+
+
+[^2]: taken from Alexa's code.
+
+
+The remaining elements are toggles and prior hyperparameters that will be
+described later on. The prior hyperparameters start with `pr_`. 
+
+
+The toggle called `likelihood` takes four possible values. When `likelihood = 0`
+(default), the $g(\cdot)$ function in @eq-za_dens is taken to be a Log-Normal
+density with the usual parametrization. When `likelihood = 1`, we still get a
+Log-Lormal density, but parametrized in terms of $\mu$ and $\phi$. For
+`likelihood` equal to 2 or 3, we get a Gamma or a Log-Logistic distribution,
+respectively. The last two densities are also parametrized in terms of their
+mean. For more details, see @ye2021comparisons.
+
+
+
+Finally, below we obtain samples from the model associated with the data list we
+just created.
+```{r}
+#| label: drm-1
+
+drm_1 <- drm_compiled$sample(data = data,
+                             iter_sampling = 400, ## number of samples after warmup
+                             iter_warmup = 400, ## number of warmup samples
+                             seed = 2025,
+                             chains = 4,
+                             parallel_chains = 4)
+```
+
+
+This model has only three parameters:
+
+* `phi`: this parameter has no practical interpretation;
+
+* In this simpler model, $\theta_{t, i} = \theta$ for every $i$ and $t$. Then,
+  `coef_t = \mathrm{logit}(\theta)` is the logit of the probability of observing
+  a zero density.
+
+* In this simpler model, `coef_r` is the log of the overall recruitment per unit
+  of area.
+
+
+We can introduce a AR(1) temporal random effect for recruitment by turning the
+`time_ar` toggle on and re-running the model. See below the code chunk below.
+
+```{r}
+#| label: drm-2
+
+data <-
+  make_data(y = dat_train$dens, ## response variable: density
+            time = dat_train$year, ## vector of time points
+            site = dat_train$patch, ## vector of patches
+            n_ages = 8, ## number of age groups
+            .toggles = list(likelihood = 1, time_ar = 1))
+
+drm_2 <- drm_compiled$sample(data = data,
+                             iter_sampling = 400, ## number of samples after
+                                                  ## warmup
+                             iter_warmup = 400, ## number of warmup samples
+                             seed = 2025,
+                             chains = 4,
+                             parallel_chains = 4)
+```
+
+This model introduces two additional parameters: `tau` (the conditional SD
+of the AR term), and `alpha` the temporal autocorrelation parameter.
+
+
+Now, let us incorporate the fishing mortality into the model. We can load the
+Summer Flounder fishing mortality rates as follows:
+
+```{r}
+#| label: fmat
+
+fmat <-
+  system.file("fmat.rds", package = "drmr") |>
+  readRDS()
+
+years_all <- seq_len(NCOL(fmat))
+years_train <- years_all[years_all < first_id_forecast]
+years_test  <- years_all[years_all >= first_id_forecast]
+
+f_train <- fmat[, years_train]
+f_test  <- fmat[, years_test]
+```
+
+To fit a model taking this information into consideration, we just provide the
+`fmat` object to `make_data` and refit the model. 
+
+```{r}
+#| label: drm-3
+
+data <-
+  make_data(y = dat_train$dens, ## response variable: density
+            time = dat_train$year, ## vector of time points
+            site = dat_train$patch, ## vector of patches
+            f_mort = f_train,
+            n_ages = NROW(f_train), ## number of age groups
+            .toggles = list(likelihood = 1, time_ar = 1))
+
+drm_3 <- drm_compiled$sample(data = data,
+                             iter_sampling = 400, ## number of samples after
+                                                  ## warmup
+                             iter_warmup = 400,   ## number of warmup samples
+                             seed = 2025,
+                             chains = 4,
+                             parallel_chains = 4)
+```
+
+
+Now, let us introduce movement into the model. First, let us load the map of the
+patches to be able to calculate the adjacency matrix $\mathbf{A}$ from
+@sec-movement.
+
+```{r}
+#| label: fig-map-adj
+#| fig-cap: "Patches considered in this example."
+
+map_name <- system.file("maps/sum_fl.shp", package = "drmr")
+
+polygons <- st_read(map_name)
+
+ggplot() +
+  geom_sf(data = polygons,
+          color = 1,
+          fill = "gray70") +
+  theme_bw()
+```
+
+Finally, the code below calculates the auxiliary quantities for the movement
+matrix.
+
+```{r}
+#| label: calc-adj
+
+adj_mat <- gen_adj(st_buffer(st_geometry(polygons),
+                             dist = 2500))
+
+## row-standardized matrix
+adj_mat <-
+  t(apply(adj_mat, 1, \(x) x / (sum(x))))
+```
+
+Below, we adjust the `make_data` function accordingly and fit the model with
+movement.
+
+```{r}
+#| label: drm-4
+
+data <-
+  make_data(y = dat_train$dens, ## response variable: density
+            time = dat_train$year, ## vector of time points
+            site = dat_train$patch, ## vector of patches
+            f_mort = f_train,
+            n_ages = NROW(f_train), ## number of age groups
+            adj_mat = adj_mat,
+            age_at_maturity = 3, ## age at which fish are able to move
+            .toggles = list(likelihood = 1, ## non-zero density pdf
+                            time_ar = 1, ## ar(1) for recruitment
+                            movement = 1)) ## turning movement on
+
+drm_4 <- drm_compiled$sample(data = data,
+                             iter_sampling = 400, ## number of samples after
+                                                  ## warmup
+                             iter_warmup = 400,   ## number of warmup samples
+                             seed = 2025,
+                             chains = 4,
+                             parallel_chains = 4)
+```
+
+
+This model introduces the parameter `zeta` ($\zeta$) which represents the
+probability of _not moving_ from time $t$ to time $t + 1$. The estimated
+probability of not moving is $0.498$.
+
+
+
+We can make the model more complex/flexible by incorporating environmental
+drivers. We have two variables representing environmental drivers: sea bottom
+temperature (`btemp`) and sea surface temperature (`stemp`). They can be
+incorporated into the probability of observing zero density, recruitment, and/or
+survival (or mortality).
+
+
+The relationship between recruitment (or survival) and environmental factors we
+can obtain are highlighted in @fig-rel. Before introducing these variables into
+the models, it is a good practice to center them at 0 to improve the MCMC
+efficiency. The code chunk below centers the covariates at 0.
+
+```{r}
+#| label: cov-centering
+
+avgs <- c("stemp" = mean(dat_train$stemp),
+          "btemp" = mean(dat_train$btemp))
+
+min_year <- dat_train$year |> min()
+
+dat_train <- dat_train |>
+  mutate(stemp = stemp - avgs["stemp"],
+         btemp = btemp - avgs["btemp"],
+         time  = year - min_year)
+
+dat_test <- dat_test |>
+  mutate(stemp = stemp - avgs["stemp"],
+         btemp = btemp - avgs["btemp"],
+         time  = year - min_year)
+```
+
+
+```{r}
+#| label: fig-rel
+#| fig-cap: "Available relationship between recruitment/survival and environmental factors."
+#| echo: false
+#| fig-subcap: 
+#|   - "Quadratic relationship 1"
+#|   - "Quadratic relationship 2"
+#|   - "log-linear relationship"
+#| layout-ncol: 3
+
+max_y <- function(x, .betas, type = "log", offset = 0) {
+  .betas[1] <- .betas[1] - 2 * offset * .betas[2]
+  max_x <- - .5  * .betas[1] / .betas[2]
+  max_x2 <- max_x * max_x
+  out <- as.numeric(cbind(1, max_x, max_x2) %*% .betas)
+  if (type == "log") {
+    return(exp(out))
+  } else if (type == "logit") {
+    return(expit(out))
+  } else
+    return(out)
+}
+
+t_max <- 2
+b2 <- -0.25
+b1 <- - 2 * t_max * b2
+betas <- c(1, b1, b2)
+my_df <- tibble(x = seq(from = 0, to = 20, length.out = 500)) |>
+  mutate(x2 = x * x) |>
+  mutate(ylin = as.numeric(cbind(1, x, x2) %*% betas)) |>
+  mutate(ylog = exp(ylin))
+
+## we can still get an analogous of "T_opt"
+ggplot(data = my_df,
+       aes(x = x, y = ylog)) +
+  geom_line() +
+  theme_bw()
+
+t_max <- 11
+b2 <- -0.05
+b1 <- - 2 * t_max * b2
+betas <- c(1, b1, b2)
+my_df <- tibble(x = seq(from = 0, to = 20, length.out = 500)) |>
+  mutate(x2 = x * x) |>
+  mutate(ylin = as.numeric(cbind(1, x, x2) %*% betas)) |>
+  mutate(ylog = exp(ylin))
+## we can still get an analogous of "T_opt"
+ggplot(data = my_df,
+       aes(x = x, y = ylog)) +
+  geom_line() +
+  theme_bw()
+
+betas <- c(.1, .25)
+my_df <- tibble(x = seq(from = 0, to = 20, length.out = 500)) |>
+  mutate(ylin = as.numeric(cbind(1, log(x)) %*% betas)) |>
+  mutate(ylog = exp(ylin))
+
+ggplot(data = my_df,
+       aes(x = x, y = ylog)) +
+  geom_line() +
+  theme_bw()
+```
+
+
+A quadratic relationship between recruitment and `stemp`, a log-linear
+relationship between survival and `btemp`, and a non-linear function between the
+log-odds of observing a zero density and those two variables can be obtained as
+in the code chunk below.
+
+```{r}
+#| label: building-x
+
+##--- formulas (will be helpful for forecasting as well) ----
+
+## formula for the linear predictor of recruitmemt it defines a quadratic
+## relationship between recruitment and surface temperature
+form_r <- ~ 1 +
+  stemp +
+  I(stemp * stemp)
+
+## formula for the linear predictor in the survival rates
+form_m <- ~ 1 + btemp + I(btemp * btemp)
+
+## formula for the linear predictor of observing a zero density
+form_t <- ~ 1 +
+  btemp +
+  I(btemp * btemp) +
+  stemp +
+  I(stemp * stemp) +
+  I(btemp * stemp)
+
+##--- building "X matrices" ----
+
+x_m <- model.matrix(form_m,
+                    data = dat_train)
+x_r <- model.matrix(form_r,
+                    data = dat_train)
+x_t <- model.matrix(form_t,
+                    data = dat_train)
+```
+
+
+Finally, the code below adjusts the data object for a model with movement,
+time-varying and env-dependent recruitment, env-dependent mortality, and
+env-dependent prob of observing a "0 density".
+
+```{r}
+#| label: data-5
+
+data <-
+  make_data(y = dat_train$dens, ## response variable: density
+            time = dat_train$year, ## vector of time points
+            site = dat_train$patch, ## vector of patches
+            f_mort = f_train,
+            n_ages = NROW(f_train), ## number of age groups
+            x_t = x_t,
+            x_r = x_r,
+            x_m = x_m,
+            adj_mat = adj_mat,
+            age_at_maturity = 3, ## age at which fish are able to move
+            .toggles = list(likelihood = 1, ## non-zero density pdf
+                            time_ar = 1, ## ar(1) for recruitment
+                            qr_t = 1, ## QR parametrization for mortality coefs
+                            est_mort = 1, ## turn env dependent mortality on
+                            movement = 1), ## turning movement on
+            .priors = list(pr_phi_a = 9, ## hyperpar for phi prior (phi ~ Gamma(a, b))
+                           pr_phi_b = .5, ## hyperpar for phi prior
+                           pr_coef_r_mu = rep(0, ncol(x_r)), ## hyperpar for coef_r
+                           pr_coef_r_sd = c(10000, rep(1, ncol(x_r) - 1)))) ## hyperpar for coef_r
+```
+
+
+The code below fits the model associated to the data object above to the data
+and introduce another feature: using the pathfinder [@zhang2022pathfinder]
+algorithm for obtaining the initial values for the MCMC algorithm.
+
+```{r}
+#| label: drm-5
+
+## initial values for mcmc
+init_5 <- 
+  drm_compiled$pathfinder(data = data,
+                          seed = 2025,
+                          num_paths = 4,
+                          save_single_paths = TRUE,
+                          psis_resample = FALSE)
+
+
+drm_5 <- drm_compiled$sample(data = data,
+                             iter_sampling = 400, ## number of samples after
+                                                  ## warmup
+                             iter_warmup = 400,   ## number of warmup samples
+                             seed = 2025,
+                             chains = 4,
+                             init = init_5,
+                             parallel_chains = 4)
+```
+
+
+We can also fit a Gamma (instead of log-normal) model to the data. It
+suffices to modify the `likelihood` toggle in the data object and rerun the
+code. See below.
+
+```{r}
+#| label: drm-6
+
+## modifying only "likelihood" toggle
+data$likelihood <- 2
+
+## initial values for mcmc
+init_6 <- 
+  drm_compiled$pathfinder(data = data,
+                          seed = 2025,
+                          num_paths = 4,
+                          save_single_paths = TRUE,
+                          psis_resample = FALSE)
+
+drm_6 <- drm_compiled$sample(data = data,
+                             iter_sampling = 400, ## number of samples after
+                                                  ## warmup
+                             iter_warmup = 400,   ## number of warmup samples
+                             seed = 2025,
+                             chains = 4,
+                             init = init_6,
+                             parallel_chains = 4)
+```
+
+
+Lastly, let us fit a similar Gamma SDM to the data. The data object associated
+with the `sdm` model is similar, but some elements need to be renamed [^3]
+
+[^3]: I'm working on building a similar function to create the data for the SDM
+    as well.
+
+```{r}
+#| label: sdm-1
+
+## copy the data object from the last model
+data_sdm <- data
+
+## modify time (need to start at 1 for the SDM)
+data_sdm$time <- dat_train$time + 1
+
+## renaming elements
+names(data_sdm)[names(data_sdm) == "X_t"] <- "Z"
+names(data_sdm)[names(data_sdm) == "K_t"] <- "K_z"
+names(data_sdm)[names(data_sdm) == "X_r"] <- "X"
+names(data_sdm)[names(data_sdm) == "K_r"] <- "K_x"
+names(data_sdm)[names(data_sdm) == "qr_r"] <- "qr_x"
+names(data_sdm)[names(data_sdm) == "qr_t"] <- "qr_z"
+
+init_sdm <-
+  sdm_compiled$pathfinder(data = data_sdm,
+                          seed = 2025,
+                          num_paths = 4,
+                          save_single_paths = TRUE,
+                          psis_resample = FALSE)
+
+sdm_1 <-
+  sdm_compiled$sample(data = data_sdm,
+                      iter_sampling = 400,
+                      iter_warmup = 400,
+                      seed = 2025,
+                      chains = 4,
+                      parallel_chains = 4,
+                      init = init_sdm)
+```
+
+
+To compare how well each of these models adjust to the data, we can look at
+their leave-one-out information criterion [LOOIC;
+@vehtari2017practical]. According to this criteria, the best model (in terms of
+goodness-of-fit) was the most complex DRM with a Gamma pdf for the non-zero part
+of the zero-augmented model. The SDM appears as the third best model according
+to this criteria.
+
+```{r}
+#| label: loo-compare
+
+all_loos <-
+  list("DRM 1" = drm_1$loo(),
+       "DRM 2" = drm_2$loo(),
+       "DRM 3" = drm_3$loo(),
+       "DRM 4" = drm_4$loo(),
+       "DRM 5" = drm_5$loo(),
+       "DRM 6" = drm_6$loo(),
+       "SDM 1" = sdm_1$loo())
+
+
+loo::loo_compare(all_loos)
+```
+
+According to the LOOIC criteria, the model without the AR(1) term has a better
+fit.
+
+
+## Diagnosing the best models
+
+
+In this Section, we will look into the convergence of the chains associated to
+some of the model parameters for the best DRM and SDM models.
+
+
+### DRM
+
+@fig-drm6_1 depicts the traceplots (left) and overlay-ed (right) density plots
+for the parameter $\phi$ and the two parameters (`sigma_r` and $\rho$)
+associated to the AR(1) random effect used to introduce temporal dependence to
+recruitment. In general, the chains seem to mix well and the estimated posterior
+densities associated to different chains are fairly similar, which is a good
+indication of convergence.
+
+```{r}
+#| label: fig-drm6_1
+
+color_scheme_set("mix-red-blue")
+
+viz_pars <-
+  c("tau[1]",
+    "alpha[1]",
+    "phi[1]")
+
+mcmc_combo(drm_6$draws(variables = viz_pars),
+           combo = c("trace", "dens_overlay"),
+           facet_args = list(labeller = label_parsed))
+```
+
+
+@fig-drm6_2 shows the traceplots (left) and overlay-ed (right) density plots for
+the regression coefficients associated with @eq-lmrec.
+
+```{r}
+#| label: fig-drm6_2
+#| fig-cap: "Regression coefficients for recruitment."
+
+mcmc_combo(drm_6$draws(variables = "coef_r"),
+           combo = c("trace", "dens_overlay"))
+```
+
+
+@fig-drm6_3 shows the traceplots (left) and overlay-ed (right) density plots for
+the regression coefficients associated with @eq-lmsurv.
+
+```{r}
+#| label: fig-drm6_3
+#| fig-cap: "Regression coefficients for survival."
+
+mcmc_combo(drm_6$draws(variables = "coef_m"),
+           combo = c("trace", "dens_overlay"))
+```
+
+
+@fig-drm6_4 shows the traceplots (left) and overlay-ed (right) density plots for
+the regression coefficients associated with @eq-linpreds.
+
+```{r}
+#| label: fig-drm6_4
+#| fig-cap: "Regression coefficients for the probability of observing 0 density."
+#| fig-height: 9
+
+mcmc_combo(drm_6$draws(variables = "coef_t"),
+           combo = c("trace", "dens_overlay"))
+```
+
+
+Despite the small number of posterior samples, the evidence for the graphs
+suggests the chains have converged.
+
+
+@fig-drm6_pp displays a posterior predictive model assessment
+[@gabry2019visualization] for the DRM. The darker blue density is estimated from
+the data directly, while the lighter blue densities are estimated from the
+posterior predictive distribution (they can be seen as posterior samples from
+"fitted" values). The similarity among the darker and lighter curves indicate
+appropriate fit.
+
+```{r}
+#| label: fig-drm6_pp
+#| fig-cap: "Posterior predictive check."
+
+y_pp <-
+  drm_6$draws(variables = "y_pp",
+              format = "matrix")
+
+ppc_dens_overlay(data$y,
+                 y_pp[sample(seq_len(NROW(y_pp)),
+                             size = 200), ])
+```
+
+### SDM
+
+@fig-sdm_1 depicts the traceplots (left) and overlay-ed (right) density plots
+for the parameter $\phi$ and the two parameters (`sigma_r` and $\rho$)
+associated to the AR(1) random effect used to introduce temporal dependence to
+the density. In general, the chains seem to mix well and the estimated
+posterior densities associated to different chains are fairly similar, which is
+a good indication of convergence.
+
+```{r}
+#| label: fig-sdm_1
+
+viz_pars <-
+  c("tau[1]",
+    "alpha[1]",
+    "phi[1]")
+
+mcmc_combo(sdm_1$draws(variables = viz_pars),
+           combo = c("trace", "dens_overlay"),
+           facet_args = list(labeller = label_parsed))
+```
+
+
+@fig-sdm_2 shows the traceplots (left) and overlay-ed (right) density plots for
+the regression coefficients associated with the second part of @eq-linpreds.
+
+```{r}
+#| label: fig-sdm_2
+#| fig-cap: "Regression coefficients for positive density."
+
+mcmc_combo(sdm_1$draws(variables = "coef_r"),
+           combo = c("trace", "dens_overlay"))
+```
+
+
+@fig-drm6_4 shows the traceplots (left) and overlay-ed (right) density plots for
+the regression coefficients associated with the first part of @eq-linpreds.
+
+```{r}
+#| label: fig-sdm_3
+#| fig-cap: "Regression coefficients for the probability of observing 0 density."
+#| fig-height: 9
+
+mcmc_combo(sdm_1$draws(variables = "coef_t"),
+           combo = c("trace", "dens_overlay"))
+```
+
+
+Despite the small number of posterior samples, the evidence for the graphs
+suggests the chains have converged.
+
+
+@fig-sdm_pp displays a posterior predictive model assessment
+[@gabry2019visualization] for the SDM. The darker blue density is estimated from
+the data directly, while the lighter blue densities are estimated from the
+posterior predictive distribution (they can be seen as posterior samples from
+"fitted" values). The similarity among the darker and lighter curves indicate
+appropriate fit.
+
+```{r}
+#| label: fig-sdm_pp
+#| fig-cap: "Posterior predictive check."
+
+y_pp <-
+  sdm_1$draws(variables = "y_pp",
+              format = "matrix")
+
+ppc_dens_overlay(data_sdm$y,
+                 y_pp[sample(seq_len(NROW(y_pp)),
+                             size = 200), ])
+```
+
+
+### Forecasting
+
+
+The code below computes the forecasts for the best DRM and SDM.
+
+```{r}
+#| label: forecast-1
+
+x_tt <- model.matrix(form_t,
+                     data = dat_test)
+x_mt <- model.matrix(form_m,
+                     data = dat_test)
+x_rt <- model.matrix(form_r,
+                     data = dat_test)
+
+x_mpast <-
+  model.matrix(form_m,
+               data = filter(dat_train, year == max(year)))
+
+forecast_drm_6 <- predict_drm(drm = drm_6,
+                              drm_data = data,
+                              ntime_for =
+                                length(unique(dat_test$year)),
+                              x_tt = x_tt,
+                              x_rt = x_rt,
+                              x_mt = x_mt,
+                              x_mpast = x_mpast,
+                              f_test = f_test[, -1],
+                              seed = 125,
+                              cores = 4)
+##--- * SDM ----
+
+fitted_params <-
+  sdm_1$draws(variables = c("coef_t", "coef_r",
+                            "z_t",
+                            "alpha", "tau",
+                            "phi"))
+
+forecast_data2 <-
+  list(n_patches = data_sdm$n_patches,
+       n_time = length(unique(dat_test$year)),
+       time = dat_test$time - min(dat_test$time) + 1,
+       n_ages = 1,
+       n_time_train = data_sdm$n_time,
+       time_ar = data_sdm$time_ar,
+       cloglog = data_sdm$cloglog,
+       likelihood = data_sdm$likelihood,
+       K_z = data_sdm$K_z,
+       Z = x_tt,
+       K_x = data_sdm$K_x,
+       X = x_rt)
+
+forecast_data2$N <- forecast_data2$n_patches * forecast_data2$n_time
+
+forecast_sdm_1 <-
+  forecast_sdm$
+  generate_quantities(fitted_params = fitted_params,
+                      data = forecast_data2,
+                      seed = 125,
+                      parallel_chains = 4)
+```
+
+### Forecast $\mu_{t, i}$
+
+@fig-forecast_mu displays the forecasted expected densities conditioned on
+encountering (i.e., $Y_{t, i} > 0$).
+
+```{r}
+#| label: fig-forecast_mu
+#| fig-cap: Forecast DRM.
+
+mu_drm <-
+  forecast_drm_6$draws(variables = "mu_proj",
+                     format = "draws_df") |>
+  tidyr::pivot_longer(cols = starts_with("mu_proj"),
+                      names_to = "pair",
+                      values_to = "expected") |>
+  group_by(pair) |>
+  summarise(ll = quantile(expected, probs = .05),
+            l = quantile(expected, probs = .1),
+            m = median(expected),
+            u = quantile(expected, probs = .9),
+            uu = quantile(expected, probs = .95)) |>
+  ungroup() |>
+  mutate(pair = gsub("\\D", "", pair)) |>
+  mutate(pair = as.integer(pair)) |>
+  arrange(pair)
+
+mu_drm <-
+  dat_test |>
+  select(dens, lat_floor, patch, year) |>
+  mutate(pair = row_number()) |>
+  left_join(mu_drm, by = "pair") |>
+  mutate(model = "DRM")
+
+mu_sdm <-
+  forecast_sdm_1$draws(variables = "mu_proj",
+                     format = "draws_df") |>
+  tidyr::pivot_longer(cols = starts_with("mu_proj"),
+                      names_to = "pair",
+                      values_to = "expected") |>
+  group_by(pair) |>
+  summarise(ll = quantile(expected, probs = .05),
+            l = quantile(expected, probs = .1),
+            m = median(expected),
+            u = quantile(expected, probs = .9),
+            uu = quantile(expected, probs = .95)) |>
+  ungroup() |>
+  mutate(pair = gsub("\\D", "", pair)) |>
+  mutate(pair = as.integer(pair)) |>
+  arrange(pair)
+
+mu_sdm <-
+  dat_test |>
+  select(dens, lat_floor, patch, year) |>
+  mutate(pair = row_number()) |>
+  left_join(mu_sdm, by = "pair") |>
+  mutate(model = "SDM")
+
+mu_proj <- bind_rows(mu_drm, mu_sdm)
+
+my_color <- "#0465cf"
+ggplot(data = mu_proj,
+         aes(x = year,
+             y = m)) +
+  geom_ribbon(aes(ymin = ll, ymax = uu),
+              fill = my_color,
+              alpha = .4) +
+  geom_ribbon(aes(ymin = l, ymax = u),
+              fill = my_color,
+              alpha = .4) +
+  geom_line() +
+  geom_point() +
+  theme_bw() +
+  facet_grid(model ~ patch,
+             scales = "free_y") +
+  labs(y = expression(mu),
+       x = "Year")
+```
+
+
+### Forecast $Y_{t, i}$
+
+
+@fig-forecast_y displayes the forecasts for the response variable through its
+posterior predictive distribution. That is, unlike @fig-forecast_mu, it accounts
+for the zero-augmentation.
+
+```{r}
+#| label: fig-forecast_y
+
+y_drm <-
+  forecast_drm_6$draws(variables = "y_proj",
+                       format = "draws_df") |>
+  tidyr::pivot_longer(cols = starts_with("y_proj"),
+                      names_to = "pair",
+                      values_to = "expected") |>
+  group_by(pair) |>
+  summarise(ll = quantile(expected, probs = .05),
+            l = quantile(expected, probs = .1),
+            m = median(expected),
+            u = quantile(expected, probs = .9),
+            uu = quantile(expected, probs = .95)) |>
+  ungroup() |>
+  mutate(pair = gsub("\\D", "", pair)) |>
+  mutate(pair = as.integer(pair)) |>
+  arrange(pair)
+
+y_drm <-
+  dat_test |>
+  select(dens, lat_floor, patch, year) |>
+  mutate(pair = row_number()) |>
+  left_join(y_drm, by = "pair") |>
+  mutate(model = "DRM")
+
+y_sdm <-
+  forecast_sdm_1$draws(variables = "y_proj",
+                       format = "draws_df") |>
+  tidyr::pivot_longer(cols = starts_with("y_proj"),
+                      names_to = "pair",
+                      values_to = "expected") |>
+  group_by(pair) |>
+  summarise(ll = quantile(expected, probs = .05),
+            l = quantile(expected, probs = .1),
+            m = median(expected),
+            u = quantile(expected, probs = .9),
+            uu = quantile(expected, probs = .95)) |>
+  ungroup() |>
+  mutate(pair = gsub("\\D", "", pair)) |>
+  mutate(pair = as.integer(pair)) |>
+  arrange(pair)
+
+y_sdm <-
+  dat_test |>
+  select(dens, lat_floor, patch, year) |>
+  mutate(pair = row_number()) |>
+  left_join(y_sdm, by = "pair") |>
+  mutate(model = "SDM")
+
+y_proj <- bind_rows(y_drm, y_sdm)
+
+ggplot(data = y_proj,
+         aes(x = year,
+             y = patch,
+             fill = m)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "H") +
+  scale_y_continuous(breaks = 1:10) +
+  facet_wrap(~ model) +
+  theme_bw()
+
+my_color <- "#0465cf"
+ggplot(data = y_proj,
+         aes(x = year,
+             y = m)) +
+  geom_ribbon(aes(ymin = ll, ymax = uu),
+              fill = my_color,
+              alpha = .4) +
+  geom_ribbon(aes(ymin = l, ymax = u),
+              fill = my_color,
+              alpha = .4) +
+  geom_line() +
+  geom_point() +
+  geom_point(aes(x = year, y = dens),
+             inherit.aes = FALSE,
+             color = 2) +
+  facet_wrap(patch ~ model,
+             scales = "free_y") +
+  theme_bw() +
+  facet_grid(model ~ patch,
+             scales = "free_y") +
+  labs(y = expression(mu),
+       x = "Year")
+```
+
+@tbl-assessment suggests the DRM delivers more reliable forecasts. However, the
+coverage of the prediction intervals (PIC) are above the nominal level for the
+DRM, while the ones from the SDM are below the nominal level.
+
+```{r}
+#| label: tbl-assessment
+#| tbl-cap: Forecasting assessment.
+
+int_score <- function(y, l, u, alpha) {
+  alpha <- 2 / alpha
+  ind_l <- as.numeric(y < l)
+  ind_u <- as.numeric(y > u)
+  (u - l) + alpha * ((l - y) * ind_l + (y - u) * ind_u)
+}
+
+y_proj |>
+  mutate(bias = dens - m) |>
+  mutate(rmse = bias * bias) |>
+  mutate(abias = abs(bias)) |>
+  mutate(is1 = int_score(dens, l = ll, u = uu, alpha = .1)) |>
+  mutate(is2 = int_score(dens, l = l, u = u, alpha = .2)) |>
+  mutate(cvg1 = data.table::between(x = dens, lower = ll, upper = uu)) |>
+  mutate(cvg2 = data.table::between(x = dens, lower = l, upper = u)) |>
+  group_by(model) |>
+  summarise(across(bias:cvg2, mean)) |>
+  ungroup() |>
+  rename_all(toupper) |>
+  rename("Model" = "MODEL",
+         "IS (90%)" = "IS1",
+         "IS (80%)" = "IS2",
+         "PIC (90%)" = "CVG1",
+         "PIC (80%)" = "CVG2")
+```
+
+
+### Centroids
+
+@fig-centroids depicts the centroids estimated by the DRM and SDM on the left
+and right-side of the panel, respectively.
+
+
+```{r}
+#| label: fig-centroids
+#| fig-cap: Density weighted centroids estimated by the DRM and SDM. The red vertical line indicates where the "forecast" period starts.
+
+centroid_drm <-
+  centroids_compiled$
+  generate_quantities(fitted_params =
+                        posterior::bind_draws(
+                                       drm_6$draws(variables = "y_pp"),
+                                       forecast_drm_6$draws(variables = "y_proj")
+                                       ),
+                      data = list(
+                          N1 = nrow(dat_train),
+                          N2 = nrow(dat_test),
+                          n_c = 1,
+                          coords =
+                            matrix(c(dat_train$lat_floor,
+                                     dat_test$lat_floor),
+                                   ncol = 1),
+                          n_t = length(unique(c(dat_train$time,
+                                                dat_test$time)))
+                      ),
+                      seed = 2025,
+                      parallel_chains = 4)
+
+centroid_sdm <-
+  centroids_compiled$
+  generate_quantities(fitted_params =
+                        posterior::bind_draws(
+                                       sdm_1$draws(variables = "y_pp"),
+                                       forecast_sdm_1$draws(variables = "y_proj")
+                                       ),
+                      data = list(
+                          N1 = nrow(dat_train),
+                          N2 = nrow(dat_test),
+                          n_c = 1,
+                          coords =
+                            matrix(c(dat_train$lat_floor,
+                                     dat_test$lat_floor),
+                                   ncol = 1),
+                          n_t = length(unique(c(dat_train$time,
+                                                dat_test$time)))
+                      ),
+                      seed = 2025,
+                      parallel_chains = 4)
+
+
+centroid_all <-
+  bind_rows(
+      centroid_drm$draws() |>
+      bayesplot::mcmc_intervals_data() |>
+      mutate(type = gsub("[[:digit:][:punct:]]", "", parameter),
+             .before = parameter) |>
+      mutate(parameter = gsub("\\D", "", parameter)) |>
+      mutate(parameter = ifelse(nchar(parameter) == 2,
+                                substr(parameter, 1, 1),
+                                substr(parameter, 1, 2))) |>
+      mutate(year = as.integer(parameter) + min_year,
+             .before = parameter,
+             model = "DRM"),
+      centroid_sdm$draws() |>
+      bayesplot::mcmc_intervals_data() |>
+      mutate(type = gsub("[[:digit:][:punct:]]", "", parameter),
+             .before = parameter) |>
+      mutate(parameter = gsub("\\D", "", parameter)) |>
+      mutate(parameter = ifelse(nchar(parameter) == 2,
+                                substr(parameter, 1, 1),
+                                substr(parameter, 1, 2))) |>
+      mutate(year = as.integer(parameter) + min_year,
+             .before = parameter,
+             model = "SDM")
+  )
+
+ggplot(data = filter(centroid_all,
+                     type == "centroid"),
+         aes(x = year,
+             y = m)) +
+  geom_ribbon(aes(ymin = ll, ymax = hh),
+              fill = my_color,
+              alpha = .4) +
+  geom_ribbon(aes(ymin = l, ymax = h),
+              fill = my_color,
+              alpha = .4) +
+  geom_line() +
+  geom_point() +
+  geom_vline(xintercept = first_year_forecast,
+             col = 2, lty = 2,
+             lwd = 1.2) +
+  facet_wrap( ~ model) +
+  theme_bw()
+```

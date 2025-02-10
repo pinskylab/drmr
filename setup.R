@@ -24,3 +24,13 @@ usethis::use_news_md()
 
 ## build pkgdown website
 usethis::use_pkgdown_github_pages()
+
+## creating a vignette
+if (!file.exists("vignettes/get-started.qmd"))
+  usethis::use_vignette(name = "get-started.qmd")
+
+if (!file.exists("vignettes/theory.qmd"))
+  usethis::use_vignette(name = "theory.qmd")
+
+if (!file.exists("vignettes/examples.qmd"))
+  usethis::use_vignette(name = "examples.qmd")
