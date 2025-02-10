@@ -1,6 +1,6 @@
 Package: drmr
 Type: Package
-Title: An R package with pre-compiled cmdstan code for dynamic range models.
+Title: An R package with pre-compiled cmdstan code for dynamic range models
 Version: 0.0.24
 Authors@R: 
     person(given = "Lucas",
@@ -10,7 +10,7 @@ Authors@R:
            comment = c(ORCID = "0000-0003-4265-972X"))
 Description: The models available are described in the vignette. The class of
   models we provide were first discussed in Pagel and Schur (2012)
-  (<doi:10.1111/j.1466-8238.2011.00663.x>)
+  (<doi:10.1111/j.1466-8238.2011.00663.x>).
 BugReports: https://github.com/pinskylab/drmr/issues/
 Depends:
   R (>= 4.0.0)
@@ -26,7 +26,8 @@ Suggests:
   ggplot2,
   dplyr,
   tidyr,
-  bayesplot
+  bayesplot,
+  quarto
 Additional_repositories:
   https://mc-stan.org/r-packages/
 SystemRequirements: CmdStan (https://mc-stan.org/users/interfaces/cmdstan)
@@ -34,7 +35,7 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-VignetteBuilder: knitr
+VignetteBuilder: knitr, quarto
 Language: en-US
 License: GPL (>= 3)
 URL: https://pinskylab.github.io/drmr/
