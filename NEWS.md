@@ -50,3 +50,7 @@
     algorithm to initialize the parameters.
 
 * Fixed some issues with documentation.
+
+# drmr 0.0.24
+
+* Initial values for population dynamics have been fixed.

@@ -24,8 +24,8 @@ functions {
                           matrix init) {
     // initializing output with zeros
     array[n_ages] matrix[n_time, n_patches] output
-      = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
-    output[1] += init;
+      = rep_array(init, n_ages);
+    /* output[1] += init; */
     for (i in 2 : n_time) {
       for (p in 1 : n_patches) {
         for (a in 2 : n_ages) {
@@ -51,10 +51,10 @@ functions {
                                    vector neg_mort_past) {
     // initializing output with zeros
     array[n_ages] matrix[n_time, n_patches] output
-      = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
+      = rep_array(init, n_ages);
     int past_last_time;
     past_last_time = rows(lambda_past[1]);
-    output[1] += init;
+    /* output[1] += init; */
     for (i in 1 : n_time) {
       for (p in 1 : n_patches) {
         for (a in 2 : n_ages) {

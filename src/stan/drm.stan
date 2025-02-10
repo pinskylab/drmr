@@ -62,8 +62,8 @@ functions {
                           matrix init) {
     // initializing output with zeros
     array[n_ages] matrix[n_time, n_patches] output
-      = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
-    output[1] += init;
+      = rep_array(init, n_ages);
+    /* output[1] += init; */
     for (i in 2 : n_time) {
       for (p in 1 : n_patches) {
         for (a in 2 : n_ages) {
