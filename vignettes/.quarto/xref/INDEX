@@ -4,5 +4,8 @@
   },
   "theory.qmd": {
     "theory.html": "6717a967"
+  },
+  "examples.qmd": {
+    "examples.html": "e8561e5a"
   }
 }
