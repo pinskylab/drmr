@@ -23,6 +23,9 @@ render_md:
 build_site:
 	Rscript -e "pkgdown::build_site()"
 
+preview_site:
+	Rscript -e "pkgdown::preview_site()"
+
 build:
 	Rscript -e "devtools::build()"
 
