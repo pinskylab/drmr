@@ -15,7 +15,6 @@
 ##' @return A numeric vector of the same length as \code{x}, containing the
 ##'   (log) density values of the truncated t distribution.
 ##' @seealso [stats::dt()], [stats::pt()]
-##' @export
 ##' @author lcgodoy
 dtt <- function(x, ncp = 0, sd = 1,
                 df = 3, range = c(0, Inf),
@@ -50,7 +49,6 @@ dtt <- function(x, ncp = 0, sd = 1,
 ##' @return A \code{numeric vector} of length \code{n} containing random numbers
 ##'   drawn from the specified truncated t distribution.
 ##' @seealso [stats::rt()], [stats::qt()]
-##' @export
 ##' @author lcgodoy
 rtt <- function(n, ncp = 0, sd = 1,
                 df = 3, range = c(0, Inf)) {
@@ -75,7 +73,6 @@ rtt <- function(n, ncp = 0, sd = 1,
 ##' @return A numeric vector of the same length as \code{x}, containing the
 ##'   (log) density values of the truncated normal distribution.
 ##' @seealso [stats::dnorm()], [stats::pnorm()]
-##' @export
 ##' @author lcgodoy
 dtn <- function(x, mean = 0, sd = 1, range = c(0, Inf),
                 log = FALSE) {
@@ -102,7 +99,6 @@ dtn <- function(x, mean = 0, sd = 1, range = c(0, Inf),
 ##' @return A \code{numeric vector} of length \code{n} containing random numbers
 ##'   drawn from the specified truncated normal distribution.
 ##' @seealso [stats::rnorm()], [stats::qnorm()]
-##' @export
 ##' @author lcgodoy
 rtn <- function(n, mean = 0, sd = 1, range = c(0, Inf)) {
   ll <- stats::pnorm(q = min(range), mean = mean, sd = sd)
