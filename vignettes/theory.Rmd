@@ -7,7 +7,7 @@ execute:
   error: false
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{theory}
+  %\VignetteIndexEntry{Theoretical Background}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

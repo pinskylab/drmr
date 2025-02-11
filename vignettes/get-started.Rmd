@@ -3,7 +3,7 @@ title: "Get Started"
 author: Lucas da Cunha Godoy
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{get-started}
+  %\VignetteIndexEntry{Get Started}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -132,7 +132,13 @@ mcmc_samples <-
 
 In general, the chains mix well and the posterior densities estimates are
 similar for the four chains ran:
-```{r traceplot, fig-alt="MCMC diagnostic plots for the DRM, arranged in two columns and three rows. The left column displays trace plots for four parallel MCMC chains, assessing convergence. The right column displays the estimated posterior density plots for each parameter, assessing mixing. Row 1: sigma_obs parameter; Row 2: coef_t parameter; Row 3: coef_r parameter. All parameters show evidence of good chain convergence and mixing."}
+```{r traceplot}
+#| fig-alt: "MCMC diagnostic plots for the DRM, arranged in two columns and
+#| three rows. The left column displays trace plots for four parallel MCMC
+#| chains, assessing convergence. The right column displays the estimated
+#| posterior density plots for each parameter, assessing mixing. Row 1:
+#| sigma_obs parameter; Row 2: coef_t parameter; Row 3: coef_r parameter. All
+#| parameters show evidence of good chain convergence and mixing."
 mcmc_samples$draws(variables = c("sigma_obs",
                                  "coef_t",
                                  "coef_r")) |>

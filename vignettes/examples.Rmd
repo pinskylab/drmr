@@ -3,7 +3,7 @@ title: "Examples"
 author: Lucas da Cunha Godoy
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{examples}
+  %\VignetteIndexEntry{Examples}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,7 +11,7 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  eval,
+  eval = FALSE,
   comment = "#>"
 )
 ```
