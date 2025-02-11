@@ -26,6 +26,7 @@ Suggests:
   ggplot2,
   dplyr,
   tidyr,
+  gridExtra,
   bayesplot
 Additional_repositories:
   https://mc-stan.org/r-packages/
