@@ -5,15 +5,20 @@ bibliography: [notes.bib, zim.bib]
 execute:
   warning: false
   error: false
-engine: knitr
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{theory}
-  %\VignetteEngine{quarto::html}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-knitr:
-  opts_chunk:
-    collapse: true
-    comment: '#>'
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
 ---
 
 ## Notation {#sec-notation}

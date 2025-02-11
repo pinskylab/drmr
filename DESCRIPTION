@@ -26,8 +26,7 @@ Suggests:
   ggplot2,
   dplyr,
   tidyr,
-  bayesplot,
-  quarto
+  bayesplot
 Additional_repositories:
   https://mc-stan.org/r-packages/
 SystemRequirements: CmdStan (https://mc-stan.org/users/interfaces/cmdstan)
@@ -35,7 +34,7 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-VignetteBuilder: knitr, quarto
+VignetteBuilder: knitr
 Language: en-US
 License: GPL (>= 3)
 URL: https://pinskylab.github.io/drmr/
