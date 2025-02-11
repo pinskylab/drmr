@@ -10,9 +10,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="theory_files/libs/quarto-html/popper.min.js"></script><script src="theory_files/libs/quarto-html/tippy.umd.min.js"></script><link href="theory_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="theory_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Theoretical Background">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Theoretical Background">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -52,139 +50,459 @@
 
 
   </div>
-</nav><div class="container template-quarto">
+</nav><div class="container template-article">
+
+
+
+
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Theoretical Background</h1>
-
-      <p class="author">Lucas da Cunha Godoy</p>
-
-
-      <small class="dont-index">Source: <a href="https://github.com/pinskylab/drmr/blob/HEAD/vignettes/theory.qmd" class="external-link"><code>vignettes/theory.qmd</code></a></small>
-      <div class="d-none name"><code></code></div>
+                        <h4 data-toc-skip class="author">Lucas da Cunha
+Godoy</h4>
+            
+      
+      <small class="dont-index">Source: <a href="https://github.com/pinskylab/drmr/blob/HEAD/vignettes/theory.Rmd" class="external-link"><code>vignettes/theory.Rmd</code></a></small>
+      <div class="d-none name"><code>theory.Rmd</code></div>
     </div>
 
-
-
-
-
-
-    <section class="level2"><h2 id="sec-notation">Notation<a class="anchor" aria-label="anchor" href="#sec-notation"></a>
+    
+    
+<hr>
+<div class="section level2">
+<h2 id="sec-notation">Notation<a class="anchor" aria-label="anchor" href="#sec-notation"></a>
 </h2>
-<p>Before diving into coding, let us establish some common notation so we understand what we are estimating.</p>
-<p>Ecological data on species density often exhibits zeros. This occurs because species may be patchily distributed or because sampling methods may fail to detect individuals at low densities. Since densities are continuous non-negative quantities, we cannot use discrete probability distributions (e.g., Poisson or Binomial) to model this type of phenomena. However, standard continuous probability distributions assign a zero probability to specific values (that is, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mi>c</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(Y_{t, i} = c) = 0</annotation></semantics></math>, for any constant <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math> and continuous probability distribution). To address this, we use zero-augmented (Hurdle/Delta) models, which explicitly account for the excess zeros by combining a discrete and a continuous probability distribution through two components:</p>
-<ol type="1">
-<li><p><strong>A probability of observing a zero (or probability of absence)</strong>: This accounts for the “true” absence or non-detection of the species.</p></li>
-<li><p><strong>A continuous distribution for positive values</strong>: This models the density of the species when it is present.</p></li>
+<p>Before diving into coding, let us establish some common notation so
+we understand what we are estimating.</p>
+<p>Ecological data on species density often exhibits zeros. This occurs
+because species may be patchily distributed or because sampling methods
+may fail to detect individuals at low densities. Since densities are
+continuous non-negative quantities, we cannot use discrete probability
+distributions (e.g., Poisson or Binomial) to model this type of
+phenomena. However, standard continuous probability distributions assign
+a zero probability to specific values (that is,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mi>c</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(Y_{t, i} = c) = 0</annotation></semantics></math>,
+for any constant
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>
+and continuous probability distribution). To address this, we use
+zero-augmented (Hurdle/Delta) models, which explicitly account for the
+excess zeros by combining a discrete and a continuous probability
+distribution through two components:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>A probability of observing a zero (or probability of
+absence)</strong>: This accounts for the “true” absence or non-detection
+of the species.</p></li>
+<li><p><strong>A continuous distribution for positive values</strong>:
+This models the density of the species when it is present.</p></li>
 </ol>
-<p>Formally, let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">Y_{t, i}</annotation></semantics></math> be a random variable representing the density (individuals per unit of area) of a focal species at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> and patch/site <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>. We denote realizations (i.e., what we observe) of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">Y_{t, i}</annotation></semantics></math> by <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">y_{t,
-i}</annotation></semantics></math>. We define a <em>zero-augmented</em> probability density function (pdf) as follows: <span id="eq-za_dens"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>∣</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><mi>ϕ</mi><mo>,</mo><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mn>0</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>∣</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>&gt;</mo><mn>0</mn><mo>,</mo></mtd></mtr></mtable></mrow><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p>Formally, let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">Y_{t, i}</annotation></semantics></math>
+be a random variable representing the density (individuals per unit of
+area) of a focal species at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+and patch/site
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.
+We denote realizations (i.e., what we observe) of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">Y_{t, i}</annotation></semantics></math>
+by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">y_{t,
+i}</annotation></semantics></math>. We define a <em>zero-augmented</em>
+probability density function (pdf) as follows:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>∣</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><mi>ϕ</mi><mo>,</mo><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mn>0</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>∣</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>&gt;</mo><mn>0</mn><mo>,</mo></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex"> 
 f(y_{t, i} \mid \mu_{t, i}, \phi,
 \rho_{t, i}) = \begin{cases} \rho_{t, i}, &amp; \text{ if } y_{t, i} = 0, \\
 (1 - \rho_{t, i}) g(y_{t, i} \mid \mu_{t, i}, \phi), &amp; \text{ if } y_{t,
 i} &gt; 0,  \end{cases}
- \qquad(1)</annotation></semantics></math></span> where</p>
+</annotation></semantics></math> {#eq-za_dens} where</p>
 <ul>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\rho_{t, i} = \mathrm{Pr}(Y_{t, i} = 0)</annotation></semantics></math> is the probability of observing a zero density.</p></li>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo>∣</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g(\cdot \mid \mu_{t, i}, \phi)</annotation></semantics></math> is the pdf of a continuous probability distribution with expected value (or theoretical mean) <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{t, i}</annotation></semantics></math> and additional parameter <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>. This distribution represents the densities of the species when they are present.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\rho_{t, i} = \mathrm{Pr}(Y_{t, i} = 0)</annotation></semantics></math>
+is the probability of observing a zero density.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo>∣</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g(\cdot \mid \mu_{t, i}, \phi)</annotation></semantics></math>
+is the pdf of a continuous probability distribution with expected value
+(or theoretical mean)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{t, i}</annotation></semantics></math>
+and additional parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>.
+This distribution represents the densities of the species when they are
+present.</p></li>
 </ul>
-<p>In <a href="#eq-za_dens" class="quarto-xref">Equation 1</a>, we can choose different probability distributions to specify the pdf <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo>∣</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g(\cdot \mid \mu_{t, i}, \phi)</annotation></semantics></math>. Popular choices include the Log-Normal, Log-Logistic, and Gamma distributions, which can be parametrized in terms of their mean facilitating modeling <span class="citation" data-cites="ye2021comparisons">(<a href="#ref-ye2021comparisons" role="doc-biblioref">Ye et al. 2021</a>)</span>.</p>
-</section><section class="level2"><h2 id="sec-sdm">Species Distribution Models<a class="anchor" aria-label="anchor" href="#sec-sdm"></a>
+<p>In <span class="citation">(<strong>eq-za_dens?</strong>)</span>, we
+can choose different probability distributions to specify the pdf
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo>∣</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g(\cdot \mid \mu_{t, i}, \phi)</annotation></semantics></math>.
+Popular choices include the Log-Normal, Log-Logistic, and Gamma
+distributions, which can be parametrized in terms of their mean
+facilitating modeling <span class="citation">(Ye et al.
+2021)</span>.</p>
+</div>
+<div class="section level2">
+<h2 id="sec-sdm">Species Distribution Models<a class="anchor" aria-label="anchor" href="#sec-sdm"></a>
 </h2>
-<p>A typical SDM based on <a href="#eq-za_dens" class="quarto-xref">Equation 1</a> relates the parameters of the zero-augmented distribution to environmental covariates. Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">t = 1, \ldots, T</annotation></semantics></math> represent time points and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">i = 1, \ldots, P</annotation></semantics></math> represents patches/sites. The first assumptions of SDMs is that <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mrow><mn>1</mn><mo>,</mo><mn>1</mn></mrow></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>Y</mi><mrow><mi>T</mi><mo>,</mo><mi>P</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{1, 1}, \ldots, Y_{T, P}</annotation></semantics></math> are independent random variables when conditioned on the environmental factors. From here on, only SDMs based on (generalized) linear models will be discussed.</p>
-<p>We define as <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(1)}_{t, i}</annotation></semantics></math> a vector of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math> covariates related to the probability of observing a zero density at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> and site <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(2)}_{t, i}</annotation></semantics></math> as a vector of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math> covariates related to the (theoretical) mean density when the species is present. Note that, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(1)}_{t, i}</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(2)}_{t, i}</annotation></semantics></math> may depend on a different set of environmental factors.</p>
-<p>We define linear-predictors as follows: <span id="eq-linpreds"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtable><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>η</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msup><mi>𝛃</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>η</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msup><mi>𝛃</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo></mtd></mtr></mtable><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p>A typical SDM based on <span class="citation">(<strong>eq-za_dens?</strong>)</span> relates the
+parameters of the zero-augmented distribution to environmental
+covariates. Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">t = 1, \ldots, T</annotation></semantics></math>
+represent time points and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">i = 1, \ldots, P</annotation></semantics></math>
+represents patches/sites. The first assumptions of SDMs is that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mrow><mn>1</mn><mo>,</mo><mn>1</mn></mrow></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>Y</mi><mrow><mi>T</mi><mo>,</mo><mi>P</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{1, 1}, \ldots, Y_{T, P}</annotation></semantics></math>
+are independent random variables when conditioned on the environmental
+factors. From here on, only SDMs based on (generalized) linear models
+will be discussed.</p>
+<p>We define as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(1)}_{t, i}</annotation></semantics></math>
+a vector of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
+covariates related to the probability of observing a zero density at
+time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+and site
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(2)}_{t, i}</annotation></semantics></math>
+as a vector of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>
+covariates related to the (theoretical) mean density when the species is
+present. Note that,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(1)}_{t, i}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(2)}_{t, i}</annotation></semantics></math>
+may depend on a different set of environmental factors.</p>
+<p>We define linear-predictors as follows:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>η</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msup><mi>𝛃</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>η</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msup><mi>𝛃</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
 \eta^{(1)}_{t, i} &amp; = \boldsymbol{\beta}^{(1)}\mathbf{x}^{(1)}_{t, i} \\
 \eta^{(1)}_{t, i} &amp; = \boldsymbol{\beta}^{(2)}\mathbf{x}^{(2)}_{t, i},
 \end{aligned}
- \qquad(2)</annotation></semantics></math></span> where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝛃</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol{\beta}^{(1)}</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝛃</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol{\beta}^{(2)}</annotation></semantics></math> are vectors of regression coefficients. Finally, through the introduction of suitable link functions, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>1</mn></msub><annotation encoding="application/x-tex">h_1</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>2</mn></msub><annotation encoding="application/x-tex">h_2</annotation></semantics></math>, we relate the linear predictors (and consequently environmental factors) to the probability of absence <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\rho_{t, i}</annotation></semantics></math> and mean density <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{t, i}</annotation></semantics></math> as follows: <span id="eq-sdm-link"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>h</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msubsup><mi>η</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>h</mi><mn>2</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msubsup><mi>η</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mi>.</mi></mtd></mtr></mtable><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>3</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+</annotation></semantics></math> {#eq-linpreds} where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝛃</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol{\beta}^{(1)}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝛃</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol{\beta}^{(2)}</annotation></semantics></math>
+are vectors of regression coefficients. Finally, through the
+introduction of suitable link functions,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>1</mn></msub><annotation encoding="application/x-tex">h_1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>2</mn></msub><annotation encoding="application/x-tex">h_2</annotation></semantics></math>,
+we relate the linear predictors (and consequently environmental factors)
+to the probability of absence
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\rho_{t, i}</annotation></semantics></math>
+and mean density
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{t, i}</annotation></semantics></math>
+as follows:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>h</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ρ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msubsup><mi>η</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>h</mi><mn>2</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msubsup><mi>η</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
 h_1(\rho_{t, i}) &amp; = \eta^{(1)}_{t, i} \\
 h_2(\mu_{t, i}) &amp; = \eta^{(2)}_{t, i}.
 \end{aligned}
- \qquad(3)</annotation></semantics></math></span></p>
-<p>The link functions will ensure that the estimated absence probabilities and mean densities are on the appropriate scale. For instance, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>1</mn></msub><annotation encoding="application/x-tex">h_1</annotation></semantics></math> should be a function that take a number between 0 and 1 as input and outputs a real number. Common choices for <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>1</mn></msub><annotation encoding="application/x-tex">h_1</annotation></semantics></math> are the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><annotation encoding="application/x-tex">\mathrm{logit}</annotation></semantics></math> and the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi></mrow><annotation encoding="application/x-tex">\mathrm{cloglog}</annotation></semantics></math> functions. The latter is asymmetric and preferred when the proportion of zeros is very high or low. For <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>2</mn></msub><annotation encoding="application/x-tex">h_2</annotation></semantics></math>, the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>log</mo><annotation encoding="application/x-tex">\log</annotation></semantics></math> function is often used as it ensures that the predicted mean densities are positive.</p>
-<p>The assumption of independence can be relaxed by introducing random effects into the model.</p>
-</section><section class="level2"><h2 id="sec-drm">Dynamic Range Models<a class="anchor" aria-label="anchor" href="#sec-drm"></a>
+</annotation></semantics></math> {#eq-sdm-link}</p>
+<p>The link functions will ensure that the estimated absence
+probabilities and mean densities are on the appropriate scale. For
+instance,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>1</mn></msub><annotation encoding="application/x-tex">h_1</annotation></semantics></math>
+should be a function that take a number between 0 and 1 as input and
+outputs a real number. Common choices for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>1</mn></msub><annotation encoding="application/x-tex">h_1</annotation></semantics></math>
+are the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><annotation encoding="application/x-tex">\mathrm{logit}</annotation></semantics></math>
+and the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi></mrow><annotation encoding="application/x-tex">\mathrm{cloglog}</annotation></semantics></math>
+functions. The latter is asymmetric and preferred when the proportion of
+zeros is very high or low. For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>2</mn></msub><annotation encoding="application/x-tex">h_2</annotation></semantics></math>,
+the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>log</mo><annotation encoding="application/x-tex">\log</annotation></semantics></math>
+function is often used as it ensures that the predicted mean densities
+are positive.</p>
+<p>The assumption of independence can be relaxed by introducing random
+effects into the model.</p>
+</div>
+<div class="section level2">
+<h2 id="sec-drm">Dynamic Range Models<a class="anchor" aria-label="anchor" href="#sec-drm"></a>
 </h2>
-<p>Similar to SDMs, a DRM based <a href="#eq-za_dens" class="quarto-xref">Equation 1</a> also relates the parameters of the zero-augmented distribution to environmental covariates. However, the DRMs offer a more comprehensive approach by incorporating explicit representations of the underlying biological processes that govern species distributions. This advancement enables the integration of expert knowledge and empirical data regarding species demography, dispersal patterns, and mechanistic interactions with environmental factors <span class="citation" data-cites="pagel2012forecasting">(<a href="#ref-pagel2012forecasting" role="doc-biblioref">Pagel and Schurr 2012</a>)</span>.</p>
-<p>The assumptions of our DRM are placed on the mean density <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{t, i}</annotation></semantics></math>, with the probability of absence remaining the same as in the SDM. In fact, those assumptions can be interpreted as a non-linear function of the environmental variables. In particular, we make assumptions about the (unobserved<a class="footnote-ref" role="doc-noteref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;By “unobserved”, I mean something we do not actually measure or have records of (although it can be inferred to some extent from the length composition)&lt;/p&gt;"><sup>1</sup></a>) age-structure behind the densities at a given time point and patch.</p>
-<p>Define <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">Y_{a, t, i}</annotation></semantics></math> as a random variable representing the <em>unobserved</em> density (individuals per unit of area) for individuals of age <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>, where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>A</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">a \in \{1,
-\ldots, A\}</annotation></semantics></math>. Similarly, we denote the expected density (or theoretical mean for a given age, time, and patch) as: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mi>𝔼</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>Y</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p>Similar to SDMs, a DRM based <span class="citation">(<strong>eq-za_dens?</strong>)</span> also relates the
+parameters of the zero-augmented distribution to environmental
+covariates. However, the DRMs offer a more comprehensive approach by
+incorporating explicit representations of the underlying biological
+processes that govern species distributions. This advancement enables
+the integration of expert knowledge and empirical data regarding species
+demography, dispersal patterns, and mechanistic interactions with
+environmental factors <span class="citation">(Pagel and Schurr
+2012)</span>.</p>
+<p>The assumptions of our DRM are placed on the mean density
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{t, i}</annotation></semantics></math>,
+with the probability of absence remaining the same as in the SDM. In
+fact, those assumptions can be interpreted as a non-linear function of
+the environmental variables. In particular, we make assumptions about
+the (unobserved<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;By “unobserved”, I mean something we do not actually
+measure or have records of (although it can be inferred to some extent
+from the length composition)&lt;/p&gt;"><sup>1</sup></a>) age-structure behind the densities at a
+given time point and patch.</p>
+<p>Define
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">Y_{a, t, i}</annotation></semantics></math>
+as a random variable representing the <em>unobserved</em> density
+(individuals per unit of area) for individuals of age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>A</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">a \in \{1,
+\ldots, A\}</annotation></semantics></math>. Similarly, we denote the
+expected density (or theoretical mean for a given age, time, and patch)
+as:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mi>𝔼</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>Y</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \lambda_{a, t, i} = \mathbb{E}[Y_{a, t, i}].
-</annotation></semantics></math> We do not observe <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mrow><mi>a</mi><mo>,</mo><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">Y_{a, i, t}</annotation></semantics></math> and assume the previously defined (overall) density, which we actually observe, to be the sum of the densities across all age groups. In other words, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><msub><mo>∑</mo><mi>a</mi></msub><msub><mi>Y</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{t, i} = \sum_{a} Y_{a, t, i}</annotation></semantics></math>. Consequently, <span id="eq-mu-lambda"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><munder><mo>∑</mo><mi>a</mi></munder><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mi>.</mi><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>4</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+</annotation></semantics></math> We do not observe
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mrow><mi>a</mi><mo>,</mo><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">Y_{a, i, t}</annotation></semantics></math>
+and assume the previously defined (overall) density, which we actually
+observe, to be the sum of the densities across all age groups. In other
+words,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><msub><mo>∑</mo><mi>a</mi></msub><msub><mi>Y</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{t, i} = \sum_{a} Y_{a, t, i}</annotation></semantics></math>.
+Consequently,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><munder><mo>∑</mo><mi>a</mi></munder><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \mu_{t, i} = \sum_{a} \lambda_{a, t, i}.
- \qquad(4)</annotation></semantics></math></span></p>
-<p>Biological processes and additional assumptions are encoded through the expected “age densities” <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\lambda_{a, t, i}</annotation></semantics></math>. Some key process we consider are: recruitment, survival, and movement. They are described below.</p>
-<section class="level3"><h3 id="sec-rec">Recruitment<a class="anchor" aria-label="anchor" href="#sec-rec"></a>
+</annotation></semantics></math> {#eq-mu-lambda}</p>
+<p>Biological processes and additional assumptions are encoded through
+the expected “age densities”
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\lambda_{a, t, i}</annotation></semantics></math>.
+Some key process we consider are: recruitment, survival, and movement.
+They are described below.</p>
+<div class="section level3">
+<h3 id="sec-rec">Recruitment<a class="anchor" aria-label="anchor" href="#sec-rec"></a>
 </h3>
-<p>We begin by defining the expected density for recruits (fish at age <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a = 1</annotation></semantics></math>) at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> and patch <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> as: <span id="eq-recruits"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝔼</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>Y</mi><mrow><mn>1</mn><mo>,</mo><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><msub><mi>λ</mi><mrow><mn>1</mn><mo>,</mo><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>=</mo><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><mi>ψ</mi><mo stretchy="false" form="postfix">}</mo><mo>,</mo><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p>We begin by defining the expected density for recruits (fish at age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a = 1</annotation></semantics></math>)
+at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+and patch
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+as:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝔼</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>Y</mi><mrow><mn>1</mn><mo>,</mo><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><msub><mi>λ</mi><mrow><mn>1</mn><mo>,</mo><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>=</mo><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><mi>ψ</mi><mo stretchy="false" form="postfix">}</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
  \mathbb{E}[Y_{1, i, t}] = \lambda_{1, i, t} = \exp \{\psi \},
- \qquad(5)</annotation></semantics></math></span></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><mi>ψ</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\exp\{ \psi \}</annotation></semantics></math> represents the overall mean recruitment per unit of area. The assumption in <a href="#eq-recruits" class="quarto-xref">Equation 5</a> is quite restrictive. To make the model more realistic, we can replace the constant <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ψ</mi><annotation encoding="application/x-tex">\psi</annotation></semantics></math> with</p>
-<p><span id="eq-lmrec"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ψ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><msub><mi>𝛃</mi><mi>r</mi></msub><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msubsup><mi>z</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>6</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+</annotation></semantics></math> {#eq-recruits}</p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><mi>ψ</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\exp\{ \psi \}</annotation></semantics></math>
+represents the overall mean recruitment per unit of area. The assumption
+in <span class="citation">(<strong>eq-recruits?</strong>)</span> is
+quite restrictive. To make the model more realistic, we can replace the
+constant
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ψ</mi><annotation encoding="application/x-tex">\psi</annotation></semantics></math>
+with</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ψ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><msub><mi>𝛃</mi><mi>r</mi></msub><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msubsup><mi>z</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \psi_{t, i} = \boldsymbol{\beta}_r \mathbf{x}^{(r)}_{t, i} + z^{(r)}_{t, i},
- \qquad(6)</annotation></semantics></math></span></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(r)}_{t, i}</annotation></semantics></math> is the vector of environmental drivers associated to recruitment at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> and patch <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝛃</mi><mi>r</mi></msub><annotation encoding="application/x-tex">\boldsymbol{\beta}_r</annotation></semantics></math> is a vector of corresponding coefficients, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>z</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">z^{(r)}_{t, i}</annotation></semantics></math> represent potential effects. This depicts a log-linear relationship between recruitment and the environment, while allowing for the introduction of spatial, temporal, or spatio-temporal dependence.</p>
-<p>To account for the influence of time on recruitment (or SDM densities), we introduce a random effect in Equation <a href="#eq-lmrec" class="quarto-xref">Equation 6</a>. In the current version of the model, this random effect is the same across all groups for a given time point, meaning <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>z</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><msubsup><mi>z</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">z_{t, i}^{(r)} = z_{t}^{(r)}</annotation></semantics></math> for every <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>. This creates a temporal dependence, where the recruitment or density at one point in time is related to its value at the previous time point. We model this temporal dependence using an autoregressive process of order 1 (AR(1)). Formally, this is defined as:</p>
-<p><span id="eq-ar1"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>z</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mi>α</mi><msubsup><mi>z</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msub><mi>ε</mi><mi>t</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>7</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+</annotation></semantics></math> {#eq-lmrec}</p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(r)}_{t, i}</annotation></semantics></math>
+is the vector of environmental drivers associated to recruitment at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+and patch
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝛃</mi><mi>r</mi></msub><annotation encoding="application/x-tex">\boldsymbol{\beta}_r</annotation></semantics></math>
+is a vector of corresponding coefficients, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>z</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">z^{(r)}_{t, i}</annotation></semantics></math>
+represent potential effects. This depicts a log-linear relationship
+between recruitment and the environment, while allowing for the
+introduction of spatial, temporal, or spatio-temporal dependence.</p>
+<p>To account for the influence of time on recruitment (or SDM
+densities), we introduce a random effect in Equation <span class="citation">(<strong>eq-lmrec?</strong>)</span>. In the current
+version of the model, this random effect is the same across all groups
+for a given time point, meaning
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>z</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><msubsup><mi>z</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">z_{t, i}^{(r)} = z_{t}^{(r)}</annotation></semantics></math>
+for every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.
+This creates a temporal dependence, where the recruitment or density at
+one point in time is related to its value at the previous time point. We
+model this temporal dependence using an autoregressive process of order
+1 (AR(1)). Formally, this is defined as:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>z</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mi>α</mi><msubsup><mi>z</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msub><mi>ε</mi><mi>t</mi></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">
 z_{t}^{(r)} = \alpha z_{t - 1}^{(r)} + \varepsilon_{t},
- \qquad(7)</annotation></semantics></math></span></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ε</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>ε</mi><mi>T</mi></msub></mrow><annotation encoding="application/x-tex">\varepsilon_{1}, \ldots, \varepsilon_{T}</annotation></semantics></math> are independent and identically distributed residual terms from a zero-mean Normal distribution with variance <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>τ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\tau^2</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math> is the temporal autocorrelation parameter. In this model, the recruitment (or density from <a href="#eq-linpreds" class="quarto-xref">Equation 2</a>) at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> is a function of its value at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t - 1</annotation></semantics></math>, plus a random error term.</p>
-</section><section class="level3"><h3 id="sec-surv">Survival<a class="anchor" aria-label="anchor" href="#sec-surv"></a>
+</annotation></semantics></math> {#eq-ar1}</p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ε</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>ε</mi><mi>T</mi></msub></mrow><annotation encoding="application/x-tex">\varepsilon_{1}, \ldots, \varepsilon_{T}</annotation></semantics></math>
+are independent and identically distributed residual terms from a
+zero-mean Normal distribution with variance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>τ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\tau^2</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+is the temporal autocorrelation parameter. In this model, the
+recruitment (or density from <span class="citation">(<strong>eq-linpreds?</strong>)</span>) at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+is a function of its value at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t - 1</annotation></semantics></math>,
+plus a random error term.</p>
+</div>
+<div class="section level3">
+<h3 id="sec-surv">Survival<a class="anchor" aria-label="anchor" href="#sec-surv"></a>
 </h3>
-<p>Given the recruitment, the expected density at age <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>, time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>, and patch/site <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> is given by</p>
+<p>Given the recruitment, the expected density at age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>,
+time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
+and patch/site
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+is given by</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝔼</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>Y</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><msub><mi>λ</mi><mrow><mi>a</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>i</mi></mrow></msub><msub><mi>s</mi><mrow><mi>a</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \mathbb{E}[Y_{a, t, i}] = \lambda_{a, t, i} = \lambda_{a - 1, t - 1, i} s_{a -
 1, t - 1},
 </annotation></semantics></math></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">s_{a, t}</annotation></semantics></math> is a survival rate.</p>
-<p>We assume the survival rate (denoted <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">s_{a, t}</annotation></semantics></math>) for fish of age <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math> at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> to be as follows</p>
-<p><span id="eq-surv"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>=</mo><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>f</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>+</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">}</mo><mo>,</mo><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>8</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">s_{a, t}</annotation></semantics></math>
+is a survival rate.</p>
+<p>We assume the survival rate (denoted
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">s_{a, t}</annotation></semantics></math>)
+for fish of age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+to be as follows</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>=</mo><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>f</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>+</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">}</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
 s_{a, t} = \exp \{ - (f_{a, t} + m) \},
- \qquad(8)</annotation></semantics></math></span></p>
+</annotation></semantics></math> {#eq-surv}</p>
 <p>where:</p>
 <ul>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> is the instantaneous natural mortality rate.</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+is the instantaneous natural mortality rate.</li>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">f_{a, t}</annotation></semantics></math> is the instantano exploitation rate for age <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math> at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">f_{a, t}</annotation></semantics></math>
+is the instantano exploitation rate for age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.</li>
 </ul>
-<p>Both <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">f_{a, t}</annotation></semantics></math> may be obtained from stock assessments.</p>
-<p>For increased flexibility, we may allow the natural mortality rate (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>), and consequently the survival rates, to vary by patch/site <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> and time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>:</p>
-<p><span id="eq-lmsurv"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><msub><mi>m</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><msub><mi>𝛃</mi><mi>m</mi></msub><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msubsup><mi>z</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>9</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p>Both
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">f_{a, t}</annotation></semantics></math>
+may be obtained from stock assessments.</p>
+<p>For increased flexibility, we may allow the natural mortality rate
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>),
+and consequently the survival rates, to vary by patch/site
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+and time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><msub><mi>m</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><msub><mi>𝛃</mi><mi>m</mi></msub><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msubsup><mi>z</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">
 -m_{t, i} = \boldsymbol{\beta}_m \mathbf{x}^{(m)}_{t,  i} + z^{(m)}_{t, i}
- \qquad(9)</annotation></semantics></math></span></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(m)}_{t, i}</annotation></semantics></math> represents environmental drivers potentially different from those affecting recruitment, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝛃</mi><mi>m</mi></msub><annotation encoding="application/x-tex">\boldsymbol{\beta}_m</annotation></semantics></math> are associated coefficients, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>z</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">z^{(m)}_{t, i}</annotation></semantics></math> are random effects.</p>
-<p>In our current implementation, we do not allow for a random effect on mortality/survival yet.</p>
-</section><section class="level3"><h3 id="sec-movement">Movement<a class="anchor" aria-label="anchor" href="#sec-movement"></a>
+</annotation></semantics></math> {#eq-lmsurv}</p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(m)}_{t, i}</annotation></semantics></math>
+represents environmental drivers potentially different from those
+affecting recruitment,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝛃</mi><mi>m</mi></msub><annotation encoding="application/x-tex">\boldsymbol{\beta}_m</annotation></semantics></math>
+are associated coefficients, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>z</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">z^{(m)}_{t, i}</annotation></semantics></math>
+are random effects.</p>
+<p>In our current implementation, we do not allow for a random effect on
+mortality/survival yet.</p>
+</div>
+<div class="section level3">
+<h3 id="sec-movement">Movement<a class="anchor" aria-label="anchor" href="#sec-movement"></a>
 </h3>
-<p>For fish older than a pre-specified age (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math>), we incorporate movement between patches. Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝛌</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>⋅</mi></mrow></msub><annotation encoding="application/x-tex">\boldsymbol{\lambda}_{a, t, \cdot}</annotation></semantics></math> be a vector of length <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math> (number of patches) representing the expected density of fish of age <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math> at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>, with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\lambda_{a, t, i}</annotation></semantics></math>​ denoting the density in patch <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</p>
+<p>For fish older than a pre-specified age
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math>),
+we incorporate movement between patches. Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝛌</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>⋅</mi></mrow></msub><annotation encoding="application/x-tex">\boldsymbol{\lambda}_{a, t, \cdot}</annotation></semantics></math>
+be a vector of length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+(number of patches) representing the expected density of fish of age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\lambda_{a, t, i}</annotation></semantics></math>​
+denoting the density in patch
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</p>
 <p>After movement, the expected density is:</p>
-<p><span id="eq-mean-adult-gen"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>𝛌</mi><mo accent="true">̃</mo></mover><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>⋅</mi></mrow></msub><mo>=</mo><msub><mi>𝐌</mi><mi>a</mi></msub><msub><mi>𝛌</mi><mrow><mi>a</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>⋅</mi></mrow></msub><mo>,</mo><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>10</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>𝛌</mi><mo accent="true">̃</mo></mover><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>⋅</mi></mrow></msub><mo>=</mo><msub><mi>𝐌</mi><mi>a</mi></msub><msub><mi>𝛌</mi><mrow><mi>a</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>⋅</mi></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \tilde{\boldsymbol{\lambda}}_{a, t,\cdot} = \mathbf{M}_a
 \boldsymbol{\lambda}_{a - 1, t - 1, \cdot},
- \qquad(10)</annotation></semantics></math></span></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐌</mi><mi>a</mi></msub><annotation encoding="application/x-tex">\mathbf{M}_a</annotation></semantics></math> is a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>×</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">P \times P</annotation></semantics></math> movement matrix. Each element <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{i, j\}</annotation></semantics></math> of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐌</mi><mi>a</mi></msub><annotation encoding="application/x-tex">\mathbf{M}_a</annotation></semantics></math> represents the probability that a fish of age <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math> moves from patch <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t - 1</annotation></semantics></math> to patch <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math> at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>. For ages <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&lt;</mo><msub><mi>a</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">a &lt; a_0</annotation></semantics></math>, we assume no movement; In other words, the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐌</mi><mi>a</mi></msub><annotation encoding="application/x-tex">\mathbf{M}_{a}</annotation></semantics></math> becomes the identity matrix when <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&lt;</mo><msub><mi>a</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">a &lt; a_0</annotation></semantics></math>.</p>
-<p>The movement matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐌</mi><mi>a</mi></msub><annotation encoding="application/x-tex">\mathbf{M}_a</annotation></semantics></math> is derived from a user-provided adjacency matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐀</mi><annotation encoding="application/x-tex">\mathbf{A}</annotation></semantics></math>, which defines connections between patches. In <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐀</mi><annotation encoding="application/x-tex">\mathbf{A}</annotation></semantics></math>, the element <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{i, j\}</annotation></semantics></math> is given by</p>
+</annotation></semantics></math> {#eq-mean-adult-gen}</p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐌</mi><mi>a</mi></msub><annotation encoding="application/x-tex">\mathbf{M}_a</annotation></semantics></math>
+is a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>×</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">P \times P</annotation></semantics></math>
+movement matrix. Each element
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{i, j\}</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐌</mi><mi>a</mi></msub><annotation encoding="application/x-tex">\mathbf{M}_a</annotation></semantics></math>
+represents the probability that a fish of age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+moves from patch
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t - 1</annotation></semantics></math>
+to patch
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.
+For ages
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&lt;</mo><msub><mi>a</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">a &lt; a_0</annotation></semantics></math>,
+we assume no movement; In other words, the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐌</mi><mi>a</mi></msub><annotation encoding="application/x-tex">\mathbf{M}_{a}</annotation></semantics></math>
+becomes the identity matrix when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&lt;</mo><msub><mi>a</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">a &lt; a_0</annotation></semantics></math>.</p>
+<p>The movement matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐌</mi><mi>a</mi></msub><annotation encoding="application/x-tex">\mathbf{M}_a</annotation></semantics></math>
+is derived from a user-provided adjacency matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐀</mi><annotation encoding="application/x-tex">\mathbf{A}</annotation></semantics></math>,
+which defines connections between patches. In
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐀</mi><annotation encoding="application/x-tex">\mathbf{A}</annotation></semantics></math>,
+the element
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{i, j\}</annotation></semantics></math>
+is given by</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐀</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn><mi>/</mi><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if </mtext><mspace width="0.333em"></mspace></mrow><mi>i</mi><mo>∼</mo><mi>j</mi><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> otherwise</mtext></mrow><mo>,</mo></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
 \mathbf{A}_{ij} = \begin{cases}
 1 / N(i), &amp; \text{ if } i \sim j, \\
 0, &amp; \text{ otherwise},
 \end{cases}
 </annotation></semantics></math></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">N(i)</annotation></semantics></math> is the number of neighbors of patch <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>∼</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">i \sim j</annotation></semantics></math> indicates that <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math> are neighbors (i.e., share borders).</p>
-<p>We incorporate a parameter <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ζ</mi><annotation encoding="application/x-tex">\zeta</annotation></semantics></math>, which represents the probability of a fish staying in the same patch between two time points. The movement matrix is then constructed as:</p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">N(i)</annotation></semantics></math>
+is the number of neighbors of patch
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>∼</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">i \sim j</annotation></semantics></math>
+indicates that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+are neighbors (i.e., share borders).</p>
+<p>We incorporate a parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ζ</mi><annotation encoding="application/x-tex">\zeta</annotation></semantics></math>,
+which represents the probability of a fish staying in the same patch
+between two time points. The movement matrix is then constructed as:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐌</mi><mi>a</mi></msub><mo>=</mo><mi>ζ</mi><msub><mi>I</mi><mi>P</mi></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ζ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>𝐀</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \mathbf{M}_{a} = \zeta I_{P} + (1 - \zeta) \mathbf{A},
 </annotation></semantics></math></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>I</mi><mi>P</mi></msub><annotation encoding="application/x-tex">I_P</annotation></semantics></math> is a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>×</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">P \times P</annotation></semantics></math> identity matrix.</p>
-</section><section class="level3"><h3 id="sec-selectivity">Selectivity at age<a class="anchor" aria-label="anchor" href="#sec-selectivity"></a>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>I</mi><mi>P</mi></msub><annotation encoding="application/x-tex">I_P</annotation></semantics></math>
+is a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>×</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">P \times P</annotation></semantics></math>
+identity matrix.</p>
+</div>
+<div class="section level3">
+<h3 id="sec-selectivity">Selectivity at age<a class="anchor" aria-label="anchor" href="#sec-selectivity"></a>
 </h3>
-<p>Our main data source, trawl surveys, often exhibit age-based selectivity, where younger fish have a lower probability of being caught due to their smaller size. In particular, the probability of capturing an animal of a given length given it encounters the gear is denoted <em>selectivity at length</em>. On the other hand, <em>selectivity at age</em> is the probability of capturing a fish of a certain age, provided it “encountered the gear”. We represent selectivity at age by the vector <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐯</mi><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>v</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>v</mi><mi>A</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mi>⊤</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{v} = [v_1, \ldots, v_A]^\top</annotation></semantics></math>, where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math> is the total number of age groups. Each element <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>a</mi></msub><annotation encoding="application/x-tex">v_a</annotation></semantics></math> of this vector is a value between 0 and 1, inclusive, representing the selectivity for age group <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>. Our package does not estimate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐯</mi><annotation encoding="application/x-tex">\mathbf{v}</annotation></semantics></math> and, unless provided by the user, assumes the selectivity is 1 for every age group.</p>
-<p>When a vector <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐯</mi><annotation encoding="application/x-tex">\mathbf{v}</annotation></semantics></math> is provided, our model assumes:</p>
+<p>Our main data source, trawl surveys, often exhibit age-based
+selectivity, where younger fish have a lower probability of being caught
+due to their smaller size. In particular, the probability of capturing
+an animal of a given length given it encounters the gear is denoted
+<em>selectivity at length</em>. On the other hand, <em>selectivity at
+age</em> is the probability of capturing a fish of a certain age,
+provided it “encountered the gear”. We represent selectivity at age by
+the vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐯</mi><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>v</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>v</mi><mi>A</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mi>⊤</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{v} = [v_1, \ldots, v_A]^\top</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+is the total number of age groups. Each element
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>a</mi></msub><annotation encoding="application/x-tex">v_a</annotation></semantics></math>
+of this vector is a value between 0 and 1, inclusive, representing the
+selectivity for age group
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>.
+Our package does not estimate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐯</mi><annotation encoding="application/x-tex">\mathbf{v}</annotation></semantics></math>
+and, unless provided by the user, assumes the selectivity is 1 for every
+age group.</p>
+<p>When a vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐯</mi><annotation encoding="application/x-tex">\mathbf{v}</annotation></semantics></math>
+is provided, our model assumes:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><munder><mo>∑</mo><mi>a</mi></munder><msub><mi>v</mi><mi>a</mi></msub><msub><mi>Y</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
 Y_{t, i} = \sum_{a} v_a Y_{a, t, i}
 </annotation></semantics></math></p>
@@ -192,48 +510,156 @@ Y_{t, i} = \sum_{a} v_a Y_{a, t, i}
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><munder><mo>∑</mo><mi>a</mi></munder><msub><mi>v</mi><mi>a</mi></msub><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \mu_{t, i} = \sum_{a} v_a \lambda_{a, t, i}.
 </annotation></semantics></math></p>
-<p>Note that, our model cannot estimate selectivity. Instead, the model assumes it is provided as known without error. Of course, this is an oversimplification, however, we seldomly have the necessary data to estimate selectivity readily available.</p>
-</section></section><section class="level2"><h2 id="bayesian-inference-and-forecasting">Bayesian Inference and Forecasting<a class="anchor" aria-label="anchor" href="#bayesian-inference-and-forecasting"></a>
+<p>Note that, our model cannot estimate selectivity. Instead, the model
+assumes it is provided as known without error. Of course, this is an
+oversimplification, however, we seldomly have the necessary data to
+estimate selectivity readily available.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="bayesian-inference-and-forecasting">Bayesian Inference and Forecasting<a class="anchor" aria-label="anchor" href="#bayesian-inference-and-forecasting"></a>
 </h2>
-<p>To complete the Bayesian model specification, we need to specify prior distributions for all model parameters. This involves defining our prior beliefs about the likely values of these parameters before observing any data.</p>
-<p>First, we define the priors for the fixed effects regression coefficients, typically denoted by <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛃</mi><annotation encoding="application/x-tex">\boldsymbol{\beta}</annotation></semantics></math> with superscrip. The default priors for these coefficients are uncorrelated zero-mean Normal distributions with marginal variances of 1. The parameter <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>, which controls the scale of the non-zero part of the pdfs in <a href="#eq-za_dens" class="quarto-xref">Equation 1</a> (e.g., Log-Normal, Gamma, or Log-Logistic), has a Gamma prior with shape and rate parameters equal to 2 and 1, respectively. In general, the scale of this parameter varies with the pdf chosen.</p>
-<p>Next, we specify the priors for the parameters associated with the AR(1) process in Equation <a href="#eq-ar1" class="quarto-xref">Equation 7</a>. We take a hierarchical approach, placing a Normal prior on the log of the square root of the conditional variance (i.e., the log of the conditional standard deviation). This prior has a default mean of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">-2</annotation></semantics></math> and and a standard deviation of 0.25, favoring a model with no AR(1) term. For the autocorrelation term, we employ a beta prior on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>α</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">(\alpha + 1) / 2</annotation></semantics></math>. The default parameters on this prior are <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.5</mn><annotation encoding="application/x-tex">0.5</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.5</mn><annotation encoding="application/x-tex">0.5</annotation></semantics></math>.</p>
-<p>Lastly, we place a standard normal prior on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>ζ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{logit}(\zeta)</annotation></semantics></math>.</p>
-<p>Denote by <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛉</mi><annotation encoding="application/x-tex">\boldsymbol{\theta}</annotation></semantics></math> a set containing all the parameters associated with the model we have chosen. The posterior distribution of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛉</mi><annotation encoding="application/x-tex">\boldsymbol{\theta}</annotation></semantics></math> (and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐳</mi><annotation encoding="application/x-tex">\mathbf{z}</annotation></semantics></math>) given the observed data <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐲</mi><annotation encoding="application/x-tex">\mathbf{y}</annotation></semantics></math> and environmental factors <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐗</mi><annotation encoding="application/x-tex">\mathbf{X}</annotation></semantics></math> is</p>
-<p><span id="eq-posterior"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝛉</mi><mo>,</mo><mi>𝐳</mi><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∝</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐲</mi><mo>∣</mo><mi>𝐗</mi><mo>,</mo><mi>𝐳</mi><mo>,</mo><mi>𝛃</mi><mo>,</mo><mi>𝛄</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐳</mi><mo>∣</mo><mi>𝛔</mi><mo>,</mo><mi>𝛅</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>11</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p>To complete the Bayesian model specification, we need to specify
+prior distributions for all model parameters. This involves defining our
+prior beliefs about the likely values of these parameters before
+observing any data.</p>
+<p>First, we define the priors for the fixed effects regression
+coefficients, typically denoted by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛃</mi><annotation encoding="application/x-tex">\boldsymbol{\beta}</annotation></semantics></math>
+with superscrip. The default priors for these coefficients are
+uncorrelated zero-mean Normal distributions with marginal variances of
+1. The parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>,
+which controls the scale of the non-zero part of the pdfs in <span class="citation">(<strong>eq-za_dens?</strong>)</span> (e.g.,
+Log-Normal, Gamma, or Log-Logistic), has a Gamma prior with shape and
+rate parameters equal to 2 and 1, respectively. In general, the scale of
+this parameter varies with the pdf chosen.</p>
+<p>Next, we specify the priors for the parameters associated with the
+AR(1) process in Equation <span class="citation">(<strong>eq-ar1?</strong>)</span>. We take a
+hierarchical approach, placing a Normal prior on the log of the square
+root of the conditional variance (i.e., the log of the conditional
+standard deviation). This prior has a default mean of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">-2</annotation></semantics></math>
+and and a standard deviation of 0.25, favoring a model with no AR(1)
+term. For the autocorrelation term, we employ a beta prior on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>α</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">(\alpha + 1) / 2</annotation></semantics></math>.
+The default parameters on this prior are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.5</mn><annotation encoding="application/x-tex">0.5</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.5</mn><annotation encoding="application/x-tex">0.5</annotation></semantics></math>.</p>
+<p>Lastly, we place a standard normal prior on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>ζ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{logit}(\zeta)</annotation></semantics></math>.</p>
+<p>Denote by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛉</mi><annotation encoding="application/x-tex">\boldsymbol{\theta}</annotation></semantics></math>
+a set containing all the parameters associated with the model we have
+chosen. The posterior distribution of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛉</mi><annotation encoding="application/x-tex">\boldsymbol{\theta}</annotation></semantics></math>
+(and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐳</mi><annotation encoding="application/x-tex">\mathbf{z}</annotation></semantics></math>)
+given the observed data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐲</mi><annotation encoding="application/x-tex">\mathbf{y}</annotation></semantics></math>
+and environmental factors
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐗</mi><annotation encoding="application/x-tex">\mathbf{X}</annotation></semantics></math>
+is</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝛉</mi><mo>,</mo><mi>𝐳</mi><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∝</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐲</mi><mo>∣</mo><mi>𝐗</mi><mo>,</mo><mi>𝐳</mi><mo>,</mo><mi>𝛃</mi><mo>,</mo><mi>𝛄</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐳</mi><mo>∣</mo><mi>𝛔</mi><mo>,</mo><mi>𝛅</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
   \pi(\boldsymbol{\theta}, \mathbf{z} \mid \mathbf{y}) \propto
   p(\mathbf{y} \mid \mathbf{X}, \mathbf{z}, \boldsymbol{\beta}, \boldsymbol{\gamma})
   \pi(\mathbf{z}  \mid \boldsymbol{\sigma}, \boldsymbol{\delta})
   \pi(\boldsymbol{\theta}),
- \qquad(11)</annotation></semantics></math></span></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\pi(\cdot)</annotation></semantics></math> denotes prior and posterior distributions of its arguments. Importantly, the distribution placed on the random effects <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐳</mi><annotation encoding="application/x-tex">\mathbf{z}</annotation></semantics></math> also functions as a prior, as we draw samples from these random effects distribution conditioned on the observed data.</p>
-<section class="level3"><h3 id="parameter-estimation">Parameter estimation<a class="anchor" aria-label="anchor" href="#parameter-estimation"></a>
+</annotation></semantics></math> {#eq-posterior}</p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\pi(\cdot)</annotation></semantics></math>
+denotes prior and posterior distributions of its arguments. Importantly,
+the distribution placed on the random effects
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐳</mi><annotation encoding="application/x-tex">\mathbf{z}</annotation></semantics></math>
+also functions as a prior, as we draw samples from these random effects
+distribution conditioned on the observed data.</p>
+<div class="section level3">
+<h3 id="parameter-estimation">Parameter estimation<a class="anchor" aria-label="anchor" href="#parameter-estimation"></a>
 </h3>
-<p>The estimation of the model parameters is obtained from the posterior distribution defined in <a href="#eq-posterior" class="quarto-xref">Equation 11</a>. As the posterior distribution is intractable, we use the No-U-Turn <span class="citation" data-cites="hoffman2014no">(<a href="#ref-hoffman2014no" role="doc-biblioref">Homan and Gelman 2014</a>)</span> Markov Chain Monte Carlo~(MCMC) sampler available in <code>Stan</code> to draw samples from it. The No-U-Turn algorithm samples all the model parameters jointly and efficiently exploits the parameter space using automatic differentiation. Additionally, it eliminates the need for hand-tuning, making it a highly convenient sampler. We initialize the parameters with samples from their respective prior distributions. The latent random effects are initialized from a standard Gaussian distribution. The number of samples and the warm-up period of the MCMC algorithm are application dependent. We assess the convergence of the chains using the split-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>R</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{R}</annotation></semantics></math> diagnostic <span class="citation" data-cites="vehtari2021rank">(<a href="#ref-vehtari2021rank" role="doc-biblioref">Vehtari et al. 2021</a>)</span>. Finally, the parameters’ point estimates and 95% credible intervals~(CI) are obtained as, respectively, the median and percentiles (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>2.5</mn><annotation encoding="application/x-tex">2.5</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>97.5</mn><annotation encoding="application/x-tex">97.5</annotation></semantics></math>, unless otherwise stated) of the marginal MCMC samples.</p>
-</section><section class="level3"><h3 id="model-comparison">Model comparison<a class="anchor" aria-label="anchor" href="#model-comparison"></a>
+<p>The estimation of the model parameters is obtained from the posterior
+distribution defined in <span class="citation">(<strong>eq-posterior?</strong>)</span>. As the
+posterior distribution is intractable, we use the No-U-Turn <span class="citation">(Homan and Gelman 2014)</span> Markov Chain Monte
+Carlo~(MCMC) sampler available in <code>Stan</code> to draw samples from
+it. The No-U-Turn algorithm samples all the model parameters jointly and
+efficiently exploits the parameter space using automatic
+differentiation. Additionally, it eliminates the need for hand-tuning,
+making it a highly convenient sampler. We initialize the parameters with
+samples from their respective prior distributions. The latent random
+effects are initialized from a standard Gaussian distribution. The
+number of samples and the warm-up period of the MCMC algorithm are
+application dependent. We assess the convergence of the chains using the
+split-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>R</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{R}</annotation></semantics></math>
+diagnostic <span class="citation">(Vehtari et al. 2021)</span>. Finally,
+the parameters’ point estimates and 95% credible intervals~(CI) are
+obtained as, respectively, the median and percentiles
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>2.5</mn><annotation encoding="application/x-tex">2.5</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>97.5</mn><annotation encoding="application/x-tex">97.5</annotation></semantics></math>,
+unless otherwise stated) of the marginal MCMC samples.</p>
+</div>
+<div class="section level3">
+<h3 id="model-comparison">Model comparison<a class="anchor" aria-label="anchor" href="#model-comparison"></a>
 </h3>
-<p>The assessment of goodness-of-fit GoF is carried out using the leave-one-out information criterion [<span class="citation" data-cites="vehtari2017practical">Vehtari, Gelman, and Gabry (<a href="#ref-vehtari2017practical" role="doc-biblioref">2017</a>)</span>; LOOIC]. Lower LOOIC values indicate a better fit.</p>
-</section><section class="level3"><h3 id="predictionsforecasting">Predictions/Forecasting<a class="anchor" aria-label="anchor" href="#predictionsforecasting"></a>
+<p>The assessment of goodness-of-fit GoF is carried out using the
+leave-one-out information criterion [<span class="citation">Vehtari,
+Gelman, and Gabry (2017)</span>; LOOIC]. Lower LOOIC values indicate a
+better fit.</p>
+</div>
+<div class="section level3">
+<h3 id="predictionsforecasting">Predictions/Forecasting<a class="anchor" aria-label="anchor" href="#predictionsforecasting"></a>
 </h3>
-<p>Given the posterior MCMC samples, we can obtain Monte Carlo samples from the posterior predictive distribution under different environmental conditions and make forecasts. Suppose we wish to compute forecasts <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math> time points ahead. We define an <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-dimensional variable <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝐘</mi><mo>*</mo></msup><annotation encoding="application/x-tex">\mathbf{Y}^\ast</annotation></semantics></math> representing the densities at these time points. Assuming environmental at these time points are also available, we can generate predictions accounting for uncertainty using the posterior predictive distribution of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝐘</mi><mo>*</mo></msup><annotation encoding="application/x-tex">\mathbf{Y}^\ast</annotation></semantics></math>:</p>
-<p><span id="eq-preds"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>𝐲</mi><mo>*</mo></msup><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mo>∫</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>𝐲</mi><mo>*</mo></msup><mo>∣</mo><msup><mi>𝐳</mi><mo>*</mo></msup><mo>,</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>𝐳</mi><mo>*</mo></msup><mo>∣</mo><mi>𝐳</mi><mo>,</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝛉</mi><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi mathvariant="normal">d</mi><mi>𝛉</mi><mo>,</mo><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p>Given the posterior MCMC samples, we can obtain Monte Carlo samples
+from the posterior predictive distribution under different environmental
+conditions and make forecasts. Suppose we wish to compute forecasts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+time points ahead. We define an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-dimensional
+variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝐘</mi><mo>*</mo></msup><annotation encoding="application/x-tex">\mathbf{Y}^\ast</annotation></semantics></math>
+representing the densities at these time points. Assuming environmental
+at these time points are also available, we can generate predictions
+accounting for uncertainty using the posterior predictive distribution
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝐘</mi><mo>*</mo></msup><annotation encoding="application/x-tex">\mathbf{Y}^\ast</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>𝐲</mi><mo>*</mo></msup><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mo>∫</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>𝐲</mi><mo>*</mo></msup><mo>∣</mo><msup><mi>𝐳</mi><mo>*</mo></msup><mo>,</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>𝐳</mi><mo>*</mo></msup><mo>∣</mo><mi>𝐳</mi><mo>,</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝛉</mi><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi mathvariant="normal">d</mi><mi>𝛉</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">
   p(\mathbf{y}^{\ast} \mid \mathbf{y}) = \int p(\mathbf{y}^{\ast} \mid
   \mathbf{z}^{\ast}, \boldsymbol{\theta})
   p(\mathbf{z}^{\ast} \mid \mathbf{z}, \boldsymbol{\theta})
   \pi(\boldsymbol{\theta}
   \mid \mathbf{y}) \mathrm{d} \boldsymbol{\theta},
- \qquad(12)</annotation></semantics></math></span></p>
+</annotation></semantics></math> {#eq-preds}</p>
 <p>where</p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>𝐳</mi><mo>*</mo></msup><mo>=</mo><msup><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mrow><mi>T</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>z</mi><mrow><mi>T</mi><mo>+</mo><mi>k</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><mi>⊤</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{z}^\ast = {(z_{T+1}), \ldots, z_{T + k}))}^\top</annotation></semantics></math> is a realization of the AR(1) process at the new time points, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛉</mi><annotation encoding="application/x-tex">\boldsymbol{\theta}</annotation></semantics></math> represents the model parameters. Moreover, the pdf <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>𝐲</mi><mo>*</mo></msup><mo>∣</mo><msup><mi>𝐳</mi><mo>*</mo></msup><mo>,</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(\mathbf{y}^{\ast} \mid
-\mathbf{z}^{\ast}, \boldsymbol{\theta})</annotation></semantics></math> can be obtained as in <a href="#sec-drm" class="quarto-xref">Section 3</a> or <a href="#sec-sdm" class="quarto-xref">Section 2</a>.</p>
-</section></section><section class="level2"><h2 id="pontential-issues-with-estimation-closed-formulas-for-special-cases">Pontential issues with estimation &amp; Closed formulas for special cases<a class="anchor" aria-label="anchor" href="#pontential-issues-with-estimation-closed-formulas-for-special-cases"></a>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>𝐳</mi><mo>*</mo></msup><mo>=</mo><msup><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mrow><mi>T</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>z</mi><mrow><mi>T</mi><mo>+</mo><mi>k</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><mi>⊤</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{z}^\ast = {(z_{T+1}), \ldots, z_{T + k}))}^\top</annotation></semantics></math>
+is a realization of the AR(1) process at the new time points, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛉</mi><annotation encoding="application/x-tex">\boldsymbol{\theta}</annotation></semantics></math>
+represents the model parameters. Moreover, the pdf
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>𝐲</mi><mo>*</mo></msup><mo>∣</mo><msup><mi>𝐳</mi><mo>*</mo></msup><mo>,</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(\mathbf{y}^{\ast} \mid
+\mathbf{z}^{\ast}, \boldsymbol{\theta})</annotation></semantics></math>
+can be obtained as in <span class="citation">(<strong>sec-drm?</strong>)</span> or <span class="citation">(<strong>sec-sdm?</strong>)</span>.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="pontential-issues-with-estimation-closed-formulas-for-special-cases">Pontential issues with estimation &amp; Closed formulas for special
+cases<a class="anchor" aria-label="anchor" href="#pontential-issues-with-estimation-closed-formulas-for-special-cases"></a>
 </h2>
 <p>Define</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>m</mi><mrow><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>−</mo><msub><mi>f</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="false" form="postfix">}</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
 s_{a, t, i} = \exp \{ m_{i, t} - f_{a, t} \},
 </annotation></semantics></math></p>
-<p>as the environment dependent survival for age <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math> at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> and site <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</p>
-<p>Then, in the scenario without movement, the expected density for age <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math> at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> and site <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> can be written as:</p>
+<p>as the environment dependent survival for age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+and site
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</p>
+<p>Then, in the scenario without movement, the expected density for age
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+and site
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+can be written as:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>ψ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>+</mo><msubsup><mi>z</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><munderover><mo>∏</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>a</mi><mo>−</mo><mn>1</mn></mrow></munderover><msub><mi>s</mi><mrow><mi>k</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="false" form="postfix">}</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>ψ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>+</mo><msubsup><mi>z</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">}</mo><mo>exp</mo><mrow><mo stretchy="true" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>m</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>a</mi><mo>−</mo><mn>1</mn></mrow></munderover><msub><mi>f</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="true" form="postfix">}</mo></mrow><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{align}
 \lambda_{a, t, i} &amp; = \exp \{ \psi_{t, i} + z_{t}^{(r)} \prod_{k = 1}^{a - 1} s_{k, t, i} \} \\
@@ -242,7 +668,10 @@ s_{a, t, i} = \exp \{ m_{i, t} - f_{a, t} \},
 1}^{a - 1} f_{a, t} \right \}.
 \end{align}
 </annotation></semantics></math></p>
-<p>Therefore, a closed form for the expected density <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{i, t}</annotation></semantics></math> is: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><munderover><mo>∑</mo><mrow><mi>a</mi><mo>=</mo><mn>1</mn></mrow><mi>A</mi></munderover><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>ψ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>+</mo><msubsup><mi>z</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">}</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><munderover><mo>∑</mo><mrow><mi>a</mi><mo>=</mo><mn>2</mn></mrow><mi>A</mi></munderover><mo>exp</mo><mrow><mo stretchy="true" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>m</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>a</mi><mo>−</mo><mn>1</mn></mrow></munderover><msub><mi>f</mi><mrow><mi>k</mi><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="true" form="postfix">}</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<p>Therefore, a closed form for the expected density
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{i, t}</annotation></semantics></math>
+is:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><munderover><mo>∑</mo><mrow><mi>a</mi><mo>=</mo><mn>1</mn></mrow><mi>A</mi></munderover><msub><mi>λ</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>exp</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>ψ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>+</mo><msubsup><mi>z</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">}</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><munderover><mo>∑</mo><mrow><mi>a</mi><mo>=</mo><mn>2</mn></mrow><mi>A</mi></munderover><mo>exp</mo><mrow><mo stretchy="true" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>m</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>a</mi><mo>−</mo><mn>1</mn></mrow></munderover><msub><mi>f</mi><mrow><mi>k</mi><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="true" form="postfix">}</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{align}
 \mu_{t, i} &amp; = \sum_{a = 1}^{A} \lambda_{a, t, i} \\
 &amp; = \exp \{ \psi_{t, i} + z_{t}^{(r)} \} \left (1 + \sum_{a = 2}^{A} \exp \left
@@ -257,129 +686,48 @@ s_{a, t, i} = \exp \{ m_{i, t} - f_{a, t} \},
 \left \{ (a - 1) m_{t, i} - \sum_{k = 1}^{a - 1} f_{k, t} \right \} \right ).
 \end{align}
 </annotation></semantics></math></p>
-</section><section class="level2 unnumbered"><h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</div>
+<div class="section level2 unnumbered">
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-hoffman2014no" class="csl-entry" role="listitem">
-Homan, Matthew D., and Andrew Gelman. 2014. <span>“The <span class="nocase">No-U-turn</span> Sampler: Adaptively Setting Path Lengths in Hamiltonian <span>M</span>onte <span>C</span>arlo.”</span> <em>Journal of Machine Learning Research</em> 15 (1): 1593–623.
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-hoffman2014no" class="csl-entry">
+Homan, Matthew D., and Andrew Gelman. 2014. <span>“The <span class="nocase">No-U-turn</span> Sampler: Adaptively Setting Path Lengths
+in Hamiltonian <span>M</span>onte <span>C</span>arlo.”</span>
+<em>Journal of Machine Learning Research</em> 15 (1): 1593–623.
 </div>
-<div id="ref-pagel2012forecasting" class="csl-entry" role="listitem">
-Pagel, Jörn, and Frank M. Schurr. 2012. <span>“Forecasting Species Ranges by Statistical Estimation of Ecological Niches and Spatial Population Dynamics.”</span> <em>Global Ecology and Biogeography</em> 21 (2): 293–304. https://doi.org/<a href="https://doi.org/10.1111/j.1466-8238.2011.00663.x" class="external-link">https://doi.org/10.1111/j.1466-8238.2011.00663.x</a>.
+<div id="ref-pagel2012forecasting" class="csl-entry">
+Pagel, Jörn, and Frank M. Schurr. 2012. <span>“Forecasting Species
+Ranges by Statistical Estimation of Ecological Niches and Spatial
+Population Dynamics.”</span> <em>Global Ecology and Biogeography</em> 21
+(2): 293–304. https://doi.org/<a href="https://doi.org/10.1111/j.1466-8238.2011.00663.x" class="external-link">https://doi.org/10.1111/j.1466-8238.2011.00663.x</a>.
 </div>
-<div id="ref-vehtari2017practical" class="csl-entry" role="listitem">
-Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. <span>“Practical Bayesian Model Evaluation Using Leave-One-Out Cross-Validation and WAIC.”</span> <em>Statistics and Computing</em> 27: 1413–32.
+<div id="ref-vehtari2017practical" class="csl-entry">
+Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. <span>“Practical
+Bayesian Model Evaluation Using Leave-One-Out Cross-Validation and
+WAIC.”</span> <em>Statistics and Computing</em> 27: 1413–32.
 </div>
-<div id="ref-vehtari2021rank" class="csl-entry" role="listitem">
-Vehtari, Aki, Andrew Gelman, Daniel Simpson, Bob Carpenter, and Paul-Christian Bürkner. 2021. <span>“Rank-Normalization, Folding, and Localization: An Improved <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>R</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{R}</annotation></semantics></math> for Assessing Convergence of <span>MCMC</span> (with Discussion).”</span> <em>Bayesian Analysis</em> 16 (2): 667–718.
+<div id="ref-vehtari2021rank" class="csl-entry">
+Vehtari, Aki, Andrew Gelman, Daniel Simpson, Bob Carpenter, and
+Paul-Christian Bürkner. 2021. <span>“Rank-Normalization, Folding, and
+Localization: An Improved
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>R</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{R}</annotation></semantics></math>
+for Assessing Convergence of <span>MCMC</span> (with
+Discussion).”</span> <em>Bayesian Analysis</em> 16 (2): 667–718.
 </div>
-<div id="ref-ye2021comparisons" class="csl-entry" role="listitem">
-Ye, Tairan, Victor H Lachos, Xiaojing Wang, and Dipak K Dey. 2021. <span>“Comparisons of Zero-Augmented Continuous Regression Models from a <span>B</span>ayesian Perspective.”</span> <em>Statistics in Medicine</em> 40 (5): 1073–1100.
+<div id="ref-ye2021comparisons" class="csl-entry">
+Ye, Tairan, Victor H Lachos, Xiaojing Wang, and Dipak K Dey. 2021.
+<span>“Comparisons of Zero-Augmented Continuous Regression Models from a
+<span>B</span>ayesian Perspective.”</span> <em>Statistics in
+Medicine</em> 40 (5): 1073–1100.
 </div>
 </div>
-</section><script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
-      }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'light-border',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config);
-  }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
-      });
-    }
-  }
-});
-</script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+</div>
+
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
+
 
 
     <footer><div class="pkgdown-footer-left">

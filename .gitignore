@@ -9,7 +9,9 @@ inst/stan/**
 inst/stan/**/*.exe
 inst/stan/**/*.EXE
 *.dll
-  
+
+docs
+
 ## User-specific files
 .Ruserdata
 
