@@ -1,0 +1,11 @@
+pandoc: 3.1.11
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  examples: examples.html
+  get-started: get-started.html
+  theory: theory.html
+last_built: 2025-02-11T18:15Z
+urls:
+  reference: https://pinskylab.github.io/drmr/reference
+  article: https://pinskylab.github.io/drmr/articles
