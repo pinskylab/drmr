@@ -47,8 +47,6 @@ tramp
 *.html
 *.pdf
 
-docs
-
 ## usethis setup
 
 inst/doc
