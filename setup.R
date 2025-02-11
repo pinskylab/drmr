@@ -23,7 +23,7 @@ if (!file.exists("vignettes/get-started.Rmd"))
 usethis::use_news_md()
 
 ## build pkgdown website
-usethis::use_pkgdown_github_pages()
+## usethis::use_github_action("pkgdown")
 
 ## creating a vignette
 if (!file.exists("vignettes/get-started.qmd"))

@@ -44,10 +44,8 @@ tramp
 /auto/
 
 ## Outputs
-*.html
+# *.html
 *.pdf
-
-docs
 
 ## usethis setup
 
