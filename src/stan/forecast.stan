@@ -131,8 +131,8 @@ data {
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_mort; // estimate mortality?
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
-  int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
-                                        // Gamma, 3 = log-Logistic)
+  int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
+                                        // Gamma, 3 = log-Logistic, 4 = truncated normal)
   //--- suitability (for rho) ----
   int<lower = 1> K_t;
   matrix[N, K_t] X_t;
@@ -279,6 +279,11 @@ generated quantities {
       a_ll = sin(pi() / b_ll) * mu_proj[n] * inv(pi() * b_ll);
       y_proj[n] = (1 - bernoulli_rng(rho_proj[n])) *
         loglogistic_rng(a_ll, b_ll);
+    } else {
+      array[2] real aux_tn = rep_array(0.0, 2);
+      aux_tn[2] = normal_rng(mu_proj[n], phi[1]);
+      y_proj[n] = (1 - bernoulli_rng(rho_proj[n])) *
+        max(aux_tn);
     }
   }
 }

@@ -71,12 +71,14 @@ make_data <- function(y,
   ## getting the default toggles and using user options
   stopifnot(length(family) == 1)
   stopifnot(family %in% c("lognormal1", "lognormal2",
-                          "gamma", "loglogistic"))
+                          "gamma", "loglogistic",
+                          "truncnorm"))
   likelihood <- switch(family,
                        lognormal1  = 0,
                        lognormal2  = 1,
                        gamma       = 2,
-                       loglogistic = 3)
+                       loglogistic = 3,
+                       truncnorm   = 4)
   toggles <- default_toggles() |>
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
