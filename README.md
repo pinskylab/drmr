@@ -7,7 +7,7 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/pinskylab/drmr/workflows/R-CMD-check/badge.svg)](https://github.com/pinskylab/drmr/actions)
+[![R-CMD-check](https://github.com/pinskylab/drmr/workflows/check-cran/badge.svg)](https://github.com/pinskylab/drmr/actions)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
