@@ -5,8 +5,8 @@ bibliography: [notes.bib, zim.bib]
 execute:
   eval: false
 vignette: >
-  %\VignetteIndexEntry{Theoretical Background}
-  %\VignetteEngine{quarto:html}
+  %\VignetteIndexEntry{Examples}
+  %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -26,7 +26,6 @@ with the help of five additional `R` packages:
 * `ggplot2`: for creating graphs
 * `bayesplot`: for visualizing MCMC outputs
 * `dplyr`: for data wrangling
-* `skimr`: for quick descriptive statistics
 
 ## Installing the `drmr` package {#sec-drmr}
 
@@ -74,20 +73,11 @@ sum_fl <- sum_fl |>
          .before = y)
 ```
 
-A quick exploration of the data in @tbl-summary reveals the following:
+A quick exploration of the data reveals the following:
 
 * Surface salinity (ssalin) and bottom salinity (bsalin) have missing values
   (around 30% missing for each).
 * At least 25% of the density (`dens`) values are zero.
-
-```{r}
-#| label: tbl-summary
-#| tbl-cap: "Summary statistics of all the variables in the dataset."
-
-## Density is being multiplied by 10000 because the non-negative densities are
-## too small
-skimr::skim_without_charts(mutate(sum_fl, dens = 10000 * dens))
-```
 
 Finally, we split the data, reserving the last five years for evaluating
 predictions:
@@ -1244,3 +1234,5 @@ ggplot(data = filter(centroid_all,
   facet_wrap( ~ model) +
   theme_bw()
 ```
+
+## References

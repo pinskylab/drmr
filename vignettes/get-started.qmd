@@ -4,8 +4,8 @@ author: Lucas da Cunha Godoy
 execute:
   eval: false
 vignette: >
-  %\VignetteIndexEntry{Theoretical Background}
-  %\VignetteEngine{quarto:html}
+  %\VignetteIndexEntry{Get Started}
+  %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -124,7 +124,7 @@ mcmc_samples <-
   fit_drm(.data = dat_train,
           y_col = "dens",
           time_col = "year",
-          site_col = "patch"
+          site_col = "patch",
           n_ages = 8,
           m = 0.25,
           seed = 2025)

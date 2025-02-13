@@ -28,6 +28,8 @@ Suggests:
   tidyr,
   gridExtra,
   quarto,
+  loo,
+  posterior,
   bayesplot
 Additional_repositories:
   https://mc-stan.org/r-packages/
@@ -36,7 +38,8 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-VignetteBuilder: knitr, quarto
+VignetteBuilder:
+  quarto
 Language: en-US
 License: GPL (>= 3)
 URL: https://pinskylab.github.io/drmr/

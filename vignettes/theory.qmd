@@ -7,7 +7,7 @@ execute:
   error: false
 vignette: >
   %\VignetteIndexEntry{Theoretical Background}
-  %\VignetteEngine{quarto:html}
+  %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
 
