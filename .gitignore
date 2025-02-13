@@ -12,6 +12,8 @@ inst/stan/**/*.EXE
 
 docs
 
+vignettes/.quarto/
+  
 ## User-specific files
 .Ruserdata
 
