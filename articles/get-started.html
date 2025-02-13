@@ -150,14 +150,15 @@
 </div>
 <p>Alternatively, we can achieve the same result without loading the compiled model and creating a <code>data</code> list. This is achieved through the <code>fit_drm</code> function as follows:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mcmc_samples <span class="ot">&lt;-</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_drm</span>(<span class="at">.data =</span> dat_train,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">y_col =</span> <span class="st">"dens"</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">time_col =</span> <span class="st">"year"</span>,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">site_col =</span> <span class="st">"patch"</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">n_ages =</span> <span class="dv">8</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">m =</span> <span class="fl">0.25</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">seed =</span> <span class="dv">2025</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mcmc_samples</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/fit_drm.html">fit_drm</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">dat_train</span>,</span>
+<span>          y_col <span class="op">=</span> <span class="st">"dens"</span>,</span>
+<span>          time_col <span class="op">=</span> <span class="st">"year"</span>,</span>
+<span>          site_col <span class="op">=</span> <span class="st">"patch"</span>,</span>
+<span>          n_ages <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>          m <span class="op">=</span> <span class="fl">0.25</span>,</span>
+<span>          seed <span class="op">=</span> <span class="fl">2025</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="sampler-convergence">Sampler convergence<a class="anchor" aria-label="anchor" href="#sampler-convergence"></a>
 </h2>

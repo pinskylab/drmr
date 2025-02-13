@@ -84,8 +84,6 @@
 <code>bayesplot</code>: for visualizing MCMC outputs</li>
 <li>
 <code>dplyr</code>: for data wrangling</li>
-<li>
-<code>skimr</code>: for quick descriptive statistics</li>
 </ul></section><section class="level2"><h2 id="sec-drmr">Installing the <code>drmr</code> package<a class="anchor" aria-label="anchor" href="#sec-drmr"></a>
 </h2>
 <p>The <code>drmr</code> package provides pre-compiled <code>cmdstanr</code> <span class="citation" data-cites="gabry2024cmdstanr">(<a href="#ref-gabry2024cmdstanr" role="doc-biblioref">Gabry et al. 2024</a>)</span> models powered by the <code>instantiate</code> package <span class="citation" data-cites="landau2024instantiate">(<a href="#ref-landau2024instantiate" role="doc-biblioref">Landau 2024</a>)</span>. These pre-compiled models allow us to make inferences about the DRM (and SDM) using <code>cmdstan</code> algorithms, such as the HMC NUTS Sampler.</p>
@@ -116,22 +114,11 @@
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>dens <span class="op">=</span> <span class="va">y</span> <span class="op">/</span> <span class="va">area_km2</span>,</span>
 <span>         .before <span class="op">=</span> <span class="va">y</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>A quick exploration of the data in <a href="#tbl-summary" class="quarto-xref">Table 1</a> reveals the following:</p>
+<p>A quick exploration of the data reveals the following:</p>
 <ul>
 <li>Surface salinity (ssalin) and bottom salinity (bsalin) have missing values (around 30% missing for each).</li>
 <li>At least 25% of the density (<code>dens</code>) values are zero.</li>
 </ul>
-<div id="tbl-summary" class="cell quarto-float quarto-figure quarto-figure-center">
-<figure class="quarto-float quarto-float-tbl"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table 1: Summary statistics of all the variables in the dataset.
-</figcaption><div aria-describedby="tbl-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="sourceCode cell-code" id="tbl-summary"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## Density is being multiplied by 10000 because the non-negative densities are</span></span>
-<span><span class="co">## too small</span></span>
-<span><span class="fu">skimr</span><span class="fu">::</span><span class="fu">skim_without_charts</span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">sum_fl</span>, dens <span class="op">=</span> <span class="fl">10000</span> <span class="op">*</span> <span class="va">dens</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-</figure>
-</div>
 <p>Finally, we split the data, reserving the last five years for evaluating predictions:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
@@ -514,7 +501,7 @@ Figure 1
 <span>       <span class="st">"SDM 1"</span> <span class="op">=</span> <span class="va">sdm_1</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="fu">loo</span><span class="fu">::</span><span class="fu">loo_compare</span><span class="op">(</span><span class="va">all_loos</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">loo</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/loo/reference/loo_compare.html" class="external-link">loo_compare</a></span><span class="op">(</span><span class="va">all_loos</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>According to the LOOIC criteria, the model without the AR(1) term has a better fit.</p>
 </section><section class="level2"><h2 id="diagnosing-the-best-models">Diagnosing the best models<a class="anchor" aria-label="anchor" href="#diagnosing-the-best-models"></a>
@@ -823,10 +810,10 @@ Figure 1
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">mu</span><span class="op">)</span>,</span>
 <span>       x <span class="op">=</span> <span class="st">"Year"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p><a href="#tbl-assessment" class="quarto-xref">Table 2</a> suggests the DRM delivers more reliable forecasts. However, the coverage of the prediction intervals (PIC) are above the nominal level for the DRM, while the ones from the SDM are below the nominal level.</p>
+<p><a href="#tbl-assessment" class="quarto-xref">Table 1</a> suggests the DRM delivers more reliable forecasts. However, the coverage of the prediction intervals (PIC) are above the nominal level for the DRM, while the ones from the SDM are below the nominal level.</p>
 <div id="tbl-assessment" class="cell quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-tbl"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-assessment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table 2: Forecasting assessment.
+Table 1: Forecasting assessment.
 </figcaption><div aria-describedby="tbl-assessment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="sourceCode cell-code" id="tbl-assessment"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">int_score</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">l</span>, <span class="va">u</span>, <span class="va">alpha</span><span class="op">)</span> <span class="op">{</span></span>
@@ -948,6 +935,8 @@ Table 2: Forecasting assessment.
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span> <span class="op">~</span> <span class="va">model</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
+</section></section><section class="level2 unnumbered"><h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-gabry2024cmdstanr" class="csl-entry" role="listitem">
 Gabry, Jonah, Rok Çešnovar, Andrew Johnson, and Steve Bronder. 2024. <em>Cmdstanr: R Interface to <span>CmdStan</span></em>. <a href="https://github.com/stan-dev/cmdstanr" class="external-link">https://github.com/stan-dev/cmdstanr</a>.
@@ -968,7 +957,7 @@ Ye, Tairan, Victor H Lachos, Xiaojing Wang, and Dipak K Dey. 2021. <span>“Comp
 Zhang, Lu, Bob Carpenter, Andrew Gelman, and Aki Vehtari. 2022. <span>“Pathfinder: Parallel Quasi-Newton Variational Inference.”</span> <em>Journal of Machine Learning Research</em> 23 (306): 1–49. <a href="http://jmlr.org/papers/v23/21-0889.html" class="external-link">http://jmlr.org/papers/v23/21-0889.html</a>.
 </div>
 </div>
-</section></section><script id="quarto-html-after-body" type="application/javascript">
+</section><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
