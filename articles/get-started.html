@@ -10,7 +10,9 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get Started">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="get-started_files/libs/quarto-html/popper.min.js"></script><script src="get-started_files/libs/quarto-html/tippy.umd.min.js"></script><link href="get-started_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="get-started_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get Started">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -36,7 +38,6 @@
 <li><a class="dropdown-item" href="../articles/examples.html">Examples</a></li>
     <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
     <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
-    <li><a class="dropdown-item" href="../articles/theory2.html">Theoretical Background 2</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -51,40 +52,42 @@
 
 
   </div>
-</nav><div class="container template-article">
-
-
-
-
+</nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Get Started</h1>
-                        <h4 data-toc-skip class="author">Lucas da Cunha
-Godoy</h4>
-            
-      
-      <small class="dont-index">Source: <a href="https://github.com/pinskylab/drmr/blob/main/vignettes/get-started.Rmd" class="external-link"><code>vignettes/get-started.Rmd</code></a></small>
-      <div class="d-none name"><code>get-started.Rmd</code></div>
+
+      <p class="author">Lucas da Cunha Godoy</p>
+
+
+      <small class="dont-index">Source: <a href="https://github.com/pinskylab/drmr/blob/main/vignettes/get-started.qmd" class="external-link"><code>vignettes/get-started.qmd</code></a></small>
+      <div class="d-none name"><code></code></div>
     </div>
 
-    
-    
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+
+
+
+
+
+    <div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pinskylab.github.io/drmr/">drmr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span> <span class="co">## "mapping"</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span> <span class="co">## graphs</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mc-stan.org/bayesplot/" class="external-link">bayesplot</a></span><span class="op">)</span> <span class="co">## and more graphs</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
+</div>
 <p>Now, we load the data.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sum_fl</span><span class="op">)</span></span></code></pre></div>
-<div class="section level2">
-<h2 id="data-processing-splitting">Data processing &amp; splitting<a class="anchor" aria-label="anchor" href="#data-processing-splitting"></a>
+</div>
+<section class="level2"><h2 id="data-processing-splitting">Data processing &amp; splitting<a class="anchor" aria-label="anchor" href="#data-processing-splitting"></a>
 </h2>
-<p>To assess model predictions, the chunk below splits the data into
-train and test.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>To assess model predictions, the chunk below splits the data into train and test.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## 5 years-ahead predictions</span></span>
 <span><span class="va">first_year_forecast</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">sum_fl</span><span class="op">$</span><span class="va">year</span><span class="op">)</span> <span class="op">-</span> <span class="fl">5</span></span>
 <span></span>
@@ -101,8 +104,10 @@ train and test.</p>
 <span></span>
 <span><span class="va">dat_train</span> <span class="op">&lt;-</span> <span class="va">sum_fl</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">&lt;</span> <span class="va">first_year_forecast</span><span class="op">)</span></span></code></pre></div>
+</div>
 <p>Finally, I transform our response variable into a density.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat_train</span> <span class="op">&lt;-</span> <span class="va">dat_train</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>dens <span class="op">=</span> <span class="va">y</span> <span class="op">/</span> <span class="va">area_km2</span>,</span>
 <span>         .before <span class="op">=</span> <span class="va">y</span><span class="op">)</span></span>
@@ -111,73 +116,164 @@ train and test.</p>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>dens <span class="op">=</span> <span class="va">y</span> <span class="op">/</span> <span class="va">area_km2</span>,</span>
 <span>         .before <span class="op">=</span> <span class="va">y</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="preparing-data-for-model-fit">Preparing data for model fit<a class="anchor" aria-label="anchor" href="#preparing-data-for-model-fit"></a>
+</section><section class="level2"><h2 id="preparing-data-for-model-fit">Preparing data for model fit<a class="anchor" aria-label="anchor" href="#preparing-data-for-model-fit"></a>
 </h2>
-<p>This package uses <code>cmdstanr</code> to fit DRMs to the data. The
-data passed to <code>cmdstanr</code> objects is stored in a
-<code>list</code> and we provide a function called
-<code>make_data</code>.</p>
-<p>The <code>list</code> to fit the simplest model possible can be
-obtained as follows:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>This package uses <code>cmdstanr</code> to fit DRMs to the data. The data passed to <code>cmdstanr</code> objects is stored in a <code>list</code> and we provide a function called <code>make_data</code>.</p>
+<p>The <code>list</code> to fit the simplest model possible can be obtained as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="../reference/make_data.html">make_data</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">dens</span>,</span>
 <span>            time <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">year</span>,</span>
 <span>            site <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">patch</span>,</span>
 <span>            n_ages <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>            m <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> <span class="co"># fishing mortality</span></span></code></pre></div>
-<p>In general, the <code>make_data</code> function will control what
-model we are fitting through “toggles” and different inputs (type
-<code><a href="../reference/make_data.html">?make_data</a></code> for documentation). For more information, see
-the toggles vignette
-(<code>vignettes("toggles", package = "drmr")</code>).</p>
 </div>
-<div class="section level2">
-<h2 id="fitting-model">Fitting model<a class="anchor" aria-label="anchor" href="#fitting-model"></a>
+<p>In general, the <code>make_data</code> function will control what model we are fitting through “toggles” and different inputs (type <code><a href="../reference/make_data.html">?make_data</a></code> for documentation). For more information, see the toggles vignette (<code>vignettes("toggles", package = "drmr")</code>).</p>
+</section><section class="level2"><h2 id="fitting-model">Fitting model<a class="anchor" aria-label="anchor" href="#fitting-model"></a>
 </h2>
-<p>The code below loads the object used to fit the DRM models. We don’t
-need to reload this object if we update the data list using different
-options from the <code>make_data</code> function.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>The code below loads the object used to fit the DRM models. We don’t need to reload this object if we update the data list using different options from the <code>make_data</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">drm_compiled</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"drm"</span>,</span>
 <span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span></code></pre></div>
+</div>
 <p>To get MCMC samples from the posterior, run:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mcmc_samples</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">drm_compiled</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
 <span>                      seed <span class="op">=</span> <span class="fl">2025</span>, <span class="co">## for reproducibility</span></span>
 <span>                      chains <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>                      parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-<p>Alternatively, we can achieve the same result without loading the
-compiled model and creating a <code>data</code> list. This is achieved
-through the <code>fit_drm</code> function as follows:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>mcmc_samples <span class="ot">&lt;-</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">fit_drm</span>(<span class="at">.data =</span> dat_train,</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>          <span class="at">y_col =</span> <span class="st">"dens"</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>          <span class="at">time_col =</span> <span class="st">"year"</span>,</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>          <span class="at">site_col =</span> <span class="st">"patch"</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>          <span class="at">n_ages =</span> <span class="dv">8</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>          <span class="at">m =</span> <span class="fl">0.25</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>          <span class="at">seed =</span> <span class="dv">2025</span>)</span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="sampler-convergence">Sampler convergence<a class="anchor" aria-label="anchor" href="#sampler-convergence"></a>
+<p>Alternatively, we can achieve the same result without loading the compiled model and creating a <code>data</code> list. This is achieved through the <code>fit_drm</code> function as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mcmc_samples <span class="ot">&lt;-</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_drm</span>(<span class="at">.data =</span> dat_train,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">y_col =</span> <span class="st">"dens"</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">time_col =</span> <span class="st">"year"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">site_col =</span> <span class="st">"patch"</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">n_ages =</span> <span class="dv">8</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">m =</span> <span class="fl">0.25</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">seed =</span> <span class="dv">2025</span>)</span></code></pre></div>
+</div>
+</section><section class="level2"><h2 id="sampler-convergence">Sampler convergence<a class="anchor" aria-label="anchor" href="#sampler-convergence"></a>
 </h2>
-<p>In general, the chains mix well and the posterior densities estimates
-are similar for the four chains ran:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>In general, the chains mix well and the posterior densities estimates are similar for the four chains ran:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mcmc_samples</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sigma_obs"</span>,</span>
 <span>                                 <span class="st">"coef_t"</span>,</span>
 <span>                                 <span class="st">"coef_r"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span>combo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trace"</span>, <span class="st">"dens_overlay"</span><span class="op">)</span>,</span>
 <span>             facet_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>labeller <span class="op">=</span> <span class="va">label_parsed</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+</section><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'light-border',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config);
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
-
 
 
     <footer><div class="pkgdown-footer-left">
