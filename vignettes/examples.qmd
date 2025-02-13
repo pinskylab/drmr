@@ -1,20 +1,14 @@
 ---
 title: "Examples"
 author: Lucas da Cunha Godoy
-output: rmarkdown::html_vignette
+bibliography: [notes.bib, zim.bib]
+execute:
+  eval: false
 vignette: >
-  %\VignetteIndexEntry{Examples}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Theoretical Background}
+  %\VignetteEngine{quarto:html}
   %\VignetteEncoding{UTF-8}
 ---
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  eval = FALSE,
-  comment = "#>"
-)
-```
 
 ---
 

@@ -1,23 +1,15 @@
 ---
-title: "Theoretical Background 2"
+title: "Theoretical Background"
 author: Lucas da Cunha Godoy
 bibliography: [notes.bib, zim.bib]
 execute:
   warning: false
   error: false
-output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Theoretical Background 2}
+  %\VignetteIndexEntry{Theoretical Background}
   %\VignetteEngine{quarto:html}
   %\VignetteEncoding{UTF-8}
 ---
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
 
 ---
 

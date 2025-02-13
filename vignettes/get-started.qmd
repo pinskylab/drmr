@@ -1,22 +1,17 @@
 ---
 title: "Get Started"
 author: Lucas da Cunha Godoy
-output: rmarkdown::html_vignette
+execute:
+  eval: false
 vignette: >
-  %\VignetteIndexEntry{Get Started}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Theoretical Background}
+  %\VignetteEngine{quarto:html}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
-)
-```
+```{r}
+#| label: setup
 
-```{r setup}
 library(drmr)
 library(sf) ## "mapping"
 library(ggplot2) ## graphs
@@ -26,7 +21,8 @@ library(dplyr)
 
 Now, we load the data.
 
-```{r data}
+```{r}
+#| label: data
 data(sum_fl)
 ```
 
@@ -35,7 +31,8 @@ data(sum_fl)
 To assess model predictions, the chunk below splits the data into train and
 test.
 
-```{r split}
+```{r}
+#| label: split
 ## 5 years-ahead predictions
 first_year_forecast <- max(sum_fl$year) - 5
 
@@ -56,7 +53,8 @@ dat_train <- sum_fl |>
 
 Finally, I transform our response variable into a density.
 
-```{r ytransform}
+```{r}
+#| label: ytransform
 dat_train <- dat_train |>
   mutate(dens = y / area_km2,
          .before = y)
@@ -76,7 +74,8 @@ This package uses `cmdstanr` to fit DRMs to the data. The data passed to
 
 The `list` to fit the simplest model possible can be obtained as follows:
 
-```{r make_data_simplest}
+```{r}
+#| label: make_data_simplest
 data <-
   make_data(y = dat_train$dens,
             time = dat_train$year,
@@ -97,7 +96,8 @@ The code below loads the object used to fit the DRM models. We don't need to
 reload this object if we update the data list using different options from the
 `make_data` function.
 
-```{r drm_load}
+```{r}
+#| label: drm_load
 drm_compiled <-
   instantiate::stan_package_model(name = "drm",
                                   package = "drmr")
@@ -105,7 +105,8 @@ drm_compiled <-
 
 To get MCMC samples from the posterior, run:
 
-```{r drm_mcmc}
+```{r}
+#| label: drm_mcmc
 mcmc_samples <-
   drm_compiled$sample(data = data,
                       seed = 2025, ## for reproducibility
@@ -117,7 +118,8 @@ Alternatively, we can achieve the same result without loading the compiled model
 and creating a `data` list. This is achieved through the `fit_drm` function as
 follows:
 
-```{r fit_drm, eval=FALSE}
+```{r}
+#| label: fit_drm
 mcmc_samples <-
   fit_drm(.data = dat_train,
           y_col = "dens",
@@ -133,7 +135,8 @@ mcmc_samples <-
 
 In general, the chains mix well and the posterior densities estimates are
 similar for the four chains ran:
-```{r traceplot}
+```{r}
+#| label: traceplot
 #| fig-alt: "MCMC diagnostic plots for the DRM, arranged in two columns and
 #| three rows. The left column displays trace plots for four parallel MCMC
 #| chains, assessing convergence. The right column displays the estimated
