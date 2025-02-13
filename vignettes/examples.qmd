@@ -113,7 +113,7 @@ dat_train <- sum_fl |>
 ## Loading pre-compiled models
 
 
-To load the pre-compiled SDM described in @sec-sdm, run:
+To load the pre-compiled SDM described [here](https://pinskylab.github.io/drmr/articles/theory.html#sec-sdm), run:
 ```{r}
 #| label: load-sdm
 
@@ -213,14 +213,18 @@ and `site` and others take default values. For example:
 * `n_ages` is the total number of (unobserved) ages $A$. If not provided,
   `n_ages` is taken to be 1.
 
-* `f` represents $f_{a, t}$ from @eq-surv. Its default value is $f_{a, t} = 0$ for
-  every age and time point.
+* `f` represents $f_{a, t}$ from the survival equation described
+  [here](https://pinskylab.github.io/drmr/articles/theory2.html#sec-surv). Its
+  default value is $f_{a, t} = 0$ for every age and time point.
 
-* `m` is the mortality rate $m$ in @eq-surv. Its default value is 0.25 [^2].
+* `m` is the mortality rate $m$ also from the survival equation mentioned in the
+  last item. Its default value is 0.25 [^2].
 
 * `X_t` is a matrix such that its $i$-th row is as in $\mathbf{x}^{(1)}_{t, i}$
-  in @eq-linpreds. While `K_t` represents the number of columns in `X_t`. If no
-  input is given, `X_t` has a single column and $N = T \cdot P$ rows.
+  in [Equation
+  2](https://pinskylab.github.io/drmr/articles/theory.html#eq-linpreds). While
+  `K_t` represents the number of columns in `X_t`. If no input is given, `X_t`
+  has a single column and $N = T \cdot P$ rows.
   
 * `X_r` is a matrix such that its $i$-th row is as in $\mathbf{x}^{(r)}_{t, i}$
   in @eq-lmrec. While `K_r` represents the number of columns in `X_r`. If no
@@ -231,7 +235,8 @@ and `site` and others take default values. For example:
   input is given, `X_m` is "empty".
   
 * `adj_mat` is the adjacency matrix used to encode movement as $\mathbf{A}$,
-  while `age_at_maturity` is $a_0$ in @sec-movement.
+  while `age_at_maturity` is $a_0$ in [this
+  document](https://pinskylab.github.io/drmr/articles/theory.html#sec-movement).
 
 * `selectivity_at_age` is a vector of length `n_ages` informing the selectivity
   at each age group.
@@ -245,12 +250,14 @@ described later on. The prior hyperparameters start with `pr_`.
 
 
 The toggle called `likelihood` takes four possible values. When `likelihood = 0`
-(default), the $g(\cdot)$ function in @eq-za_dens is taken to be a Log-Normal
-density with the usual parametrization. When `likelihood = 1`, we still get a
-Log-Lormal density, but parametrized in terms of $\mu$ and $\phi$. For
-`likelihood` equal to 2 or 3, we get a Gamma or a Log-Logistic distribution,
-respectively. The last two densities are also parametrized in terms of their
-mean. For more details, see @ye2021comparisons.
+(default), the $g(\cdot)$ function in [Equation
+1](https://pinskylab.github.io/drmr/articles/theory2.html#eq-za_dens) (in the
+Theoretical Background vignette) is taken to be a Log-Normal density with the
+usual parametrization. When `likelihood = 1`, we still get a Log-Lormal density,
+but parametrized in terms of $\mu$ and $\phi$. For `likelihood` equal to 2 or 3,
+we get a Gamma or a Log-Logistic distribution, respectively. The last two
+densities are also parametrized in terms of their mean. For more details, see
+@ye2021comparisons.
 
 
 
@@ -349,8 +356,9 @@ drm_3 <- drm_compiled$sample(data = data,
 
 
 Now, let us introduce movement into the model. First, let us load the map of the
-patches to be able to calculate the adjacency matrix $\mathbf{A}$ from
-@sec-movement.
+patches to be able to calculate the adjacency matrix $\mathbf{A}$ from [the
+movement
+methodology](https://pinskylab.github.io/drmr/articles/theory.html#sec-movement).
 
 ```{r}
 #| label: fig-map-adj
@@ -736,7 +744,7 @@ mcmc_combo(drm_6$draws(variables = viz_pars),
 
 
 @fig-drm6_2 shows the traceplots (left) and overlay-ed (right) density plots for
-the regression coefficients associated with @eq-lmrec.
+the regression coefficients associated with recruitment.
 
 ```{r}
 #| label: fig-drm6_2
@@ -748,7 +756,7 @@ mcmc_combo(drm_6$draws(variables = "coef_r"),
 
 
 @fig-drm6_3 shows the traceplots (left) and overlay-ed (right) density plots for
-the regression coefficients associated with @eq-lmsurv.
+the regression coefficients associated with survival.
 
 ```{r}
 #| label: fig-drm6_3
@@ -760,7 +768,7 @@ mcmc_combo(drm_6$draws(variables = "coef_m"),
 
 
 @fig-drm6_4 shows the traceplots (left) and overlay-ed (right) density plots for
-the regression coefficients associated with @eq-linpreds.
+the regression coefficients associated with the probability of absence.
 
 ```{r}
 #| label: fig-drm6_4
@@ -820,7 +828,7 @@ mcmc_combo(sdm_1$draws(variables = viz_pars),
 
 
 @fig-sdm_2 shows the traceplots (left) and overlay-ed (right) density plots for
-the regression coefficients associated with the second part of @eq-linpreds.
+the regression coefficients associated with the non-zero densities.
 
 ```{r}
 #| label: fig-sdm_2
@@ -832,7 +840,7 @@ mcmc_combo(sdm_1$draws(variables = "coef_r"),
 
 
 @fig-drm6_4 shows the traceplots (left) and overlay-ed (right) density plots for
-the regression coefficients associated with the first part of @eq-linpreds.
+the regression coefficients associated with the probabilities of absence.
 
 ```{r}
 #| label: fig-sdm_3
