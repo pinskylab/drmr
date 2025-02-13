@@ -5,7 +5,8 @@ articles:
   examples: examples.html
   get-started: get-started.html
   theory: theory.html
-last_built: 2025-02-11T19:40Z
+  theory2: theory2.html
+last_built: 2025-02-13T17:07Z
 urls:
   reference: https://pinskylab.github.io/drmr/reference
   article: https://pinskylab.github.io/drmr/articles
