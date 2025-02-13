@@ -21,7 +21,7 @@ render_md:
 	@rm README.html
 
 build_site:
-	Rscript -e "pkgdown::build_site_github_pages()"
+	Rscript -e "pkgdown::build_site()"
 
 preview_site:
 	Rscript -e "pkgdown::preview_site()"
