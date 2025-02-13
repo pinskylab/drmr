@@ -26,7 +26,11 @@ usethis::use_news_md()
 ## build pkgdown website
 ## usethis::use_github_action("pkgdown")
 
-## creating a vignette
+usethis::use_build_ignore("vignettes/*_files")
+
+usethis::use_git_ignore("*_files", "vignettes")
+
+## creating quarto vignettes vignette
 if (!file.exists("vignettes/get-started.qmd"))
   usethis::use_vignette(name = "get-started.qmd")
 
