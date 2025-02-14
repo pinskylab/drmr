@@ -54,3 +54,10 @@
 # drmr 0.0.24
 
 * Initial values for population dynamics have been fixed.
+
+* Vignettes to quarto
+
+* New `between` function based on `data.table::between`. 
+
+* `int_score` function to calculate the interval score was also included. The
+  interval score helps to assess interval predictions.

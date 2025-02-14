@@ -1110,21 +1110,14 @@ DRM, while the ones from the SDM are below the nominal level.
 #| label: tbl-assessment
 #| tbl-cap: Forecasting assessment.
 
-int_score <- function(y, l, u, alpha) {
-  alpha <- 2 / alpha
-  ind_l <- as.numeric(y < l)
-  ind_u <- as.numeric(y > u)
-  (u - l) + alpha * ((l - y) * ind_l + (y - u) * ind_u)
-}
-
 y_proj |>
   mutate(bias = dens - m) |>
   mutate(rmse = bias * bias) |>
   mutate(abias = abs(bias)) |>
   mutate(is1 = int_score(dens, l = ll, u = uu, alpha = .1)) |>
   mutate(is2 = int_score(dens, l = l, u = u, alpha = .2)) |>
-  mutate(cvg1 = data.table::between(x = dens, lower = ll, upper = uu)) |>
-  mutate(cvg2 = data.table::between(x = dens, lower = l, upper = u)) |>
+  mutate(cvg1 = between(dens, ll, uu)) |>
+  mutate(cvg2 = between(dens, l, u)) |>
   group_by(model) |>
   summarise(across(bias:cvg2, mean)) |>
   ungroup() |>

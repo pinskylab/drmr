@@ -83,3 +83,78 @@ safe_modify <- function(original, replacements) {
   }
   return(out)
 }
+
+##' @title Check if x is between lb and ub
+##'
+##' @param x A numeric vector.
+##' @param lb A numeric vector of lower bounds.
+##' @param ub A numeric vector of upper bounds.
+##'
+##' @return No return value. This function stops execution if any of the
+##'  following conditions are met:
+##'  * lb is greater than or equal to ub.
+##'  * The lengths of lb and ub are not equal.
+##'  * The lengths of lb, ub, and x are not equal.
+##'
+check_between <- function(x, lb, ub) {
+  stopifnot(lb < ub)
+  if (length(lb) > 1 | length(ub) > 1) {
+    stopifnot(length(lb) == length(ub) &
+              length(lb) == length(x))
+  }
+}
+
+##' @inherit between
+between_scalar <- function(x, lb, ub) {
+  x >= lb & x <= ub
+}
+
+##' @title Check if elements in x are between corresponding elements in lb and
+##'   ub
+##'
+##' @inheritParams check_between
+##'
+##' @return A logical vector of the same length as x, indicating whether each
+##'   element of x is between the corresponding elements of lb and ub.
+##'
+##' @examples
+##' between(1:5, 1, 5)
+##' between(1:5, 2, 4)
+##'
+##' @export
+between <- function(x, lb, ub) {
+  check_between(x, lb, ub)
+  if (length(lb) == 1) {
+    sapply(x, between_scalar, lb, ub)
+  } else {
+    mapply(between_scalar, x, lb, ub)
+  }
+}
+
+##' @title Calculate the interval score
+##'
+##' @description This function calculates the interval score for a given set of
+##'   observations, lower and upper bounds, and alpha parameter.
+##'
+##' @details The interval score is a proper scoring rule that measures the
+##'   accuracy of interval predictions. It takes into account both the coverage
+##'   and the width of the prediction interval. A lower score indicates a better
+##'   prediction.
+##'
+##' @param y A numeric vector of observations.
+##' @param l A numeric vector of lower bounds for the prediction intervals.
+##' @param u A numeric vector of upper bounds for the prediction intervals.
+##' @param alpha A numeric value specifying the penalty parameter for interval
+##'   width.
+##'
+##' @return A numeric vector of interval scores.
+##'
+##' @export
+int_score <- function(y, l, u, alpha) {
+  stopifnot(alpha > 0 & alpha < 1)
+  check_between(y, l, u)
+  alpha <- 2 / alpha
+  ind_l <- as.numeric(y < l)
+  ind_u <- as.numeric(y > u)
+  (u - l) + alpha * ((l - y) * ind_l + (y - u) * ind_u)
+}
