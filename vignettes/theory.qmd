@@ -331,7 +331,7 @@ $$
 Note that, our model cannot estimate selectivity. Instead, the model assumes it
 is provided as known without error. Of course, this is an oversimplification,
 however, we seldomly have the necessary data to estimate selectivity readily
-available.
+available. cvf 
 
 
 
