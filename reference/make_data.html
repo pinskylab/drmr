@@ -59,7 +59,7 @@ model.</p>
 <span>  <span class="va">x_r</span>,</span>
 <span>  n_ages <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">age_selectivity</span>,</span>
-<span>  <span class="va">age_at_maturity</span>,</span>
+<span>  <span class="va">ages_movement</span>,</span>
 <span>  adj_mat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, ncol <span class="op">=</span> <span class="fl">1</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  <span class="va">.toggles</span>,</span>
 <span>  <span class="va">.priors</span>,</span>
@@ -120,12 +120,16 @@ where each element indicates the selectivity of a respective age. All the
 elements of this vector must lie between 0 and 1.</p></dd>
 
 
-<dt id="arg-age-at-maturity">age_at_maturity<a class="anchor" aria-label="anchor" href="#arg-age-at-maturity"></a></dt>
-<dd><p>a <code>integer</code> indicating the age at which a
-species attains maturity. This is used for movement. That is, every
-individual with age greater or equal to <code>age_at_maturity</code> may move
-from one patch to another. Individuals below this age threshold remain
-"static".</p></dd>
+<dt id="arg-ages-movement">ages_movement<a class="anchor" aria-label="anchor" href="#arg-ages-movement"></a></dt>
+<dd><p>An <code>integer</code> or a <code>numeric vector</code> specifying
+the ages at which individuals of the focal species are assumed to move. If
+<code>ages_movement</code> is an integer, individuals younger than this age are
+considered static (non-moving). If <code>ages_movement</code> is a numeric
+vector of length <code>n_ages</code>, it indicates movement capability for each
+age group. A value of <code>0</code> indicates the corresponding age group is
+static, while <code>1</code> indicates movement is allowed. For example,
+<code>c(0, 0, 1, 1, 0)</code> specifies that age groups 1, 2, and 5 are static,
+while 3 and 4 are mobile.</p></dd>
 
 
 <dt id="arg-adj-mat">adj_mat<a class="anchor" aria-label="anchor" href="#arg-adj-mat"></a></dt>

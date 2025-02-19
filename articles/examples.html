@@ -116,8 +116,8 @@
 </div>
 <p>A quick exploration of the data reveals the following:</p>
 <ul>
-<li>Surface salinity (ssalin) and bottom salinity (bsalin) have missing values (around 30% missing for each).</li>
-<li>At least 25% of the density (<code>dens</code>) values are zero.</li>
+<li><p>Surface salinity (ssalin) and bottom salinity (bsalin) have missing values (around 30% missing for each).</p></li>
+<li><p>At least 25% of the density (<code>dens</code>) values are zero.</p></li>
 </ul>
 <p>Finally, we split the data, reserving the last five years for evaluating predictions:</p>
 <div class="cell">
@@ -135,119 +135,60 @@
 <span><span class="va">dat_train</span> <span class="op">&lt;-</span> <span class="va">sum_fl</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">&lt;</span> <span class="va">first_year_forecast</span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section class="level2"><h2 id="loading-pre-compiled-models">Loading pre-compiled models<a class="anchor" aria-label="anchor" href="#loading-pre-compiled-models"></a>
+</section><section class="level2"><h2 id="fitting-different-models">Fitting different models<a class="anchor" aria-label="anchor" href="#fitting-different-models"></a>
 </h2>
-<p>To load the pre-compiled SDM described <a href="https://pinskylab.github.io/drmr/articles/theory.html#sec-sdm">here</a>, run:</p>
+<p>Let’s begin by fitting the simplest DRM available. In the code chunk below, we use the <code>fit_drm</code> function.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sdm_compiled</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"sdm"</span>,</span>
-<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">drm_1</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/fit_drm.html">fit_drm</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">dat_train</span>,</span>
+<span>          y_col <span class="op">=</span> <span class="st">"dens"</span>, <span class="co">## response variable: density</span></span>
+<span>          time_col <span class="op">=</span> <span class="st">"year"</span>, <span class="co">## vector of time points</span></span>
+<span>          site_col <span class="op">=</span> <span class="st">"patch"</span>, <span class="co">## vector of patches</span></span>
+<span>          n_ages <span class="op">=</span> <span class="fl">8</span>, <span class="co">## number of age groups</span></span>
+<span>          family <span class="op">=</span> <span class="st">"lognormal2"</span>,</span>
+<span>          seed <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>          iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after warmup</span></span>
+<span>          iter_warmup <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of warmup samples</span></span>
+<span>          parallel_chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>Similarly, to load the pre-compiled DRM, we run:</p>
+<p>This function has many arguments. We need to input at least the following:</p>
+<ul>
+<li><p><code>.data</code> - a <code>data.frame</code>;</p></li>
+<li><p><code>y_col</code> - a <code>character</code> indicating the name of the column (or variable) storing the response variable in <code>.data</code>.</p></li>
+<li><p><code>time_col</code> - a <code>character</code> indicating the name of the column (or variable) storing the time variable in <code>.data</code>.</p></li>
+<li><p><code>site_col</code> - a <code>character</code> indicating the name of the column (or variable) storing the site variable in <code>.data</code>.</p></li>
+<li><p><code>seed</code> - a <code>integer</code> corresponding to a seed for random number generation. This parameter helps to ensure reproducibility.</p></li>
+</ul>
+<p>The output of <code>fit_drm</code> is a <code>list</code> with two elements. The first one, called <code>draws</code>, stores draws from the posterior density induced by the DRM. While the second element, <code>data</code> is the <code>list</code> passed to <code>cmdstan</code> to fit the model.</p>
+<p>For further info, run <code><a href="../reference/fit_drm.html">?fit_drm</a></code> to access the function documentation.</p>
+<p>We can increase the <code>drm_1</code> model complexity by introducing an AR(1) temporal random effect for recruitment by turning the <code>time_ar</code> toggle as follows:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">drm_compiled</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"drm"</span>,</span>
-<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">drm_2</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/fit_drm.html">fit_drm</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">dat_train</span>,</span>
+<span>          y_col <span class="op">=</span> <span class="st">"dens"</span>, <span class="co">## response variable: density</span></span>
+<span>          time_col <span class="op">=</span> <span class="st">"year"</span>, <span class="co">## vector of time points</span></span>
+<span>          site_col <span class="op">=</span> <span class="st">"patch"</span>, <span class="co">## vector of patches</span></span>
+<span>          n_ages <span class="op">=</span> <span class="fl">8</span>, <span class="co">## number of age groups</span></span>
+<span>          family <span class="op">=</span> <span class="st">"lognormal2"</span>,</span>
+<span>          seed <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>          iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after warmup</span></span>
+<span>          iter_warmup <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of warmup samples</span></span>
+<span>          parallel_chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>time_ar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>          .priors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>pr_alpha_a <span class="op">=</span> <span class="fl">5</span>, pr_alpha_b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>These models also have associated pre-compiled <code>forecast</code> objects. They can be loaded as follows:</p>
+<p>This model introduces two additional parameters: <code>tau</code> (the conditional SD of the AR term), and <code>alpha</code> the temporal autocorrelation parameter. You can check the estimates of those parameters by running:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">forecast_sdm</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"forecast_sdm"</span>,</span>
-<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">forecast_drm</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"forecast"</span>,</span>
-<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">drm_2</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">summary</span><span class="op">(</span>variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tau"</span>, <span class="st">"alpha"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>Lastly, to calculate density-weighted centroids, the following pre-compiled object is available:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">centroids_compiled</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"centroid"</span>,</span>
-<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>All of the pre-compiled models are of class <code>CmdStanModel</code> and they work just as any other compiled <code>cmdstanr</code> <a href="https://mc-stan.org/cmdstanr/reference/CmdStanModel.html#model-fitting" class="external-link">model</a>.</p>
-</section><section class="level2"><h2 id="preparing-data-fitting-models">Preparing data &amp; fitting models<a class="anchor" aria-label="anchor" href="#preparing-data-fitting-models"></a>
-</h2>
-<p>Currently, in addition to the pre-compiled models, the <code>drmr</code> package has three functions. They are the following:</p>
-<ul>
-<li><p><code>make_data</code>: creates a <code>list</code> that will be used as the input for a <code>drm</code> model (see <code><a href="../reference/make_data.html">?drmr::make_data</a></code> for all the function arguments).</p></li>
-<li><p><code>default_priors</code> is a function that takes no arguments and return the default hyperparameters for the priors from the model;</p></li>
-<li><p><code>default_toggles</code> is another function taking no arguments. This one return the default “toggles” for the <code>drm</code> the model. The toggles turn features of the model (e.g., movement) on and off.</p></li>
-</ul>
-<p>Let us start fitting the simplest DRM available in the package. The first step, is always to use the <code>make_data</code> function to create the input for the <code>cmdstan</code> model. This function takes a set of inputs, and turn them into the appropriate format for our code. Below, we only provide three inputs for the function:</p>
-<ul>
-<li><p><code>y</code> the vector of densities</p></li>
-<li><p><code>time</code> the vector of time points</p></li>
-<li><p><code>site</code> the vector of patches/sites.</p></li>
-</ul>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu"><a href="../reference/make_data.html">make_data</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">dens</span>, <span class="co">## response variable: density</span></span>
-<span>            time <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">year</span>, <span class="co">## vector of time points</span></span>
-<span>            site <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">patch</span>, <span class="co">## vector of patches</span></span>
-<span>            n_ages <span class="op">=</span> <span class="fl">8</span>, <span class="co">## number of age groups</span></span>
-<span>            .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>likelihood <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">## checking the elements of the list:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>The output of <code>names(data)</code> displays the “names” of the elements of the output list from the <code>make_data</code>. Some of these elements are inferred from <code>y</code>, <code>time</code>, and <code>site</code> and others take default values. For example:</p>
-<ul>
-<li><p><code>n_ages</code> is the total number of (unobserved) ages <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>. If not provided, <code>n_ages</code> is taken to be 1.</p></li>
-<li><p><code>f</code> represents <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">f_{a, t}</annotation></semantics></math> from the survival equation described <a href="https://pinskylab.github.io/drmr/articles/theory2.html#sec-surv">here</a>. Its default value is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mrow><mi>a</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">f_{a, t} = 0</annotation></semantics></math> for every age and time point.</p></li>
-<li><p><code>m</code> is the mortality rate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> also from the survival equation mentioned in the last item. Its default value is 0.25 <a class="footnote-ref" role="doc-noteref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;taken from Alexa’s code.&lt;/p&gt;"><sup>1</sup></a>.</p></li>
-<li><p><code>X_t</code> is a matrix such that its <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>-th row is as in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(1)}_{t, i}</annotation></semantics></math> in <a href="https://pinskylab.github.io/drmr/articles/theory.html#eq-linpreds">Equation 2</a>. While <code>K_t</code> represents the number of columns in <code>X_t</code>. If no input is given, <code>X_t</code> has a single column and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mi>T</mi><mo>⋅</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">N = T \cdot P</annotation></semantics></math> rows.</p></li>
-<li><p><code>X_r</code> is a matrix such that its <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>-th row is as in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(r)}_{t, i}</annotation></semantics></math> in <strong>?@eq-lmrec</strong>. While <code>K_r</code> represents the number of columns in <code>X_r</code>. If no input is given, <code>X_r</code> has a single column and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mi>T</mi><mo>⋅</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">N = T \cdot P</annotation></semantics></math> rows.</p></li>
-<li><p><code>X_m</code> is a matrix such that its <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>-th row is as in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\mathbf{x}^{(m)}_{t, i}</annotation></semantics></math> in <strong>?@eq-lmsurv</strong>. While <code>K_m</code> represents the number of columns in <code>X_m</code>. If no input is given, <code>X_m</code> is “empty”.</p></li>
-<li><p><code>adj_mat</code> is the adjacency matrix used to encode movement as <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐀</mi><annotation encoding="application/x-tex">\mathbf{A}</annotation></semantics></math>, while <code>age_at_maturity</code> is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math> in <a href="https://pinskylab.github.io/drmr/articles/theory.html#sec-movement">this document</a>.</p></li>
-<li><p><code>selectivity_at_age</code> is a vector of length <code>n_ages</code> informing the selectivity at each age group.</p></li>
-</ul>
-<p>The remaining elements are toggles and prior hyperparameters that will be described later on. The prior hyperparameters start with <code>pr_</code>.</p>
-<p>The toggle called <code>likelihood</code> takes four possible values. When <code>likelihood = 0</code> (default), the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g(\cdot)</annotation></semantics></math> function in <a href="https://pinskylab.github.io/drmr/articles/theory2.html#eq-za_dens">Equation 1</a> (in the Theoretical Background vignette) is taken to be a Log-Normal density with the usual parametrization. When <code>likelihood = 1</code>, we still get a Log-Lormal density, but parametrized in terms of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>. For <code>likelihood</code> equal to 2 or 3, we get a Gamma or a Log-Logistic distribution, respectively. The last two densities are also parametrized in terms of their mean. For more details, see <span class="citation" data-cites="ye2021comparisons">Ye et al. (<a href="#ref-ye2021comparisons" role="doc-biblioref">2021</a>)</span>.</p>
-<p>Finally, below we obtain samples from the model associated with the data list we just created.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">drm_1</span> <span class="op">&lt;-</span> <span class="va">drm_compiled</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
-<span>                             iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after warmup</span></span>
-<span>                             iter_warmup <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of warmup samples</span></span>
-<span>                             seed <span class="op">=</span> <span class="fl">2025</span>,</span>
-<span>                             chains <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                             parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>This model has only three parameters:</p>
-<ul>
-<li><p><code>phi</code>: this parameter has no practical interpretation;</p></li>
-<li><p>In this simpler model, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><mi>θ</mi></mrow><annotation encoding="application/x-tex">\theta_{t, i} = \theta</annotation></semantics></math> for every <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>. Then, <code>coef_t = \mathrm{logit}(\theta)</code> is the logit of the probability of observing a zero density.</p></li>
-<li><p>In this simpler model, <code>coef_r</code> is the log of the overall recruitment per unit of area.</p></li>
-</ul>
-<p>We can introduce a AR(1) temporal random effect for recruitment by turning the <code>time_ar</code> toggle on and re-running the model. See below the code chunk below.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu"><a href="../reference/make_data.html">make_data</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">dens</span>, <span class="co">## response variable: density</span></span>
-<span>            time <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">year</span>, <span class="co">## vector of time points</span></span>
-<span>            site <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">patch</span>, <span class="co">## vector of patches</span></span>
-<span>            n_ages <span class="op">=</span> <span class="fl">8</span>, <span class="co">## number of age groups</span></span>
-<span>            .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>likelihood <span class="op">=</span> <span class="fl">1</span>, time_ar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">drm_2</span> <span class="op">&lt;-</span> <span class="va">drm_compiled</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
-<span>                             iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after</span></span>
-<span>                                                  <span class="co">## warmup</span></span>
-<span>                             iter_warmup <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of warmup samples</span></span>
-<span>                             seed <span class="op">=</span> <span class="fl">2025</span>,</span>
-<span>                             chains <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                             parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>This model introduces two additional parameters: <code>tau</code> (the conditional SD of the AR term), and <code>alpha</code> the temporal autocorrelation parameter.</p>
 <p>Now, let us incorporate the fishing mortality into the model. We can load the Summer Flounder fishing mortality rates as follows:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fmat</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"fmat.rds"</span>, package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -261,26 +202,26 @@
 </div>
 <p>To fit a model taking this information into consideration, we just provide the <code>fmat</code> object to <code>make_data</code> and refit the model.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu"><a href="../reference/make_data.html">make_data</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">dens</span>, <span class="co">## response variable: density</span></span>
-<span>            time <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">year</span>, <span class="co">## vector of time points</span></span>
-<span>            site <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">patch</span>, <span class="co">## vector of patches</span></span>
-<span>            f_mort <span class="op">=</span> <span class="va">f_train</span>,</span>
-<span>            n_ages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">f_train</span><span class="op">)</span>, <span class="co">## number of age groups</span></span>
-<span>            .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>likelihood <span class="op">=</span> <span class="fl">1</span>, time_ar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">drm_3</span> <span class="op">&lt;-</span> <span class="va">drm_compiled</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
-<span>                             iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after</span></span>
-<span>                                                  <span class="co">## warmup</span></span>
-<span>                             iter_warmup <span class="op">=</span> <span class="fl">400</span>,   <span class="co">## number of warmup samples</span></span>
-<span>                             seed <span class="op">=</span> <span class="fl">2025</span>,</span>
-<span>                             chains <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                             parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">drm_3</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/fit_drm.html">fit_drm</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">dat_train</span>,</span>
+<span>          y_col <span class="op">=</span> <span class="st">"dens"</span>, <span class="co">## response variable: density</span></span>
+<span>          time_col <span class="op">=</span> <span class="st">"year"</span>, <span class="co">## vector of time points</span></span>
+<span>          site_col <span class="op">=</span> <span class="st">"patch"</span>, <span class="co">## vector of patches</span></span>
+<span>          f_mort <span class="op">=</span> <span class="va">f_train</span>,</span>
+<span>          n_ages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">f_train</span><span class="op">)</span>, <span class="co">## number of age groups</span></span>
+<span>          family <span class="op">=</span> <span class="st">"lognormal2"</span>,</span>
+<span>          seed <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>          iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after warmup</span></span>
+<span>          iter_warmup <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of warmup samples</span></span>
+<span>          parallel_chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>time_ar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>          .priors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>pr_alpha_a <span class="op">=</span> <span class="fl">5</span>, pr_alpha_b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Now, let us introduce movement into the model. First, let us load the map of the patches to be able to calculate the adjacency matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐀</mi><annotation encoding="application/x-tex">\mathbf{A}</annotation></semantics></math> from <a href="https://pinskylab.github.io/drmr/articles/theory.html#sec-movement">the movement methodology</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">map_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"maps/sum_fl.shp"</span>, package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">polygons</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="va">map_name</span><span class="op">)</span></span>
@@ -293,7 +234,7 @@
 </div>
 <p>Finally, the code below calculates the auxiliary quantities for the movement matrix.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">adj_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gen_adj.html">gen_adj</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_unary.html" class="external-link">st_buffer</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_geometry</a></span><span class="op">(</span><span class="va">polygons</span><span class="op">)</span>,</span>
 <span>                             dist <span class="op">=</span> <span class="fl">2500</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -301,34 +242,51 @@
 <span><span class="va">adj_mat</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">adj_mat</span>, <span class="fl">1</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>Below, we adjust the <code>make_data</code> function accordingly and fit the model with movement.</p>
+<p>Alternatively, if the “shapefile” associated with the patches is not available, it is possible to calculate the adjacency matrix if the patches vary in only one direction and are order according the their spatial location. The code below exemplifies this scenario.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu"><a href="../reference/make_data.html">make_data</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">dens</span>, <span class="co">## response variable: density</span></span>
-<span>            time <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">year</span>, <span class="co">## vector of time points</span></span>
-<span>            site <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">patch</span>, <span class="co">## vector of patches</span></span>
-<span>            f_mort <span class="op">=</span> <span class="va">f_train</span>,</span>
-<span>            n_ages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">f_train</span><span class="op">)</span>, <span class="co">## number of age groups</span></span>
-<span>            adj_mat <span class="op">=</span> <span class="va">adj_mat</span>,</span>
-<span>            age_at_maturity <span class="op">=</span> <span class="fl">3</span>, <span class="co">## age at which fish are able to move</span></span>
-<span>            .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>likelihood <span class="op">=</span> <span class="fl">1</span>, <span class="co">## non-zero density pdf</span></span>
-<span>                            time_ar <span class="op">=</span> <span class="fl">1</span>, <span class="co">## ar(1) for recruitment</span></span>
-<span>                            movement <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="co">## turning movement on</span></span>
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">13</span> <span class="co">## number of patches</span></span>
+<span><span class="va">adj_mat2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">adj_mat2</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/row.html" class="external-link">row</a></span><span class="op">(</span><span class="va">adj_mat2</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/col.html" class="external-link">col</a></span><span class="op">(</span><span class="va">adj_mat2</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span></span>
-<span><span class="va">drm_4</span> <span class="op">&lt;-</span> <span class="va">drm_compiled</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
-<span>                             iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after</span></span>
-<span>                                                  <span class="co">## warmup</span></span>
-<span>                             iter_warmup <span class="op">=</span> <span class="fl">400</span>,   <span class="co">## number of warmup samples</span></span>
-<span>                             seed <span class="op">=</span> <span class="fl">2025</span>,</span>
-<span>                             chains <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                             parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">## row-standardizing</span></span>
+<span><span class="va">adj_mat2</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">adj_mat2</span>, <span class="fl">1</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>This model introduces the parameter <code>zeta</code> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ζ</mi><annotation encoding="application/x-tex">\zeta</annotation></semantics></math>) which represents the probability of <em>not moving</em> from time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> to time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t + 1</annotation></semantics></math>. The estimated probability of not moving is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.498</mn><annotation encoding="application/x-tex">0.498</annotation></semantics></math>.</p>
+<p>Below, we modify the <code>fit_drm</code> function to fit the model with movement.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">drm_4</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/fit_drm.html">fit_drm</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">dat_train</span>,</span>
+<span>          y_col <span class="op">=</span> <span class="st">"dens"</span>, <span class="co">## response variable: density</span></span>
+<span>          time_col <span class="op">=</span> <span class="st">"year"</span>, <span class="co">## vector of time points</span></span>
+<span>          site_col <span class="op">=</span> <span class="st">"patch"</span>, <span class="co">## vector of patches</span></span>
+<span>          f_mort <span class="op">=</span> <span class="va">f_train</span>,</span>
+<span>          n_ages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">f_train</span><span class="op">)</span>, <span class="co">## number of age groups</span></span>
+<span>          family <span class="op">=</span> <span class="st">"lognormal2"</span>,</span>
+<span>          seed <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>          adj_mat <span class="op">=</span> <span class="va">adj_mat</span>,</span>
+<span>          <span class="co">## ages_movement = 2,  ## age at which fish are able to move</span></span>
+<span>          ages_movement <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span><span class="op">)</span>, <span class="co">## first four age-groups do not move</span></span>
+<span>                            <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">8</span><span class="op">)</span>, <span class="co">## groups 5 to 12 are allowed to move</span></span>
+<span>                            <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>, <span class="co">## last four age-groups do not move</span></span>
+<span>          iter_sampling <span class="op">=</span> <span class="fl">200</span>, <span class="co">## number of samples after warmup</span></span>
+<span>          iter_warmup <span class="op">=</span> <span class="fl">200</span>, <span class="co">## number of warmup samples</span></span>
+<span>          parallel_chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>time_ar <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                          movement <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>          .priors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>pr_alpha_a <span class="op">=</span> <span class="fl">5</span>, pr_alpha_b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>This model introduces the parameter <code>zeta</code> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ζ</mi><annotation encoding="application/x-tex">\zeta</annotation></semantics></math>) which represents the probability of <em>not moving</em> from time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> to time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t + 1</annotation></semantics></math>. The estimated probability of not moving can be seen below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">drm_4</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">summary</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"zeta"</span><span class="op">)</span></span></code></pre></div>
+</div>
 <p>We can make the model more complex/flexible by incorporating environmental drivers. We have two variables representing environmental drivers: sea bottom temperature (<code>btemp</code>) and sea surface temperature (<code>stemp</code>). They can be incorporated into the probability of observing zero density, recruitment, and/or survival (or mortality).</p>
 <p>The relationship between recruitment (or survival) and environmental factors we can obtain are highlighted in <a href="#fig-rel" class="quarto-xref">Figure 1</a>. Before introducing these variables into the models, it is a good practice to center them at 0 to improve the MCMC efficiency. The code chunk below centers the covariates at 0.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">avgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stemp"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">dat_train</span><span class="op">$</span><span class="va">stemp</span><span class="op">)</span>,</span>
 <span>          <span class="st">"btemp"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">dat_train</span><span class="op">$</span><span class="va">btemp</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -358,7 +316,7 @@ Figure 1
 </div>
 <p>A quadratic relationship between recruitment and <code>stemp</code>, a log-linear relationship between survival and <code>btemp</code>, and a non-linear function between the log-odds of observing a zero density and those two variables can be obtained as in the code chunk below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">##--- formulas (will be helpful for forecasting as well) ----</span></span>
 <span></span>
 <span><span class="co">## formula for the linear predictor of recruitmemt it defines a quadratic</span></span>
@@ -376,129 +334,93 @@ Figure 1
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">btemp</span> <span class="op">*</span> <span class="va">btemp</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="va">stemp</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">stemp</span> <span class="op">*</span> <span class="va">stemp</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">btemp</span> <span class="op">*</span> <span class="va">stemp</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">##--- building "X matrices" ----</span></span>
-<span></span>
-<span><span class="va">x_m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="va">form_m</span>,</span>
-<span>                    data <span class="op">=</span> <span class="va">dat_train</span><span class="op">)</span></span>
-<span><span class="va">x_r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="va">form_r</span>,</span>
-<span>                    data <span class="op">=</span> <span class="va">dat_train</span><span class="op">)</span></span>
-<span><span class="va">x_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="va">form_t</span>,</span>
-<span>                    data <span class="op">=</span> <span class="va">dat_train</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">btemp</span> <span class="op">*</span> <span class="va">stemp</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>Finally, the code below adjusts the data object for a model with movement, time-varying and env-dependent recruitment, env-dependent mortality, and env-dependent prob of observing a “0 density”.</p>
+<p>Finally, the code below adjusts the data object for a model with movement, time-varying and env-dependent recruitment, env-dependent mortality, and env-dependent prob of observing a “0 density”. The code below fits such model and introduces another feature. By setting <code>init = "pathfinder"</code>, the MCMC is initialized using Pathfinder <span class="citation" data-cites="zhang2022pathfinder">(<a href="#ref-zhang2022pathfinder" role="doc-biblioref">Zhang et al. 2022</a>)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">drm_5</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/fit_drm.html">fit_drm</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">dat_train</span>,</span>
+<span>          y_col <span class="op">=</span> <span class="st">"dens"</span>, <span class="co">## response variable: density</span></span>
+<span>          time_col <span class="op">=</span> <span class="st">"year"</span>, <span class="co">## vector of time points</span></span>
+<span>          site_col <span class="op">=</span> <span class="st">"patch"</span>, <span class="co">## vector of patches</span></span>
+<span>          f_mort <span class="op">=</span> <span class="va">f_train</span>,</span>
+<span>          n_ages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">f_train</span><span class="op">)</span>, <span class="co">## number of age groups</span></span>
+<span>          family <span class="op">=</span> <span class="st">"lognormal2"</span>,</span>
+<span>          seed <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>          adj_mat <span class="op">=</span> <span class="va">adj_mat</span>,</span>
+<span>          formula_zero <span class="op">=</span> <span class="va">form_t</span>,</span>
+<span>          formula_rec <span class="op">=</span> <span class="va">form_r</span>,</span>
+<span>          formula_surv <span class="op">=</span> <span class="va">form_m</span>,</span>
+<span>          age_at_maturity <span class="op">=</span> <span class="fl">3</span>, <span class="co">## age at which fish are able to move</span></span>
+<span>          iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after warmup</span></span>
+<span>          iter_warmup <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of warmup samples</span></span>
+<span>          parallel_chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          init <span class="op">=</span> <span class="st">"pathfinder"</span>,</span>
+<span>          chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>time_ar <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                          movement <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                          est_mort <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>          .priors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>pr_alpha_a <span class="op">=</span> <span class="fl">5</span>, pr_alpha_b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>We can also fit a Gamma (instead of log-normal) model to the data. It suffices to modify the <code>family</code> parameter in the data object and rerun the code. See below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">drm_6</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/fit_drm.html">fit_drm</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">dat_train</span>,</span>
+<span>          y_col <span class="op">=</span> <span class="st">"dens"</span>, <span class="co">## response variable: density</span></span>
+<span>          time_col <span class="op">=</span> <span class="st">"year"</span>, <span class="co">## vector of time points</span></span>
+<span>          site_col <span class="op">=</span> <span class="st">"patch"</span>, <span class="co">## vector of patches</span></span>
+<span>          f_mort <span class="op">=</span> <span class="va">f_train</span>,</span>
+<span>          n_ages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">f_train</span><span class="op">)</span>, <span class="co">## number of age groups</span></span>
+<span>          family <span class="op">=</span> <span class="st">"gamma"</span>,</span>
+<span>          seed <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>          adj_mat <span class="op">=</span> <span class="va">adj_mat</span>,</span>
+<span>          formula_zero <span class="op">=</span> <span class="va">form_t</span>,</span>
+<span>          formula_rec <span class="op">=</span> <span class="va">form_r</span>,</span>
+<span>          formula_surv <span class="op">=</span> <span class="va">form_m</span>,</span>
+<span>          age_at_maturity <span class="op">=</span> <span class="fl">3</span>, <span class="co">## age at which fish are able to move</span></span>
+<span>          iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after warmup</span></span>
+<span>          iter_warmup <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of warmup samples</span></span>
+<span>          parallel_chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          init <span class="op">=</span> <span class="st">"pathfinder"</span>,</span>
+<span>          chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>time_ar <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                          movement <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                          est_mort <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>          .priors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>pr_alpha_a <span class="op">=</span> <span class="fl">5</span>, pr_alpha_b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>Lastly, let us fit a similar Gamma SDM to the data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu"><a href="../reference/make_data.html">make_data</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">dens</span>, <span class="co">## response variable: density</span></span>
-<span>            time <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">year</span>, <span class="co">## vector of time points</span></span>
-<span>            site <span class="op">=</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">patch</span>, <span class="co">## vector of patches</span></span>
-<span>            f_mort <span class="op">=</span> <span class="va">f_train</span>,</span>
-<span>            n_ages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">f_train</span><span class="op">)</span>, <span class="co">## number of age groups</span></span>
-<span>            x_t <span class="op">=</span> <span class="va">x_t</span>,</span>
-<span>            x_r <span class="op">=</span> <span class="va">x_r</span>,</span>
-<span>            x_m <span class="op">=</span> <span class="va">x_m</span>,</span>
-<span>            adj_mat <span class="op">=</span> <span class="va">adj_mat</span>,</span>
-<span>            age_at_maturity <span class="op">=</span> <span class="fl">3</span>, <span class="co">## age at which fish are able to move</span></span>
-<span>            .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>likelihood <span class="op">=</span> <span class="fl">1</span>, <span class="co">## non-zero density pdf</span></span>
-<span>                            time_ar <span class="op">=</span> <span class="fl">1</span>, <span class="co">## ar(1) for recruitment</span></span>
-<span>                            qr_t <span class="op">=</span> <span class="fl">1</span>, <span class="co">## QR parametrization for mortality coefs</span></span>
-<span>                            est_mort <span class="op">=</span> <span class="fl">1</span>, <span class="co">## turn env dependent mortality on</span></span>
-<span>                            movement <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="co">## turning movement on</span></span>
-<span>            .priors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>pr_phi_a <span class="op">=</span> <span class="fl">9</span>, <span class="co">## hyperpar for phi prior (phi ~ Gamma(a, b))</span></span>
-<span>                           pr_phi_b <span class="op">=</span> <span class="fl">.5</span>, <span class="co">## hyperpar for phi prior</span></span>
-<span>                           pr_coef_r_mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">x_r</span><span class="op">)</span><span class="op">)</span>, <span class="co">## hyperpar for coef_r</span></span>
-<span>                           pr_coef_r_sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10000</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">x_r</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="co">## hyperpar for coef_r</span></span></code></pre></div>
-</div>
-<p>The code below fits the model associated to the data object above to the data and introduce another feature: using the pathfinder <span class="citation" data-cites="zhang2022pathfinder">(<a href="#ref-zhang2022pathfinder" role="doc-biblioref">Zhang et al. 2022</a>)</span> algorithm for obtaining the initial values for the MCMC algorithm.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## initial values for mcmc</span></span>
-<span><span class="va">init_5</span> <span class="op">&lt;-</span> </span>
-<span>  <span class="va">drm_compiled</span><span class="op">$</span><span class="fu">pathfinder</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
-<span>                          seed <span class="op">=</span> <span class="fl">2025</span>,</span>
-<span>                          num_paths <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                          save_single_paths <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                          psis_resample <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span><span class="va">drm_5</span> <span class="op">&lt;-</span> <span class="va">drm_compiled</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
-<span>                             iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after</span></span>
-<span>                                                  <span class="co">## warmup</span></span>
-<span>                             iter_warmup <span class="op">=</span> <span class="fl">400</span>,   <span class="co">## number of warmup samples</span></span>
-<span>                             seed <span class="op">=</span> <span class="fl">2025</span>,</span>
-<span>                             chains <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                             init <span class="op">=</span> <span class="va">init_5</span>,</span>
-<span>                             parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>We can also fit a Gamma (instead of log-normal) model to the data. It suffices to modify the <code>likelihood</code> toggle in the data object and rerun the code. See below.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## modifying only "likelihood" toggle</span></span>
-<span><span class="va">data</span><span class="op">$</span><span class="va">likelihood</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
-<span></span>
-<span><span class="co">## initial values for mcmc</span></span>
-<span><span class="va">init_6</span> <span class="op">&lt;-</span> </span>
-<span>  <span class="va">drm_compiled</span><span class="op">$</span><span class="fu">pathfinder</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
-<span>                          seed <span class="op">=</span> <span class="fl">2025</span>,</span>
-<span>                          num_paths <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                          save_single_paths <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                          psis_resample <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">drm_6</span> <span class="op">&lt;-</span> <span class="va">drm_compiled</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
-<span>                             iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after</span></span>
-<span>                                                  <span class="co">## warmup</span></span>
-<span>                             iter_warmup <span class="op">=</span> <span class="fl">400</span>,   <span class="co">## number of warmup samples</span></span>
-<span>                             seed <span class="op">=</span> <span class="fl">2025</span>,</span>
-<span>                             chains <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                             init <span class="op">=</span> <span class="va">init_6</span>,</span>
-<span>                             parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>Lastly, let us fit a similar Gamma SDM to the data. The data object associated with the <code>sdm</code> model is similar, but some elements need to be renamed <a class="footnote-ref" role="doc-noteref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;I’m working on building a similar function to create the data for the SDM as well.&lt;/p&gt;"><sup>2</sup></a></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## copy the data object from the last model</span></span>
-<span><span class="va">data_sdm</span> <span class="op">&lt;-</span> <span class="va">data</span></span>
-<span></span>
-<span><span class="co">## modify time (need to start at 1 for the SDM)</span></span>
-<span><span class="va">data_sdm</span><span class="op">$</span><span class="va">time</span> <span class="op">&lt;-</span> <span class="va">dat_train</span><span class="op">$</span><span class="va">time</span> <span class="op">+</span> <span class="fl">1</span></span>
-<span></span>
-<span><span class="co">## renaming elements</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span> <span class="op">==</span> <span class="st">"X_t"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Z"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span> <span class="op">==</span> <span class="st">"K_t"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"K_z"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span> <span class="op">==</span> <span class="st">"X_r"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"X"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span> <span class="op">==</span> <span class="st">"K_r"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"K_x"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span> <span class="op">==</span> <span class="st">"qr_r"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"qr_x"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">)</span> <span class="op">==</span> <span class="st">"qr_t"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"qr_z"</span></span>
-<span></span>
-<span><span class="va">init_sdm</span> <span class="op">&lt;-</span></span>
-<span>  <span class="va">sdm_compiled</span><span class="op">$</span><span class="fu">pathfinder</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sdm</span>,</span>
-<span>                          seed <span class="op">=</span> <span class="fl">2025</span>,</span>
-<span>                          num_paths <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                          save_single_paths <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                          psis_resample <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">sdm_1</span> <span class="op">&lt;-</span></span>
-<span>  <span class="va">sdm_compiled</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sdm</span>,</span>
-<span>                      iter_sampling <span class="op">=</span> <span class="fl">400</span>,</span>
-<span>                      iter_warmup <span class="op">=</span> <span class="fl">400</span>,</span>
-<span>                      seed <span class="op">=</span> <span class="fl">2025</span>,</span>
-<span>                      chains <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                      parallel_chains <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                      init <span class="op">=</span> <span class="va">init_sdm</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sdm_1</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/fit_sdm.html">fit_sdm</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">dat_train</span>,</span>
+<span>          y_col <span class="op">=</span> <span class="st">"dens"</span>, <span class="co">## response variable: density</span></span>
+<span>          time_col <span class="op">=</span> <span class="st">"year"</span>, <span class="co">## vector of time points</span></span>
+<span>          site_col <span class="op">=</span> <span class="st">"patch"</span>, <span class="co">## vector of patches</span></span>
+<span>          family <span class="op">=</span> <span class="st">"lognormal2"</span>,</span>
+<span>          seed <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span>          formula_zero <span class="op">=</span> <span class="va">form_t</span>,</span>
+<span>          formula_dens <span class="op">=</span> <span class="va">form_r</span>,</span>
+<span>          iter_sampling <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of samples after warmup</span></span>
+<span>          iter_warmup <span class="op">=</span> <span class="fl">400</span>, <span class="co">## number of warmup samples</span></span>
+<span>          parallel_chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          init <span class="op">=</span> <span class="st">"pathfinder"</span>,</span>
+<span>          chains <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>          .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>time_ar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>          .priors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>pr_alpha_a <span class="op">=</span> <span class="fl">5</span>, pr_alpha_b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>To compare how well each of these models adjust to the data, we can look at their leave-one-out information criterion [LOOIC; <span class="citation" data-cites="vehtari2017practical">Vehtari, Gelman, and Gabry (<a href="#ref-vehtari2017practical" role="doc-biblioref">2017</a>)</span>]. According to this criteria, the best model (in terms of goodness-of-fit) was the most complex DRM with a Gamma pdf for the non-zero part of the zero-augmented model. The SDM appears as the third best model according to this criteria.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_loos</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"DRM 1"</span> <span class="op">=</span> <span class="va">drm_1</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>       <span class="st">"DRM 2"</span> <span class="op">=</span> <span class="va">drm_2</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>       <span class="st">"DRM 3"</span> <span class="op">=</span> <span class="va">drm_3</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>       <span class="st">"DRM 4"</span> <span class="op">=</span> <span class="va">drm_4</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>       <span class="st">"DRM 5"</span> <span class="op">=</span> <span class="va">drm_5</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>       <span class="st">"DRM 6"</span> <span class="op">=</span> <span class="va">drm_6</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>       <span class="st">"SDM 1"</span> <span class="op">=</span> <span class="va">sdm_1</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"DRM 1"</span> <span class="op">=</span> <span class="va">drm_1</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>       <span class="st">"DRM 2"</span> <span class="op">=</span> <span class="va">drm_2</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>       <span class="st">"DRM 3"</span> <span class="op">=</span> <span class="va">drm_3</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>       <span class="st">"DRM 4"</span> <span class="op">=</span> <span class="va">drm_4</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>       <span class="st">"DRM 5"</span> <span class="op">=</span> <span class="va">drm_5</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>       <span class="st">"DRM 6"</span> <span class="op">=</span> <span class="va">drm_6</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>       <span class="st">"SDM 1"</span> <span class="op">=</span> <span class="va">sdm_1</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">loo</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="fu">loo</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/loo/reference/loo_compare.html" class="external-link">loo_compare</a></span><span class="op">(</span><span class="va">all_loos</span><span class="op">)</span></span></code></pre></div>
@@ -511,7 +433,7 @@ Figure 1
 </h3>
 <p><strong>?@fig-drm6_1</strong> depicts the traceplots (left) and overlay-ed (right) density plots for the parameter <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> and the two parameters (<code>sigma_r</code> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>) associated to the AR(1) random effect used to introduce temporal dependence to recruitment. In general, the chains seem to mix well and the estimated posterior densities associated to different chains are fairly similar, which is a good indication of convergence.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/bayesplot-colors.html" class="external-link">color_scheme_set</a></span><span class="op">(</span><span class="st">"mix-red-blue"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">viz_pars</span> <span class="op">&lt;-</span></span>
@@ -519,37 +441,37 @@ Figure 1
 <span>    <span class="st">"alpha[1]"</span>,</span>
 <span>    <span class="st">"phi[1]"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">drm_6</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="va">viz_pars</span><span class="op">)</span>,</span>
+<span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">drm_6</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="va">viz_pars</span><span class="op">)</span>,</span>
 <span>           combo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trace"</span>, <span class="st">"dens_overlay"</span><span class="op">)</span>,</span>
 <span>           facet_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>labeller <span class="op">=</span> <span class="va">label_parsed</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p><strong>?@fig-drm6_2</strong> shows the traceplots (left) and overlay-ed (right) density plots for the regression coefficients associated with recruitment.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">drm_6</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"coef_r"</span><span class="op">)</span>,</span>
+<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">drm_6</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"coef_r"</span><span class="op">)</span>,</span>
 <span>           combo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trace"</span>, <span class="st">"dens_overlay"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p><strong>?@fig-drm6_3</strong> shows the traceplots (left) and overlay-ed (right) density plots for the regression coefficients associated with survival.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">drm_6</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"coef_m"</span><span class="op">)</span>,</span>
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">drm_6</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"coef_m"</span><span class="op">)</span>,</span>
 <span>           combo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trace"</span>, <span class="st">"dens_overlay"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p><strong>?@fig-drm6_4</strong> shows the traceplots (left) and overlay-ed (right) density plots for the regression coefficients associated with the probability of absence.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">drm_6</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"coef_t"</span><span class="op">)</span>,</span>
+<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">drm_6</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"coef_t"</span><span class="op">)</span>,</span>
 <span>           combo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trace"</span>, <span class="st">"dens_overlay"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Despite the small number of posterior samples, the evidence for the graphs suggests the chains have converged.</p>
 <p><strong>?@fig-drm6_pp</strong> displays a posterior predictive model assessment <span class="citation" data-cites="gabry2019visualization">(<a href="#ref-gabry2019visualization" role="doc-biblioref">Gabry et al. 2019</a>)</span> for the DRM. The darker blue density is estimated from the data directly, while the lighter blue densities are estimated from the posterior predictive distribution (they can be seen as posterior samples from “fitted” values). The similarity among the darker and lighter curves indicate appropriate fit.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_pp</span> <span class="op">&lt;-</span></span>
-<span>  <span class="va">drm_6</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_pp"</span>,</span>
-<span>              format <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span></span>
+<span>  <span class="va">drm_6</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_pp"</span>,</span>
+<span>                    format <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/PPC-distributions.html" class="external-link">ppc_dens_overlay</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">y</span>,</span>
+<span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/PPC-distributions.html" class="external-link">ppc_dens_overlay</a></span><span class="op">(</span><span class="va">drm_6</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">y</span>,</span>
 <span>                 <span class="va">y_pp</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">y_pp</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                             size <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -557,37 +479,37 @@ Figure 1
 </h3>
 <p><strong>?@fig-sdm_1</strong> depicts the traceplots (left) and overlay-ed (right) density plots for the parameter <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> and the two parameters (<code>sigma_r</code> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>) associated to the AR(1) random effect used to introduce temporal dependence to the density. In general, the chains seem to mix well and the estimated posterior densities associated to different chains are fairly similar, which is a good indication of convergence.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">viz_pars</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tau[1]"</span>,</span>
 <span>    <span class="st">"alpha[1]"</span>,</span>
 <span>    <span class="st">"phi[1]"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">sdm_1</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="va">viz_pars</span><span class="op">)</span>,</span>
+<span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">sdm_1</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="va">viz_pars</span><span class="op">)</span>,</span>
 <span>           combo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trace"</span>, <span class="st">"dens_overlay"</span><span class="op">)</span>,</span>
 <span>           facet_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>labeller <span class="op">=</span> <span class="va">label_parsed</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p><strong>?@fig-sdm_2</strong> shows the traceplots (left) and overlay-ed (right) density plots for the regression coefficients associated with the non-zero densities.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">sdm_1</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"coef_r"</span><span class="op">)</span>,</span>
+<div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">sdm_1</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"coef_r"</span><span class="op">)</span>,</span>
 <span>           combo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trace"</span>, <span class="st">"dens_overlay"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p><strong>?@fig-drm6_4</strong> shows the traceplots (left) and overlay-ed (right) density plots for the regression coefficients associated with the probabilities of absence.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">sdm_1</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"coef_t"</span><span class="op">)</span>,</span>
+<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span><span class="va">sdm_1</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"coef_t"</span><span class="op">)</span>,</span>
 <span>           combo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trace"</span>, <span class="st">"dens_overlay"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Despite the small number of posterior samples, the evidence for the graphs suggests the chains have converged.</p>
 <p><strong>?@fig-sdm_pp</strong> displays a posterior predictive model assessment <span class="citation" data-cites="gabry2019visualization">(<a href="#ref-gabry2019visualization" role="doc-biblioref">Gabry et al. 2019</a>)</span> for the SDM. The darker blue density is estimated from the data directly, while the lighter blue densities are estimated from the posterior predictive distribution (they can be seen as posterior samples from “fitted” values). The similarity among the darker and lighter curves indicate appropriate fit.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_pp</span> <span class="op">&lt;-</span></span>
-<span>  <span class="va">sdm_1</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_pp"</span>,</span>
-<span>              format <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span></span>
+<span>  <span class="va">sdm_1</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_pp"</span>,</span>
+<span>                    format <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/PPC-distributions.html" class="external-link">ppc_dens_overlay</a></span><span class="op">(</span><span class="va">data_sdm</span><span class="op">$</span><span class="va">y</span>,</span>
+<span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/PPC-distributions.html" class="external-link">ppc_dens_overlay</a></span><span class="op">(</span><span class="va">sdm_1</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">y</span>,</span>
 <span>                 <span class="va">y_pp</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">y_pp</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                             size <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -595,7 +517,7 @@ Figure 1
 </h3>
 <p>The code below computes the forecasts for the best DRM and SDM.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="va">form_t</span>,</span>
 <span>                     data <span class="op">=</span> <span class="va">dat_test</span><span class="op">)</span></span>
 <span><span class="va">x_mt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="va">form_m</span>,</span>
@@ -607,8 +529,8 @@ Figure 1
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="va">form_m</span>,</span>
 <span>               data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">dat_train</span>, <span class="va">year</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">forecast_drm_6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_drm.html">predict_drm</a></span><span class="op">(</span>drm <span class="op">=</span> <span class="va">drm_6</span>,</span>
-<span>                              drm_data <span class="op">=</span> <span class="va">data</span>,</span>
+<span><span class="va">forecast_drm_6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_drm.html">predict_drm</a></span><span class="op">(</span>drm <span class="op">=</span> <span class="va">drm_6</span><span class="op">$</span><span class="va">draws</span>,</span>
+<span>                              drm_data <span class="op">=</span> <span class="va">drm_6</span><span class="op">$</span><span class="va">data</span>,</span>
 <span>                              ntime_for <span class="op">=</span></span>
 <span>                                <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dat_test</span><span class="op">$</span><span class="va">year</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                              x_tt <span class="op">=</span> <span class="va">x_tt</span>,</span>
@@ -626,34 +548,22 @@ Figure 1
 <span>                            <span class="st">"alpha"</span>, <span class="st">"tau"</span>,</span>
 <span>                            <span class="st">"phi"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">forecast_data2</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n_patches <span class="op">=</span> <span class="va">data_sdm</span><span class="op">$</span><span class="va">n_patches</span>,</span>
-<span>       n_time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dat_test</span><span class="op">$</span><span class="va">year</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>       time <span class="op">=</span> <span class="va">dat_test</span><span class="op">$</span><span class="va">time</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">dat_test</span><span class="op">$</span><span class="va">time</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>,</span>
-<span>       n_ages <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>       n_time_train <span class="op">=</span> <span class="va">data_sdm</span><span class="op">$</span><span class="va">n_time</span>,</span>
-<span>       time_ar <span class="op">=</span> <span class="va">data_sdm</span><span class="op">$</span><span class="va">time_ar</span>,</span>
-<span>       cloglog <span class="op">=</span> <span class="va">data_sdm</span><span class="op">$</span><span class="va">cloglog</span>,</span>
-<span>       likelihood <span class="op">=</span> <span class="va">data_sdm</span><span class="op">$</span><span class="va">likelihood</span>,</span>
-<span>       K_z <span class="op">=</span> <span class="va">data_sdm</span><span class="op">$</span><span class="va">K_z</span>,</span>
-<span>       Z <span class="op">=</span> <span class="va">x_tt</span>,</span>
-<span>       K_x <span class="op">=</span> <span class="va">data_sdm</span><span class="op">$</span><span class="va">K_x</span>,</span>
-<span>       X <span class="op">=</span> <span class="va">x_rt</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">forecast_data2</span><span class="op">$</span><span class="va">N</span> <span class="op">&lt;-</span> <span class="va">forecast_data2</span><span class="op">$</span><span class="va">n_patches</span> <span class="op">*</span> <span class="va">forecast_data2</span><span class="op">$</span><span class="va">n_time</span></span>
-<span></span>
 <span><span class="va">forecast_sdm_1</span> <span class="op">&lt;-</span></span>
-<span>  <span class="va">forecast_sdm</span><span class="op">$</span></span>
-<span>  <span class="fu">generate_quantities</span><span class="op">(</span>fitted_params <span class="op">=</span> <span class="va">fitted_params</span>,</span>
-<span>                      data <span class="op">=</span> <span class="va">forecast_data2</span>,</span>
-<span>                      seed <span class="op">=</span> <span class="fl">125</span>,</span>
-<span>                      parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="../reference/predict_sdm.html">predict_sdm</a></span><span class="op">(</span>sdm <span class="op">=</span> <span class="va">sdm_1</span><span class="op">$</span><span class="va">draws</span>,</span>
+<span>              sdm_data <span class="op">=</span> <span class="va">sdm_1</span><span class="op">$</span><span class="va">data</span>,</span>
+<span>              ntime_for <span class="op">=</span></span>
+<span>                <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dat_test</span><span class="op">$</span><span class="va">year</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>              z_t <span class="op">=</span> <span class="va">x_tt</span>,</span>
+<span>              x_t <span class="op">=</span> <span class="va">x_rt</span>,</span>
+<span>              time_for <span class="op">=</span> <span class="va">dat_test</span><span class="op">$</span><span class="va">year</span>,</span>
+<span>              seed <span class="op">=</span> <span class="fl">125</span>,</span>
+<span>              cores <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="forecast-mu_t-i">Forecast <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{t, i}</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#forecast-mu_t-i"></a>
 </h3>
 <p><strong>?@fig-forecast_mu</strong> displays the forecasted expected densities conditioned on encountering (i.e., <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Y_{t, i} &gt; 0</annotation></semantics></math>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mu_drm</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">forecast_drm_6</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"mu_proj"</span>,</span>
 <span>                     format <span class="op">=</span> <span class="st">"draws_df"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -726,7 +636,7 @@ Figure 1
 </h3>
 <p><strong>?@fig-forecast_y</strong> displayes the forecasts for the response variable through its posterior predictive distribution. That is, unlike <strong>?@fig-forecast_mu</strong>, it accounts for the zero-augmentation.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_drm</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">forecast_drm_6</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_proj"</span>,</span>
 <span>                       format <span class="op">=</span> <span class="st">"draws_df"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -840,12 +750,16 @@ Table 1: Forecasting assessment.
 </h3>
 <p><strong>?@fig-centroids</strong> depicts the centroids estimated by the DRM and SDM on the left and right-side of the panel, respectively.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">centroid_drm</span> <span class="op">&lt;-</span></span>
+<div class="sourceCode cell-code" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">centroids_compiled</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"centroid"</span>,</span>
+<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">centroid_drm</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">centroids_compiled</span><span class="op">$</span></span>
 <span>  <span class="fu">generate_quantities</span><span class="op">(</span>fitted_params <span class="op">=</span></span>
 <span>                        <span class="fu">posterior</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/posterior/reference/bind_draws.html" class="external-link">bind_draws</a></span><span class="op">(</span></span>
-<span>                                       <span class="va">drm_6</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_pp"</span><span class="op">)</span>,</span>
+<span>                                       <span class="va">drm_6</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_pp"</span><span class="op">)</span>,</span>
 <span>                                       <span class="va">forecast_drm_6</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_proj"</span><span class="op">)</span></span>
 <span>                                       <span class="op">)</span>,</span>
 <span>                      data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -856,8 +770,8 @@ Table 1: Forecasting assessment.
 <span>                            <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dat_train</span><span class="op">$</span><span class="va">lat_floor</span>,</span>
 <span>                                     <span class="va">dat_test</span><span class="op">$</span><span class="va">lat_floor</span><span class="op">)</span>,</span>
 <span>                                   ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>                          n_t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dat_train</span><span class="op">$</span><span class="va">time</span>,</span>
-<span>                                                <span class="va">dat_test</span><span class="op">$</span><span class="va">time</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>                          n_t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dat_train</span><span class="op">$</span><span class="va">year</span>,</span>
+<span>                                                <span class="va">dat_test</span><span class="op">$</span><span class="va">year</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>                      <span class="op">)</span>,</span>
 <span>                      seed <span class="op">=</span> <span class="fl">2025</span>,</span>
 <span>                      parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
@@ -866,7 +780,7 @@ Table 1: Forecasting assessment.
 <span>  <span class="va">centroids_compiled</span><span class="op">$</span></span>
 <span>  <span class="fu">generate_quantities</span><span class="op">(</span>fitted_params <span class="op">=</span></span>
 <span>                        <span class="fu">posterior</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/posterior/reference/bind_draws.html" class="external-link">bind_draws</a></span><span class="op">(</span></span>
-<span>                                       <span class="va">sdm_1</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_pp"</span><span class="op">)</span>,</span>
+<span>                                       <span class="va">sdm_1</span><span class="op">$</span><span class="va">draws</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_pp"</span><span class="op">)</span>,</span>
 <span>                                       <span class="va">forecast_sdm_1</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="st">"y_proj"</span><span class="op">)</span></span>
 <span>                                       <span class="op">)</span>,</span>
 <span>                      data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -877,8 +791,8 @@ Table 1: Forecasting assessment.
 <span>                            <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dat_train</span><span class="op">$</span><span class="va">lat_floor</span>,</span>
 <span>                                     <span class="va">dat_test</span><span class="op">$</span><span class="va">lat_floor</span><span class="op">)</span>,</span>
 <span>                                   ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>                          n_t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dat_train</span><span class="op">$</span><span class="va">time</span>,</span>
-<span>                                                <span class="va">dat_test</span><span class="op">$</span><span class="va">time</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>                          n_t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dat_train</span><span class="op">$</span><span class="va">year</span>,</span>
+<span>                                                <span class="va">dat_test</span><span class="op">$</span><span class="va">year</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>                      <span class="op">)</span>,</span>
 <span>                      seed <span class="op">=</span> <span class="fl">2025</span>,</span>
 <span>                      parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
@@ -894,7 +808,7 @@ Table 1: Forecasting assessment.
 <span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>parameter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nchar</a></span><span class="op">(</span><span class="va">parameter</span><span class="op">)</span> <span class="op">==</span> <span class="fl">2</span>,</span>
 <span>                                <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">parameter</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>                                <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">parameter</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">parameter</span><span class="op">)</span> <span class="op">+</span> <span class="va">min_year</span>,</span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">parameter</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">dat_train</span><span class="op">$</span><span class="va">year</span><span class="op">)</span>,</span>
 <span>             .before <span class="op">=</span> <span class="va">parameter</span>,</span>
 <span>             model <span class="op">=</span> <span class="st">"DRM"</span><span class="op">)</span>,</span>
 <span>      <span class="va">centroid_sdm</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -905,7 +819,7 @@ Table 1: Forecasting assessment.
 <span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>parameter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nchar</a></span><span class="op">(</span><span class="va">parameter</span><span class="op">)</span> <span class="op">==</span> <span class="fl">2</span>,</span>
 <span>                                <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">parameter</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>                                <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">parameter</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">parameter</span><span class="op">)</span> <span class="op">+</span> <span class="va">min_year</span>,</span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">parameter</span><span class="op">)</span> <span class="op">+</span>  <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">dat_train</span><span class="op">$</span><span class="va">year</span><span class="op">)</span>,</span>
 <span>             .before <span class="op">=</span> <span class="va">parameter</span>,</span>
 <span>             model <span class="op">=</span> <span class="st">"SDM"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
@@ -928,7 +842,42 @@ Table 1: Forecasting assessment.
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span> <span class="op">~</span> <span class="va">model</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-</section></section><section class="level2 unnumbered"><h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</section></section><section class="level2"><h2 id="sec-precomp">Loading pre-compiled models<a class="anchor" aria-label="anchor" href="#sec-precomp"></a>
+</h2>
+<p>It is also possible to load pre-compiled models. For example, to load the pre-compiled SDM described <a href="https://pinskylab.github.io/drmr/articles/theory.html#sec-sdm">here</a>, run:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sdm_compiled</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"sdm"</span>,</span>
+<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>Similarly, to load the pre-compiled DRM, we run:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">drm_compiled</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"drm"</span>,</span>
+<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>These models also have associated pre-compiled <code>forecast</code> objects. They can be loaded as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">forecast_sdm</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"forecast_sdm"</span>,</span>
+<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">forecast_drm</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"forecast"</span>,</span>
+<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>Lastly, to calculate density-weighted centroids, the following pre-compiled object is available:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">centroids_compiled</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_package_model.html" class="external-link">stan_package_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"centroid"</span>,</span>
+<span>                                  package <span class="op">=</span> <span class="st">"drmr"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>All of the pre-compiled models are of class <code>CmdStanModel</code> and they work just as any other compiled <code>cmdstanr</code> <a href="https://mc-stan.org/cmdstanr/reference/CmdStanModel.html#model-fitting" class="external-link">model</a>.</p>
+</section><section class="level2 unnumbered"><h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-gabry2024cmdstanr" class="csl-entry" role="listitem">
@@ -942,9 +891,6 @@ Landau, William Michael. 2024. <em>Instantiate: Pre-Compiled <span>CmdStan</span
 </div>
 <div id="ref-vehtari2017practical" class="csl-entry" role="listitem">
 Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. <span>“Practical Bayesian Model Evaluation Using Leave-One-Out Cross-Validation and WAIC.”</span> <em>Statistics and Computing</em> 27: 1413–32.
-</div>
-<div id="ref-ye2021comparisons" class="csl-entry" role="listitem">
-Ye, Tairan, Victor H Lachos, Xiaojing Wang, and Dipak K Dey. 2021. <span>“Comparisons of Zero-Augmented Continuous Regression Models from a <span>B</span>ayesian Perspective.”</span> <em>Statistics in Medicine</em> 40 (5): 1073–1100.
 </div>
 <div id="ref-zhang2022pathfinder" class="csl-entry" role="listitem">
 Zhang, Lu, Bob Carpenter, Andrew Gelman, and Aki Vehtari. 2022. <span>“Pathfinder: Parallel Quasi-Newton Variational Inference.”</span> <em>Journal of Machine Learning Research</em> 23 (306): 1–49. <a href="http://jmlr.org/papers/v23/21-0889.html" class="external-link">http://jmlr.org/papers/v23/21-0889.html</a>.
