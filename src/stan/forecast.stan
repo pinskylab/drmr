@@ -99,20 +99,22 @@ functions {
    * 
    * @param lambda array of number of individuals per age, time, and patch
    * @param M movement matrix
-   * @param mov_age age at which movement starts (this can be generalized)
+   * @param mov_age ages at which movement happens (this can be generalized)
    * 
    * @return an array of numbers by age, year and patch
    */
   array[] matrix apply_movement(array[] matrix lambda, matrix M,
-                                int mov_age) {
+                                array[] int mov_age) {
     array[3] int dimensions;
     dimensions = dims(lambda);
     array[dimensions[1]] matrix[dimensions[2], dimensions[3]] output;
     output = lambda;
-    for (a in mov_age:dimensions[1]) {
-      for (time in 1:dimensions[2]) {
-        output[a, time, 1:dimensions[3]] =
-          lambda[a, time, 1:dimensions[3]] * M';
+    for (a in 1:dimensions[1]) {
+      if (mov_age[a]) {
+        for (time in 1:dimensions[2]) {
+          output[a, time, 1:dimensions[3]] =
+            lambda[a, time, 1:dimensions[3]] * M';
+        }
       }
     }
     return output;
@@ -141,7 +143,7 @@ data {
   matrix[n_ages, n_time_train] f_past;
   array[est_mort ? 0 : 1] real m; // total mortality
   //--- movement related quantities ----
-  array[movement] int age_at_maturity;
+  array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
   //--- environmental data ----
   //--- * for mortality ----
@@ -226,7 +228,7 @@ generated quantities {
   }
   if (movement) {
     lambda_proj =
-      apply_movement(lambda_proj, mov_mat, age_at_maturity[1]);
+      apply_movement(lambda_proj, mov_mat, ages_movement);
   }
   //--- mu_proj calculations ----
   {

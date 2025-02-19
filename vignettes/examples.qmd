@@ -287,9 +287,12 @@ drm_4 <-
           family = "lognormal2",
           seed = 2025,
           adj_mat = adj_mat,
-          age_at_maturity = 3, ## age at which fish are able to move
-          iter_sampling = 400, ## number of samples after warmup
-          iter_warmup = 400, ## number of warmup samples
+          ## ages_movement = 2,  ## age at which fish are able to move
+          ages_movement = c(rep(0, 4), ## first four age-groups do not move
+                            rep(1, 8), ## groups 5 to 12 are allowed to move
+                            rep(0, 4)), ## last four age-groups do not move
+          iter_sampling = 200, ## number of samples after warmup
+          iter_warmup = 200, ## number of warmup samples
           parallel_chains = 4,
           chains = 4,
           .toggles = list(time_ar = 1,

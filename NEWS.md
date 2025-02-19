@@ -61,3 +61,8 @@
 
 * `int_score` function to calculate the interval score was also included. The
   interval score helps to assess interval predictions.
+
+* `age_at_maturity` is replaced by `ages_movement`. The former can take either a
+  single integer indicating the age at which individuals start to move, or a
+  vector with 0s for age-groups that do not move and 1s for age-groups that are
+  allowed to move.

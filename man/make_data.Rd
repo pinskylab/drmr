@@ -15,7 +15,7 @@ make_data(
   x_r,
   n_ages = 1,
   age_selectivity,
-  age_at_maturity,
+  ages_movement,
   adj_mat = matrix(0, ncol = 1, nrow = 1),
   .toggles,
   .priors,
@@ -52,11 +52,15 @@ underlying population dynamic model.}
 where each element indicates the selectivity of a respective age. All the
 elements of this vector must lie between 0 and 1.}
 
-\item{age_at_maturity}{a \code{integer} indicating the age at which a
-species attains maturity. This is used for movement. That is, every
-individual with age greater or equal to \code{age_at_maturity} may move
-from one patch to another. Individuals below this age threshold remain
-"static".}
+\item{ages_movement}{An \code{integer} or a \code{numeric vector} specifying
+the ages at which individuals of the focal species are assumed to move. If
+\code{ages_movement} is an integer, individuals younger than this age are
+considered static (non-moving). If \code{ages_movement} is a numeric
+vector of length \code{n_ages}, it indicates movement capability for each
+age group. A value of \code{0} indicates the corresponding age group is
+static, while \code{1} indicates movement is allowed. For example,
+\code{c(0, 0, 1, 1, 0)} specifies that age groups 1, 2, and 5 are static,
+while 3 and 4 are mobile.}
 
 \item{adj_mat}{an adjacency \code{matrix} of dimensions \code{sites}
 \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors

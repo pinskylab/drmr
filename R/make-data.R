@@ -20,11 +20,22 @@
 ##' @param age_selectivity an \code{numeric vector} with \code{n_ages} elements,
 ##'   where each element indicates the selectivity of a respective age. All the
 ##'   elements of this vector must lie between 0 and 1.
-##' @param age_at_maturity a \code{integer} indicating the age at which a
-##'   species attains maturity. This is used for movement. That is, every
-##'   individual with age greater or equal to \code{age_at_maturity} may move
-##'   from one patch to another. Individuals below this age threshold remain
-##'   "static".
+##' @param ages_movement a \code{integer} indicating the age at which
+##'   individuals from the focal species start moving. In this case, individuals
+##'   below this age threshold remain "static". Alternatively, we can input a
+##'   \code{vector} of length \code{n_ages}. This vector will have a \code{0}
+##'   for age-groups that cannot move and \code{1} for those age-groups that
+##'   move. For example, the following vector \code{c(0, 0, 1, 1, 0)} indicates
+##'   that ages 1, 2, and 5 are static, while ages 3 and 4 are allowed to move.
+##' @param ages_movement An \code{integer} or a \code{numeric vector} specifying
+##'   the ages at which individuals of the focal species are assumed to move. If
+##'   \code{ages_movement} is an integer, individuals younger than this age are
+##'   considered static (non-moving). If \code{ages_movement} is a numeric
+##'   vector of length \code{n_ages}, it indicates movement capability for each
+##'   age group. A value of \code{0} indicates the corresponding age group is
+##'   static, while \code{1} indicates movement is allowed. For example,
+##'   \code{c(0, 0, 1, 1, 0)} specifies that age groups 1, 2, and 5 are static,
+##'   while 3 and 4 are mobile.
 ##' @param adj_mat an adjacency \code{matrix} of dimensions \code{sites}
 ##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
 ##'   and zero otherwise.
@@ -62,7 +73,7 @@ make_data <- function(y,
                       x_r,
                       n_ages = 1,
                       age_selectivity,
-                      age_at_maturity,
+                      ages_movement,
                       adj_mat = matrix(0, ncol = 1, nrow = 1),
                       .toggles,
                       .priors,
@@ -105,13 +116,16 @@ make_data <- function(y,
   if (toggles$movement) {
     stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
               nrow(adj_mat) == n_patches)
-    if (missing(age_at_maturity)) {
-      age_at_maturity <- array(1L, dim = 1)
+    if (missing(ages_movement)) {
+      ages_movement <- rep(1L, n_ages)
+    } else if (length(ages_movement) == 1) {
+      aux_mov <- seq_len(n_ages)
+      ages_movement <- ifelse(aux_mov >= ages_movement, 1, 0)
     } else {
-      age_at_maturity <- array(age_at_maturity, dim = 1)
+      stopifnot(length(ages_movement) == n_ages)
     }
-  } else if (missing(age_at_maturity)) {
-    age_at_maturity <- integer(0)
+  } else if (missing(ages_movement)) {
+    ages_movement <- integer(0)
   }
   if (!toggles$est_mort) {
     m <- array(m, dim = 1)
@@ -183,7 +197,7 @@ make_data <- function(y,
                  X_r = x_r,
                  K_r = K_r,
                  adj_mat = adj_mat,
-                 age_at_maturity = age_at_maturity,
+                 ages_movement = ages_movement,
                  selectivity_at_age = selectivity_at_age) |>
     c(toggles,
       priors)
