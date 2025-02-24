@@ -69,9 +69,7 @@ functions {
       }
     }
     for (a in 1 : (n_ages - 1)) {
-      for (i in 1 : a) {
-        output[a, i, ] = rep_row_vector(init[a], n_patches);
-      }
+        output[a, a, ] = rep_row_vector(init[a], n_patches);
     }
     /* output[1] += init; */
     for (i in 2 : n_time) {
