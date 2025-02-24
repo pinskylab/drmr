@@ -66,3 +66,16 @@
   single integer indicating the age at which individuals start to move, or a
   vector with 0s for age-groups that do not move and 1s for age-groups that are
   allowed to move.
+
+# drmr 0.0.25
+
+* Exporting `fix_linbeta`, `max_quad_x`, and `int_score` functions
+
+* Fixing `check_between` function (not exported; This functions is just a
+  helper)
+  
+* Changing initialization of the population dynamics
+
+* Changing prior on `zeta` and allowing for user to input the
+  hyperparameters. Before, we had a standard normal prior on the logit of
+  `zeta`. Now, we place a beta prior on `zeta`.

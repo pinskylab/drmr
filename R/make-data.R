@@ -7,6 +7,8 @@
 ##'   element of \code{y}.
 ##' @param site an \code{vector} indicating the sites associated to each element
 ##'   of \code{y}.
+##' @param init_data an optional vector (of lengh n_ages - 1) to initialize the
+##'   population dynamics.
 ##' @param f_mort an optional \code{matrix} informing the instantaneous fishing
 ##'   mortality rates at each age (columns) and timepoint (rows).
 ##' @param m a \code{numeric} value corresponding to the instantaneous natural
@@ -44,8 +46,9 @@
 ##'   log-log and 0 for the logit link function for the absence probabilities.
 ##'   \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
 ##'   \item \code{est_mort}: 1 to estimate mortality and 0 otherwise.  \item
-##'   \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.  \item
-##'   \code{qr_t}: 1 to use QR parametrization for the absence probability
+##'   \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
+##'   \item \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.
+##'   \item \code{qr_t}: 1 to use QR parametrization for the absence probability
 ##'   regression coefficients and 0 otherwise.  \item \code{qr_r}: 1 to use QR
 ##'   parametrization for the recruitment regression coefficients and 0
 ##'   otherwise.  \item \code{qr_m}: 1 to use QR parametrization for the
@@ -66,12 +69,13 @@
 make_data <- function(y,
                       time,
                       site,
+                      init_data = numeric(0),
                       f_mort,
                       m = 0.25,
                       x_t,
                       x_m,
                       x_r,
-                      n_ages = 1,
+                      n_ages = 2,
                       age_selectivity,
                       ages_movement,
                       adj_mat = matrix(0, ncol = 1, nrow = 1),
@@ -166,6 +170,9 @@ make_data <- function(y,
     if (length(priors$pr_coef_t_sd) < K_t)
       priors$pr_coef_t_sd <- rep(1, K_t)
   }
+  if (!toggles$est_init) {
+    stopifnot(length(init_data) == n_ages - 1)
+  }
   if (toggles$qr_t) {
     if (K_t == 1) {
       message("turning QR parametrization for theta off!")
@@ -185,8 +192,10 @@ make_data <- function(y,
     }
   }
   output <- list(N = n_time * n_patches,
-                 n_ages = n_ages, n_patches = n_patches,
+                 n_ages = n_ages,
+                 n_patches = n_patches,
                  n_time = n_time,
+                 init_data = init_data,
                  y = y,
                  f = f_mort,
                  m = m,

@@ -47,8 +47,7 @@ functions {
    * @param n_ages number of age classes
    * @param f_a_t f_{at}?
    * @param neg_mort minus natural mortality (instantaneous) rate
-   * @param init a n_time by n_patches matrix of initialization for age-group
-   *   "1". In the simplest case, it can be the recruitment.
+   * @param init a n_ages - 1 array.
    * 
    * @return an array of numbers by age, year and patch
    */
@@ -58,11 +57,22 @@ functions {
                           // Mortality parameter
                           matrix f_a_t,
                           matrix neg_mort,
-                          // initialization (currently with recruitment)
-                          matrix init) {
+                          // initialization
+                          array[] real init,
+                          matrix recruitment) {
     // initializing output with zeros
     array[n_ages] matrix[n_time, n_patches] output
-      = rep_array(init, n_ages);
+      = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
+    for (p in 1:n_patches) {
+      for (i in 1:n_time) {
+        output[1, i, p] = recruitment[i, p];
+      }
+    }
+    for (a in 1 : (n_ages - 1)) {
+      for (i in 1 : a) {
+        output[a, i, ] = rep_row_vector(init[a], n_patches);
+      }
+    }
     /* output[1] += init; */
     for (i in 2 : n_time) {
       for (p in 1 : n_patches) {
@@ -121,41 +131,6 @@ functions {
       }
     }
     return output;
-  }
-
-  /**
-   * Penalized complexity prior for the AR(1) correlation. This prior assumes:
-   * P(|x| > u) = alpha A reasonable strategy here is to set u as a possibly high
-   * autocorrelation and alpha as a small probability.
-   *
-   * Reference: https://doi.org/10.1111/jtsa.12242
-   * 
-   * @param x autocorrelation parameter
-   * @param u upper bound for |x|
-   * @param alpha prior probability of exceeding the upper bound u.
-   * 
-   * @return an array of numbers by age, year and patch
-   */
-  real pcp_ar0_lpdf(real x, real alpha, real u) {
-    real aux = - log(1 - square(x));
-    real rho = - log(alpha) / sqrt(- log(1 - square(u)));
-    return log(rho) - log(2) - rho * sqrt(aux) +
-      log(abs(x)) + aux - 0.5 * log(aux);
-  }
-
-  /**
-   * Penalized complexity prior for the log-transformed standard deviation of a
-   * random effect. It assumes: P(exp(x) > u) = alpha.
-   * 
-   * @param x log-sd parameter
-   * @param u upper bound for conditional SD
-   * @param alpha prior probability of exceeding the upper bound u.
-   * 
-   * @return an array of numbers by age, year and patch
-   */
-  real pcp_logsd_lpdf(real x, real alpha, real u) {
-    real lambda = - log(alpha) / u;
-    return log(lambda) + x - lambda * exp(x);
   }
 
   /**
@@ -241,6 +216,7 @@ data {
   int<lower = 0, upper = 1> time_ar;
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_mort; // estimate mortality?
+  int<lower = 0, upper = 1> est_init; // estimate "initial cohort"
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 1> qr_t; // use qr parametrization for rho?
   int<lower = 0, upper = 1> qr_r; // use qr parametrization for logrec?
@@ -257,6 +233,8 @@ data {
   matrix[movement ? n_patches: 1, movement ? n_patches : 1] adj_mat;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
+  //--- initial cohort (if not estimated) ----
+  array[est_init ? 0 : n_ages - 1] real init_data;
   //--- environmental data ----
   //--- * for mortality ----
   array[est_mort ? 1 : 0] int<lower = 1> K_m;
@@ -270,11 +248,12 @@ data {
   real pr_phi_mu; // revise this. It is for phi in gamma, loglogistic, and
   // inverse-gaussian
   real pr_phi_sd;
-  // * now AR SD parameters have pcpriors
   real pr_logsd_r_mu; 
   real pr_logsd_r_sd;
   real pr_alpha_a; 
   real pr_alpha_b;
+  real pr_zeta_a; 
+  real pr_zeta_b;
   vector[K_t] pr_coef_t_mu;
   vector[K_t] pr_coef_t_sd;
   vector[est_mort ? K_m[1] : 0] pr_coef_m_mu;
@@ -346,6 +325,8 @@ parameters {
   vector[K_t] coef_t0;
   // coefficients for mortality/survival (it is a log-linear model)
   vector[est_mort ? K_m[1] : 0] coef_m0;
+  //--- * initialization parameter ----
+  array[est_init ? n_ages - 1 : 0] real log_init;
   //--- * AR process parameters ----
   // conditional SD
   array[time_ar] real log_tau;
@@ -353,8 +334,9 @@ parameters {
   array[time_ar] real<lower = 0, upper = 1> shift_alpha;
   // aux latent variable
   vector[time_ar ? n_time : 0] raw;
+  //--- * Movement parameter ----
   // logit of the probability of staying in the same patch
-  array[movement] real logit_zeta;
+  array[movement] real<lower = 0, upper = 1> zeta;
 }
 transformed parameters {
   array[likelihood > 0 ? 1 : 0] real phi;
@@ -368,6 +350,10 @@ transformed parameters {
   } else {
     log_rec = X_r * coef_r0;
   }
+  //--- Initialization ----
+  array[est_init ? n_ages - 1 : 0] real init_par;
+  if (est_init)
+    init_par = exp(log_init);
   //--- AR process ----
   array[time_ar] real tau;
   array[time_ar] real alpha;
@@ -393,16 +379,15 @@ transformed parameters {
     simplest(n_patches, n_time, n_ages,
              f,
              est_mort ? to_matrix(mortality, n_time, n_patches) : fixed_m,
+             est_init ? init_par : init_data,
              time_ar ?
              exp(add_pe(log_rec, z_t)) :
              to_matrix(exp(log_rec), n_time, n_patches));
   //--- Movement ----
   // probability of staying in the current patch
-  array[movement] real zeta;
   // movement matrix
   matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
   if (movement) {
-    zeta = inv_logit(logit_zeta);
     // probability of movement is evenly distributed across neighbors
     real d = (1 - zeta[1]);
     mov_mat = zeta[1] * identity_mat;
@@ -450,6 +435,9 @@ transformed parameters {
 }
 // close transformed parameters block
 model {
+  //--- initialization parameters ----
+  if (est_init)
+    target += std_normal_lpdf(log_init);
   //--- AR process ----
   if (time_ar) {
     target += std_normal_lpdf(raw);
@@ -458,7 +446,7 @@ model {
   }
   //--- Movement ----
   if (movement) {
-    target += std_normal_lpdf(logit_zeta);
+    target += beta_lpdf(zeta, pr_zeta_a, pr_zeta_b);
   }
   //--- Mortality ----
   if (est_mort)

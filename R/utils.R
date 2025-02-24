@@ -12,6 +12,7 @@
 ##' @return a \code{numeric} representing the regression coefficient of the
 ##'   linear term for the model where \eqn{x} is not centered.
 ##' @author Lucas Godoy
+##' @export
 fix_linbeta <- function(beta1, beta2, offset) {
   beta1 - 2 * offset * beta2
 }
