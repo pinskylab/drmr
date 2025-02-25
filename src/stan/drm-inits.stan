@@ -72,15 +72,21 @@ functions {
     }
     // Think about the indexes below for init_type 1 & 2
     if (init_type) {
+      // initializes every element at the recruitment
+      output = rep_array(recruitment, n_ages);
+    } else if (init_type == 2 || init_type == 4) {
       for (a in 2 : n_ages) {
         // makes more sense
         output[a, 1, ] = rep_row_vector(init[a - 1], n_patches);
       }
-    } else if(init_type == 2) {
-      // initializes every element at the recruitment
-      output = rep_array(recruitment, n_ages);
+    } else if (init_type == 3 || init_type == 5) {
+      for (a in 2 : n_ages) {
+        output[a, 1, ] = 
+          rep_row_vector(init[a - 1], n_patches) .*
+          recruitment[1, ];
+      }
     }
-    // given the initialization, the order of the for loops matter!
+    // given the initialization, does the order of the for loops matter?
     for (p in 1 : n_patches) {
       for (i in 2 : n_time) {
         for (a in 2 : n_ages) {
@@ -230,7 +236,7 @@ data {
   int<lower = 0, upper = 1> qr_m; // use qr parametrization for mortality?
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic. 4 = truncated normal)
-  int<lower = 0, upper = 3> init_type;
+  int<lower = 0, upper = 5> init_type;
   //--- suitability (for rho) ----
   int<lower = 1> K_t;
   matrix[N, K_t] X_t;
@@ -270,6 +276,7 @@ data {
   vector[K_r] pr_coef_r_sd;
 }
 transformed data {
+  int na2 = n_ages - 1;
   //--- Movement ----
   // `identity_mat` is a "patch X patch" identity matrix used to apply the
   // "reflexive" movement.
@@ -334,7 +341,7 @@ parameters {
   // coefficients for mortality/survival (it is a log-linear model)
   vector[est_mort ? K_m[1] : 0] coef_m0;
   //--- * initialization parameter ----
-  array[est_init ? n_ages - 1 : 0] real log_init;
+  array[est_init ? na2 : 0] real log_init;
   //--- * AR process parameters ----
   // conditional SD
   array[time_ar] real log_tau;
@@ -362,9 +369,19 @@ transformed parameters {
     log_rec = X_r * coef_r0;
   }
   //--- Initialization ----
-  array[est_init ? n_ages - 1 : 0] real init_par;
-  if (est_init)
-    init_par = exp(log_init);
+  array[est_init ? na2 : 0] real init_par;
+  array[est_init && init_type > 3 ? na2 : 0] real init_ord;
+  if (est_init) {
+    if (init_type > 3) {
+      init_ord[1] = log_init[1];
+      for (i in 2 : na2) {
+        init_ord[i] = log_init[i - 1] + exp(log_init[i]);
+      }
+      init_par = exp(init_ord);
+    } else {
+      init_par = exp(log_init);
+    }
+  }
   //--- AR process ----
   array[time_ar] real tau;
   array[time_ar] real lprior_tau;
@@ -452,8 +469,16 @@ transformed parameters {
 // close transformed parameters block
 model {
   //--- initialization parameters ----
-  if (est_init)
+  if (est_init) {
     target += std_normal_lpdf(log_init);
+    /*
+      The link below provides info about the transformation of an unordered into
+  an ordered vector.
+  https://mc-stan.org/docs/reference-manual/transforms.html#absolute-jacobian-determinant-of-the-ordered-inverse-transform
+    */
+    if (init_type > 3)
+      target += sum(init_ord[2 : na2]);
+  }
   //--- AR process ----
   if (time_ar) {
     target += std_normal_lpdf(raw);
