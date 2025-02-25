@@ -69,7 +69,7 @@ functions {
       }
     }
     for (a in 1 : (n_ages - 1)) {
-        output[a, a, ] = rep_row_vector(init[a], n_patches);
+      output[a, 1 : a, ] = rep_matrix(to_vector(init[1 : a]), n_patches);
     }
     /* output[1] += init; */
     for (i in 2 : n_time) {
@@ -444,7 +444,7 @@ model {
   }
   //--- Movement ----
   if (movement) {
-    target += beta_lpdf(zeta, pr_zeta_a, pr_zeta_b);
+    target += beta_lpdf(zeta | pr_zeta_a, pr_zeta_b);
   }
   //--- Mortality ----
   if (est_mort)

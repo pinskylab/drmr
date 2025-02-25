@@ -13,6 +13,8 @@ inst/stan/**/*.EXE
 docs
 
 vignettes/.quarto/
+
+vignettes/auto
   
 ## User-specific files
 .Ruserdata

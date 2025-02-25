@@ -17,3 +17,4 @@ README.Rmd
 ^pkgdown$
 ^vignettes/\.quarto$
 ^vignettes/*_files$
+^vignettes/auto$
