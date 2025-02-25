@@ -74,8 +74,10 @@
 * Fixing `check_between` function (not exported; This functions is just a
   helper)
   
-* Changing initialization of the population dynamics
-
-* Changing prior on `zeta` and allowing for user to input the
+* Changed prior on `zeta` and allowing for user to input the
   hyperparameters. Before, we had a standard normal prior on the logit of
   `zeta`. Now, we place a beta prior on `zeta`.
+
+* Changed initialization of the population dynamics
+
+* Included tools for prior sensitivity analysis
