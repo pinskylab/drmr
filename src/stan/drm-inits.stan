@@ -386,7 +386,7 @@ transformed parameters {
     if (init_type > 3) {
       init_ord[1] = log_init[1];
       for (i in 2 : na2) {
-        init_ord[i] = log_init[i - 1] + exp(log_init[i]);
+        init_ord[i] = log_init[i - 1] - exp(log_init[i]);
       }
       init_par = exp(init_ord);
     } else {
@@ -487,8 +487,9 @@ model {
   an ordered vector.
   https://mc-stan.org/docs/reference-manual/transforms.html#absolute-jacobian-determinant-of-the-ordered-inverse-transform
     */
-    if (init_type > 3)
-      target += sum(init_ord[2 : na2]);
+    // may not be needed
+    // if (init_type > 3)
+    //   target += sum(init_ord[2 : na2]);
   }
   //--- AR process ----
   if (time_ar) {
