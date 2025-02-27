@@ -71,15 +71,26 @@ functions {
       }
     }
     // Think about the indexes below for init_type 1 & 2
-    if (init_type) {
+    if (init_type == 1) {
       // initializes every element at the recruitment
       output = rep_array(recruitment, n_ages);
-    } else if (init_type == 2 || init_type == 4) {
+    } else if (init_type == 2) {
       for (a in 2 : n_ages) {
         // makes more sense
         output[a, 1, ] = rep_row_vector(init[a - 1], n_patches);
       }
-    } else if (init_type == 3 || init_type == 5) {
+    } else if (init_type == 4) {
+      for (a in 2 : n_ages) {
+        // makes more sense
+        output[a, 1, ] = rep_row_vector(init[a - 1], n_patches);
+      }
+    } else if (init_type == 3) {
+      for (a in 2 : n_ages) {
+        output[a, 1, ] = 
+          rep_row_vector(init[a - 1], n_patches) .*
+          recruitment[1, ];
+      }
+    } else if (init_type == 5) {
       for (a in 2 : n_ages) {
         output[a, 1, ] = 
           rep_row_vector(init[a - 1], n_patches) .*
