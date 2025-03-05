@@ -78,6 +78,6 @@
   hyperparameters. Before, we had a standard normal prior on the logit of
   `zeta`. Now, we place a beta prior on `zeta`.
 
-* Changed initialization of the population dynamics
+* Included support for different types of population dynamics initialization
 
 * Included tools for prior sensitivity analysis

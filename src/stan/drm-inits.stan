@@ -96,6 +96,13 @@ functions {
           rep_row_vector(init[a - 1], n_patches) .*
           recruitment[1, ];
       }
+    } else if (init_type == 6) {
+      for (p in 1 : n_patches) {
+        for (a in 2 : n_ages) {
+          output[a, 1, p] = output[a - 1, 1, p]
+            * exp(neg_mort[1, p] - f_a_t[a - 1, 1]);
+        }
+      }
     }
     // given the initialization, does the order of the for loops matter?
     for (p in 1 : n_patches) {
@@ -247,7 +254,7 @@ data {
   int<lower = 0, upper = 1> qr_m; // use qr parametrization for mortality?
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic. 4 = truncated normal)
-  int<lower = 0, upper = 5> init_type;
+  int<lower = 0, upper = 6> init_type;
   //--- suitability (for rho) ----
   int<lower = 1> K_t;
   matrix[N, K_t] X_t;
@@ -381,8 +388,8 @@ transformed parameters {
   }
   //--- Initialization ----
   array[est_init ? na2 : 0] real init_par;
-  array[est_init && init_type > 3 ? na2 : 0] real init_ord;
   if (est_init) {
+    array[init_type > 3 ? na2 : 0] real init_ord;
     if (init_type > 3) {
       init_ord[1] = log_init[1];
       for (i in 2 : na2) {
