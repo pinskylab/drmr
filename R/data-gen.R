@@ -133,8 +133,7 @@ pop_dyn <- function(n_patches,
                     mov_age = NULL) {
   output <- array(0, dim = c(n_ages, n_time, n_patches))
   recruitment <- sim_log_rec(n_patches, n_time,
-                             x_rec, pars, ar_time) |>
-    exp()
+                             x_rec, pars, ar_time)
   ## initializing recruitment elements
   output[1, , ] <- recruitment
   ## Initialization based on init_type
@@ -146,11 +145,11 @@ pop_dyn <- function(n_patches,
   } else if (init_type %in% c(2, 4)) {
     for (a in 2:n_ages) {
       ## makes more sense
-      output[a, 1, ] <- rep(init[a - 1], n_patches)
+      output[a, 1, ] <- rep(log(init[a - 1]), n_patches)
     }
   } else if (init_type %in% c(3, 5)) {
     for (a in 2:n_ages) {
-      output[a, 1, ] <- init[a - 1] * recruitment[1, ]
+      output[a, 1, ] <- log(init[a - 1]) + recruitment[1, ]
     }
   }
   ## given the initialization, does the order of the for loops matter?
@@ -164,8 +163,8 @@ pop_dyn <- function(n_patches,
                         x_sv, surv_pars)
   for (p in 1:n_patches) {
     for (i in 2:n_time) {
-      output[2:n_ages, i, p] <- output[1:(n_ages - 1), i - 1, p] *
-        exp(neg_mort[i - 1, p] - f_a_t[1:(n_ages - 1), i - 1])
+      output[2:n_ages, i, p] <- output[1:(n_ages - 1), i - 1, p] +
+        neg_mort[i - 1, p] - f_a_t[1:(n_ages - 1), i - 1]
     }
   }
   if (movement) {
@@ -174,6 +173,7 @@ pop_dyn <- function(n_patches,
     zeta <- pars[["zeta"]]
     mov_mat <- zeta * diag(1, ncol = n_patches, nrow = n_patches) +
       (1 - zeta) * adj_mat
+    output <- exp(output)
     output <- apply_movement(output, mov_mat, mov_age)
   }
   return(output)

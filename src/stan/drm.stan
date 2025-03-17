@@ -45,7 +45,7 @@ functions {
    * @param n_patches number of patches
    * @param n_time number of years of training data
    * @param n_ages number of age classes
-   * @param f_a_t f_{at}?
+   * @param f_a_t fishing mortality at age "a" and time "t"
    * @param neg_mort minus natural mortality (instantaneous) rate
    * @param init a n_ages - 1 array.
    * 
@@ -75,12 +75,12 @@ functions {
     for (i in 2 : n_time) {
       for (p in 1 : n_patches) {
         for (a in 2 : n_ages) {
-          output[a, i, p] = output[a - 1, i - 1, p]
-            * exp(neg_mort[i - 1, p] - f_a_t[a - 1, i - 1]);
+          output[a, i, p] = output[a - 1, i - 1, p] +
+            neg_mort[i - 1, p] - f_a_t[a - 1, i - 1];
         }
       }
     }
-    return output;
+    return exp(output);
   }
   /**
    * @title Adding process error
@@ -379,8 +379,8 @@ transformed parameters {
              est_mort ? to_matrix(mortality, n_time, n_patches) : fixed_m,
              est_init ? init_par : init_data,
              time_ar ?
-             exp(add_pe(log_rec, z_t)) :
-             to_matrix(exp(log_rec), n_time, n_patches));
+             add_pe(log_rec, z_t) :
+             to_matrix(log_rec, n_time, n_patches));
   //--- Movement ----
   // probability of staying in the current patch
   // movement matrix

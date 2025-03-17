@@ -87,3 +87,6 @@
 
 * Included functions for simulating data from the DRM model and prior predictive
   checks.
+  
+* Trying to avoid overflow by making calculations on the log-scale whenever it's
+  possible.

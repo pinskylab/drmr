@@ -29,12 +29,12 @@ functions {
     for (i in 2 : n_time) {
       for (p in 1 : n_patches) {
         for (a in 2 : n_ages) {
-          output[a, i, p] = output[a - 1, i - 1, p]
-            * exp(neg_mort[i - 1, p] - f_a_t[a - 1, i - 1]);
+          output[a, i, p] = output[a - 1, i - 1, p] +
+            neg_mort[i - 1, p] - f_a_t[a - 1, i - 1];
         }
       }
     }
-    return output;
+    return exp(output);
   }
 
   array[] matrix forecast_simplest(int n_patches,
@@ -60,15 +60,15 @@ functions {
         for (a in 2 : n_ages) {
           if (i == 1) {
             output[a, i, p] = lambda_past[a - 1, past_last_time, p]
-              * exp(neg_mort_past[p] - f_past[a - 1, past_last_time]);
+              + neg_mort_past[p] - f_past[a - 1, past_last_time];
           } else {
             output[a, i, p] = output[a - 1, i - 1, p]
-              * exp(neg_mort[i - 1, p] - f_a_t[a - 1, i - 1]);
+              + neg_mort[i - 1, p] - f_a_t[a - 1, i - 1];
           }
         }
       }
     }
-    return output;
+    return exp(output);
   }
 
   /**
@@ -218,8 +218,8 @@ generated quantities {
                                     f,
                                     current_m,
                                     time_ar ?
-                                    exp(add_pe(log_rec, z_tp)) :
-                                    to_matrix(exp(log_rec),
+                                    add_pe(log_rec, z_tp) :
+                                    to_matrix(log_rec,
                                               n_time,
                                               n_patches),
                                     lambda,
