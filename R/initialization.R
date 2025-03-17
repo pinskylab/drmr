@@ -164,12 +164,11 @@ prior_sample <- function(dat, model = "drm") {
   } else {
     out <-
       c(out,
-        list(phi = array(rtt(1,
-                             mu = dat$pr_phi_mu,
-                             sd = dat$pr_phi_sd,
-                             df = 3,
-                             range = c(0, Inf)),
-                         dim = 1)))
+        list(phi = array(exp(
+                 dat$pr_phi_mu +
+                 dat$pr_phi_sd * rt(1, df = 3)
+             ),
+             dim = 1)))
   }
   if (dat$time_ar) {
     out <-
