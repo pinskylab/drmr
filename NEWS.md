@@ -81,3 +81,6 @@
 * Included support for different types of population dynamics initialization
 
 * Included tools for prior sensitivity analysis
+
+* Fixed how pdf and random number generation from location-scale Student's t
+  distribution

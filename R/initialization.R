@@ -1,8 +1,8 @@
 ##' @title Density of a truncated Student's t distribution
 ##' @description Calculates the density of a truncated Student's t distribution.
 ##' @param x A \code{numeric vector} at which to evaluate the density.
-##' @param ncp A \code{numeric} scalar representing the non-centrality parameter
-##'   (mean) of the underlying t distribution. Defaults to 0.
+##' @param mu A \code{numeric} scalar representing the mean of the underlying t
+##'   distribution. Defaults to 0.
 ##' @param sd A \code{numeric} scalar representing the standard deviation of the
 ##'   underlying t distribution. Defaults to 1.
 ##' @param df A \code{numeric} scalar representing the degrees of freedom of the
@@ -16,13 +16,13 @@
 ##'   (log) density values of the truncated t distribution.
 ##' @seealso [stats::dt()], [stats::pt()]
 ##' @author lcgodoy
-dtt <- function(x, ncp = 0, sd = 1,
+dtt <- function(x, mu = 0, sd = 1,
                 df = 3, range = c(0, Inf),
                 log = FALSE) {
-  ll <- stats::pt(q = min(range) / sd, ncp = ncp, df = df)
-  hh <- stats::pt(q = max(range) / sd, ncp = ncp, df = df)
+  ll <- stats::pt(q = min(range - mu) / sd, df = df)
+  hh <- stats::pt(q = max(range - mu) / sd, df = df)
   ## 1/sd is the Jacobian of the transformation.
-  out <- stats::dt(x / sd, df = df, ncp = ncp, log = TRUE) -
+  out <- stats::dt((x - mu) / sd, df = df, log = TRUE) -
     log(hh - ll) +
     log(sd)
   if (!log)
@@ -37,8 +37,8 @@ dtt <- function(x, ncp = 0, sd = 1,
 ##'   [https://stats.stackexchange.com/questions/567944/how-can-i-sample-from-a-shifted-and-scaled-student-t-distribution-with-a-specifi](https://stats.stackexchange.com/questions/567944/how-can-i-sample-from-a-shifted-and-scaled-student-t-distribution-with-a-specifi)
 ##' @param n An \code{integer} specifying the number of random numbers to
 ##'   generate.
-##' @param ncp A \code{numeric} scalar representing the non-centrality parameter
-##'   (mean) of the underlying t distribution. Defaults to 0.
+##' @param mu A \code{numeric} scalar representing the mean of the underlying t
+##'   distribution. Defaults to 0.
 ##' @param sd A \code{numeric} scalar representing the standard deviation of the
 ##'   underlying t distribution. Defaults to 1.
 ##' @param df A \code{numeric} scalar representing the degrees of freedom of the
@@ -50,12 +50,12 @@ dtt <- function(x, ncp = 0, sd = 1,
 ##'   drawn from the specified truncated t distribution.
 ##' @seealso [stats::rt()], [stats::qt()]
 ##' @author lcgodoy
-rtt <- function(n, ncp = 0, sd = 1,
+rtt <- function(n, mu = 0, sd = 1,
                 df = 3, range = c(0, Inf)) {
-  ll <- stats::pt(q = min(range) / sd, ncp = ncp, df = df)
-  hh <- stats::pt(q = max(range) / sd, ncp = ncp, df = df)
+  ll <- stats::pt(q = min(range - mu) / sd, mu = mu, df = df)
+  hh <- stats::pt(q = max(range - mu) / sd, mu = mu, df = df)
   u  <- stats::runif(n, min = ll, max = hh)
-  stats::qt(p = u, df = df, ncp = ncp) * sd
+  mu + stats::qt(p = u, df = df) * sd
 }
 
 ##' @title Density of a truncated Normal distribution
@@ -165,7 +165,7 @@ prior_sample <- function(dat, model = "drm") {
     out <-
       c(out,
         list(phi = array(rtt(1,
-                             ncp = dat$pr_phi_mu,
+                             mu = dat$pr_phi_mu,
                              sd = dat$pr_phi_sd,
                              df = 3,
                              range = c(0, Inf)),
