@@ -52,8 +52,8 @@ dtt <- function(x, mu = 0, sd = 1,
 ##' @author lcgodoy
 rtt <- function(n, mu = 0, sd = 1,
                 df = 3, range = c(0, Inf)) {
-  ll <- stats::pt(q = min(range - mu) / sd, mu = mu, df = df)
-  hh <- stats::pt(q = max(range - mu) / sd, mu = mu, df = df)
+  ll <- stats::pt(q = min(range - mu) / sd, df = df)
+  hh <- stats::pt(q = max(range - mu) / sd, df = df)
   u  <- stats::runif(n, min = ll, max = hh)
   mu + stats::qt(p = u, df = df) * sd
 }
