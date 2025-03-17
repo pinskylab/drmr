@@ -175,6 +175,8 @@ pop_dyn <- function(n_patches,
       (1 - zeta) * adj_mat
     output <- exp(output)
     output <- apply_movement(output, mov_mat, mov_age)
+  } else {
+    output <- exp(output)
   }
   return(output)
 }
@@ -210,7 +212,8 @@ lambda2df <- function(lbd) {
          "site" = seq_len(dim_lambdas[3]))
   out <-
     array2DF(lbd,
-             responseName = "density") |>
+             responseName = "density")
+  out <- out |>
     transform(age = as.integer(out[["age"]]),
               time = as.integer(out[["time"]]),
               site = as.integer(out[["site"]]))
@@ -298,16 +301,17 @@ model_sim <- function(dat, model,
   rho <- stats::plogis(as.numeric(dat[["X_t"]] %*% pars$coef_t))
   pars <- c(pars, "likelihood" = dat[["likelihood"]])
   mu_y <- mu_y |>
-    dplyr::mutate(abs_prob = rho) |>
-    dplyr::mutate(dens = sapply(.data$avg_dens, sim_dens, pars),
-                  absence = sapply(.data$abs_prob,
-                                   \(x)
-                                   stats::rbinom(n = 1,
-                                                 size = 1,
-                                                 prob = x))) |>
+    dplyr::mutate(abs_prob = rho)
+  mu_y[["dens"]] <- sapply(mu_y$avg_dens, sim_dens, pars)
+  mu_y[["absence"]] <- sapply(mu_y$abs_prob,
+                              \(x)
+                              stats::rbinom(n = 1,
+                                            size = 1,
+                                            prob = x))
+  mu_y <- mu_y |>
     dplyr::mutate(y = (1 - .data$absence) * .data$avg_dens)
-  out <- list("lambda" = lambda,
-              "mu_and_y" = mu_y)
+  return(list("lambda" = lambda,
+              "mu_and_y" = mu_y))
 }
 
 ##' @title Generate samples from the prior predictive distribution of model
