@@ -80,7 +80,10 @@
 
 * Included support for different types of population dynamics initialization
 
-* Included tools for prior sensitivity analysis
-
 * Fixed how pdf and random number generation from location-scale Student's t
   distribution
+
+* `rlang` became a dependency.
+
+* Included functions for simulating data from the DRM model and prior predictive
+  checks.

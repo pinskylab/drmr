@@ -19,7 +19,8 @@ Imports:
   sf,
   spdep,
   stats,
-  utils
+  utils,
+  rlang
 Suggests: 
   knitr,
   rmarkdown,

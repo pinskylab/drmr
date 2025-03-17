@@ -166,7 +166,7 @@ prior_sample <- function(dat, model = "drm") {
       c(out,
         list(phi = array(exp(
                  dat$pr_phi_mu +
-                 dat$pr_phi_sd * rt(1, df = 3)
+                 dat$pr_phi_sd * stats::rt(1, df = 3)
              ),
              dim = 1)))
   }

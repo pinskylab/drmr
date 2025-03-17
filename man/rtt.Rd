@@ -4,14 +4,14 @@
 \alias{rtt}
 \title{Random number generation from a truncated Student's t distribution}
 \usage{
-rtt(n, ncp = 0, sd = 1, df = 3, range = c(0, Inf))
+rtt(n, mu = 0, sd = 1, df = 3, range = c(0, Inf))
 }
 \arguments{
 \item{n}{An \code{integer} specifying the number of random numbers to
 generate.}
 
-\item{ncp}{A \code{numeric} scalar representing the non-centrality parameter
-(mean) of the underlying t distribution. Defaults to 0.}
+\item{mu}{A \code{numeric} scalar representing the mean of the underlying t
+distribution. Defaults to 0.}
 
 \item{sd}{A \code{numeric} scalar representing the standard deviation of the
 underlying t distribution. Defaults to 1.}

@@ -4,13 +4,13 @@
 \alias{dtt}
 \title{Density of a truncated Student's t distribution}
 \usage{
-dtt(x, ncp = 0, sd = 1, df = 3, range = c(0, Inf), log = FALSE)
+dtt(x, mu = 0, sd = 1, df = 3, range = c(0, Inf), log = FALSE)
 }
 \arguments{
 \item{x}{A \code{numeric vector} at which to evaluate the density.}
 
-\item{ncp}{A \code{numeric} scalar representing the non-centrality parameter
-(mean) of the underlying t distribution. Defaults to 0.}
+\item{mu}{A \code{numeric} scalar representing the mean of the underlying t
+distribution. Defaults to 0.}
 
 \item{sd}{A \code{numeric} scalar representing the standard deviation of the
 underlying t distribution. Defaults to 1.}
