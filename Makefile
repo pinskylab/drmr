@@ -26,17 +26,20 @@ build_site:
 preview_site:
 	Rscript -e "pkgdown::preview_site()"
 
-build:
-	Rscript -e "devtools::build()"
+# build:
+# 	Rscript -e "devtools::build()"
+build: release
 
-install:
-	R CMD INSTALL .
+# install:
+# 	R CMD INSTALL .
+install: docs build
+	R CMD INSTALL $(PKG_NAME)_*.tar.gz
 
 clean:
 	rm -f ./$(PKG_NAME)_*.tar.gz
 	rm -rf ./$(PKG_NAME).Rcheck
-	rm -rf man/*.Rd
-	rm -rf NAMESPACE
+	# rm -rf man/*.Rd
+	# rm -rf NAMESPACE
 	rm -f *~ R/*~ src/*~
 	rm -f R/*~ src/*~
 	rm -f src/*~
@@ -48,4 +51,4 @@ docs:
 # 	Rscript -e "revdepcheck::revdep_check(num_workers=3)"
 
 release:
-	Rscript -e "devtools::submit_cran(args = c('--compact-vignettes=both'))"
+	R CMD BUILD .

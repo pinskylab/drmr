@@ -179,12 +179,10 @@ $$
 \psi_{t, i} = \boldsymbol{\beta}_r \mathbf{x}^{(r)}_{t, i} + z^{(r)}_{t, i},
 $$ {#eq-lmrec}
 
-where $\mathbf{x}^{(r)}_{t, i}$ is the vector of environmental drivers
-associated to recruitment at time $t$ and patch $i$, $\boldsymbol{\beta}_r$ is a
-vector of corresponding coefficients, and $z^{(r)}_{t, i}$ represent potential
-effects. This depicts a log-linear relationship between recruitment and the
-environment, while allowing for the introduction of spatial, temporal, or
-spatio-temporal dependence.
+where~$\mathbf{x}^{(r)}_{t, i}$ is the vector of environmental drivers
+associated to recruitment at time~$t$ and patch~$i$, $\boldsymbol{\beta}_r$ is a
+vector of corresponding regression coefficients. This depicts a log-linear
+relationship between recruitment and the environment.
 
 
 To account for the influence of time on recruitment (or SDM densities), we
@@ -209,42 +207,41 @@ value at time $t - 1$, plus a random error term.
 ### Survival {#sec-surv}
 
 
-Given the recruitment, the expected density at age $a$, time $t$, and patch/site
-$i$ is given by
+In the proposed model, the expected density at age $a$, time $t$, and patch $i$
+evolves over time according to survival rates denoted $s_{a, t, i}$. Formally,
+we have
 
 $$
 \mathbb{E}[Y_{a, t, i}] = \lambda_{a, t, i} = \lambda_{a - 1, t - 1, i} s_{a -
 1, t - 1},
 $$
 
-where $s_{a, t}$ is a survival rate.
-
-
-We assume the survival rate (denoted $s_{a, t}$) for fish of age $a$ at time $t$
-to be as follows
+As with recruitment, the survival rates may vary by patch/site $i$ and time $t$:
 
 $$
-s_{a, t} = \exp \{ - (f_{a, t} + m) \},
+s_{a, t, i} = \exp \{ \boldsymbol{\beta}^{\top}_m \mathbf{x}^{(m)}_{t,  i} \},
 $$ {#eq-surv}
 
-where:
-
-* $m$ is the instantaneous natural mortality rate.
-* $f_{a, t}$ is the instantano exploitation rate for age $a$ at time $t$.
-
-Both $m$ and $f_{a, t}$ may be obtained from stock assessments.
+where $\mathbf{x}^{(m)}_{t, i}$ represents environmental drivers potentially
+different from those affecting recruitment, and $\boldsymbol{\beta}_m$ are
+associated regression coefficients. Note that, despite the age-specific
+index~$a$, the survival rates are constant across age-groups.
 
 
-For increased flexibility, we may allow the natural mortality rate ($m$), and
-consequently the survival rates, to vary by patch/site $i$ and time $t$:
+In @eq-surv, we may use external information to allow for different survival
+rates across age-groups. For instance, in fisheries research, stock assessments
+often provide estimates of age-specific fishing mortality instantaneous rates
+for several species. It is reasonable, if not logical, to assume that the
+survival rates for an age-group with a higher fishing mortality is lower. In
+that case, Equation~\eqref{eq:lmsurv} may be updated to: 
 
 $$
--m_{t, i} = \boldsymbol{\beta}_m \mathbf{x}^{(m)}_{t,  i} + z^{(m)}_{t, i}
-$$ {#eq-lmsurv}
+s_{a, t, i} = \exp \{ \boldsymbol{\beta}^{\top}_m \mathbf{x}^{(m)}_{t, i} - f_{a, t}
+\},
+$$
 
-where $\mathbf{x}^{(m)}_{t, i}$ represents environmental drivers potentially
-different from those affecting recruitment, $\boldsymbol{\beta}_m$ are
-associated coefficients, and $z^{(m)}_{t, i}$ are random effects.
+where~$f_{a, t}$ is the instantaneous rate of fishing
+mortality for the age-group~$a$ at time~$t$.
 
 
 In our current implementation, we do not allow for a random effect on
@@ -254,49 +251,60 @@ mortality/survival yet.
 ### Movement {#sec-movement}
 
 
-For fish older than a pre-specified age ($a_0$), we incorporate movement between
-patches. Let $\boldsymbol{\lambda}_{a, t, \cdot}$ be a vector of length $P$
-(number of patches) representing the expected density of fish of age $a$ at time
-$t$, with $\lambda_{a, t, i}$​ denoting the density in patch $i$.
-
-After movement, the expected density is:
-
-$$
-\tilde{\boldsymbol{\lambda}}_{a, t,\cdot} = \mathbf{M}_a
-\boldsymbol{\lambda}_{a - 1, t - 1, \cdot},
-$$ {#eq-mean-adult-gen}
-
-where $\mathbf{M}_a$ is a $P \times P$ movement matrix. Each element $\{i, j\}$
-of $\mathbf{M}_a$ represents the probability that a fish of age $a$ moves from
-patch $i$ at time $t - 1$ to patch $j$ at time $t$. For ages $a < a_0$, we
-assume no movement; In other words, the $\mathbf{M}_{a}$ becomes the identity
-matrix when $a < a_0$.
-
-
-The movement matrix $\mathbf{M}_a$ is derived from a user-provided adjacency
-matrix $\mathbf{A}$, which defines connections between patches. In $\mathbf{A}$,
-the element $\{i, j\}$ is given by
+Movement is an important demographic process affecting species' densities. In
+our package, we implement a simplistic movement routine described as
+follows. Denote $P$ the total number of patches in the present study. For each
+age-group, we define a $P \times P$ movement matrix denoted $\mathbf{M}_a$. The
+element $\{i, j\}$ in $\mathbf{M}_a$ represents the probability that individuals
+of age $a$ move from patch $i$ at time $t - 1$ to patch $j$ at time $t$. The
+movement matrix $\mathbf{M}_a$ is derived from adjacency matrix $\mathbf{A}$,
+which encodes connections between patches. In $\mathbf{A}$, the
+element $\{i, j\}$ is given by
 
 $$
-\mathbf{A}_{ij} = \begin{cases}
-1 / N(i), & \text{ if } i \sim j, \\
-0, & \text{ otherwise},
-\end{cases}
+  \mathbf{A}_{ij} = \begin{cases}
+    1 / N(i), & \text{ if } i \sim j, \\
+    0, & \text{ otherwise},
+  \end{cases}
 $$
 
 where $N(i)$ is the number of neighbors of patch $i$, and $i \sim j$ indicates
 that $i$ and $j$ are neighbors (i.e., share borders).
 
 
-We incorporate a parameter $\zeta$, which represents the probability of a fish
-staying in the same patch between two time points. The movement matrix is then
-constructed as:
+In addition to the adjacency matrix $\mathbf{A}$, the user must also indicate
+the age-groups ``allowed'' to move. If an age group is not assumed to move, the
+movement matrix becomes the identity matrix. Given those inputs, we
+define $\zeta$ as the probability of individuals remaining in the same patch between
+two time points. The movement matrix is then constructed as:
 
 $$
-\mathbf{M}_{a} = \zeta I_{P} + (1 - \zeta) \mathbf{A},
-$$
+  \mathbf{M}_{a} = \zeta \mathbf{I}_{P} + (1 - \zeta) \mathbf{A},
+$$ {#eq-mov_simple}
 
-where $I_P$ is a $P \times P$ identity matrix.
+where $\mathbf{I}_{P}$ is a $P \times P$ identity matrix. In other words, while the
+probability of remaining on the same patch if fixed, the probability of
+moving~(i.e., $(1 - \zeta)$) is evenly distributed across neighbors. We could extend
+this setting in, at least, three ways: (1) allowing $\zeta$ to vary with time and
+patch; (2) having different movement probabilities for different age-groups, and
+(3) make the movement probabilities to vary according to environmental
+conditions~\citep[e.g.,]{thorson2021estimating}. Any of these extensions,
+however, would represent significant increase in computation. Therefore, for
+now, we opted to stick with the simplest option.
+
+
+Once a movement matrix is defined, we need to adjust the age-specific expected
+densities accordingly. Let $\boldsymbol{\lambda}_{a, t, \cdot}$ be a vector of
+length $P$ (number of patches) representing the expected densities of age $a$ at
+time $t$ for every patch in the given study. After movement, the expected
+density is:
+
+$$
+  \tilde{\boldsymbol{\lambda}}_{a, t, \cdot} = \mathbf{M}_a
+  \boldsymbol{\lambda}_{a - 1, t - 1, \cdot},
+$$ {#eq-mean-adult-gen}
+
+where $\mathbf{M}_a$ is the aforementioned movement matrix.
 
 
 ### Selectivity at age {#sec-selectivity}
