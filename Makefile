@@ -28,7 +28,8 @@ preview_site:
 
 # build:
 # 	Rscript -e "devtools::build()"
-build: release
+build:
+	R CMD BUILD .
 
 # install:
 # 	R CMD INSTALL .
@@ -50,5 +51,3 @@ docs:
 # revdep:
 # 	Rscript -e "revdepcheck::revdep_check(num_workers=3)"
 
-release:
-	R CMD BUILD .
