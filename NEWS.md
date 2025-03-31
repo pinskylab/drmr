@@ -90,3 +90,5 @@
   
 * Trying to avoid overflow by making calculations on the log-scale whenever it's
   possible.
+
+* Constraining `alpha` to $(0, 1)$.

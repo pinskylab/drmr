@@ -175,10 +175,10 @@ prior_sample <- function(dat, model = "drm") {
       c(out,
         list(log_tau = array(stats::rnorm(1),
                              dim = 1),
-             shift_alpha   = array(stats::rbeta(1,
-                                                dat$pr_alpha_a,
-                                                dat$pr_alpha_b),
-                                   dim = 1),
+             alpha   = array(stats::rbeta(1,
+                                          dat$pr_alpha_a,
+                                          dat$pr_alpha_b),
+                             dim = 1),
              raw     = stats::rnorm(dat$n_time)))
   }
   if (model == "drm") {
