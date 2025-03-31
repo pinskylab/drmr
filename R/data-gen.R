@@ -277,8 +277,9 @@ model_sim <- function(dat, model,
                     n_ages = dat$n_ages,
                     f_a_t = dat$f,
                     pars = pars,
+                    x_rec = dat$X_r,
                     ...) |>
-    lambda2df()
+      lambda2df()
   mu_y <- lambda
   if (!is.null(selectivity)) {
     mu_y <- dplyr::left_join(mu_y,
