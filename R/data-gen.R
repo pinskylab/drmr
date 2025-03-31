@@ -309,7 +309,7 @@ model_sim <- function(dat, model,
                                             size = 1,
                                             prob = x))
   mu_y <- mu_y |>
-    dplyr::mutate(y = (1 - .data$absence) * .data$avg_dens)
+    dplyr::mutate(y = (1 - .data$absence) * .data$dens)
   return(list("lambda" = lambda,
               "mu_and_y" = mu_y))
 }
