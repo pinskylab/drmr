@@ -213,7 +213,7 @@ data {
   //--- toggles ---
   int<lower = 0, upper = 1> time_ar;
   int<lower = 0, upper = 1> movement;
-  int<lower = 0, upper = 1> est_mort; // estimate mortality?
+  int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> est_init; // estimate "initial cohort"
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
@@ -223,7 +223,7 @@ data {
   matrix[N, K_t] X_t;
   //--- fish mortality data ----
   matrix[n_ages, n_time] f;
-  array[est_mort ? 0 : 1] real m; // total mortality
+  array[est_surv ? 0 : 1] real m; // total mortality
   //--- movement related quantities ----
   matrix[movement ? n_patches: 1, movement ? n_patches : 1] adj_mat;
   array[movement ? n_ages : 0] int ages_movement;
@@ -232,8 +232,8 @@ data {
   array[est_init ? 0 : n_ages - 1] real init_data;
   //--- environmental data ----
   //--- * for mortality ----
-  array[est_mort ? 1 : 0] int<lower = 1> K_m;
-  matrix[est_mort ? N : 1, est_mort ? K_m[1] : 1] X_m;
+  array[est_surv ? 1 : 0] int<lower = 1> K_m;
+  matrix[est_surv ? N : 1, est_surv ? K_m[1] : 1] X_m;
   //--- * for recruitment ----
   int<lower = 1> K_r;
   matrix[N, K_r] X_r;
@@ -250,8 +250,8 @@ data {
   real pr_zeta_b;
   vector[K_t] pr_beta_t_mu;
   vector[K_t] pr_beta_t_sd;
-  vector[est_mort ? K_m[1] : 0] pr_beta_s_mu;
-  vector[est_mort ? K_m[1] : 0] pr_beta_s_sd;
+  vector[est_surv ? K_m[1] : 0] pr_beta_s_mu;
+  vector[est_surv ? K_m[1] : 0] pr_beta_s_sd;
   vector[K_r] pr_beta_r_mu;
   vector[K_r] pr_beta_r_sd;
 }
@@ -266,8 +266,8 @@ transformed data {
   // `fixed_m` is a "time X patch" constant matrix. All of its positions are
   // equal to the fishing mortality `m`. The purpose of this matrix is the make
   // the changes in the code when not estimating `m` minimal.
-  matrix[est_mort ? 0 : n_time, est_mort ? 0 : n_patches] fixed_m;
-  if (!est_mort)
+  matrix[est_surv ? 0 : n_time, est_surv ? 0 : n_patches] fixed_m;
+  if (!est_surv)
     fixed_m = rep_matrix(- m[1], n_time, n_patches);
   //--- Vectorizing zero-inflation ----
   int N_nz;
@@ -287,7 +287,7 @@ parameters {
   // parameter associated with "encounter probability"
   vector[K_t] beta_t;
   // coefficients for mortality/survival (it is a log-linear model)
-  vector[est_mort ? K_m[1] : 0] beta_s;
+  vector[est_surv ? K_m[1] : 0] beta_s;
   //--- * initialization parameter ----
   array[est_init ? n_ages - 1 : 0] real log_init;
   //--- * AR process parameters ----
@@ -323,8 +323,8 @@ transformed parameters {
     }
   }
   //--- Mortality ----
-  vector[est_mort ? N : 0] mortality;
-  if (est_mort)
+  vector[est_surv ? N : 0] mortality;
+  if (est_surv)
     mortality = X_m * beta_s;
   // Expected density at specific time/patch combinations by age
   array[n_ages] matrix[n_time, n_patches] lambda;
@@ -332,7 +332,7 @@ transformed parameters {
   lambda =
     simplest(n_patches, n_time, n_ages,
              f,
-             est_mort ? to_matrix(mortality, n_time, n_patches) : fixed_m,
+             est_surv ? to_matrix(mortality, n_time, n_patches) : fixed_m,
              est_init ? init_par : init_data,
              time_ar ?
              add_pe(log_rec, z_t) :
@@ -399,7 +399,7 @@ model {
     target += beta_lpdf(zeta | pr_zeta_a, pr_zeta_b);
   }
   //--- Mortality ----
-  if (est_mort)
+  if (est_surv)
     target += normal_lpdf(beta_s | pr_beta_s_mu, pr_beta_s_sd);
   //--- Recruitment ----
   target += normal_lpdf(beta_r | pr_beta_r_mu, pr_beta_r_sd);

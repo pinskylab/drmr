@@ -32,7 +32,7 @@ default_priors <- function() {
 default_toggles <- function() {
   list(cloglog = 0,
        movement = 0,
-       est_mort = 0,
+       est_surv = 0,
        est_init = 1,
        time_ar = 0)
 }

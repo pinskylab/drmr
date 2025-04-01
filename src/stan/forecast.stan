@@ -131,7 +131,7 @@ data {
   //--- toggles ---
   int<lower = 0, upper = 1> time_ar;
   int<lower = 0, upper = 1> movement;
-  int<lower = 0, upper = 1> est_mort; // estimate mortality?
+  int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic, 4 = truncated normal)
@@ -141,15 +141,15 @@ data {
   //--- fish mortality data ----
   matrix[n_ages, n_time] f;
   matrix[n_ages, n_time_train] f_past;
-  array[est_mort ? 0 : 1] real m; // total mortality
+  array[est_surv ? 0 : 1] real m; // total mortality
   //--- movement related quantities ----
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
   //--- environmental data ----
   //--- * for mortality ----
-  array[est_mort ? 1 : 0] int<lower = 1> K_m;
-  matrix[est_mort ? N : 1, est_mort ? K_m[1] : 1] X_m;
-  matrix[est_mort ? n_patches : 1, est_mort ? K_m[1] : 1] X_m_past;
+  array[est_surv ? 1 : 0] int<lower = 1> K_m;
+  matrix[est_surv ? N : 1, est_surv ? K_m[1] : 1] X_m;
+  matrix[est_surv ? n_patches : 1, est_surv ? K_m[1] : 1] X_m_past;
   //--- * for recruitment ----
   int<lower = 1> K_r;
   matrix[N, K_r] X_r;
@@ -166,7 +166,7 @@ parameters {
   //--- movement matrix ---
   matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
   //--- reg for mortality ---
-  vector[est_mort ? K_m[1] : 0] beta_s;
+  vector[est_surv ? K_m[1] : 0] beta_s;
   //--- parameters from AR process ----
   vector[time_ar ? n_time_train : 0] z_t;
   array[time_ar] real alpha;
@@ -204,7 +204,7 @@ generated quantities {
     log_rec = X_r * beta_r;
     vector[n_patches] past_m;
     matrix[n_time, n_patches] current_m;
-    if (!est_mort) {
+    if (!est_surv) {
       current_m = rep_matrix(- m[1], n_time, n_patches);
       past_m = rep_vector(- m[1], n_patches);
     } else {
