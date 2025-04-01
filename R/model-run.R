@@ -12,11 +12,11 @@
 ##'   `.data` that contains the site variable.
 ##' @param family a \code{character} specifying the family of the probability
 ##'   distribution assumed for density. The options are: \itemize{
-##'   \item \code{"lognormal1"} (default): log-normal with the usual parametrization;
-##'   \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"gamma"}: gamma parametrized in terms of its mean;
+##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
+##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
 ##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-##' }
+##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
+##'    }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_rec A \code{formula} specifying the model for the recruitment
@@ -60,7 +60,7 @@ fit_drm <- function(.data,
                     y_col,
                     time_col,
                     site_col,
-                    family = "lognormal1",
+                    family = "gamma",
                     formula_zero = ~ 1,
                     formula_rec = ~ 1,
                     formula_surv = NULL,
@@ -143,11 +143,12 @@ fit_drm <- function(.data,
 ##' @param site_col A \code{character} specifying the name of the column in
 ##'   `.data` that contains the site variable.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{ \item
-##'   \code{"lognormal1"} (default): log-normal with the usual parametrization;
-##'   \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"gamma"}: gamma parametrized in terms of its mean; \item
-##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.  }
+##'   distribution assumed for density. The options are: \itemize{
+##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
+##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
+##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
+##'    }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_dens A \code{formula} specifying the model for the non-zero
@@ -188,7 +189,7 @@ fit_sdm <- function(.data,
                     y_col,
                     time_col,
                     site_col,
-                    family = "lognormal1",
+                    family = "gamma",
                     formula_zero = ~ 1,
                     formula_dens = ~ 1,
                     iter_warmup   = 1000,

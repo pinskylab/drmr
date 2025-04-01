@@ -53,11 +53,12 @@
 ##'   reordered. The default is TRUE and means the data points will be ordered
 ##'   by site and time, respectively.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{ \item
-##'   \code{"lognormal1"} (default): log-normal with the usual parametrization;
-##'   \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"gamma"}: gamma parametrized in terms of its mean; \item
-##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.}
+##'   distribution assumed for density. The options are: \itemize{
+##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
+##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
+##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
+##'    }
 ##' @return a \code{list} to be used as the input for a \code{stan} model
 ##' @author lcgodoy
 ##' @export
@@ -76,7 +77,7 @@ make_data <- function(y,
                       adj_mat = matrix(0, ncol = 1, nrow = 1),
                       .toggles,
                       .priors,
-                      family = "lognormal",
+                      family = "gamma",
                       reorder = TRUE) {
   ## getting the default toggles and using user options
   stopifnot(length(family) == 1)
@@ -214,11 +215,12 @@ make_data <- function(y,
 ##'   reordered. The default is TRUE and means the data points will be ordered
 ##'   by site and time, respectively.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{ \item
-##'   \code{"lognormal1"} (default): log-normal with the usual parametrization;
-##'   \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"gamma"}: gamma parametrized in terms of its mean; \item
-##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.}
+##'   distribution assumed for density. The options are: \itemize{
+##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
+##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
+##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
+##'    }
 ##' @return a \code{list} to be used as the input for a \code{stan} model
 ##' @author lcgodoy
 ##' @export
@@ -230,17 +232,17 @@ make_data_sdm <- function(y,
                           ## age_zero = FALSE
                           .toggles,
                           .priors,
-                          family = "lognormal1",
+                          family = "gamma",
                           reorder = TRUE) {
   ## getting the default toggles and using user options
   stopifnot(length(family) == 1)
-  stopifnot(family %in% c("lognormal1", "lognormal2",
+  stopifnot(family %in% c("lognormal_legacy", "lognormal",
                           "gamma", "loglogistic"))
   likelihood <- switch(family,
-                       lognormal1  = 0,
-                       lognormal2  = 1,
-                       gamma       = 2,
-                       loglogistic = 3)
+                       lognormal_legacy = 0,
+                       lognormal        = 1,
+                       gamma            = 2,
+                       loglogistic      = 3)
   toggles <- list(time_ar = 0,
                   cloglog = 0) |>
     safe_modify(.toggles) |>

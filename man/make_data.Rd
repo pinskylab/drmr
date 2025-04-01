@@ -20,7 +20,7 @@ make_data(
   adj_mat = matrix(0, ncol = 1, nrow = 1),
   .toggles,
   .priors,
-  family = "lognormal1",
+  family = "gamma",
   reorder = TRUE
 )
 }
@@ -81,11 +81,12 @@ log-log and 0 for the logit link function for the absence probabilities.
 \item{.priors}{a \code{list} of priors hyperparameters.}
 
 \item{family}{a \code{character} specifying the family of the probability
-distribution assumed for density. The options are: \itemize{ \item
-\code{"lognormal1"} (default): log-normal with the usual parametrization;
-\item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
-\item \code{"gamma"}: gamma parametrized in terms of its mean; \item
-\code{"loglogistic"}: log-logistic parametrized in terms of its mean.}}
+distribution assumed for density. The options are: \itemize{
+\item \code{"gamma"} (default): gamma parametrized in terms of its mean;
+\item \code{"lognormal"}: log-normal parametrized in terms of its mean;
+\item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+\item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
+}}
 
 \item{reorder}{a \code{boolean} telling whether the data needs to be
 reordered. The default is TRUE and means the data points will be ordered

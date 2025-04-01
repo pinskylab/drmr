@@ -9,7 +9,7 @@ fit_drm(
   y_col,
   time_col,
   site_col,
-  family = "lognormal1",
+  family = "gamma",
   formula_zero = ~1,
   formula_rec = ~1,
   formula_surv = NULL,
@@ -36,10 +36,10 @@ that contains the response variable.}
 
 \item{family}{a \code{character} specifying the family of the probability
 distribution assumed for density. The options are: \itemize{
-\item \code{"lognormal1"} (default): log-normal with the usual parametrization;
-\item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
-\item \code{"gamma"}: gamma parametrized in terms of its mean;
+\item \code{"gamma"} (default): gamma parametrized in terms of its mean;
+\item \code{"lognormal"}: log-normal parametrized in terms of its mean;
 \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+\item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
 }}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero

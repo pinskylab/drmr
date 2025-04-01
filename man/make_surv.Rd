@@ -14,7 +14,7 @@ make_surv(n_patches, n_time, x_sv, pars)
 \item{x_sv}{matrix of environmental factors affecting survival}
 
 \item{pars}{a named \code{list} of parameters used to simulate
-log-recruitment. It must contain a vector named \code{"coef_m"} with
+log-recruitment. It must contain a vector named \code{"beta_s"} with
 length equal to the number of columnts in \code{x_sv}.}
 }
 \value{

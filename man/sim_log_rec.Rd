@@ -14,7 +14,7 @@ sim_log_rec(n_patches, n_time, x_rec, pars, ar_time = TRUE)
 \item{x_rec}{matrix of environmental factors affecting recruitment}
 
 \item{pars}{a named \code{list} of parameters used to simulate
-log-recruitment. It must contain a vector named \code{"coef_r"} with
+log-recruitment. It must contain a vector named \code{"beta_r"} with
 length equal to the number of columnts in \code{x_rec}. In addition, if
 \code{ar_time = TRUE}, the list must also contain a named \code{vector}
 called "ar". This named \code{vector} must contain an element called
