@@ -109,3 +109,5 @@
 
 * Functions to plot effect of covariates on recruitment, survival, or absence
   probability were included.
+
+* `est_mort` becomes `est_surv` (as it makes more sense with the text).

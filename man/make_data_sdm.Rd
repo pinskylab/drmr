@@ -35,7 +35,7 @@ densities.}
 components are: \itemize{ \item \code{cloglog}: 1 to use the complementary
 log-log and 0 for the logit link function for the absence probabilities.
 \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
-\item \code{est_mort}: 1 to estimate mortality and 0 otherwise.  \item
+\item \code{est_surv}: 1 to estimate survival rates and 0 otherwise.  \item
 \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.}}
 
 \item{.priors}{a \code{list} of priors hyperparameters.}
