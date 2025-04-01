@@ -122,7 +122,7 @@ fit_drm <- function(.data,
          "data"     = model_dat,
          "formulas" = list("formula_zero" = formula_zero,
                            "formula_rec" = formula_rec,
-                           "formula_sirv" = formula_surv),
+                           "formula_surv" = formula_surv),
          "cols" = list("y_col" = y_col,
                        "time_col" = time_col,
                        "site_col" = site_col))

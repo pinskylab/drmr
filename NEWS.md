@@ -67,7 +67,7 @@
   vector with 0s for age-groups that do not move and 1s for age-groups that are
   allowed to move.
 
-# drmr 0.1.00
+# drmr 0.1.0
 
 * Exporting `fix_linbeta`, `max_quad_x`, and `int_score` functions
 
@@ -104,4 +104,3 @@
 
 * The `coef_*` parameters were converted to `beta_*`. That is, `coef_r` now is
   `beta_r`; while `coef_t` now is `beta_t`, and so on.
-
