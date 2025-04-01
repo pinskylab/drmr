@@ -17,8 +17,8 @@ default_priors <- function() {
        pr_zeta_b = .5,
        pr_beta_t_mu = 0,
        pr_beta_t_sd = 1,
-       pr_beta_m_mu = numeric(0),
-       pr_beta_m_sd = numeric(0),
+       pr_beta_s_mu = numeric(0),
+       pr_beta_s_sd = numeric(0),
        pr_beta_r_mu = 0,
        pr_beta_r_sd = 1)
 }
