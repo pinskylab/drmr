@@ -104,3 +104,8 @@
 
 * The `coef_*` parameters were converted to `beta_*`. That is, `coef_r` now is
   `beta_r`; while `coef_t` now is `beta_t`, and so on.
+
+* The `pr_logsd_r_*` inputs converted to `pr_ltau_*`.
+
+* Functions to plot effect of covariates on recruitment, survival, or absence
+  probability were included.

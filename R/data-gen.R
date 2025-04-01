@@ -24,7 +24,7 @@ sim_ar <- function(pars,
 ##' @param ar_time a \code{boolean} indicating whether an AR(1) term should be
 ##'   included to the log-recruitment.
 ##' @param pars a named \code{list} of parameters used to simulate
-##'   log-recruitment. It must contain a vector named \code{"coef_r"} with
+##'   log-recruitment. It must contain a vector named \code{"beta_r"} with
 ##'   length equal to the number of columnts in \code{x_rec}. In addition, if
 ##'   \code{ar_time = TRUE}, the list must also contain a named \code{vector}
 ##'   called "ar". This named \code{vector} must contain an element called
@@ -38,7 +38,7 @@ sim_log_rec <- function(n_patches,
                         x_rec,
                         pars,
                         ar_time = TRUE) {
-  betas <- pars[["coef_r"]]
+  betas <- pars[["beta_r"]]
   stopifnot(NCOL(x_rec) == length(betas))
   out <- as.numeric(x_rec %*% betas) |>
     matrix(ncol = n_patches, nrow = n_time)
@@ -58,7 +58,7 @@ sim_log_rec <- function(n_patches,
 ##' @param n_time number of timepoints
 ##' @param x_sv matrix of environmental factors affecting survival
 ##' @param pars a named \code{list} of parameters used to simulate
-##'   log-recruitment. It must contain a vector named \code{"coef_m"} with
+##'   log-recruitment. It must contain a vector named \code{"beta_s"} with
 ##'   length equal to the number of columnts in \code{x_sv}.
 ##' @return a \code{matrix} with \code{n_patches} columns and \code{n_time} rows
 ##'   representing the log-survival at each patch/site and time.
@@ -67,7 +67,7 @@ make_surv <- function(n_patches,
                       n_time,
                       x_sv,
                       pars) {
-  betas <- pars[["coef_m"]]
+  betas <- pars[["beta_s"]]
   stopifnot(NCOL(x_sv) == length(betas))
   out <- as.numeric(x_sv %*% betas) |>
     matrix(ncol = n_patches, nrow = n_time)
@@ -155,7 +155,7 @@ pop_dyn <- function(n_patches,
   ## given the initialization, does the order of the for loops matter?
   if (is.null(x_sv)) {
     x_sv <- matrix(1, ncol = 1, nrow = n_patches * n_time)
-    surv_pars <- list("coef_m" = m)
+    surv_pars <- list("beta_s" = m)
   } else {
     surv_pars <- pars
   }
@@ -299,7 +299,7 @@ model_sim <- function(dat, model,
                        .groups = "drop") |>
       dplyr::ungroup()
   }
-  rho <- stats::plogis(as.numeric(dat[["X_t"]] %*% pars$coef_t))
+  rho <- stats::plogis(as.numeric(dat[["X_t"]] %*% pars$beta_t))
   pars <- c(pars, "likelihood" = dat[["likelihood"]])
   mu_y <- mu_y |>
     dplyr::mutate(abs_prob = rho)

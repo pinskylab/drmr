@@ -172,7 +172,9 @@ prior_sample <- function(dat, model = "drm") {
   if (dat$time_ar) {
     out <-
       c(out,
-        list(log_tau = array(stats::rnorm(1),
+        list(log_tau = array(stats::rnorm(1,
+                                          dat$pr_ltau_mu,
+                                          dat$pr_ltau_sd),
                              dim = 1),
              alpha   = array(stats::rbeta(1,
                                           dat$pr_alpha_a,

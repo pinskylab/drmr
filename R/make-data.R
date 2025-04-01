@@ -76,19 +76,19 @@ make_data <- function(y,
                       adj_mat = matrix(0, ncol = 1, nrow = 1),
                       .toggles,
                       .priors,
-                      family = "lognormal1",
+                      family = "lognormal",
                       reorder = TRUE) {
   ## getting the default toggles and using user options
   stopifnot(length(family) == 1)
-  stopifnot(family %in% c("lognormal1", "lognormal2",
+  stopifnot(family %in% c("lognormal_legacy", "lognormal",
                           "gamma", "loglogistic",
                           "truncnorm"))
   likelihood <- switch(family,
-                       lognormal1  = 0,
-                       lognormal2  = 1,
-                       gamma       = 2,
-                       loglogistic = 3,
-                       truncnorm   = 4)
+                       lognormal_legacy  = 0,
+                       lognormal         = 1,
+                       gamma             = 2,
+                       loglogistic       = 3,
+                       truncnorm         = 4)
   toggles <- default_toggles() |>
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
