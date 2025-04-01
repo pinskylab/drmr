@@ -188,9 +188,9 @@ prior_sample <- function(dat, model = "drm") {
     }
     if (dat$est_m) {
       out <- c(out,
-               list(beta_m = stats::rnorm(dat$K_m,
-                                          mean = dat$pr_beta_m_mu,
-                                          sd = dat$pr_beta_m_sd)))
+               list(beta_s = stats::rnorm(dat$K_m,
+                                          mean = dat$pr_beta_s_mu,
+                                          sd = dat$pr_beta_s_sd)))
     }
   }
   return(out)

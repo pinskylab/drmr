@@ -166,7 +166,7 @@ parameters {
   //--- movement matrix ---
   matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
   //--- reg for mortality ---
-  vector[est_mort ? K_m[1] : 0] beta_m;
+  vector[est_mort ? K_m[1] : 0] beta_s;
   //--- parameters from AR process ----
   vector[time_ar ? n_time_train : 0] z_t;
   array[time_ar] real alpha;
@@ -208,8 +208,8 @@ generated quantities {
       current_m = rep_matrix(- m[1], n_time, n_patches);
       past_m = rep_vector(- m[1], n_patches);
     } else {
-      current_m = to_matrix(X_m * beta_m, n_time, n_patches);
-      past_m = X_m_past * beta_m;
+      current_m = to_matrix(X_m * beta_s, n_time, n_patches);
+      past_m = X_m_past * beta_s;
     }
     // forecast_simplest is a function in the utils/theoretical_mean.stan file
     lambda_proj = forecast_simplest(n_patches,

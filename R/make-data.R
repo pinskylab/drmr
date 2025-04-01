@@ -136,10 +136,10 @@ make_data <- function(y,
     if (reorder)
       x_m <- x_m[my_ord, , drop = FALSE]
     K_m <- array(NCOL(x_m), dim = 1)
-    if (length(priors$pr_beta_m_mu) == 0)
-      priors$pr_beta_m_mu <- rep(0, K_m)
-    if (length(priors$pr_beta_m_sd) == 0)
-      priors$pr_beta_m_sd <- rep(1, K_m)
+    if (length(priors$pr_beta_s_mu) == 0)
+      priors$pr_beta_s_mu <- rep(0, K_m)
+    if (length(priors$pr_beta_s_sd) == 0)
+      priors$pr_beta_s_sd <- rep(1, K_m)
   }
   if (missing(x_r)) {
     x_r <- matrix(1, nrow = n_time * n_patches)

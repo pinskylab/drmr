@@ -250,8 +250,8 @@ data {
   real pr_zeta_b;
   vector[K_t] pr_beta_t_mu;
   vector[K_t] pr_beta_t_sd;
-  vector[est_mort ? K_m[1] : 0] pr_beta_m_mu;
-  vector[est_mort ? K_m[1] : 0] pr_beta_m_sd;
+  vector[est_mort ? K_m[1] : 0] pr_beta_s_mu;
+  vector[est_mort ? K_m[1] : 0] pr_beta_s_sd;
   vector[K_r] pr_beta_r_mu;
   vector[K_r] pr_beta_r_sd;
 }
@@ -287,7 +287,7 @@ parameters {
   // parameter associated with "encounter probability"
   vector[K_t] beta_t;
   // coefficients for mortality/survival (it is a log-linear model)
-  vector[est_mort ? K_m[1] : 0] beta_m;
+  vector[est_mort ? K_m[1] : 0] beta_s;
   //--- * initialization parameter ----
   array[est_init ? n_ages - 1 : 0] real log_init;
   //--- * AR process parameters ----
@@ -325,7 +325,7 @@ transformed parameters {
   //--- Mortality ----
   vector[est_mort ? N : 0] mortality;
   if (est_mort)
-    mortality = X_m * beta_m;
+    mortality = X_m * beta_s;
   // Expected density at specific time/patch combinations by age
   array[n_ages] matrix[n_time, n_patches] lambda;
   // filling lambda according to our "simplest model"
@@ -400,7 +400,7 @@ model {
   }
   //--- Mortality ----
   if (est_mort)
-    target += normal_lpdf(beta_m | pr_beta_m_mu, pr_beta_m_sd);
+    target += normal_lpdf(beta_s | pr_beta_s_mu, pr_beta_s_sd);
   //--- Recruitment ----
   target += normal_lpdf(beta_r | pr_beta_r_mu, pr_beta_r_sd);
   //--- suitability ----

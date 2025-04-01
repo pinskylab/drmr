@@ -1,6 +1,6 @@
 ##' @inherit get_fitted_pars
 fitted_pars_drm <- function(data_list) {
-  output <- c("coef_t", "coef_r",
+  output <- c("beta_t", "beta_r",
               "lambda")
   if (data_list$likelihood == 0) {
     output <- c(output, "sigma_obs")
@@ -10,7 +10,7 @@ fitted_pars_drm <- function(data_list) {
   if (data_list$movement == 1)
     output <- c(output, "mov_mat")
   if (data_list$est_mort == 1)
-    output <- c(output, "coef_m")
+    output <- c(output, "beta_s")
   if (data_list$time_ar == 1)
     output <- c(output, "z_t", "alpha", "tau")
   return(output)
@@ -18,7 +18,7 @@ fitted_pars_drm <- function(data_list) {
 
 ##' @inherit get_fitted_pars
 fitted_pars_sdm <- function(data_list) {
-  output <- c("coef_t", "coef_r")
+  output <- c("beta_t", "beta_r")
   if (data_list$likelihood == 0) {
     output <- c(output, "sigma_obs")
   } else {
@@ -105,6 +105,9 @@ predict_drm <- function(drm,
                               data = new_data)
   x_rt <- stats::model.matrix(drm[["formulas"]][["formula_rec"]],
                               data = new_data)
+  if (missing(f_test)) {
+    f_test <- matrix(0, ncol = ntime_for, nrow = drm$data$n_ages)
+  }
   ##--- pars from model fitted ----
   pars <- get_fitted_pars(drm$data, "drm")
   fitted_params <-
