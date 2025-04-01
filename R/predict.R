@@ -62,6 +62,9 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'   forecast.
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
+##' @param past_data a \code{data.frame} with the dataset last year used in
+##'   model fitting. Only needed when \code{f_test} is not missing or when
+##'   estimating survival.
 ##' @param f_test a \code{matrix} informing the instantaneous fishing mortality
 ##'   rates at each age (columns) and timepoint (rows).
 ##' @param seed a seed used for the forecasts. Forecasts are obtained through
@@ -85,6 +88,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
 predict_drm <- function(drm,
                         ntime_for,
                         new_data,
+                        past_data,
                         f_test,
                         seed = 1,
                         cores = 1) {
@@ -134,14 +138,12 @@ predict_drm <- function(drm,
          X_r = x_rt)
   forecast_data$N <- forecast_data$n_patches * forecast_data$n_time
   if (length(drm$data$K_m) > 0) {
-    aux_dt <- drm$data
-    aux_dt <- aux_dt[which.max(aux_dt[[drm$cols$time]])]
+    stopifnot(!missing(past_data))
     x_mpast <-
       stats::model.matrix(drm[["formulas"]][["formula_surv"]],
-                          data = aux_dt)
+                          data = past_data)
     x_m <- stats::model.matrix(drm[["formulas"]][["formula_surv"]],
                                data = new_data)
-    
     forecast_data$K_m <- NCOL(x_m)
     forecast_data$X_m <- x_m
     forecast_data$X_m_past <- x_mpast

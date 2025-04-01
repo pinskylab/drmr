@@ -98,7 +98,7 @@ safe_modify <- function(original, replacements) {
 ##'  * The lengths of lb, ub, and x are not equal.
 ##'
 check_between <- function(x, lb, ub) {
-  stopifnot(lb < ub)
+  stopifnot(all(lb <= ub))
   if (length(lb) > 1 | length(ub) > 1) {
     stopifnot(length(lb) == length(ub) &
               length(lb) == length(x))
@@ -158,4 +158,91 @@ int_score <- function(y, l, u, alpha) {
   ind_l <- as.numeric(y < l)
   ind_u <- as.numeric(y > u)
   (u - l) + alpha * ((l - y) * ind_l + (y - u) * ind_u)
+}
+
+##' @title Relationships with covariates
+##' @details the \code{marg_rec} function works to obtain relationships
+##'   regarding recruitment, while \code{marg_surv} and \code{marg_abs} evaluate
+##'   relationships with survival and absence probability, respectively.
+##' @param drm the output of a [fit_drm()] call.
+##' @param newdata a \code{data.frame} with the values of the environmental
+##'   variables at which we wish to estimate the recruitment, survival, or
+##'   absence probabilities.
+##' @return a \code{data.frame} with the samples the recruitment (or survival,
+##'   or absence probabilities) posterior distribution.
+##' @name marg
+##' @export
+##' @author lcgodoy
+marg_rec <- function(drm, newdata) {
+  stopifnot(inherits(drm$stanfit, "CmdStanFit"))
+  my_formula <- drm$formulas$formula_rec
+  new_x <- stats::model.matrix(my_formula, newdata)
+  est_samples <-
+    drm$stanfit$draws(variables = c("beta_r"),
+                      format = "draws_matrix")
+  n_sim <- NROW(est_samples)
+  output <- vector(mode = "list", length = NROW(newdata))
+  est_samples <-
+    tcrossprod(est_samples, new_x)
+  est_samples <- exp(c(est_samples))
+  rownames(newdata) <- NULL
+  for (i in seq_along(output)) {
+    output[[i]] <-
+      cbind.data.frame(newdata[i, , drop = FALSE], iter = seq_len(n_sim)) |>
+      suppressWarnings()
+  }
+  output <- dplyr::bind_rows(output)
+  output <- dplyr::mutate(output, recruitment = est_samples)
+  return(output)
+}
+
+##' @rdname marg
+##' @export
+marg_pabs <- function(drm, newdata) {
+  stopifnot(inherits(drm$stanfit, "CmdStanFit"))
+  my_formula <- drm$formulas$formula_zero
+  new_x <- stats::model.matrix(my_formula, newdata)
+  est_samples <-
+    drm$stanfit$draws(variables = c("beta_t"),
+                      format = "draws_matrix")
+  n_sim <- NROW(est_samples)
+  output <- vector(mode = "list", length = NROW(newdata))
+  est_samples <-
+    tcrossprod(est_samples, new_x)
+  est_samples <- stats::plogis(c(est_samples))
+  rownames(newdata) <- NULL
+  for (i in seq_along(output)) {
+    output[[i]] <-
+      cbind.data.frame(newdata[i, , drop = FALSE], iter = seq_len(n_sim)) |>
+      suppressWarnings()
+  }
+  output <- dplyr::bind_rows(output)
+  output <- dplyr::mutate(output, prob_abs = est_samples)
+  return(output)
+}
+
+##' @rdname marg
+##' @export
+marg_surv <- function(drm, newdata) {
+  stopifnot(inherits(drm$stanfit, "CmdStanFit"))
+  stopifnot(!is.null(drm$data$K_m))
+  my_formula <- drm$formulas$formula_surv
+  new_x <- stats::model.matrix(my_formula, newdata)
+  est_samples <-
+    drm$stanfit$draws(variables = c("beta_s"),
+                      format = "draws_matrix")
+  n_sim <- NROW(est_samples)
+  output <- vector(mode = "list", length = NROW(newdata))
+  est_samples <-
+    tcrossprod(est_samples, new_x)
+  est_samples <- exp(c(est_samples))
+  rownames(newdata) <- NULL
+  for (i in seq_along(output)) {
+    output[[i]] <-
+      cbind.data.frame(newdata[i, , drop = FALSE], iter = seq_len(n_sim)) |>
+      suppressWarnings()
+  }
+  output <- dplyr::bind_rows(output)
+  output <- dplyr::mutate(output, survival = est_samples)
+  return(output)
 }
