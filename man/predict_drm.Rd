@@ -4,7 +4,7 @@
 \alias{predict_drm}
 \title{Forecasts based on DRM.}
 \usage{
-predict_drm(drm, ntime_for, new_data, f_test, seed = 1, cores = 1)
+predict_drm(drm, ntime_for, new_data, past_data, f_test, seed = 1, cores = 1)
 }
 \arguments{
 \item{drm}{A \code{list} object containing the output from the \link{fit_drm}
@@ -15,6 +15,10 @@ forecast.}
 
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
+
+\item{past_data}{a \code{data.frame} with the dataset last year used in
+model fitting. Only needed when \code{f_test} is not missing or when
+estimating survival.}
 
 \item{f_test}{a \code{matrix} informing the instantaneous fishing mortality
 rates at each age (columns) and timepoint (rows).}
