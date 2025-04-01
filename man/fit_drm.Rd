@@ -73,10 +73,13 @@ parameters using samples from their prior) or "pathfinder".}
 \code{list} for our \code{cmdstanr} model.}
 }
 \value{
-A \code{list} containing the MCMC draws and the model data.
+A \code{list} containing the MCMC draws, the model data, the linear
+predictors formulas, and the (response, time, site) column names.
 Specifically: \itemize{
-\item \code{draws}: The MCMC draws from the fitted model.
+\item \code{stanfit}: The MCMC draws from the fitted model.
 \item\code{data}: The data used to fit the model (as a list).
+\item\code{formulas}: The formulas used to create design matrices.
+\item\code{cols}: Important column names.
 }
 }
 \description{
@@ -90,7 +93,7 @@ if (instantiate::stan_cmdstan_exists()) {
           y_col = "y",
           time_col = "year",
           site_col = "patch",
-          seed = 2025)$draws$summary()
+          seed = 2025)$stanfit$summary()
 }
 }
 \seealso{

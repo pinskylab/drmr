@@ -153,8 +153,6 @@ data {
   //--- toggles ---
   int<lower = 0, upper = 1> time_ar;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
-  int<lower = 0, upper = 1> qr_z; // use qr parametrization for rho?
-  int<lower = 0, upper = 1> qr_x; // use qr parametrization for logrec?
   int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic)
   //--- suitability (for rho) ----
@@ -175,34 +173,12 @@ data {
   real pr_logsd_r_sd;
   real pr_alpha_a; 
   real pr_alpha_b;
-  vector[K_z] pr_coef_t_mu;
-  vector[K_z] pr_coef_t_sd;
-  vector[K_x] pr_coef_r_mu;
-  vector[K_x] pr_coef_r_sd;
+  vector[K_z] pr_beta_t_mu;
+  vector[K_z] pr_beta_t_sd;
+  vector[K_x] pr_beta_r_mu;
+  vector[K_x] pr_beta_r_sd;
 }
 transformed data {
-  //--- thin-QR parametrization (improves sampler at almost no cost) ----
-  // * detection prob
-  matrix[qr_z ? N : 0,
-         qr_z ? K_z : 0] Q_z;
-  matrix[qr_z ? K_z : 0,
-         qr_z ? K_z : 0] R_z;
-  matrix[qr_z ? K_z : 0,
-         qr_z ? K_z : 0] R_z_inv;
-  if (qr_z) {
-    Q_z = qr_thin_Q(Z) * sqrt(N - 1);
-    R_z = qr_thin_R(Z) / sqrt(N - 1);
-    R_z_inv = inverse(R_z);
-  }
-  // * Count
-  matrix[qr_x ? N : 0, qr_x ? K_x : 0] Q_x;
-  matrix[qr_x ? K_x : 0, qr_x ? K_x : 0] R_x;
-  matrix[qr_x ? K_x : 0, qr_x ? K_x : 0] R_x_inv;
-  if (qr_x) {
-    Q_x = qr_thin_Q(X) * sqrt(N - 1);
-    R_x = qr_thin_R(X) / sqrt(N - 1);
-    R_x_inv = inverse(R_x);
-  }
   //--- Vectorizing zero-inflation ----
   int N_nz;
   N_nz = num_non_zero_fun(y);
@@ -217,9 +193,9 @@ parameters {
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
   array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
   // coefficients for recruitment (it is a log-linear model)
-  vector[K_x] coef_r0;
+  vector[K_x] beta_r;
   // parameter associated with "encounter probability"
-  vector[K_z] coef_t0;
+  vector[K_z] beta_t;
   //--- * AR process parameters ----
   // conditional SD
   array[time_ar] real log_tau;
@@ -251,21 +227,15 @@ transformed parameters {
     rep_vector(0.0, N);
   // rho now hasa "regression like" type
   if (cloglog) {
-    matrix[N, K_z] Z_aux;
-    Z_aux = qr_z ? Q_z : Z;
     rho =
-      inv_cloglog(Z_aux * coef_t0);
+      inv_cloglog(Z * beta_t);
   } else {
-    matrix[N, K_z] Z_aux;
-    Z_aux = qr_z ? Q_z : Z;
     rho =
-      inv_logit(Z_aux * coef_t0);
+      inv_logit(Z * beta_t);
   }
   {
-    matrix[N, K_x] X_aux;
     vector[N] lmu;
-    X_aux = qr_x ? Q_x : X;
-    lmu = X_aux * coef_r0;
+    lmu = X * beta_r;
     if (time_ar) {
       for (n in 1:N)
         lmu[n] += z_t[time[n]];
@@ -282,9 +252,9 @@ model {
     target += beta_lpdf(alpha[1] | pr_alpha_a, pr_alpha_b); 
   }
   //--- Counts ----
-  target += normal_lpdf(coef_r0 | pr_coef_r_mu, pr_coef_r_sd);
+  target += normal_lpdf(beta_r | pr_beta_r_mu, pr_beta_r_sd);
   //--- Suitability ----
-  target += normal_lpdf(coef_t0 | pr_coef_t_mu, pr_coef_t_sd);
+  target += normal_lpdf(beta_t | pr_beta_t_mu, pr_beta_t_sd);
   //--- Likelihood ----
   if (likelihood == 0) {
     target += normal_lpdf(sigma_obs[1] | pr_sigma_obs_mu, pr_sigma_obs_sd) -
@@ -325,8 +295,6 @@ model {
 generated quantities {
   vector[N] log_lik;
   vector[N] y_pp;
-  vector[K_z] coef_t;
-  vector[K_x] coef_r;
   for (n in 1:N) {
     if (likelihood == 0) {
       real loc_par;
@@ -379,10 +347,4 @@ generated quantities {
       }
     }
   }
-  if (qr_z) {
-    coef_t = R_z_inv * coef_t0;
-  } else coef_t = coef_t0;
-  if (qr_x) {
-    coef_r = R_x_inv * coef_r0;
-  } else coef_r = coef_r0;
 }

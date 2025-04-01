@@ -216,9 +216,6 @@ data {
   int<lower = 0, upper = 1> est_mort; // estimate mortality?
   int<lower = 0, upper = 1> est_init; // estimate "initial cohort"
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
-  int<lower = 0, upper = 1> qr_t; // use qr parametrization for rho?
-  int<lower = 0, upper = 1> qr_r; // use qr parametrization for logrec?
-  int<lower = 0, upper = 1> qr_m; // use qr parametrization for mortality?
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic. 4 = truncated normal)
   //--- suitability (for rho) ----
@@ -251,12 +248,12 @@ data {
   real pr_alpha_b;
   real pr_zeta_a; 
   real pr_zeta_b;
-  vector[K_t] pr_coef_t_mu;
-  vector[K_t] pr_coef_t_sd;
-  vector[est_mort ? K_m[1] : 0] pr_coef_m_mu;
-  vector[est_mort ? K_m[1] : 0] pr_coef_m_sd;
-  vector[K_r] pr_coef_r_mu;
-  vector[K_r] pr_coef_r_sd;
+  vector[K_t] pr_beta_t_mu;
+  vector[K_t] pr_beta_t_sd;
+  vector[est_mort ? K_m[1] : 0] pr_beta_m_mu;
+  vector[est_mort ? K_m[1] : 0] pr_beta_m_sd;
+  vector[K_r] pr_beta_r_mu;
+  vector[K_r] pr_beta_r_sd;
 }
 transformed data {
   //--- Movement ----
@@ -272,37 +269,6 @@ transformed data {
   matrix[est_mort ? 0 : n_time, est_mort ? 0 : n_patches] fixed_m;
   if (!est_mort)
     fixed_m = rep_matrix(- m[1], n_time, n_patches);
-  //--- thin-QR parametrization (improves sampler at almost no cost) ----
-  // * detection prob
-  matrix[qr_t ? N : 0,
-         qr_t ? K_t : 0] Q_t;
-  matrix[qr_t ? K_t : 0,
-         qr_t ? K_t : 0] R_t;
-  matrix[qr_t ? K_t : 0,
-         qr_t ? K_t : 0] R_t_inv;
-  if (qr_t) {
-    Q_t = qr_thin_Q(X_t) * sqrt(N - 1);
-    R_t = qr_thin_R(X_t) / sqrt(N - 1);
-    R_t_inv = inverse(R_t);
-  }
-  // * recruitment
-  matrix[qr_r ? N : 0, qr_r ? K_r : 0] Q_r;
-  matrix[qr_r ? K_r : 0, qr_r ? K_r : 0] R_r;
-  matrix[qr_r ? K_r : 0, qr_r ? K_r : 0] R_r_inv;
-  if (qr_r) {
-    Q_r = qr_thin_Q(X_r) * sqrt(N - 1);
-    R_r = qr_thin_R(X_r) / sqrt(N - 1);
-    R_r_inv = inverse(R_r);
-  }
-  // * mortality
-  matrix[qr_m ? N : 0, qr_m ? K_m[1] : 0] Q_m;
-  matrix[qr_m ? K_m[1] : 0, qr_m ? K_m[1] : 0] R_m;
-  matrix[qr_m ? K_m[1] : 0, qr_m ? K_m[1] : 0] R_m_inv;
-  if (qr_m) {
-    Q_m = qr_thin_Q(X_m) * sqrt(N - 1);
-    R_m = qr_thin_R(X_m) / sqrt(N - 1);
-    R_m_inv = inverse(R_m);
-  }
   //--- Vectorizing zero-inflation ----
   int N_nz;
   N_nz = num_non_zero_fun(y);
@@ -317,11 +283,11 @@ parameters {
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
   array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
   // coefficients for recruitment (it is a log-linear model)
-  vector[K_r] coef_r0;
+  vector[K_r] beta_r;
   // parameter associated with "encounter probability"
-  vector[K_t] coef_t0;
+  vector[K_t] beta_t;
   // coefficients for mortality/survival (it is a log-linear model)
-  vector[est_mort ? K_m[1] : 0] coef_m0;
+  vector[est_mort ? K_m[1] : 0] beta_m;
   //--- * initialization parameter ----
   array[est_init ? n_ages - 1 : 0] real log_init;
   //--- * AR process parameters ----
@@ -339,11 +305,7 @@ transformed parameters {
   //--- Recruitment ----
   // we are working with "log recruitment" here
   vector[N] log_rec;
-  if (qr_r) {
-    log_rec = Q_r * coef_r0;
-  } else {
-    log_rec = X_r * coef_r0;
-  }
+  log_rec = X_r * beta_r;
   //--- Initialization ----
   array[est_init ? n_ages - 1 : 0] real init_par;
   if (est_init)
@@ -363,7 +325,7 @@ transformed parameters {
   //--- Mortality ----
   vector[est_mort ? N : 0] mortality;
   if (est_mort)
-    mortality = qr_m ? (Q_m * coef_m0) : (X_m * coef_m0);
+    mortality = X_m * beta_m;
   // Expected density at specific time/patch combinations by age
   array[n_ages] matrix[n_time, n_patches] lambda;
   // filling lambda according to our "simplest model"
@@ -398,15 +360,11 @@ transformed parameters {
 
   // rho now hasa "regression like" type
   if (cloglog) {
-    matrix[N, K_t] X_aux;
-    X_aux = qr_t ? Q_t : X_t;
     rho =
-      inv_cloglog(X_aux * coef_t0);
+      inv_cloglog(X_t * beta_t);
   } else {
-    matrix[N, K_t] X_aux;
-    X_aux = qr_t ? Q_t : X_t;
     rho =
-      inv_logit(X_aux * coef_t0);
+      inv_logit(X_t * beta_t);
   }
   {
     matrix[n_time, n_patches] mu_aux =
@@ -442,11 +400,11 @@ model {
   }
   //--- Mortality ----
   if (est_mort)
-    target += normal_lpdf(coef_m0 | pr_coef_m_mu, pr_coef_m_sd);
+    target += normal_lpdf(beta_m | pr_beta_m_mu, pr_beta_m_sd);
   //--- Recruitment ----
-  target += normal_lpdf(coef_r0 | pr_coef_r_mu, pr_coef_r_sd);
+  target += normal_lpdf(beta_r | pr_beta_r_mu, pr_beta_r_sd);
   //--- suitability ----
-  target += normal_lpdf(coef_t0 | pr_coef_t_mu, pr_coef_t_sd);
+  target += normal_lpdf(beta_t | pr_beta_t_mu, pr_beta_t_sd);
   //--- Likelihood ----
   if (likelihood == 0) {
     target += normal_lpdf(sigma_obs[1] | pr_sigma_obs_mu, pr_sigma_obs_sd) -
@@ -491,9 +449,6 @@ model {
 generated quantities {
   vector[N] log_lik;
   vector[N] y_pp;
-  vector[K_t] coef_t;
-  vector[K_r] coef_r;
-  vector[est_mort ? K_m[1] : 0] coef_m;
   for (n in 1:N) {
     if (likelihood == 0) {
       real loc_par;
@@ -559,16 +514,5 @@ generated quantities {
           normal_lccdf(0.0 | mu[n], phi[1]);
       }
     }
-  }
-  if (qr_t) {
-    coef_t = R_t_inv * coef_t0;
-  } else coef_t = coef_t0;
-  if (qr_r) {
-    coef_r = R_r_inv * coef_r0;
-  } else coef_r = coef_r0;
-  if (qr_m) {
-    coef_m = R_m_inv * coef_m0;
-  } else if (est_mort) {
-    coef_m = coef_m0;
   }
 }

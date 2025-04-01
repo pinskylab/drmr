@@ -15,12 +15,12 @@ default_priors <- function() {
        pr_alpha_b = .5,
        pr_zeta_a = .5,
        pr_zeta_b = .5,
-       pr_coef_t_mu = 0,
-       pr_coef_t_sd = 1,
-       pr_coef_m_mu = numeric(0),
-       pr_coef_m_sd = numeric(0),
-       pr_coef_r_mu = 0,
-       pr_coef_r_sd = 1)
+       pr_beta_t_mu = 0,
+       pr_beta_t_sd = 1,
+       pr_beta_m_mu = numeric(0),
+       pr_beta_m_sd = numeric(0),
+       pr_beta_r_mu = 0,
+       pr_beta_r_sd = 1)
 }
 
 ##' Returns default toggles for the DRM model.
@@ -34,8 +34,5 @@ default_toggles <- function() {
        movement = 0,
        est_mort = 0,
        est_init = 1,
-       time_ar = 0,
-       qr_t = 0,
-       qr_r = 0,
-       qr_m = 0)
+       time_ar = 0)
 }

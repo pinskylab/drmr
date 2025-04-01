@@ -156,8 +156,8 @@ data {
 }
 parameters {
   //--- "regression" coefficients for absence and recr ----
-  vector[K_t] coef_t;
-  vector[K_r] coef_r;
+  vector[K_t] beta_t;
+  vector[K_r] beta_r;
   //--- pop dyn parameters ----
   array[n_ages] matrix[n_time_train, n_patches] lambda;
   //--- additional parameter for different lik functions ----
@@ -166,7 +166,7 @@ parameters {
   //--- movement matrix ---
   matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
   //--- reg for mortality ---
-  vector[est_mort ? K_m[1] : 0] coef_m;
+  vector[est_mort ? K_m[1] : 0] beta_m;
   //--- parameters from AR process ----
   vector[time_ar ? n_time_train : 0] z_t;
   array[time_ar] real alpha;
@@ -201,15 +201,15 @@ generated quantities {
   //--- lambda_proj calculations ----
   {
     vector[N] log_rec;
-    log_rec = X_r * coef_r;
+    log_rec = X_r * beta_r;
     vector[n_patches] past_m;
     matrix[n_time, n_patches] current_m;
     if (!est_mort) {
       current_m = rep_matrix(- m[1], n_time, n_patches);
       past_m = rep_vector(- m[1], n_patches);
     } else {
-      current_m = to_matrix(X_m * coef_m, n_time, n_patches);
-      past_m = X_m_past * coef_m;
+      current_m = to_matrix(X_m * beta_m, n_time, n_patches);
+      past_m = X_m_past * beta_m;
     }
     // forecast_simplest is a function in the utils/theoretical_mean.stan file
     lambda_proj = forecast_simplest(n_patches,
@@ -250,10 +250,10 @@ generated quantities {
   //--- absence probabilities ----
   if (cloglog) {
     rho_proj =
-      inv_cloglog(X_t * coef_t);
+      inv_cloglog(X_t * beta_t);
   } else {
     rho_proj =
-      inv_logit(X_t * coef_t);
+      inv_logit(X_t * beta_t);
   }
   //--- y_proj calculations ----
   for (n in 1:N) {

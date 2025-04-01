@@ -164,9 +164,9 @@ prior_sample <- function(dat, model = "drm") {
   } else {
     out <-
       c(out,
-        list(phi = array(rgamma(1,
-                                shape = dat$pr_phi_a,
-                                rate = dat$pr_phi_b),
+        list(phi = array(stats::rgamma(1,
+                                       shape = dat$pr_phi_a,
+                                       rate = dat$pr_phi_b),
                          dim = 1)))
   }
   if (dat$time_ar) {

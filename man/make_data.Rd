@@ -76,12 +76,7 @@ log-log and 0 for the logit link function for the absence probabilities.
 \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
 \item \code{est_mort}: 1 to estimate mortality and 0 otherwise.  \item
 \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
-\item \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.
-\item \code{qr_t}: 1 to use QR parametrization for the absence probability
-regression coefficients and 0 otherwise.  \item \code{qr_r}: 1 to use QR
-parametrization for the recruitment regression coefficients and 0
-otherwise.  \item \code{qr_m}: 1 to use QR parametrization for the
-survival regression coefficients and 0 otherwise.  }}
+\item \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.}}
 
 \item{.priors}{a \code{list} of priors hyperparameters.}
 

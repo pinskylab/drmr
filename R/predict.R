@@ -56,19 +56,12 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   forecasts based on the DRM passed as \code{drm}.
 ##' 
-##' @param drm A \code{CmdStanFit} object containing samples from the posterior
-##'   distribution.
-##' @param drm_data a \code{list} used as input for model fitting. Typically,
-##'   the output from the [make_data] function.
+##' @param drm A \code{list} object containing the output from the [fit_drm]
+##'   function.
 ##' @param ntime_for an \code{integer} denoting the number of timepoints for the
 ##'   forecast.
-##' @param x_tt a design \code{matrix} of variables associated to the
-##'   probability of absence at each site/time.
-##' @param x_mt a design \code{matrix} of variables associated to survival.
-##' @param x_rt a design \code{matrix} of variables associated to recruitment.
-##' @param x_mpast a design \code{matrix} of variables associated to survival
-##'   from the last year of the "training" perior (i.e., the period using to fit
-##'   the model and obtain the parameters' estimates).
+##' @param new_data a \code{data.frame} with the dataset at which we wish to
+##'   obtain predictions.
 ##' @param f_test a \code{matrix} informing the instantaneous fishing mortality
 ##'   rates at each age (columns) and timepoint (rows).
 ##' @param seed a seed used for the forecasts. Forecasts are obtained through
@@ -78,12 +71,10 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'   used in the \code{drm}, then four (or less) threads are recommended.
 ##' 
 ##' 
-##' @details It is important that the rows of design matrices \code{x_tt},
-##'   \code{x_rt} and \code{x_mt} are associated to the same patch/site and
-##'   timepoints. In addition, the current version of the code assumes the data
-##'   where forecasts are needed is ordered by "patch" and "site" and, in
-##'   addition, its patches MUST be the same as the ones used to obtain the
-##'   parameters' estimates from the the \code{drm} object.
+##' @details The current version of the code assumes the data where forecasts
+##'   are needed is ordered by "patch" and "site" and, in addition, its patches
+##'   MUST be the same as the ones used to obtain the parameters' estimates from
+##'   the the \code{drm} object.
 ##' 
 ##' @author lcgodoy
 ##'
@@ -92,56 +83,70 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##' 
 ##' @export
 predict_drm <- function(drm,
-                        drm_data,
                         ntime_for,
-                        x_tt,
-                        x_rt,
-                        x_mt = matrix(1, ncol = 1),
-                        x_mpast = matrix(1, ncol = 1),
+                        new_data,
                         f_test,
                         seed = 1,
                         cores = 1) {
   ## time points for forecasting
-  stopifnot(inherits(drm, "CmdStanFit"))
-  stopifnot(NCOL(x_tt) == drm_data$K_t)
-  stopifnot(NCOL(x_rt) == drm_data$K_r)
-  if (length(drm_data$K_m) > 0) {
-    stopifnot(!missing(x_mt))
-    stopifnot(!missing(x_mpast))
-    stopifnot(NCOL(x_mt) == drm_data$K_m)
-    stopifnot(NCOL(x_mpast) == drm_data$K_m)
-  }
+  stopifnot(inherits(drm$stanfit, "CmdStanFit"))
+  ## stopifnot(NCOL(x_tt) == drm_data$K_t)
+  ## stopifnot(NCOL(x_rt) == drm_data$K_r)
+  ## if (length(drm_data$K_m) > 0) {
+  ##   stopifnot(!missing(x_mt))
+  ##   stopifnot(!missing(x_mpast))
+  ##   stopifnot(NCOL(x_mt) == drm_data$K_m)
+  ##   stopifnot(NCOL(x_mpast) == drm_data$K_m)
+  ## }
   if (!missing(f_test)) {
-    stopifnot(NROW(f_test) == drm_data$n_ages)
+    stopifnot(NROW(f_test) == drm$data[["n_ages"]])
   }
+  x_tt <- stats::model.matrix(drm[["formulas"]][["formula_zero"]],
+                              data = new_data)
+  x_rt <- stats::model.matrix(drm[["formulas"]][["formula_rec"]],
+                              data = new_data)
   ##--- pars from model fitted ----
-  pars <- get_fitted_pars(drm_data, "drm")
+  pars <- get_fitted_pars(drm$data, "drm")
   fitted_params <-
-    drm$draws(variables = pars)
+    drm$stanfit$draws(variables = pars)
   ##--- list for forecast object ----
   forecast_data <-
-    list(n_patches = drm_data$n_patches,
-         n_ages = drm_data$n_ages,
+    list(n_patches = drm$data$n_patches,
+         n_ages = drm$data$n_ages,
          n_time = ntime_for,
-         n_time_train = drm_data$n_time,
-         time_ar = drm_data$time_ar,
-         movement = drm_data$movement,
-         est_mort = drm_data$est_mort,
-         cloglog = drm_data$cloglog,
-         likelihood = drm_data$likelihood,
-         K_t = drm_data$K_t,
+         n_time_train = drm$data$n_time,
+         time_ar = drm$data$time_ar,
+         movement = drm$data$movement,
+         est_mort = drm$data$est_mort,
+         cloglog = drm$data$cloglog,
+         likelihood = drm$data$likelihood,
+         K_t = drm$data$K_t,
          X_t = x_tt,
          f = f_test,
-         f_past = drm_data$f,
-         m = drm_data$m,
-         ages_movement = drm_data$ages_movement,
-         selectivity_at_age = drm_data$selectivity_at_age,
-         K_m = drm_data$K_m,
-         X_m = x_mt,
-         X_m_past = x_mpast,
-         K_r = drm_data$K_r,
+         f_past = drm$data$f,
+         m = drm$data$m,
+         ages_movement = drm$data$ages_movement,
+         selectivity_at_age = drm$data$selectivity_at_age,
+         K_r = drm$data$K_r,
          X_r = x_rt)
   forecast_data$N <- forecast_data$n_patches * forecast_data$n_time
+  if (length(drm$data$K_m) > 0) {
+    aux_dt <- drm$data
+    aux_dt <- aux_dt[which.max(aux_dt[[drm$cols$time]])]
+    x_mpast <-
+      stats::model.matrix(drm[["formulas"]][["formula_surv"]],
+                          data = aux_dt)
+    x_m <- stats::model.matrix(drm[["formulas"]][["formula_surv"]],
+                               data = new_data)
+    
+    forecast_data$K_m <- NCOL(x_m)
+    forecast_data$X_m <- x_m
+    forecast_data$X_m_past <- x_mpast
+  } else {
+    forecast_data$K_m <- integer(0)
+    forecast_data$X_m <- matrix(0)
+    forecast_data$X_m_past <- matrix(0)
+  }
   ## load compiled forecast
   forecast_comp <-
     instantiate::stan_package_model(name = "forecast",
@@ -166,27 +171,20 @@ predict_drm <- function(drm,
 ##'   value of \eqn{x} (on its original scale) such that the linear predictor is
 ##'   maximized (or minimized).
 ##' 
-##' @param sdm A \code{CmdStanFit} object containing samples from the posterior
-##'   distribution.
-##' @param sdm_data a \code{list} used as input for model fitting. Typically,
-##'   the output from the [make_data] function.
+##' @param sdm A \code{list} object containing the output of a [fit_sdm] call.
 ##' @param ntime_for an \code{integer} denoting the number of timepoints for the
 ##'   forecast.
 ##' @param time_for an \code{integer vector} indicating timepoints for
 ##'   forecasting.
-##' @param z_t a design \code{matrix} of variables associated to the probability
-##'   of absence at each site/time.
-##' @param x_t a design \code{matrix} of variables associated to the non-zero
-##'   densities.
+##' @param new_data a \code{data.frame} with the dataset at which we wish to
+##'   obtain predictions.
 ##' @param seed a seed used for the forecasts. Forecasts are obtained through
 ##'   Monte Carlo samples from the posterior predictive distribution. Therefore,
 ##'   a \code{seed} is needed to ensure the results' reproducibility.
 ##' @param cores number of threads used for the forecast. If four chains were
 ##'   used in the \code{drm}, then four (or less) threads are recommended.
 ##'
-##' @details It is important ethat the rows of design matrices \code{z_t} and
-##'   \code{x_t} are associated to the same patch/site and timepoints. In
-##'   addition, the current version of the code assumes the data where forecasts
+##' @details The current version of the code assumes the data where forecasts
 ##'   are needed is ordered by "patch" and "site" and, in addition, its patches
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{sdm} object.
@@ -198,35 +196,33 @@ predict_drm <- function(drm,
 ##' 
 ##' @export
 predict_sdm <- function(sdm,
-                        sdm_data,
                         ntime_for,
-                        z_t,
-                        x_t,
+                        new_data,
                         time_for,
                         seed = 1,
                         cores = 1) {
   ## time points for forecasting
-  stopifnot(inherits(sdm, "CmdStanFit"))
-  stopifnot(NCOL(z_t) == sdm_data$K_z)
-  stopifnot(NCOL(x_t) == sdm_data$K_x)
+  stopifnot(inherits(sdm$stanfit, "CmdStanFit"))
   ##--- pars from model fitted ----
-  pars <- get_fitted_pars(sdm_data, "sdm")
+  pars <- get_fitted_pars(sdm$data, "sdm")
   fitted_params <-
-    sdm$draws(variables = pars)
+    sdm$stanfit$draws(variables = pars)
   ##--- list for forecast object ----
   forecast_data <-
-    list(n_patches = sdm_data$n_patches,
+    list(n_patches = sdm$data$n_patches,
          n_time = ntime_for,
-         n_time_train = sdm_data$n_time,
+         n_time_train = sdm$data$n_time,
          time = time_for - min(time_for) + 1,
-         time_ar = sdm_data$time_ar,
-         cloglog = sdm_data$cloglog,
-         likelihood = sdm_data$likelihood,
-         K_z = sdm_data$K_z,
-         Z = z_t,
-         K_x = sdm_data$K_x,
-         X = x_t)
+         time_ar = sdm$data$time_ar,
+         cloglog = sdm$data$cloglog,
+         likelihood = sdm$data$likelihood,
+         Z = stats::model.matrix(sdm[["formulas"]][["formula_zero"]],
+                                 data = new_data),
+         X = stats::model.matrix(sdm[["formulas"]][["formula_dens"]],
+                                 data = new_data))
   forecast_data$N <- forecast_data$n_patches * forecast_data$n_time
+  forecast_data$K_z <- NCOL(forecast_data$Z)
+  forecast_data$K_x <- NCOL(forecast_data$X)
   ## load compiled forecast
   forecast_comp <-
     instantiate::stan_package_model(name = "forecast_sdm",

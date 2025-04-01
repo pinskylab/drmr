@@ -21,8 +21,8 @@ data {
 }
 parameters {
   //--- "regression" coefficients ----
-  vector[K_z] coef_t;
-  vector[K_x] coef_r;
+  vector[K_z] beta_t;
+  vector[K_x] beta_r;
   //--- additional parameter for different lik functions ----
   array[likelihood > 0 ? 1 : 0] real phi;
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
@@ -58,7 +58,7 @@ generated quantities {
   //--- mu_proj calculations ----
   {
     vector[N] lmu;
-    lmu = X * coef_r;
+    lmu = X * beta_r;
     if (time_ar) {
       for (n in 1:N)
         lmu[n] += z_t[time[n]];
@@ -68,10 +68,10 @@ generated quantities {
   //--- absence probabilities ----
   if (cloglog) {
     rho_proj =
-      inv_cloglog(Z * coef_t);
+      inv_cloglog(Z * beta_t);
   } else {
     rho_proj =
-      inv_logit(Z * coef_t);
+      inv_logit(Z * beta_t);
   }
   //--- y_proj calculations ----
   for (n in 1:N) {

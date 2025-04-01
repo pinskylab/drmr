@@ -37,10 +37,13 @@
 ##'   parameters using samples from their prior) or "pathfinder".
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
-##' @return A \code{list} containing the MCMC draws and the model data.
+##' @return A \code{list} containing the MCMC draws, the model data, the linear
+##'   predictors formulas, and the (response, time, site) column names.
 ##'   Specifically: \itemize{
-##'     \item \code{draws}: The MCMC draws from the fitted model.
+##'    \item \code{stanfit}: The MCMC draws from the fitted model.
 ##'    \item\code{data}: The data used to fit the model (as a list).
+##'    \item\code{formulas}: The formulas used to create design matrices.
+##'    \item\code{cols}: Important column names.
 ##'   }
 ##' @seealso [make_data()]
 ##' @examples
@@ -50,7 +53,7 @@
 ##'           y_col = "y",
 ##'           time_col = "year",
 ##'           site_col = "patch",
-##'           seed = 2025)$draws$summary()
+##'           seed = 2025)$stanfit$summary()
 ##' }
 ##' @author lcgodoy
 fit_drm <- function(.data,
@@ -115,8 +118,14 @@ fit_drm <- function(.data,
                         parallel_chains = parallel_chains,
                         init = drm_init)
   output <-
-    list("draws" = draws,
-         "data"  = model_dat)
+    list("stanfit"  = draws,
+         "data"     = model_dat,
+         "formulas" = list("formula_zero" = formula_zero,
+                           "formula_rec" = formula_rec,
+                           "formula_sirv" = formula_surv),
+         "cols" = list("y_col" = y_col,
+                       "time_col" = time_col,
+                       "site_col" = site_col))
 
   return(output)
 }
@@ -134,12 +143,11 @@ fit_drm <- function(.data,
 ##' @param site_col A \code{character} specifying the name of the column in
 ##'   `.data` that contains the site variable.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{
-##'   \item \code{"lognormal1"} (default): log-normal with the usual parametrization;
+##'   distribution assumed for density. The options are: \itemize{ \item
+##'   \code{"lognormal1"} (default): log-normal with the usual parametrization;
 ##'   \item \code{"lognormal2"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"gamma"}: gamma parametrized in terms of its mean;
-##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-##' }
+##'   \item \code{"gamma"}: gamma parametrized in terms of its mean; \item
+##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.  }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_dens A \code{formula} specifying the model for the non-zero
@@ -157,10 +165,13 @@ fit_drm <- function(.data,
 ##'   "cmdstan_default" (the default) or "pathfinder".
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
-##' @return A \code{list} containing the MCMC draws and the model data.
+##' @return A \code{list} containing the MCMC draws, the model data, the linear
+##'   predictors formulas, and the (response, time, site) column names.
 ##'    \itemize{
-##'     \item \code{draws}: The MCMC draws from the fitted model.
-##'    \item\code{data}: The data used to fit the model (as a list).
+##'     \item \code{stanfit}: The MCMC draws from the fitted model.
+##'     \item\code{data}: The data used to fit the model (as a list).
+##'     \item\code{formulas}: The data used to fit the model (as a list).
+##'     \item\code{cols}: Important column names.
 ##'   }
 ##' @seealso [make_data()]
 ##' @examples
@@ -170,7 +181,7 @@ fit_drm <- function(.data,
 ##'           y_col = "y",
 ##'           time_col = "year",
 ##'           site_col = "patch",
-##'           seed = 2025)$draws$summary()
+##'           seed = 2025)$stanfit$summary()
 ##' }
 ##' @author lcgodoy
 fit_sdm <- function(.data,
@@ -222,7 +233,12 @@ fit_sdm <- function(.data,
                         parallel_chains = parallel_chains,
                         init = sdm_init)
   output <-
-    list("draws" = draws,
-         "data"  = model_dat)
+    list("stanfit"  = draws,
+         "data"     = model_dat,
+         "formulas" = list("formula_zero" = formula_zero,
+                           "formula_dens" = formula_dens),
+         "cols" = list("y_col" = y_col,
+                       "time_col" = time_col,
+                       "site_col" = site_col))
   return(output)
 }

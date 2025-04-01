@@ -67,7 +67,7 @@
   vector with 0s for age-groups that do not move and 1s for age-groups that are
   allowed to move.
 
-# drmr 0.0.25
+# drmr 0.1.00
 
 * Exporting `fix_linbeta`, `max_quad_x`, and `int_score` functions
 
@@ -94,3 +94,14 @@
 * Constraining `alpha` to $(0, 1)$.
 
 * Prior on `phi` now is Gamma.
+
+* `fit_drm` and `fit_sdm` returns changed. Now, the element `draws` is called
+  `stanfit`. In addition, there is an additional element to the returned list
+  called `formulas`. The `formulas` elements aims at making the `predict_*`
+  functions less error prone.
+
+* The QR parametrization toggles were completely removed.
+
+* The `coef_*` parameters were converted to `beta_*`. That is, `coef_r` now is
+  `beta_r`; while `coef_t` now is `beta_t`, and so on.
+

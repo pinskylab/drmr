@@ -47,12 +47,7 @@
 ##'   \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
 ##'   \item \code{est_mort}: 1 to estimate mortality and 0 otherwise.  \item
 ##'   \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
-##'   \item \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.
-##'   \item \code{qr_t}: 1 to use QR parametrization for the absence probability
-##'   regression coefficients and 0 otherwise.  \item \code{qr_r}: 1 to use QR
-##'   parametrization for the recruitment regression coefficients and 0
-##'   otherwise.  \item \code{qr_m}: 1 to use QR parametrization for the
-##'   survival regression coefficients and 0 otherwise.  }
+##'   \item \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.}
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
 ##'   reordered. The default is TRUE and means the data points will be ordered
@@ -173,24 +168,6 @@ make_data <- function(y,
   if (!toggles$est_init) {
     stopifnot(length(init_data) == n_ages - 1)
   }
-  if (toggles$qr_t) {
-    if (K_t == 1) {
-      message("turning QR parametrization for theta off!")
-      toggles$qr_t <- 0
-    }
-  }
-  if (toggles$qr_r) {
-    if (K_r == 1) {
-      message("turning QR parametrization for logrec off!")
-      toggles$qr_r <- 0
-    }
-  }
-  if (toggles$qr_m) {
-    if (!toggles$est_mort || K_m == 1) {
-      message("turning QR parametrization for mort off!")
-      toggles$qr_m <- 0
-    }
-  }
   output <- list(N = n_time * n_patches,
                  n_ages = n_ages,
                  n_patches = n_patches,
@@ -231,12 +208,7 @@ make_data <- function(y,
 ##'   log-log and 0 for the logit link function for the absence probabilities.
 ##'   \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
 ##'   \item \code{est_mort}: 1 to estimate mortality and 0 otherwise.  \item
-##'   \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.  \item
-##'   \code{qr_t}: 1 to use QR parametrization for the absence probability
-##'   regression coefficients and 0 otherwise.  \item \code{qr_r}: 1 to use QR
-##'   parametrization for the recruitment regression coefficients and 0
-##'   otherwise.  \item \code{qr_m}: 1 to use QR parametrization for the
-##'   survival regression coefficients and 0 otherwise.  }
+##'   \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.}
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
 ##'   reordered. The default is TRUE and means the data points will be ordered
@@ -270,9 +242,7 @@ make_data_sdm <- function(y,
                        gamma       = 2,
                        loglogistic = 3)
   toggles <- list(time_ar = 0,
-                  cloglog = 0,
-                  qr_z = 0,
-                  qr_x = 0) |>
+                  cloglog = 0) |>
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
   ## getting the default priors and using user options
@@ -311,18 +281,6 @@ make_data_sdm <- function(y,
       priors$pr_coef_t_mu <- rep(0, K_z)
     if (length(priors$pr_coef_t_sd) < K_z)
       priors$pr_coef_t_sd <- rep(1, K_z)
-  }
-  if (toggles$qr_z) {
-    if (K_z == 1) {
-      message("turning QR parametrization for theta off!")
-      toggles$qr_z <- 0
-    }
-  }
-  if (toggles$qr_x) {
-    if (K_x == 1) {
-      message("turning QR parametrization for logrec off!")
-      toggles$qr_x <- 0
-    }
   }
   output <- list(N = n_time * n_patches,
                  n_patches = n_patches,
