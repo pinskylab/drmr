@@ -147,12 +147,12 @@ check_pars <- function(dat, model) {
 prior_sample <- function(dat, model = "drm") {
   check_pars(dat, model)
   out <-
-    list(coef_r0 = stats::rnorm(dat$K_r,
-                                mean = dat$pr_coef_r_mu,
-                                sd = dat$pr_coef_r_sd),
-         coef_t0 = stats::rnorm(dat$K_t,
-                                mean = dat$pr_coef_t_mu,
-                                sd = dat$pr_coef_t_sd))
+    list(beta_r = stats::rnorm(dat$K_r,
+                               mean = dat$pr_beta_r_mu,
+                               sd = dat$pr_beta_r_sd),
+         beta_t = stats::rnorm(dat$K_t,
+                               mean = dat$pr_beta_t_mu,
+                               sd = dat$pr_beta_t_sd))
   if (dat$likelihood == 0) {
     out <-
       c(out,
@@ -188,9 +188,9 @@ prior_sample <- function(dat, model = "drm") {
     }
     if (dat$est_m) {
       out <- c(out,
-               list(coef_m0 = stats::rnorm(dat$K_m,
-                                           mean = dat$pr_coef_m_mu,
-                                           sd = dat$pr_coef_m_sd)))
+               list(beta_m = stats::rnorm(dat$K_m,
+                                          mean = dat$pr_beta_m_mu,
+                                          sd = dat$pr_beta_m_sd)))
     }
   }
   return(out)
