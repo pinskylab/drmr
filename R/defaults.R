@@ -1,6 +1,5 @@
 ##' Returns default priors' hyperparameters for the DRM model.
 ##'
-##' Based on Alexa's Summer Flounder project.
 ##' @title Default priors' hyperparameters
 ##' @return a `list` with (explain values)
 ##' @author lcgodoy
@@ -8,8 +7,8 @@
 default_priors <- function() {
   list(pr_sigma_obs_mu = 0,
        pr_sigma_obs_sd = 1,
-       pr_phi_mu = 1,
-       pr_phi_sd = 10,
+       pr_phi_a = 2,
+       pr_phi_b = 1,
        pr_logsd_r_mu = -2,
        pr_logsd_r_sd = .25,
        pr_alpha_a = .5,
@@ -26,7 +25,6 @@ default_priors <- function() {
 
 ##' Returns default toggles for the DRM model.
 ##'
-##' Based on Alexa's Summer Flounder project.
 ##' @title Default toggles
 ##' @return a `list` with (explain values)
 ##' @author lcgodoy

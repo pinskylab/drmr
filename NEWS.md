@@ -92,3 +92,5 @@
   possible.
 
 * Constraining `alpha` to $(0, 1)$.
+
+* Prior on `phi` now is Gamma.

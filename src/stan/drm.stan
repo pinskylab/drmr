@@ -243,9 +243,8 @@ data {
   //--- priors hyperparameters ----
   real pr_sigma_obs_mu; 
   real pr_sigma_obs_sd; // formerly sigma_obs_cv
-  real pr_phi_mu; // revise this. It is for phi in gamma, loglogistic, and
-  // inverse-gaussian
-  real pr_phi_sd;
+  real<lower = 0> pr_phi_a; // revise this. It is for phi in gamma, loglogistic, and
+  real<lower = 0> pr_phi_b;
   real pr_logsd_r_mu; 
   real pr_logsd_r_sd;
   real pr_alpha_a; 
@@ -316,7 +315,7 @@ transformed data {
 parameters {
   // parameter associated to the likelihood 
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
-  array[likelihood > 0 ? 1 : 0] real log_phi;
+  array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
   // coefficients for recruitment (it is a log-linear model)
   vector[K_r] coef_r0;
   // parameter associated with "encounter probability"
@@ -337,9 +336,6 @@ parameters {
   array[movement] real<lower = 0, upper = 1> zeta;
 }
 transformed parameters {
-  array[likelihood > 0 ? 1 : 0] real phi;
-  if (likelihood > 0)
-    phi = exp(log_phi);
   //--- Recruitment ----
   // we are working with "log recruitment" here
   vector[N] log_rec;
@@ -457,7 +453,7 @@ model {
       1.0 * normal_lccdf(0 | pr_sigma_obs_mu, pr_sigma_obs_sd);
   } else {
     // change these parameters (PC prior for exponential?)
-    target += student_t_lpdf(log_phi[1] | 3, pr_phi_mu, pr_phi_sd);
+    target += gamma_lpdf(phi[1] | pr_phi_a, pr_phi_b);
   }
   // only evaluate density if there are length comps to evaluate
   target += sum(log(rho[id_z]));

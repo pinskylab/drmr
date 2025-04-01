@@ -12,9 +12,6 @@ a \code{list} with (explain values)
 \description{
 Returns default priors' hyperparameters for the DRM model.
 }
-\details{
-Based on Alexa's Summer Flounder project.
-}
 \author{
 lcgodoy
 }
