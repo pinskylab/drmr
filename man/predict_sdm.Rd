@@ -12,6 +12,9 @@ predict_sdm(sdm, ntime_for, new_data, time_for, seed = 1, cores = 1)
 \item{ntime_for}{an \code{integer} denoting the number of timepoints for the
 forecast.}
 
+\item{new_data}{a \code{data.frame} with the dataset at which we wish to
+obtain predictions.}
+
 \item{time_for}{an \code{integer vector} indicating timepoints for
 forecasting.}
 
