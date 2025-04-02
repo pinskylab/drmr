@@ -9,7 +9,7 @@ fitted_pars_drm <- function(data_list) {
   }
   if (data_list$movement == 1)
     output <- c(output, "mov_mat")
-  if (data_list$est_mort == 1)
+  if (data_list$est_surv == 1)
     output <- c(output, "beta_s")
   if (data_list$time_ar == 1)
     output <- c(output, "z_t", "alpha", "tau")
@@ -124,7 +124,7 @@ predict_drm <- function(drm,
          n_time_train = drm$data$n_time,
          time_ar = drm$data$time_ar,
          movement = drm$data$movement,
-         est_mort = drm$data$est_mort,
+         est_surv = drm$data$est_surv,
          cloglog = drm$data$cloglog,
          likelihood = drm$data$likelihood,
          K_t = drm$data$K_t,
