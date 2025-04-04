@@ -188,7 +188,7 @@ prior_sample <- function(dat, model = "drm") {
                list(logit_zeta = array(stats::rnorm(1),
                                        dim = 1)))
     }
-    if (dat$est_m) {
+    if (dat$est_surv) {
       out <- c(out,
                list(beta_s = stats::rnorm(dat$K_m,
                                           mean = dat$pr_beta_s_mu,
