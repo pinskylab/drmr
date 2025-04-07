@@ -40,8 +40,8 @@ population dynamics.}
 mortality rates at each age (columns) and timepoint (rows).}
 
 \item{m}{a \code{numeric} value corresponding to the instantaneous natural
-mortality rate. The default value for this is $-\log(.7)$, as it implies a
-survival rate of 0.70 between age classes.}
+mortality rate. The default value for this is \code{-log(.7)}, as it
+implies a survival rate of 0.70 between age classes.}
 
 \item{x_t}{a design \code{matrix} of variables associated to the probability
 of absence at each site/time.}
