@@ -10,7 +10,7 @@ make_data(
   site,
   init_data = numeric(0),
   f_mort,
-  m = 0.25,
+  m = -log(0.7),
   x_t,
   x_m,
   x_r,
@@ -40,7 +40,8 @@ population dynamics.}
 mortality rates at each age (columns) and timepoint (rows).}
 
 \item{m}{a \code{numeric} value corresponding to the instantaneous natural
-mortality rate.}
+mortality rate. The default value for this is $-\log(.7)$, as it implies a
+survival rate of 0.70 between age classes.}
 
 \item{x_t}{a design \code{matrix} of variables associated to the probability
 of absence at each site/time.}
@@ -81,12 +82,12 @@ log-log and 0 for the logit link function for the absence probabilities.
 \item{.priors}{a \code{list} of priors hyperparameters.}
 
 \item{family}{a \code{character} specifying the family of the probability
-distribution assumed for density. The options are: \itemize{
-\item \code{"gamma"} (default): gamma parametrized in terms of its mean;
-\item \code{"lognormal"}: log-normal parametrized in terms of its mean;
-\item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-\item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
-}}
+distribution assumed for density. The options are: \itemize{ \item
+\code{"gamma"} (default): gamma parametrized in terms of its mean; \item
+\code{"lognormal"}: log-normal parametrized in terms of its mean; \item
+\code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+\item \code{"lognormal_legacy"} (default): log-normal with its usual
+parametrization; }}
 
 \item{reorder}{a \code{boolean} telling whether the data needs to be
 reordered. The default is TRUE and means the data points will be ordered

@@ -12,7 +12,8 @@
 ##' @param f_mort an optional \code{matrix} informing the instantaneous fishing
 ##'   mortality rates at each age (columns) and timepoint (rows).
 ##' @param m a \code{numeric} value corresponding to the instantaneous natural
-##'   mortality rate.
+##'   mortality rate. The default value for this is \code{-log(.7)}, as it
+##'   implies a survival rate of 0.70 between age classes.
 ##' @param x_t a design \code{matrix} of variables associated to the probability
 ##'   of absence at each site/time.
 ##' @param x_m a design \code{matrix} of variables associated to survival.
@@ -53,12 +54,12 @@
 ##'   reordered. The default is TRUE and means the data points will be ordered
 ##'   by site and time, respectively.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{
-##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
-##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
-##'    }
+##'   distribution assumed for density. The options are: \itemize{ \item
+##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
+##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
+##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual
+##'   parametrization; }
 ##' @return a \code{list} to be used as the input for a \code{stan} model
 ##' @author lcgodoy
 ##' @export
@@ -67,7 +68,7 @@ make_data <- function(y,
                       site,
                       init_data = numeric(0),
                       f_mort,
-                      m = 0.25,
+                      m = - log(.7),
                       x_t,
                       x_m,
                       x_r,
