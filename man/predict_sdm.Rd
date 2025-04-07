@@ -4,19 +4,13 @@
 \alias{predict_sdm}
 \title{Forecasts based on SDM.}
 \usage{
-predict_sdm(sdm, ntime_for, new_data, time_for, seed = 1, cores = 1)
+predict_sdm(sdm, new_data, seed = 1, cores = 1)
 }
 \arguments{
 \item{sdm}{A \code{list} object containing the output of a \link{fit_sdm} call.}
 
-\item{ntime_for}{an \code{integer} denoting the number of timepoints for the
-forecast.}
-
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
-
-\item{time_for}{an \code{integer vector} indicating timepoints for
-forecasting.}
 
 \item{seed}{a seed used for the forecasts. Forecasts are obtained through
 Monte Carlo samples from the posterior predictive distribution. Therefore,

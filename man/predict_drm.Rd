@@ -4,14 +4,11 @@
 \alias{predict_drm}
 \title{Forecasts based on DRM.}
 \usage{
-predict_drm(drm, ntime_for, new_data, past_data, f_test, seed = 1, cores = 1)
+predict_drm(drm, new_data, past_data, f_test, seed = 1, cores = 1)
 }
 \arguments{
 \item{drm}{A \code{list} object containing the output from the \link{fit_drm}
 function.}
-
-\item{ntime_for}{an \code{integer} denoting the number of timepoints for the
-forecast.}
 
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}

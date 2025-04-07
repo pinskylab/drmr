@@ -169,8 +169,8 @@ data {
                  // inverse-gaussian
   real pr_phi_b;
   // * now AR SD parameters have pcpriors
-  real pr_logsd_r_mu; 
-  real pr_logsd_r_sd;
+  real pr_ltau_mu; 
+  real pr_ltau_sd;
   real pr_alpha_a; 
   real pr_alpha_b;
   vector[K_z] pr_beta_t_mu;
@@ -248,7 +248,7 @@ model {
   //--- AR process ----
   if (time_ar) {
     target += std_normal_lpdf(raw);
-    target += normal_lpdf(log_tau[1] | pr_logsd_r_mu, pr_logsd_r_sd);
+    target += normal_lpdf(log_tau[1] | pr_ltau_mu, pr_ltau_sd);
     target += beta_lpdf(alpha[1] | pr_alpha_a, pr_alpha_b); 
   }
   //--- Counts ----

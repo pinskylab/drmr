@@ -33,7 +33,7 @@ fitted_pars_sdm <- function(data_list) {
 ##'
 ##' @description This function identifies the parameters necessary for carrying
 ##'   out forecasts based on the data used to fit a DRM (or SDM).
-##' 
+##'
 ##' @param data_list a \code{list} used as input for model fitting. Typically,
 ##'   the output from the [make_data] function.
 ##' @param model a \code{character} indicating which model forecasts are sought
@@ -52,14 +52,12 @@ get_fitted_pars <- function(data_list, model = "drm") {
 }
 
 ##' @title Forecasts based on DRM.
-##' 
+##'
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   forecasts based on the DRM passed as \code{drm}.
-##' 
+##'
 ##' @param drm A \code{list} object containing the output from the [fit_drm]
 ##'   function.
-##' @param ntime_for an \code{integer} denoting the number of timepoints for the
-##'   forecast.
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
 ##' @param past_data a \code{data.frame} with the dataset last year used in
@@ -72,36 +70,28 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'   a \code{seed} is needed to ensure the results' reproducibility.
 ##' @param cores number of threads used for the forecast. If four chains were
 ##'   used in the \code{drm}, then four (or less) threads are recommended.
-##' 
-##' 
+##'
+##'
 ##' @details The current version of the code assumes the data where forecasts
 ##'   are needed is ordered by "patch" and "site" and, in addition, its patches
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{drm} object.
-##' 
+##'
 ##' @author lcgodoy
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.
-##' 
+##'
 ##' @export
 predict_drm <- function(drm,
-                        ntime_for,
                         new_data,
                         past_data,
                         f_test,
                         seed = 1,
                         cores = 1) {
-  ## time points for forecasting
   stopifnot(inherits(drm$stanfit, "CmdStanFit"))
-  ## stopifnot(NCOL(x_tt) == drm_data$K_t)
-  ## stopifnot(NCOL(x_rt) == drm_data$K_r)
-  ## if (length(drm_data$K_m) > 0) {
-  ##   stopifnot(!missing(x_mt))
-  ##   stopifnot(!missing(x_mpast))
-  ##   stopifnot(NCOL(x_mt) == drm_data$K_m)
-  ##   stopifnot(NCOL(x_mpast) == drm_data$K_m)
-  ## }
+  ## number time points for forecasting
+   ntime_for <- length(unique(new_data[[drm$cols$time_col]]))
   if (!missing(f_test)) {
     stopifnot(NROW(f_test) == drm$data[["n_ages"]])
   }
@@ -166,21 +156,18 @@ predict_drm <- function(drm,
 }
 
 ##' @title Forecasts based on SDM.
-##' 
+##'
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   forecasts based on the SDM passed as \code{sdm}.
-##' 
+##'
 ##' @description Consider a linear predictor having linear and square terms
 ##'   associated with a variable \eqn{x}. Assume this variable was centered
 ##'   before being included in the linear predictor. This functions returns the
 ##'   value of \eqn{x} (on its original scale) such that the linear predictor is
 ##'   maximized (or minimized).
-##' 
+##'
 ##' @param sdm A \code{list} object containing the output of a [fit_sdm] call.
-##' @param ntime_for an \code{integer} denoting the number of timepoints for the
-##'   forecast.
-##' @param time_for an \code{integer vector} indicating timepoints for
-##'   forecasting.
+##'
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
 ##' @param seed a seed used for the forecasts. Forecasts are obtained through
@@ -193,21 +180,22 @@ predict_drm <- function(drm,
 ##'   are needed is ordered by "patch" and "site" and, in addition, its patches
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{sdm} object.
-##' 
+##'
 ##' @author lcgodoy
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.
-##' 
+##'
 ##' @export
 predict_sdm <- function(sdm,
-                        ntime_for,
                         new_data,
-                        time_for,
                         seed = 1,
                         cores = 1) {
-  ## time points for forecasting
   stopifnot(inherits(sdm$stanfit, "CmdStanFit"))
+  ## time points for forecasting
+  ntime_for <- length(unique(new_data[[sdm$cols$time_col]]))
+  time_for <- new_data[[sdm$cols$time_col]] -
+    min(new_data[[sdm$cols$time_col]]) + 1
   ##--- pars from model fitted ----
   pars <- get_fitted_pars(sdm$data, "sdm")
   fitted_params <-
@@ -217,7 +205,7 @@ predict_sdm <- function(sdm,
     list(n_patches = sdm$data$n_patches,
          n_time = ntime_for,
          n_time_train = sdm$data$n_time,
-         time = time_for - min(time_for) + 1,
+         time = time_for,
          time_ar = sdm$data$time_ar,
          cloglog = sdm$data$cloglog,
          likelihood = sdm$data$likelihood,
