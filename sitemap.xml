@@ -8,6 +8,7 @@
 <url><loc>https://pinskylab.github.io/drmr/authors.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/index.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/news/index.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/apply_movement.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/between.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/between_scalar.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/check_between.html</loc></url>
@@ -26,9 +27,16 @@
 <url><loc>https://pinskylab.github.io/drmr/reference/get_fitted_pars.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/index.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/int_score.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/lambda2df.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/make_data.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/make_data_sdm.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/make_surv.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/marg.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/max_quad_x.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/model_sim.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/pars_transform.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/pop_dyn.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/pp_sim.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/predict_drm.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/predict_sdm.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/prior_inits.html</loc></url>
@@ -36,6 +44,9 @@
 <url><loc>https://pinskylab.github.io/drmr/reference/rtn.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/rtt.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/safe_modify.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/sim_ar.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/sim_dens.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/sim_log_rec.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/sum_fl.html</loc></url>
 </urlset>
 
