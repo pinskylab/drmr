@@ -534,7 +534,7 @@ forecasts_summary |>
   mutate(bias = dens - m) |>
   mutate(rmse = bias * bias) |>
   mutate(is = int_score(dens, l = l, u = u, alpha = .2)) |>
-  mutate(cvg = 100 * data.table::between(dens, l, u)) |>
+  mutate(cvg = 100 * dplyr::between(dens, l, u)) |>
   ungroup() |>
   group_by(model) |>
   summarise(across(rmse:cvg, mean)) |>
