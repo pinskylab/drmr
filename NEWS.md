@@ -43,6 +43,8 @@
 
 * `est_mort` becomes `est_surv` (as it makes more sense with the text).
 
+* `get-started` and `examples` vignette updated.
+
 # drmr 0.0.24
 
 * Initial values for population dynamics have been fixed.
