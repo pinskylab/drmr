@@ -1,8 +1,9 @@
 ---
 title: "Get Started"
 author: Lucas da Cunha Godoy
+bibliography: [notes.bib, zim.bib]
 execute:
-  eval: false
+  eval: true
 vignette: >
   %\VignetteIndexEntry{Get Started}
   %\VignetteEngine{quarto::html}
@@ -19,7 +20,8 @@ library(bayesplot) ## and more graphs
 library(dplyr)
 ```
 
-Now, we load the data.
+We will use a dataset included with the package. In particular, this data is
+similar to the one analyzed in @fredston2025dynamic. To load the data, we run:
 
 ```{r}
 #| label: data
@@ -64,58 +66,39 @@ dat_test <- dat_test |>
          .before = y)
 ```
 
-## Preparing data for model fit
+The elements we need to fit a DRM are:
+
+* A response variable representing a density
+
+* A variable encoding time-points
+
+* A variable encoding patches (or sites).
+
+The current version of the functions assumes that we have rows in the dataset
+for every combinations of "time" and "site". That is, if a dataset comprises
+observations around the density of a given species across 20 years and 10
+patches, we expect to have 20 rows in the dataset per patch. Equivalently, we
+would expect 10 rows in the dataset per year.
 
 
-This package uses `cmdstanr` to fit DRMs to the data. The data passed to
-`cmdstanr` objects is stored in a `list` and we provide a function called
-`make_data`. 
-
-
-The `list` to fit the simplest model possible can be obtained as follows:
-
-```{r}
-#| label: make_data_simplest
-data <-
-  make_data(y = dat_train$dens,
-            time = dat_train$year,
-            site = dat_train$patch,
-            n_ages = 8,
-            m = 0.25) # fishing mortality
-```
-
-In general, the `make_data` function will control what model we are fitting
-through "toggles" and different inputs (type `?make_data` for
-documentation). For more information, see the toggles vignette
-(`vignettes("toggles", package = "drmr")`).
-
-
-## Fitting model
-
-The code below loads the object used to fit the DRM models. We don't need to
-reload this object if we update the data list using different options from the
-`make_data` function.
+The first and last 10 rows of the `dat_train` object look as follows:
 
 ```{r}
-#| label: drm_load
-drm_compiled <-
-  instantiate::stan_package_model(name = "drm",
-                                  package = "drmr")
+#| label: data-format
+
+head(dat_train[, c("year", "patch",  "y", "stemp")],
+     n = 10)
+tail(dat_train[, c("year", "patch",  "y", "stemp")],
+     n = 10)
 ```
 
-To get MCMC samples from the posterior, run:
+Note that, `stemp` is an explanatory variable denoting the sea surface
+temperature (SST).
 
-```{r}
-#| label: drm_mcmc
-mcmc_samples <-
-  drm_compiled$sample(data = data,
-                      seed = 2025, ## for reproducibility
-                      chains = 4,
-                      parallel_chains = 4)
-```
+## Fitting & diagnosing a model
 
-Alternatively, we can achieve the same result without loading the compiled model
-and creating a `data` list. This is achieved through the `fit_drm` function as
+Provided the dataset is properly formatted, a simple model considering the
+existance of `8` age groups and a natural mortality rate of `0.25` can be fit as
 follows:
 
 ```{r}
@@ -131,10 +114,10 @@ mcmc_samples <-
 ```
 
 
-## Sampler convergence
-
-In general, the chains mix well and the posterior densities estimates are
-similar for the four chains ran:
+The `mcmc_samples` object is a named list. One of its positions is called
+`stanfit`. We can use the `stanfit` position as if it was the output of a
+`cmdstanr` model. For instance, to assess the convergence of the MCMC, one can
+run:
 ```{r}
 #| label: traceplot
 #| fig-alt: "MCMC diagnostic plots for the DRM, arranged in two columns and
@@ -143,10 +126,9 @@ similar for the four chains ran:
 #| posterior density plots for each parameter, assessing mixing. Row 1:
 #| sigma_obs parameter; Row 2: coef_t parameter; Row 3: coef_r parameter. All
 #| parameters show evidence of good chain convergence and mixing."
-mcmc_samples$draws(variables = c("sigma_obs",
-                                 "coef_t",
-                                 "coef_r")) |>
+mcmc_samples$stanfit$draws(variables = c("phi",
+                                         "beta_t",
+                                         "beta_r")) |>
   mcmc_combo(combo = c("trace", "dens_overlay"),
              facet_args = list(labeller = label_parsed))
 ```
-
