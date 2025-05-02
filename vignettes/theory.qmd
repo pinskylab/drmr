@@ -366,11 +366,20 @@ in Equation @eq-ar1. We take a hierarchical approach, placing a Normal prior on
 the log of the square root of the conditional variance (i.e., the log of the
 conditional standard deviation). This prior has a default mean of $-2$ and and a
 standard deviation of 0.25, favoring a model with no AR(1) term. For the
-autocorrelation term, we employ a beta prior on $(\alpha + 1) / 2$. The default
-parameters on this prior are $0.5$ and $0.5$.
+autocorrelation term, we employ a beta prior on $\alpha$. The default parameters
+on this prior are $0.5$ and $0.5$. Lastly, we the same Beta prior on
+$\zeta$. The priors and default hyperparameters are highlighted in the table
+below:
 
-
-Lastly, we place a standard normal prior on $\mathrm{logit}(\zeta)$.
+| Parameter prior                                                  | Default hyperparameters                 |
+|------------------------------------------------------------------|-----------------------------------------|
+| $\phi \sim \mathrm{Gamma}(a_{\phi}, b_{\phi})$                   | $a_{\phi} = 2, \; b_{\phi} = 1$         |
+| $\beta_{rk} \overset{\perp}{\sim} \mathcal{N}(m_{rk}, s^2_{rk})$ | $m_{rk} = 0, \; s_{rk} = 1$             |
+| $\beta_{tk} \overset{\perp}{\sim} \mathcal{N}(m_{tk}, s^2_{tk})$ | $m_{tk} = 0, \; s_{tk} = 1$             |
+| $\beta_{sk} \overset{\perp}{\sim} \mathcal{N}(m_{sk}, s^2_{sk})$ | $m_{sk} = 0, \; s_{sk} = 1$             |
+| $\zeta \sim \mathrm{Beta}(a_{\zeta}, b_{\zeta})$                 | $a_{\zeta} = 0.5, \; b_{\zeta} = 0.5$   |
+| $\alpha \sim \mathrm{Beta}(a_{\alpha}, b_{\alpha})$              | $a_{\alpha} = 0.5, \; b_{\alpha} = 0.5$ |
+| $\log(\tau) \sim \mathcal{N}(m_{\tau}, s^2_{\tau})$              | $m_{\tau} = -2, \; s_{\tau} = 0.25$     |
 
 
 Denote by $\boldsymbol{\theta}$ a set containing all the parameters associated

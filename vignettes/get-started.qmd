@@ -132,3 +132,5 @@ mcmc_samples$stanfit$draws(variables = c("phi",
   mcmc_combo(combo = c("trace", "dens_overlay"),
              facet_args = list(labeller = label_parsed))
 ```
+
+## References

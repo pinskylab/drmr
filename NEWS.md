@@ -1,3 +1,5 @@
+# drmr 0.1.1
+
 # drmr 0.1.0
 
 * Exporting `fix_linbeta`, `max_quad_x`, and `int_score` functions
