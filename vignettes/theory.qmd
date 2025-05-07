@@ -1,6 +1,9 @@
 ---
 title: "Theoretical Background"
 author: Lucas da Cunha Godoy
+format:
+  html:
+    html-math-method: mathjax
 bibliography: [notes.bib, zim.bib]
 execute:
   warning: false

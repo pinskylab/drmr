@@ -1,9 +1,10 @@
 ---
 title: "Examples"
 author: Lucas da Cunha Godoy
+format:
+  html:
+    html-math-method: mathjax
 bibliography: [notes.bib, zim.bib]
-execute:
-  eval: false
 vignette: >
   %\VignetteIndexEntry{Examples}
   %\VignetteEngine{quarto::html}
@@ -91,6 +92,10 @@ first_year_forecast <- max(sum_fl$year) - 5
 
 first_id_forecast <-
   first_year_forecast - min(sum_fl$year) + 1
+
+years_all <- order(unique(sum_fl$year))
+years_train <- years_all[years_all < first_id_forecast]
+years_test <- years_all[years_all >= first_id_forecast]
 
 ## splitting data
 dat_test <- sum_fl |>
@@ -467,6 +472,11 @@ drm_3 <-
           .toggles = list(est_surv = 1,
                           time_ar = 1),
           init = "pathfinder")
+
+## loading map
+map_name <- system.file("maps/sum_fl.shp", package = "drmr")
+
+polygons <- st_read(map_name)
 
 adj_mat <- gen_adj(st_buffer(st_geometry(polygons),
                              dist = 2500))
