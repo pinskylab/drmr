@@ -1,5 +1,7 @@
 # drmr 0.1.1
 
+* Vignettes updated so `R CMD check` "works".
+
 # drmr 0.1.0
 
 * Exporting `fix_linbeta`, `max_quad_x`, and `int_score` functions
