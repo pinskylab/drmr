@@ -1,4 +1,4 @@
-0---
+---
 title: "Get Started"
 author: Lucas da Cunha Godoy
 bibliography: [notes.bib, zim.bib]
