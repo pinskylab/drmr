@@ -147,12 +147,14 @@ check_pars <- function(dat, model) {
 prior_sample <- function(dat, model = "drm") {
   check_pars(dat, model)
   out <-
-    list(beta_r = stats::rnorm(dat$K_r,
-                               mean = dat$pr_beta_r_mu,
-                               sd = dat$pr_beta_r_sd),
-         beta_t = stats::rnorm(dat$K_t,
+    list(beta_t = stats::rnorm(ifelse(model == "drm",
+                                      dat$K_t, dat$K_z),
                                mean = dat$pr_beta_t_mu,
-                               sd = dat$pr_beta_t_sd))
+                               sd = dat$pr_beta_t_sd),
+         beta_r = stats::rnorm(ifelse(model == "drm",
+                                      dat$K_r, dat$K_x),
+                               mean = dat$pr_beta_r_mu,
+                               sd = dat$pr_beta_r_sd))
   if (dat$likelihood == 0) {
     out <-
       c(out,
@@ -184,9 +186,12 @@ prior_sample <- function(dat, model = "drm") {
   }
   if (model == "drm") {
     if (dat$movement) {
-      out <- c(out,
-               list(logit_zeta = array(stats::rnorm(1),
-                                       dim = 1)))
+      out <-
+        c(out,
+          list(zeta = array(stats::rbeta(1,
+                                         dat$pr_zeta_a,
+                                         dat$pr_zeta_b),
+                            dim = 1)))
     }
     if (dat$est_surv) {
       out <- c(out,
@@ -194,7 +199,7 @@ prior_sample <- function(dat, model = "drm") {
                                           mean = dat$pr_beta_s_mu,
                                           sd = dat$pr_beta_s_sd)))
     }
-  }
+  } 
   return(out)
 }
 

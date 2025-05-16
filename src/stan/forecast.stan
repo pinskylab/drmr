@@ -46,20 +46,20 @@ functions {
                                    // initialization (currently with recruitment)
                                    matrix init,
                                    // from past
-                                   array[] matrix lambda_past,
+                                   matrix lambda_past,
                                    matrix f_past,
                                    vector neg_mort_past) {
     // initializing output with zeros
     array[n_ages] matrix[n_time, n_patches] output
       = rep_array(init, n_ages);
     int past_last_time;
-    past_last_time = rows(lambda_past[1]);
+    past_last_time = cols(f_past[1]);
     /* output[1] += init; */
     for (i in 1 : n_time) {
       for (p in 1 : n_patches) {
         for (a in 2 : n_ages) {
           if (i == 1) {
-            output[a, i, p] = lambda_past[a - 1, past_last_time, p]
+            output[a, i, p] = lambda_past[a - 1, p]
               + neg_mort_past[p] - f_past[a - 1, past_last_time];
           } else {
             output[a, i, p] = output[a - 1, i - 1, p]
@@ -128,6 +128,7 @@ data {
   int n_patches; // number of patches
   int n_time; // years for forecasts
   int n_time_train; // years for training
+  array[N] int time;
   //--- toggles ---
   int<lower = 0, upper = 1> time_ar;
   int<lower = 0, upper = 1> movement;
@@ -159,7 +160,7 @@ parameters {
   vector[K_t] beta_t;
   vector[K_r] beta_r;
   //--- pop dyn parameters ----
-  array[n_ages] matrix[n_time_train, n_patches] lambda;
+  matrix[n_ages, n_patches] lambda;
   //--- additional parameter for different lik functions ----
   array[likelihood > 0 ? 1 : 0] real phi;
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
@@ -202,6 +203,10 @@ generated quantities {
   {
     vector[N] log_rec;
     log_rec = X_r * beta_r;
+    if (time_ar) {
+      for (n in 1:N)
+        log_rec[n] += z_tp[time[n]];
+    }
     vector[n_patches] past_m;
     matrix[n_time, n_patches] current_m;
     if (!est_surv) {
@@ -217,31 +222,27 @@ generated quantities {
                                     n_ages,
                                     f,
                                     current_m,
-                                    time_ar ?
-                                    add_pe(log_rec, z_tp) :
                                     to_matrix(log_rec,
                                               n_time,
                                               n_patches),
                                     lambda,
                                     f_past,
                                     past_m);
-  }
-  if (movement) {
-    lambda_proj =
-      apply_movement(lambda_proj, mov_mat, ages_movement);
-  }
-  //--- mu_proj calculations ----
-  {
+    if (movement) {
+      lambda_proj =
+        apply_movement(lambda_proj, mov_mat, ages_movement);
+    }
+    //--- mu_proj calculations ----
     matrix[n_time, n_patches] mu_aux =
       rep_matrix(0.0, n_time, n_patches);
     //--- filling mu ----
-    for (time in 1 : n_time) {
+    for (tp in 1 : n_time) {
       for (p in 1 : n_patches) {
         real mu_aux2;
-        mu_aux2 = dot_product(to_vector(lambda_proj[1:n_ages, time, p]),
+        mu_aux2 = dot_product(to_vector(lambda_proj[1:n_ages, tp, p]),
                               selectivity_at_age);
         if (!is_nan(mu_aux2)) {
-          mu_aux[time, p] = mu_aux2;
+          mu_aux[tp, p] = mu_aux2;
         }
       } // close patches
     }

@@ -209,6 +209,7 @@ data {
   int n_ages; // number of ages
   int n_patches; // number of patches
   int n_time; // years for training
+  array[N] int<lower = 1, upper = n_time> time;
   vector[N] y;
   //--- toggles ---
   int<lower = 0, upper = 1> time_ar;
@@ -321,22 +322,18 @@ transformed parameters {
       lagged_z_t[tp] = z_t[tp - 1];
       z_t[tp] += alpha[1] * lagged_z_t[tp];
     }
+    for (n in 1:N)
+        log_rec[n] += z_t[time[n]];
   }
   //--- Mortality ----
   vector[est_surv ? N : 0] mortality;
   if (est_surv)
     mortality = X_m * beta_s;
-  // Expected density at specific time/patch combinations by age
-  array[n_ages] matrix[n_time, n_patches] lambda;
-  // filling lambda according to our "simplest model"
-  lambda =
-    simplest(n_patches, n_time, n_ages,
-             f,
-             est_surv ? to_matrix(mortality, n_time, n_patches) : fixed_m,
-             est_init ? init_par : init_data,
-             time_ar ?
-             add_pe(log_rec, z_t) :
-             to_matrix(log_rec, n_time, n_patches));
+  // Expected density at specific time/patch combinations
+  vector[N] mu =
+    rep_vector(0.0, N);
+  matrix[n_ages, n_patches] lambda =
+    rep_matrix(0.0, n_ages, n_patches);
   //--- Movement ----
   // probability of staying in the current patch
   // movement matrix
@@ -348,15 +345,42 @@ transformed parameters {
     // It is super important that the adj_mat is setup correctly. Note that,
     // this matrix is "row standardized". That is, its rows add up to 1.
     mov_mat += d * adj_mat;
-    lambda = apply_movement(lambda, mov_mat, ages_movement);
   }
-
+  {
+    // Expected density at specific time/patch combinations by age
+    array[n_ages] matrix[n_time, n_patches] lambda_aux;
+    // filling lambda according to our "simplest model"
+    lambda_aux =
+      simplest(n_patches, n_time, n_ages,
+               f,
+               est_surv ? to_matrix(mortality, n_time, n_patches) : fixed_m,
+               est_init ? init_par : init_data,
+               to_matrix(log_rec, n_time, n_patches));
+    //--- Movement ----
+    if (movement)
+      lambda_aux = apply_movement(lambda_aux, mov_mat, ages_movement);
+    matrix[n_time, n_patches] mu_aux =
+      rep_matrix(0.0, n_time, n_patches);
+    //--- filling mu ----
+    for (tp in 1 : n_time) {
+      for (p in 1 : n_patches) {
+        real mu_aux2;
+        mu_aux2 = dot_product(to_vector(lambda_aux[1:n_ages, tp, p]),
+                              selectivity_at_age);
+        if (!is_nan(mu_aux2)) {
+          mu_aux[tp, p] = mu_aux2;
+        }
+        if (tp == n_time) {
+          lambda[1:n_ages, p] =
+            to_vector(lambda_aux[1:n_ages, tp, p]);
+        }
+      } // close patches
+    }
+    mu = to_vector(mu_aux);
+  }
   //--- quantities used in the likelihood ----
   // probability of encounter at specific time/patch combinations
   vector[N] rho;
-  // Expected density at specific time/patch combinations
-  vector[N] mu =
-    rep_vector(0.0, N);
 
   // rho now hasa "regression like" type
   if (cloglog) {
@@ -365,22 +389,6 @@ transformed parameters {
   } else {
     rho =
       inv_logit(X_t * beta_t);
-  }
-  {
-    matrix[n_time, n_patches] mu_aux =
-      rep_matrix(0.0, n_time, n_patches);
-    //--- filling mu ----
-    for (time in 1 : n_time) {
-      for (p in 1 : n_patches) {
-        real mu_aux2;
-        mu_aux2 = dot_product(to_vector(lambda[1:n_ages, time, p]),
-                              selectivity_at_age);
-        if (!is_nan(mu_aux2)) {
-          mu_aux[time, p] = mu_aux2;
-        }
-      } // close patches
-    }
-    mu = to_vector(mu_aux);
   }
 }
 // close transformed parameters block

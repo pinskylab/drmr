@@ -104,7 +104,7 @@ make_data <- function(y,
     my_ord <- order(site, time)
     y <- y[my_ord]
     site <- site[my_ord]
-    time <- time[my_ord]
+    time <- time[my_ord] - min(time) + 1
   }
   if (missing(f_mort))
     f_mort <- matrix(0, nrow = n_ages, ncol = n_time)
@@ -174,6 +174,7 @@ make_data <- function(y,
                  n_ages = n_ages,
                  n_patches = n_patches,
                  n_time = n_time,
+                 time = time,
                  init_data = init_data,
                  y = y,
                  f = f_mort,

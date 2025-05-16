@@ -61,7 +61,7 @@ generated quantities {
     lmu = X * beta_r;
     if (time_ar) {
       for (n in 1:N)
-        lmu[n] += z_t[time[n]];
+        lmu[n] += z_tp[time[n]];
     }
     mu_proj = exp(lmu);
   }

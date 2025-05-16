@@ -2,6 +2,14 @@
 
 * Vignettes updated so `R CMD check` "works".
 
+* The `lambda`s are no longer returned by the fit and predict
+  functions. Returning those values imply a significant decrease in the
+  computational performance, especially as increasing the sample size.
+
+* The AR term in the model was "corrected".
+
+* Some bugs with prior initialization for the sdm were fixed.
+
 # drmr 0.1.0
 
 * Exporting `fix_linbeta`, `max_quad_x`, and `int_score` functions

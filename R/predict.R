@@ -91,7 +91,9 @@ predict_drm <- function(drm,
                         cores = 1) {
   stopifnot(inherits(drm$stanfit, "CmdStanFit"))
   ## number time points for forecasting
-   ntime_for <- length(unique(new_data[[drm$cols$time_col]]))
+  ntime_for <- length(unique(new_data[[drm$cols$time_col]]))
+  time_for <- new_data[[drm$cols$time_col]] -
+    min(new_data[[drm$cols$time_col]]) + 1
   if (!missing(f_test)) {
     stopifnot(NROW(f_test) == drm$data[["n_ages"]])
   }
@@ -112,6 +114,7 @@ predict_drm <- function(drm,
          n_ages = drm$data$n_ages,
          n_time = ntime_for,
          n_time_train = drm$data$n_time,
+         time = time_for,
          time_ar = drm$data$time_ar,
          movement = drm$data$movement,
          est_surv = drm$data$est_surv,
