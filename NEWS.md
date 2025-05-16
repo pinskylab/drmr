@@ -1,3 +1,5 @@
+# drmr 0.1.2
+
 # drmr 0.1.1
 
 * Vignettes updated so `R CMD check` "works".
