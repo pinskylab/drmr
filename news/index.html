@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.00</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,13 @@
       <small>Source: <a href="https://github.com/pinskylab/drmr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.1" id="drmr-011">drmr 0.1.1<a class="anchor" aria-label="anchor" href="#drmr-011"></a></h2>
+<ul><li><p>Vignettes updated so <code>R CMD check</code> “works”.</p></li>
+<li><p>The <code>lambda</code>s are no longer returned by the fit and predict functions. Returning those values imply a significant decrease in the computational performance, especially as increasing the sample size.</p></li>
+<li><p>The AR term in the model was “corrected”.</p></li>
+<li><p>Some bugs with prior initialization for the sdm were fixed.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="drmr-010">drmr 0.1.0<a class="anchor" aria-label="anchor" href="#drmr-010"></a></h2>
 <ul><li><p>Exporting <code>fix_linbeta</code>, <code>max_quad_x</code>, and <code>int_score</code> functions</p></li>
