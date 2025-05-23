@@ -59,7 +59,7 @@ functions {
       for (p in 1 : n_patches) {
         for (a in 2 : n_ages) {
           if (i == 1) {
-            output[a, i, p] = lambda_past[a - 1, p]
+            output[a, i, p] = log(lambda_past[a - 1, p])
               + neg_mort_past[p] - f_past[a - 1, past_last_time];
           } else {
             output[a, i, p] = output[a - 1, i - 1, p]

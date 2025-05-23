@@ -2,6 +2,8 @@
 
 * `lambda_drm` function added to recover the age-specific densities form a
   `fit_drm` call.
+  
+* fixed a bug on the `forecast.stan` script.
 
 # drmr 0.1.1
 
