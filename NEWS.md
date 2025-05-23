@@ -1,5 +1,8 @@
 # drmr 0.1.2
 
+* `lambda_drm` function added to recover the age-specific densities form a
+  `fit_drm` call.
+
 # drmr 0.1.1
 
 * Vignettes updated so `R CMD check` "works".
