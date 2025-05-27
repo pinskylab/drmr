@@ -1,3 +1,5 @@
+# drmr 0.1.3
+
 # drmr 0.1.2
 
 * `lambda_drm` function added to recover the age-specific densities form a
