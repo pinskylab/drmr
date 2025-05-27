@@ -21,6 +21,7 @@
 <url><loc>https://pinskylab.github.io/drmr/reference/fit_drm.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/fit_sdm.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/fitted_pars_drm.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/fitted_pars_lambda.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/fitted_pars_sdm.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/fix_linbeta.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/gen_adj.html</loc></url>
@@ -28,6 +29,7 @@
 <url><loc>https://pinskylab.github.io/drmr/reference/index.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/int_score.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/lambda2df.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/lambda_drm.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/make_data.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/make_data_sdm.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/make_surv.html</loc></url>
