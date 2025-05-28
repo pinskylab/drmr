@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.99</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,20 @@
       <small>Source: <a href="https://github.com/pinskylab/drmr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.3" id="drmr-013">drmr 0.1.3<a class="anchor" aria-label="anchor" href="#drmr-013"></a></h2>
+<ul><li><p>Modified <code>examples.qmd</code> to prevent errors due to pathfinder failing.</p></li>
+<li><p>Updated github actions.</p></li>
+<li><p>Same problematic behaviour that was affecting <code>make_data</code> had to be dealed with in prior initialization.</p></li>
+<li><p>When <code>family = "gamma"</code> and a prior for <code>phi</code> is not provided, the default prior for this parameter is a Gamma with <code>shape = 2</code> and <code>rate = ybar *   s2</code>. This prior has its theoretical mean at the method of moments estimator of <code>phi</code>.</p></li>
+<li><p>When <code>family = "lognormal"</code> and a prior for <code>phi</code> is not provided, the default prior for this parameter is a Gamma having its theoretical mean at the MLE of <code>phi</code>.</p></li>
+<li><p>fixed typo when defining log-logistic reparametrization</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.2.9" id="drmr-0129">drmr 0.1.2.9<a class="anchor" aria-label="anchor" href="#drmr-0129"></a></h2>
+<ul><li>fixed weird behaviour with <code>make_data</code>
+</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.2" id="drmr-012">drmr 0.1.2<a class="anchor" aria-label="anchor" href="#drmr-012"></a></h2>
 <ul><li><p><code>lambda_drm</code> function added to recover the age-specific densities form a <code>fit_drm</code> call.</p></li>
