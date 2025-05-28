@@ -1,4 +1,6 @@
-# drmr 0.1.3
+# drmr 0.1.2.9
+
+* fixed weird behaviour with `make_data`
 
 # drmr 0.1.2
 
