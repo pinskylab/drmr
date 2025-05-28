@@ -138,10 +138,16 @@ make_data <- function(y,
     if (reorder)
       x_m <- x_m[my_ord, , drop = FALSE]
     K_m <- array(NCOL(x_m), dim = 1)
-    if (length(priors$pr_beta_s_mu) == 0)
+    if (length(priors$pr_beta_s_mu) < K_m)
       priors$pr_beta_s_mu <- rep(0, K_m)
-    if (length(priors$pr_beta_s_sd) == 0)
+    if (length(priors$pr_beta_s_sd) < K_m )
       priors$pr_beta_s_sd <- rep(1, K_m)
+    if (K_m == 1) {
+      priors$pr_beta_m_mu <- array(priors$pr_beta_m_mu,
+                                   dim = 1)
+      priors$pr_beta_m_sd <- array(priors$pr_beta_m_sd,
+                                   dim = 1)
+    }
   }
   if (missing(x_r)) {
     x_r <- matrix(1, nrow = n_time * n_patches)
@@ -154,6 +160,12 @@ make_data <- function(y,
       priors$pr_beta_r_mu <- rep(0, K_r)
     if (length(priors$pr_beta_r_sd) < K_r)
       priors$pr_beta_r_sd <- rep(1, K_r)
+    if (K_r == 1) {
+      priors$pr_beta_r_mu <- array(priors$pr_beta_r_mu,
+                                   dim = 1)
+      priors$pr_beta_r_sd <- array(priors$pr_beta_r_sd,
+                                   dim = 1)
+    }
   }
   if (missing(x_t)) {
     x_t <- matrix(1, nrow = n_time * n_patches)
@@ -166,6 +178,12 @@ make_data <- function(y,
       priors$pr_beta_t_mu <- rep(0, K_t)
     if (length(priors$pr_beta_t_sd) < K_t)
       priors$pr_beta_t_sd <- rep(1, K_t)
+    if (K_t == 1) {
+      priors$pr_beta_t_mu <- array(priors$pr_beta_t_mu,
+                                   dim = 1)
+      priors$pr_beta_t_sd <- array(priors$pr_beta_t_sd,
+                                   dim = 1)
+    }
   }
   if (!toggles$est_init) {
     stopifnot(length(init_data) == n_ages - 1)
