@@ -291,6 +291,12 @@ make_data_sdm <- function(y,
       priors$pr_beta_r_mu <- rep(0, K_x)
     if (length(priors$pr_beta_r_sd) < K_x)
       priors$pr_beta_r_sd <- rep(1, K_x)
+    if (K_x == 1) {
+      priors$pr_beta_r_mu <- array(priors$pr_beta_r_mu,
+                                   dim = 1)
+      priors$pr_beta_r_sd <- array(priors$pr_beta_r_sd,
+                                   dim = 1)
+    }
   }
   if (missing(z)) {
     z <- matrix(1, nrow = n_time * n_patches)
@@ -303,6 +309,12 @@ make_data_sdm <- function(y,
       priors$pr_beta_t_mu <- rep(0, K_z)
     if (length(priors$pr_beta_t_sd) < K_z)
       priors$pr_beta_t_sd <- rep(1, K_z)
+    if (K_z == 1) {
+      priors$pr_beta_t_mu <- array(priors$pr_beta_t_mu,
+                                   dim = 1)
+      priors$pr_beta_t_sd <- array(priors$pr_beta_t_sd,
+                                   dim = 1)
+    }
   }
   output <- list(N = n_time * n_patches,
                  n_patches = n_patches,
