@@ -155,6 +155,10 @@ prior_sample <- function(dat, model = "drm") {
                                       dat$K_r, dat$K_x),
                                mean = dat$pr_beta_r_mu,
                                sd = dat$pr_beta_r_sd))
+  if (length(out$beta_t) == 1)
+    out$beta_t <- array(out$beta_t, dim = 1)
+  if (length(out$beta_r) == 1)
+    out$beta_r <- array(out$beta_r, dim = 1)
   if (dat$likelihood == 0) {
     out <-
       c(out,
@@ -198,8 +202,10 @@ prior_sample <- function(dat, model = "drm") {
                list(beta_s = stats::rnorm(dat$K_m,
                                           mean = dat$pr_beta_s_mu,
                                           sd = dat$pr_beta_s_sd)))
+      if (length(out$beta_s) == 1)
+        out$beta_s <- array(out$beta_s, dim = 1)
     }
-  } 
+  }
   return(out)
 }
 

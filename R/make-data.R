@@ -1,3 +1,25 @@
+##' @title Estimate phi
+##' @inheritParams make_data
+##' @return a \code{numeric} scalar representing an estimate for phi
+##' @author lcgodoy
+get_phi_hat <- function(y, family) {
+  if (family == "gamma") {
+    ng0 <- sum(y > 0)
+    xbar <- mean(y[y > 0])
+    xbar2 <- xbar * xbar
+    s2 <- var(y[y > 0]) * (ng0 - 1) / ng0
+    return(xbar2 * s2)
+  } else if (family == "lognormal") {
+    lxbar <- mean(log(y[y > 0]))
+    ng0 <- sum(y > 0)
+    ls2 <- var(log(y[y > 0])) * (ng0 - 1) / ng0
+    muhat <- exp(lxbar + 0.5 * ls2)
+    return(muhat * muhat * (exp(ls2) - 1))
+  } else {
+    return(1)
+  }
+}
+
 ##' This function creates the \code{list} used as the input for the \code{stan}
 ##' model.
 ##'
@@ -95,6 +117,16 @@ make_data <- function(y,
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
   ## getting the default priors and using user options
+  phi_hat <- get_phi_hat(y, family)
+  if (missing(.priors)) {
+    .priors <- list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat)
+  } else if (!"pr_phi_b" %in% names(.priors)) {
+    if (!"pr_phi_a" %in% names(.priors)) {
+      .priors <- c(.priors, list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat))
+    } else {
+      .priors <- c(.priors, list(pr_phi_b = .priors$pr_phi_a / phi_hat))
+    }
+  }
   priors <- default_priors() |>
     safe_modify(.priors)
   ## additional quantities that can be inferred from data
@@ -143,9 +175,9 @@ make_data <- function(y,
     if (length(priors$pr_beta_s_sd) < K_m )
       priors$pr_beta_s_sd <- rep(1, K_m)
     if (K_m == 1) {
-      priors$pr_beta_m_mu <- array(priors$pr_beta_m_mu,
+      priors$pr_beta_s_mu <- array(priors$pr_beta_s_mu,
                                    dim = 1)
-      priors$pr_beta_m_sd <- array(priors$pr_beta_m_sd,
+      priors$pr_beta_s_sd <- array(priors$pr_beta_s_sd,
                                    dim = 1)
     }
   }
@@ -268,6 +300,19 @@ make_data_sdm <- function(y,
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
   ## getting the default priors and using user options
+  if (family == "gamma") {
+    xbar <- mean(y)
+    xbar2 <- xbar * xbar
+    s2 <- var(y)
+    if (missing(.priors)) {
+      .priors <- list(pr_phi_a = 2,
+                      pr_phi_b = 2 / (xbar2 * s2))
+    } else if (!all(c("pr_phi_a", "pr_phi_b") %in% names(.priors))) {
+      .priors <- c(.priors,
+                   list(pr_phi_a = 2,
+                        pr_phi_b = 2 / (xbar2 * s2)))
+    }
+  }
   priors <- default_priors() |>
     safe_modify(.priors)
   ## additional quantities that can be inferred from data

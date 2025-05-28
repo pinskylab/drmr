@@ -287,7 +287,7 @@ model {
     vector[N_nz] a_ll;
     real b_ll;
     b_ll = phi[1] + 1;
-    a_ll = sin(pi() / b_ll) * mu[id_nz] * inv(pi() * b_ll);
+    a_ll = sin(pi() / b_ll) * mu[id_nz] * b_ll * inv(pi());
     target += log1m(rho[id_nz]);
     target += loglogistic_lpdf(y[id_nz] | a_ll, b_ll);
   }
@@ -336,7 +336,7 @@ generated quantities {
       real a_ll;
       real b_ll;
       b_ll = phi[1] + 1;
-      a_ll = sin(pi() / b_ll) * mu[n] * inv(pi() * b_ll);
+      a_ll = sin(pi() / b_ll) * mu[n]  * b_ll * inv(pi());
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         loglogistic_rng(a_ll, b_ll);
       if (y[n] == 0) {
