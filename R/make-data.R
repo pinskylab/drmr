@@ -82,6 +82,8 @@ get_phi_hat <- function(y, family) {
 ##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
 ##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual
 ##'   parametrization; }
+##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
+##'   should be determined through the data.
 ##' @return a \code{list} to be used as the input for a \code{stan} model
 ##' @author lcgodoy
 ##' @export
@@ -101,7 +103,8 @@ make_data <- function(y,
                       .toggles,
                       .priors,
                       family = "gamma",
-                      reorder = TRUE) {
+                      reorder = TRUE,
+                      phi_hat = FALSE) {
   ## getting the default toggles and using user options
   stopifnot(length(family) == 1)
   stopifnot(family %in% c("lognormal_legacy", "lognormal",
@@ -117,14 +120,16 @@ make_data <- function(y,
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
   ## getting the default priors and using user options
-  phi_hat <- get_phi_hat(y, family)
-  if (missing(.priors)) {
-    .priors <- list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat)
-  } else if (!"pr_phi_b" %in% names(.priors)) {
-    if (!"pr_phi_a" %in% names(.priors)) {
-      .priors <- c(.priors, list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat))
-    } else {
-      .priors <- c(.priors, list(pr_phi_b = .priors$pr_phi_a / phi_hat))
+  if (phi_hat) {
+    phi_hat <- get_phi_hat(y, family)
+    if (missing(.priors)) {
+      .priors <- list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat)
+    } else if (!"pr_phi_b" %in% names(.priors)) {
+      if (!"pr_phi_a" %in% names(.priors)) {
+        .priors <- c(.priors, list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat))
+      } else {
+        .priors <- c(.priors, list(pr_phi_b = .priors$pr_phi_a / phi_hat))
+      }
     }
   }
   priors <- default_priors() |>
@@ -273,6 +278,8 @@ make_data <- function(y,
 ##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
 ##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
 ##'    }
+##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
+##'   should be determined through the data.
 ##' @return a \code{list} to be used as the input for a \code{stan} model
 ##' @author lcgodoy
 ##' @export
@@ -285,7 +292,8 @@ make_data_sdm <- function(y,
                           .toggles,
                           .priors,
                           family = "gamma",
-                          reorder = TRUE) {
+                          reorder = TRUE,
+                          phi_hat = FALSE) {
   ## getting the default toggles and using user options
   stopifnot(length(family) == 1)
   stopifnot(family %in% c("lognormal_legacy", "lognormal",
@@ -300,17 +308,16 @@ make_data_sdm <- function(y,
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
   ## getting the default priors and using user options
-  if (family == "gamma") {
-    xbar <- mean(y)
-    xbar2 <- xbar * xbar
-    s2 <- var(y)
+  if (phi_hat) {
+    phi_hat <- get_phi_hat(y, family)
     if (missing(.priors)) {
-      .priors <- list(pr_phi_a = 2,
-                      pr_phi_b = 2 / (xbar2 * s2))
-    } else if (!all(c("pr_phi_a", "pr_phi_b") %in% names(.priors))) {
-      .priors <- c(.priors,
-                   list(pr_phi_a = 2,
-                        pr_phi_b = 2 / (xbar2 * s2)))
+      .priors <- list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat)
+    } else if (!"pr_phi_b" %in% names(.priors)) {
+      if (!"pr_phi_a" %in% names(.priors)) {
+        .priors <- c(.priors, list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat))
+      } else {
+        .priors <- c(.priors, list(pr_phi_b = .priors$pr_phi_a / phi_hat))
+      }
     }
   }
   priors <- default_priors() |>

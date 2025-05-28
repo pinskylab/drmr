@@ -7,14 +7,16 @@
 * Same problematic behaviour that was affecting `make_data` had to be dealed
   with in prior initialization.
   
-* When `family = "gamma"` and a prior for `phi` is not provided, the default
-  prior for this parameter is a Gamma with `shape = 2` and `rate = ybar *
-  s2`. This prior has its theoretical mean at the method of moments estimator of
-  `phi`.
+* Options for "data informed" phi priors through the floag `phi_hat`
+  
+  * When `family = "gamma"` and a prior for `phi` is not provided, the default
+    prior for this parameter is a Gamma with `shape = 2` and `rate = ybar *
+    s2`. This prior has its theoretical mean at the method of moments estimator
+    of `phi`.
 
-* When `family = "lognormal"` and a prior for `phi` is not provided, the default
-  prior for this parameter is a Gamma having its theoretical mean at the MLE of
-  `phi`.
+  * When `family = "lognormal"` and a prior for `phi` is not provided, the
+    default prior for this parameter is a Gamma having its theoretical mean at
+    the MLE of `phi`.
 
 * fixed typo when defining log-logistic reparametrization
 

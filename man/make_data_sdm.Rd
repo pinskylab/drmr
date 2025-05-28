@@ -13,7 +13,8 @@ make_data_sdm(
   .toggles,
   .priors,
   family = "gamma",
-  reorder = TRUE
+  reorder = TRUE,
+  phi_hat = FALSE
 )
 }
 \arguments{
@@ -51,6 +52,9 @@ distribution assumed for density. The options are: \itemize{
 \item{reorder}{a \code{boolean} telling whether the data needs to be
 reordered. The default is TRUE and means the data points will be ordered
 by site and time, respectively.}
+
+\item{phi_hat}{a \code{boolean} indicating whether the prior on \code{phi}
+should be determined through the data.}
 }
 \value{
 a \code{list} to be used as the input for a \code{stan} model
