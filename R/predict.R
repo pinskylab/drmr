@@ -137,7 +137,7 @@ predict_drm <- function(drm,
                           data = past_data)
     x_m <- stats::model.matrix(drm[["formulas"]][["formula_surv"]],
                                data = new_data)
-    forecast_data$K_m <- NCOL(x_m)
+    forecast_data$K_m <- array(NCOL(x_m), dim = 1)
     forecast_data$X_m <- x_m
     forecast_data$X_m_past <- x_mpast
   } else {
