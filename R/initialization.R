@@ -155,6 +155,10 @@ prior_sample <- function(dat, model = "drm") {
                                       dat$K_r, dat$K_x),
                                mean = dat$pr_beta_r_mu,
                                sd = dat$pr_beta_r_sd))
+  time_re <- ifelse(dat$ar_re != "none" ||
+                    dat$rw_re != "none", 1, 0)
+  iid_re <- ifelse(dat$iid_re != "none", 1, 0)
+  sp_re <- ifelse(dat$bym_re != "none", 1, 0)
   if (length(out$beta_t) == 1)
     out$beta_t <- array(out$beta_t, dim = 1)
   if (length(out$beta_r) == 1)
@@ -175,18 +179,43 @@ prior_sample <- function(dat, model = "drm") {
                                        rate = dat$pr_phi_b),
                          dim = 1)))
   }
-  if (dat$time_ar) {
+  if (time_re) {
     out <-
       c(out,
-        list(log_tau = array(stats::rnorm(1,
-                                          dat$pr_ltau_mu,
-                                          dat$pr_ltau_sd),
+        list(log_sigma_t = array(stats::rnorm(1,
+                                              dat$pr_lsigma_t_mu,
+                                              dat$pr_lsigma_t_sd),
                              dim = 1),
-             alpha   = array(stats::rbeta(1,
+             w_t     = stats::rnorm(dat$n_time)))
+    if (dat$ar_re != "none")
+      out <- c(out,
+               alpha = array(stats::rbeta(1,
                                           dat$pr_alpha_a,
                                           dat$pr_alpha_b),
-                             dim = 1),
-             raw     = stats::rnorm(dat$n_time)))
+                             dim = 1))
+  }
+  if (iid_re) {
+    out <-
+      c(out,
+        list(log_sigma_i = array(stats::rnorm(1,
+                                              dat$pr_lsigma_i_mu,
+                                              dat$pr_lsigma_i_sd),
+                                 dim = 1),
+             w_i     = stats::rnorm(dat$n_patches)))
+  }
+  if (sp_re) {
+    out <-
+      c(out,
+        list(log_sigma_s = array(stats::rnorm(1,
+                                              dat$pr_lsigma_s_mu,
+                                              dat$pr_lsigma_s_sd),
+                                 dim = 1),
+             w_s     = stats::rnorm(dat$n_patches)))
+    if (dat$icar_re < 1) {
+      out <- c(out,
+               aux_ws = stats::rnorm(dat$n_patches),
+               delta  = stats::rbeta(1, dat$pr_delta_a, dat$pr_delta_b))
+    }
   }
   if (model == "drm") {
     if (dat$movement) {

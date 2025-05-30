@@ -1,3 +1,11 @@
+# drmr 0.1.4
+
+* Adding ICAR and BYM spatial random effects.
+
+* Adding iid random effects.
+
+* Adding ICAR and BYM spatial random effects.
+
 # drmr 0.1.3
 
 * Modified `examples.qmd` to prevent errors due to pathfinder failing.
@@ -5,7 +13,7 @@
 * Updated github actions.
 
 * Same problematic behaviour that was affecting `make_data` had to be dealed
-  with in prior initialization.
+  with in prior initialization and predictions.
   
 * Options for "data informed" phi priors through the floag `phi_hat`
   

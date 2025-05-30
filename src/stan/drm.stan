@@ -210,15 +210,26 @@ data {
   int n_patches; // number of patches
   int n_time; // years for training
   array[N] int<lower = 1, upper = n_time> time;
+  array[N] int<lower = 1, upper = n_patches> patch;
   vector[N] y;
   //--- toggles ---
-  int<lower = 0, upper = 1> time_ar;
+  int<lower = 0, upper = 3> ar_re;
+  int<lower = 0, upper = 3> rw_re;
+  int<lower = 0, upper = 3> iid_re;
+  int<lower = 0, upper = 3> bym_re;
+  int<lower = 0, upper = 1> icar_re;
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> est_init; // estimate "initial cohort"
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic. 4 = truncated normal)
+  //--- for spatial random effects ----
+  array[bym_re > 0 ? 1 : 0] int<lower = 0> N_edges;  // number of neighbor pairs
+  array[bym_re > 0 ? 2 : 1,
+        bym_re > 0 ? N_edges[1] : 1]
+  int<lower = 1, upper = n_patches> neighbors;  // columnwise adjacent
+  array[bym_re > 0 ? 1 : 0] real scaling;
   //--- suitability (for rho) ----
   int<lower = 1> K_t;
   matrix[N, K_t] X_t;
@@ -239,16 +250,20 @@ data {
   int<lower = 1> K_r;
   matrix[N, K_r] X_r;
   //--- priors hyperparameters ----
-  real pr_sigma_obs_mu; 
-  real pr_sigma_obs_sd; // formerly sigma_obs_cv
-  real<lower = 0> pr_phi_a; // revise this. It is for phi in gamma, loglogistic, and
+  real<lower = 0> pr_phi_a;
   real<lower = 0> pr_phi_b;
-  real pr_ltau_mu; 
-  real pr_ltau_sd;
+  real pr_lsigma_t_mu; 
+  real pr_lsigma_t_sd;
+  real pr_lsigma_i_mu; 
+  real pr_lsigma_i_sd;
+  real pr_lsigma_s_mu; 
+  real pr_lsigma_s_sd;
   real pr_alpha_a; 
   real pr_alpha_b;
   real pr_zeta_a; 
   real pr_zeta_b;
+  real pr_delta_a; 
+  real pr_delta_b;
   vector[K_t] pr_beta_t_mu;
   vector[K_t] pr_beta_t_sd;
   vector[est_surv ? K_m[1] : 0] pr_beta_s_mu;
@@ -278,11 +293,20 @@ transformed data {
   array[N_z] int id_z;
   id_nz = non_zero_index_fun(y, N_nz);
   id_z = zero_index_fun(y, N_z);
+  //--- Auxillary flags ----
+  int time_re;
+  time_re = ar_re + rw_re > 0 ? 1 : 0;
+  int aux_iid;
+  aux_iid = iid_re > 0 ? 1 : 0;
+  int sp_re;
+  sp_re = bym_re > 0 ? 1 : 0;
+  //--- scaling factors for sum_to_zero_vectors ----
+  real s_time = sqrt(n_time * inv(n_time - 1));
+  real s_iid  = sqrt(n_patches * inv(n_patches - 1));
 }
 parameters {
   // parameter associated to the likelihood 
-  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
-  array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
+  real<lower = 0> phi;
   // coefficients for recruitment (it is a log-linear model)
   vector[K_r] beta_r;
   // parameter associated with "encounter probability"
@@ -293,42 +317,92 @@ parameters {
   array[est_init ? n_ages - 1 : 0] real log_init;
   //--- * AR process parameters ----
   // conditional SD
-  array[time_ar] real log_tau;
+  array[time_re] real log_sigma_t;
   // autocorrelation
-  array[time_ar] real<lower = 0, upper = 1> alpha;
+  array[ar_re > 0 ? 1 : 0] real<lower = 0, upper = 1> alpha;
   // aux latent variable
-  vector[time_ar ? n_time : 0] raw;
+  vector[time_re ? n_time : 0] w_t;
+  //--- * iid re pars ----
+  sum_to_zero_vector[aux_iid ? n_patches : 0] w_i;
+  array[aux_iid] real log_sigma_i;
+  //--- * sp pars ----
+  sum_to_zero_vector[sp_re ? n_patches : 0] w_s;  // spatial effects
+  array[sp_re] real log_sigma_s;
+  vector[sp_re && !icar_re ? n_patches : 0] aux_ws; // heterogeneous random effects
+  array[sp_re && !icar_re ? 1 : 0] real delta; // heterogeneous random effects
   //--- * Movement parameter ----
   // logit of the probability of staying in the same patch
   array[movement] real<lower = 0, upper = 1> zeta;
 }
 transformed parameters {
+  //--- AR process ----
+  array[time_re] real sigma_t;
+  vector[time_re ? n_time : 0] z_t;
+  vector[time_re ? n_time : 0] lagged_z_t;
+  if (time_re) {
+    sigma_t[1] = exp(log_sigma_t[1]);
+    z_t = sigma_t[1] * w_t;
+    for (tp in 2:n_time) {
+      lagged_z_t[tp] = z_t[tp - 1];
+      z_t[tp] += ar_re > 0 ? alpha[1] * lagged_z_t[tp] : lagged_z_t[tp];
+    }
+  }
+  //--- iid RE ----
+  array[aux_iid] real sigma_i;
+  vector[aux_iid ? n_patches : 0] z_i;
+  if (aux_iid) {
+    sigma_i[1] = exp(log_sigma_i[1]);
+    z_i = sigma_i[1] * w_i;
+  }
+  //--- sp RE ----
+  array[sp_re] real sigma_s;
+  vector[sp_re ? n_patches : 0] z_s;
+  if (sp_re) {
+    sigma_s[1] = exp(log_sigma_s[1]);
+    z_s = inv_sqrt(scaling[1]) * w_s;
+    if (!icar_re) {
+      z_s *= sqrt(delta[1]);
+      z_s += sqrt(1 - delta[1]) * aux_ws;
+    }
+    z_s *= sigma_s[1];
+  }
   //--- Recruitment ----
   // we are working with "log recruitment" here
   vector[N] log_rec;
   log_rec = X_r * beta_r;
+  if (ar_re == 1 || rw_re == 1) {
+    for (n in 1:N)
+      log_rec[n] += z_t[time[n]];
+  }
+  if (iid_re == 1) {
+    for (n in 1:N)
+      log_rec[n] += z_i[patch[n]];
+  }
+  if (bym_re == 1) {
+    for (n in 1:N)
+      log_rec[n] += z_s[patch[n]];
+  }
   //--- Initialization ----
   array[est_init ? n_ages - 1 : 0] real init_par;
   if (est_init)
     init_par = exp(log_init);
-  //--- AR process ----
-  array[time_ar] real tau;
-  vector[time_ar ? n_time : 0] z_t;
-  vector[time_ar ? n_time : 0] lagged_z_t;
-  if (time_ar) {
-    tau[1] = exp(log_tau[1]);
-    z_t = tau[1] * raw;
-    for (tp in 2:n_time) {
-      lagged_z_t[tp] = z_t[tp - 1];
-      z_t[tp] += alpha[1] * lagged_z_t[tp];
-    }
-    for (n in 1:N)
-        log_rec[n] += z_t[time[n]];
-  }
   //--- Mortality ----
   vector[est_surv ? N : 0] mortality;
-  if (est_surv)
+  if (est_surv) {
     mortality = X_m * beta_s;
+    if (ar_re == 2 || rw_re == 2) {
+      for (n in 1:N)
+        mortality[n] += z_t[time[n]];
+    }
+    if (iid_re == 2) {
+      for (n in 1:N)
+        mortality[n] += z_i[patch[n]];
+    }
+    if (bym_re == 2) {
+      for (n in 1:N)
+        mortality[n] += z_s[patch[n]];
+    }
+  }
   // Expected density at specific time/patch combinations
   vector[N] mu =
     rep_vector(0.0, N);
@@ -377,11 +451,22 @@ transformed parameters {
       } // close patches
     }
     mu = to_vector(mu_aux);
+    if (ar_re == 3 || rw_re == 3) {
+      for (n in 1:N)
+        mu[n] += z_t[time[n]];
+    }
+    if (iid_re == 3) {
+      for (n in 1:N)
+        mu[n] += z_i[patch[n]];
+    }
+    if (sp_re == 3) {
+      for (n in 1:N)
+        mu[n] += z_s[patch[n]];
+    }
   }
   //--- quantities used in the likelihood ----
   // probability of encounter at specific time/patch combinations
   vector[N] rho;
-
   // rho now hasa "regression like" type
   if (cloglog) {
     rho =
@@ -397,10 +482,24 @@ model {
   if (est_init)
     target += std_normal_lpdf(log_init);
   //--- AR process ----
-  if (time_ar) {
-    target += std_normal_lpdf(raw);
-    target += normal_lpdf(log_tau[1] | pr_ltau_mu, pr_ltau_sd);
+  if (time_re) {
+    target += normal_lpdf(w_t | 0, s_time);
+    target += normal_lpdf(log_sigma_t[1] | pr_lsigma_t_mu, pr_lsigma_t_sd);
+  }
+  if (ar_re > 0) {
     target += beta_lpdf(alpha[1] | pr_alpha_a, pr_alpha_b); 
+  }
+  if (aux_iid) {
+    target += normal_lpdf(w_i | 0, s_iid);
+    target += normal_lpdf(log_sigma_i[1] | pr_lsigma_i_mu, pr_lsigma_i_sd);
+  }
+  if (sp_re) {
+    target += normal_lpdf(log_sigma_s[1] | pr_lsigma_s_mu, pr_lsigma_s_sd);
+    target += -0.5 * dot_self(w_s[neighbors[1]] - w_s[neighbors[2]]); // ICAR prior
+    if (!icar_re) {
+      target += std_normal_lpdf(aux_ws);
+      target += beta_lpdf(delta[1] | pr_delta_a, pr_delta_b);
+    }
   }
   //--- Movement ----
   if (movement) {
@@ -414,90 +513,68 @@ model {
   //--- suitability ----
   target += normal_lpdf(beta_t | pr_beta_t_mu, pr_beta_t_sd);
   //--- Likelihood ----
-  if (likelihood == 0) {
-    target += normal_lpdf(sigma_obs[1] | pr_sigma_obs_mu, pr_sigma_obs_sd) -
-      1.0 * normal_lccdf(0 | pr_sigma_obs_mu, pr_sigma_obs_sd);
-  } else {
-    // change these parameters (PC prior for exponential?)
-    target += gamma_lpdf(phi[1] | pr_phi_a, pr_phi_b);
-  }
+  // change these parameters (PC prior for exponential?)
+  target += gamma_lpdf(phi | pr_phi_a, pr_phi_b);
   // only evaluate density if there are length comps to evaluate
   target += sum(log(rho[id_z]));
-  if (likelihood == 0) {
-    vector[N_nz] loc_par;
-    loc_par = log(mu[id_nz]) + square(sigma_obs[1]) / 2;
-    target += log1m(rho[id_nz]);
-    target += lognormal_lpdf(y[id_nz] | loc_par, sigma_obs[1]);
-  } else if (likelihood == 1) {
+  if (likelihood == 1) {
     vector[N_nz] mu_ln;
     vector[N_nz] sigma_ln;
-    sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[id_nz])));
+    sigma_ln = sqrt(log1p(phi * inv_square(mu[id_nz])));
     mu_ln = log(square(mu[id_nz]) .*
-                inv_sqrt(square(mu[id_nz]) + phi[1]));
+                inv_sqrt(square(mu[id_nz]) + phi));
     target += log1m(rho[id_nz]);
     target += lognormal_lpdf(y[id_nz] | mu_ln, sigma_ln);
   } else if (likelihood == 2) {
     vector[N_nz] b_g;
-    b_g = phi[1] / mu[id_nz];
+    b_g = phi / mu[id_nz];
     target += log1m(rho[id_nz]);
-    target += gamma_lpdf(y[id_nz] | phi[1], b_g);
+    target += gamma_lpdf(y[id_nz] | phi, b_g);
   } else if (likelihood == 3) {
     vector[N_nz] a_ll;
     real b_ll;
-    b_ll = phi[1] + 1;
+    b_ll = phi + 1;
     a_ll = sin(pi() / b_ll) * mu[id_nz] * b_ll / inv(pi());
     target += log1m(rho[id_nz]);
     target += loglogistic_lpdf(y[id_nz] | a_ll, b_ll);
   } else {
     target += log1m(rho[id_nz]);
-    target += normal_lpdf(y | mu, phi[1]) -
-      normal_lccdf(rep_vector(0.0, N) | mu, phi[1]);
+    target += normal_lpdf(y | mu, phi) -
+      normal_lccdf(rep_vector(0.0, N) | mu, phi);
   }
 }
 generated quantities {
   vector[N] log_lik;
   vector[N] y_pp;
   for (n in 1:N) {
-    if (likelihood == 0) {
-      real loc_par;
-      loc_par = log(mu[n]) + square(sigma_obs[1]) / 2;
-      y_pp[n] = (1 - bernoulli_rng(rho[n])) *
-        lognormal_rng(loc_par, sigma_obs[1]);
-      if (y[n] == 0) {
-        // only evaluate density if there are length comps to evaluate
-        log_lik[n] = log(rho[n]);
-      } else {
-        log_lik[n] = log1m(rho[n]) +
-          lognormal_lpdf(y[n] | loc_par, sigma_obs[1]);
-      }
-    } else if (likelihood == 1) {
+    if (likelihood == 1) {
       real mu_ln;
       real sigma_ln;
-      sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[n])));
-      mu_ln = log(square(mu[n]) * inv_sqrt(square(mu[n]) + phi[1]));
+      sigma_ln = sqrt(log1p(phi * inv_square(mu[n])));
+      mu_ln = log(square(mu[n]) * inv_sqrt(square(mu[n]) + phi));
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         lognormal_rng(mu_ln, sigma_ln);
       if (y[n] == 0) {
         log_lik[n] = log(rho[n]);
       } else {
         log_lik[n] = log1m(rho[n]) +
-          ln_mu_lpdf(y[n] | mu[n], phi[1]);
+          ln_mu_lpdf(y[n] | mu[n], phi);
       }
     } else if (likelihood == 2) {
       real gamma_beta;
-      gamma_beta = phi[1] / mu[n];
+      gamma_beta = phi / mu[n];
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
-        gamma_rng(phi[1], gamma_beta);
+        gamma_rng(phi, gamma_beta);
       if (y[n] == 0) {
         log_lik[n] = log(rho[n]);
       } else {
         log_lik[n] = log1m(rho[n]) +
-          gamma_lpdf(y[n] | phi[1], gamma_beta);
+          gamma_lpdf(y[n] | phi, gamma_beta);
       }
     } else if (likelihood == 3) {
       real a_ll;
       real b_ll;
-      b_ll = phi[1] + 1;
+      b_ll = phi + 1;
       a_ll = sin(pi() / b_ll) * mu[n] * b_ll * inv(pi());
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         loglogistic_rng(a_ll, b_ll);
@@ -509,17 +586,17 @@ generated quantities {
       }
     } else {
       array[2] real aux_tn = rep_array(0.0, 2);
-      aux_tn[2] = normal_rng(mu[n], phi[1]);
+      aux_tn[2] = normal_rng(mu[n], phi);
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         max(aux_tn);
       if (y[n] == 0) {
         log_lik[n] = log(rho[n]) +
-          normal_lpdf(0.0 | mu[n], phi[1]) +
-          normal_lccdf(0.0 | mu[n], phi[1]);
+          normal_lpdf(0.0 | mu[n], phi) +
+          normal_lccdf(0.0 | mu[n], phi);
       } else {
         log_lik[n] = log1m(rho[n]) +
-          normal_lpdf(y[n] | mu[n], phi[1]) +
-          normal_lccdf(0.0 | mu[n], phi[1]);
+          normal_lpdf(y[n] | mu[n], phi) +
+          normal_lccdf(0.0 | mu[n], phi);
       }
     }
   }

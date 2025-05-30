@@ -70,7 +70,22 @@ get_phi_hat <- function(y, family) {
 ##'   \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
 ##'   \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 ##'   \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
-##'   \item \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.}
+##'   \item \code{ar_re}: a \code{character}. It assumes one of the following
+##'   values: "none" - no AR, "rec" AR(1) for recruitment, "surv" - AR(1) for
+##'   survival (only works when \code{est_surv} is on), "dens" - AR(1) for
+##'   density.  \item \code{rw_re}: a \code{character}. It assumes one of the
+##'   following values: "none" - no RW, "rec" RW for recruitment, "surv" - RW
+##'   for survival (only works when \code{est_surv} is on), "dens" - RW for
+##'   density.  \item \code{iid_re}: a \code{character}. It assumes one of the
+##'   following values: "none" - no IID random effect, "rec" IID random effect
+##'   for recruitment, "surv" - IID random effect for survival (only works when
+##'   \code{est_surv} is on), "dens" - IID random effect for density.  \item
+##'   \code{bym_re}: a \code{character}. It assumes one of the following values:
+##'   "none" - no BYM2 spatial random effect, "rec" BYM2 spatial random effect
+##'   for recruitment, "surv" - BYM2 spatial random effect for survival (only
+##'   works when \code{est_surv} is on), "dens" - BYM2 spatial random effect for
+##'   density.\item \code{icar_re}: 1 to replace BYM2 with ICAR and 0
+##'   otherwise. Only works when BYM2 is on.}
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
 ##'   reordered. The default is TRUE and means the data points will be ordered
@@ -186,6 +201,20 @@ make_data <- function(y,
                                    dim = 1)
     }
   }
+  if (toggles$bym_re > 0) {
+    stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
+              nrow(adj_mat) == n_patches)
+    aux_sp <- get_nodes(adj_mat)
+    adj2 <- matrix(0, ncol = NCOL(adj_mat), nrow = NROW(adj_mat))
+    adj2[adj_mat > 0] <- 1
+    scaling <- array(get_scaling(adj2), dim = 1)
+    N_edges <- array(as.integer(aux_sp$N_edges), dim = 1)
+    neighbors <- with(aux_sp, cbind(node1, node2))
+  } else {
+    scaling <- numeric(0)
+    neighbors <- matrix(1, ncol = 1, nrow = 1)
+    N_edges <- integer(0)
+  }
   if (missing(x_r)) {
     x_r <- matrix(1, nrow = n_time * n_patches)
     K_r <- 1
@@ -230,6 +259,7 @@ make_data <- function(y,
                  n_patches = n_patches,
                  n_time = n_time,
                  time = time,
+                 patch = site,
                  init_data = init_data,
                  y = y,
                  f = f_mort,
@@ -240,6 +270,9 @@ make_data <- function(y,
                  K_m = K_m,
                  X_r = x_r,
                  K_r = K_r,
+                 scaling = scaling,
+                 neighbors = neighbors,
+                 N_edges = N_edges,
                  adj_mat = adj_mat,
                  ages_movement = ages_movement,
                  selectivity_at_age = selectivity_at_age) |>
