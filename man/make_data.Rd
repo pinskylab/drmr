@@ -78,22 +78,7 @@ log-log and 0 for the logit link function for the absence probabilities.
 \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
 \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
-\item \code{ar_re}: a \code{character}. It assumes one of the following
-values: "none" - no AR, "rec" AR(1) for recruitment, "surv" - AR(1) for
-survival (only works when \code{est_surv} is on), "dens" - AR(1) for
-density.  \item \code{rw_re}: a \code{character}. It assumes one of the
-following values: "none" - no RW, "rec" RW for recruitment, "surv" - RW
-for survival (only works when \code{est_surv} is on), "dens" - RW for
-density.  \item \code{iid_re}: a \code{character}. It assumes one of the
-following values: "none" - no IID random effect, "rec" IID random effect
-for recruitment, "surv" - IID random effect for survival (only works when
-\code{est_surv} is on), "dens" - IID random effect for density.  \item
-\code{bym_re}: a \code{character}. It assumes one of the following values:
-"none" - no BYM2 spatial random effect, "rec" BYM2 spatial random effect
-for recruitment, "surv" - BYM2 spatial random effect for survival (only
-works when \code{est_surv} is on), "dens" - BYM2 spatial random effect for
-density.\item \code{icar_re}: 1 to replace BYM2 with ICAR and 0
-otherwise. Only works when BYM2 is on.}}
+\item \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.}}
 
 \item{.priors}{a \code{list} of priors hyperparameters.}
 
