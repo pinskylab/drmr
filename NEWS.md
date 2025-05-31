@@ -1,4 +1,4 @@
-# drmr 0.1.4
+# drmr 0.2.0
 
 * Allowing for choosing which process is correlated in time;
 
@@ -19,7 +19,8 @@
 * ICAR random effects
   
   * The following variables are added to the model: `w_s`, `z_s` patch specific
-    random effect and `sigma_s` the approx marginal SD of the spatial random effect.  
+    random effect and `sigma_s` the approx marginal SD of the spatial random
+    effect.
 
 # drmr 0.1.3
 

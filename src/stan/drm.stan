@@ -303,7 +303,7 @@ parameters {
   // parameter associated with "encounter probability"
   vector[K_t] beta_t;
   // coefficients for mortality/survival (it is a log-linear model)
-  vector[est_surv ? K_m[1] : 0] beta_s;
+  array[est_surv] vector[est_surv ? K_m[1] : 0] beta_s;
   //--- * initialization parameter ----
   array[est_init ? n_ages - 1 : 0] real log_init;
   //--- * AR process parameters ----
@@ -312,15 +312,15 @@ parameters {
   // autocorrelation
   array[ar_re > 0 ? 1 : 0] real<lower = 0, upper = 1> alpha;
   // aux latent variable
-  vector[ar_re > 0 ? n_time : 0] w_t;
+  array[ar_re > 0 ? 1 : 0] vector[n_time] w_t;
   //--- * IID RE ----
   // SD
   array[iid_re > 0 ? 1 : 0] real log_sigma_i;
   // aux latent variable
-  sum_to_zero_vector[iid_re > 0 ? n_patches : 0] z_i;
+  array[iid_re > 0 ? 1 : 0] sum_to_zero_vector[n_patches] z_i;
   //--- * ICAR RE ----
-  sum_to_zero_vector[sp_re ? n_patches : 0] w_s;
-  array[sp_re] real log_sigma_s;
+  array[sp_re > 0 ? 1 : 0] sum_to_zero_vector[n_patches] w_s;
+  array[sp_re > 0 ? 1 : 0] real log_sigma_s;
   //--- * Movement parameter ----
   // logit of the probability of staying in the same patch
   array[movement] real<lower = 0, upper = 1> zeta;
@@ -337,7 +337,7 @@ transformed parameters {
   //--- Mortality ----
   vector[est_surv ? N : 0] mortality;
   if (est_surv)
-    mortality = X_m * beta_s;
+    mortality = X_m * beta_s[1];
   // Expected density at specific time/patch combinations
   vector[N] mu =
     rep_vector(0.0, N);
@@ -361,7 +361,7 @@ transformed parameters {
   vector[ar_re > 0 ? n_time : 0] lagged_z_t;
   if (ar_re > 0) {
     sigma_t[1] = exp(log_sigma_t[1]);
-    z_t = sigma_t[1] * w_t;
+    z_t = sigma_t[1] * w_t[1];
     for (tp in 2:n_time) {
       lagged_z_t[tp] = z_t[tp - 1];
       z_t[tp] += alpha[1] * lagged_z_t[tp];
@@ -377,7 +377,7 @@ transformed parameters {
   vector[sp_re > 0 ? n_patches : 0] z_s;
   if (sp_re > 0) {
     sigma_s[1] = exp(log_sigma_s[1]);
-    z_s = sigma_s[1] * inv_sqrt(scaling[1]) * w_s;
+    z_s = sigma_s[1] * inv_sqrt(scaling[1]) * w_s[1];
   }
   {
     //--- inputing the AR effects ----
@@ -392,11 +392,11 @@ transformed parameters {
     //--- inputing IID effects ----
     if (iid_re == 1) {
       for (n in 1:N)
-        log_rec[n] += z_i[patch[n]];
+        log_rec[n] += z_i[1][patch[n]];
     }
     if (iid_re == 2) {
       for (n in 1:N)
-        mortality[n] += z_i[patch[n]];
+        mortality[n] += z_i[1][patch[n]];
     }
      //--- inputing the AR effects ----
     if (ar_re == 1) {
@@ -452,7 +452,7 @@ transformed parameters {
     }
     if (iid_re == 3) {
       for (n in 1:N)
-        mu[n] *= exp(z_i[patch[n]]);
+        mu[n] *= exp(z_i[1][patch[n]]);
     }
     if (sp_re == 3) {
       for (n in 1:N)
@@ -478,19 +478,19 @@ model {
     target += std_normal_lpdf(log_init);
   //--- AR process ----
   if (ar_re > 0) {
-    target += std_normal_lpdf(w_t);
+    target += std_normal_lpdf(w_t[1]);
     target += normal_lpdf(log_sigma_t[1] | pr_lsigma_t_mu, pr_lsigma_t_sd);
     target += beta_lpdf(alpha[1] | pr_alpha_a, pr_alpha_b); 
   }
   //--- IID RE ----
   if (iid_re > 0) {
     target += normal_lpdf(log_sigma_i[1] | pr_lsigma_i_mu, pr_lsigma_i_sd);
-    target += normal_lpdf(z_i | 0, sigma_i[1] * s_iid);
+    target += normal_lpdf(z_i[1] | 0, sigma_i[1] * s_iid);
   }
   //--- SP RE ----
   if (sp_re > 0) {
     target += normal_lpdf(log_sigma_s[1] | pr_lsigma_s_mu, pr_lsigma_s_sd);
-    target += -0.5 * dot_self(w_s[neighbors[1]] - w_s[neighbors[2]]); // ICAR prior
+    target += -0.5 * dot_self(w_s[1][neighbors[1]] - w_s[1][neighbors[2]]); // ICAR prior
   }
   //--- Movement ----
   if (movement) {
@@ -498,7 +498,7 @@ model {
   }
   //--- Mortality ----
   if (est_surv)
-    target += normal_lpdf(beta_s | pr_beta_s_mu, pr_beta_s_sd);
+    target += normal_lpdf(beta_s[1] | pr_beta_s_mu, pr_beta_s_sd);
   //--- Recruitment ----
   target += normal_lpdf(beta_r | pr_beta_r_mu, pr_beta_r_sd);
   //--- suitability ----

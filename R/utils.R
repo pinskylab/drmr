@@ -276,28 +276,17 @@ fix_re <- function(x) {
 ##' @return a \code{list}.
 ##' @author lcgodoy
 get_nodes <- function(adj) {
-  adj <- unlist(apply(adj > 0, MARGIN = 1,
-                      which))
-  num <- lengths(adj, use.names = FALSE)
-  N <- length(num)
-  nn <- num
-  N_edges <- length(adj) / 2
-  node1 <- vector(mode = "numeric", length = N_edges)
-  node2 <- vector(mode = "numeric", length = N_edges)
-  iAdj <- 0
-  iEdge <- 0
-  for (i in seq_len(N)) {
-    for (j in seq_len(nn[i])) {
-      iAdj <- iAdj + 1
-      if (i < adj[iAdj]) {
-        iEdge <- iEdge + 1
-        node1[iEdge] <- i
-        node2[iEdge] <- adj[iAdj]
-      }
-    }
-  }
-  return(list("N_edges" = N_edges,
-              "neighbors" = rbind(node1,  node2)))
+  ladj <- apply(adj > 0, MARGIN = 1,
+                which)
+  nodes <-
+    Map(\(row, col) {
+      matrix(c(rep(as.integer(row),
+                   length(col)),
+               col), ncol = 2)
+    }, names(ladj), ladj)
+  nodes <- do.call(rbind, nodes)
+  return(list("N_edges" = NROW(nodes),
+              "neighbors" = t(nodes)))
 }
 
 ##' @title Generalized Inverse

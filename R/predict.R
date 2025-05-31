@@ -15,6 +15,8 @@ fitted_pars_drm <- function(data_list) {
     output <- c(output, "z_t", "alpha", "sigma_t")
   if (data_list$iid_re > 0)
     output <- c(output, "z_i", "sigma_i")
+  if (data_list$sp_re > 0)
+    output <- c(output, "z_s")
   return(output)
 }
 

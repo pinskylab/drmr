@@ -170,13 +170,13 @@ parameters {
   //--- movement matrix ---
   matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
   //--- reg for mortality ---
-  vector[est_surv ? K_m[1] : 0] beta_s;
+  array[est_surv] vector[est_surv ? K_m[1] : 0] beta_s;
   //--- parameters from AR process ----
   vector[ar_re > 0 ? n_time_train : 0] z_t;
   array[ar_re > 0 ? 1 : 0] real alpha;
   array[ar_re > 0 ? 1 : 0] real sigma_t;
   //--- IID RE ----
-  vector[iid_re > 0 ? n_patches : 0] z_i;
+  array[iid_re > 0 ? 1 : 0] vector[n_patches] z_i;
   //--- SP RE ----
   vector[sp_re > 0 ? n_patches : 0] z_s;
 }
@@ -216,7 +216,7 @@ generated quantities {
     }
     if (iid_re == 1) {
       for (n in 1:N)
-        log_rec[n] += z_i[patch[n]];
+        log_rec[n] += z_i[1][patch[n]];
     }
     if (sp_re == 1) {
       for (n in 1:N)
@@ -229,21 +229,21 @@ generated quantities {
       current_m = rep_matrix(- m[1], n_time, n_patches);
       past_m = rep_vector(- m[1], n_patches);
     } else {
-      m_aux = X_m * beta_s;
+      m_aux = X_m * beta_s[1];
       if (ar_re == 2) {
         for (n in 1:N)
           m_aux[n] += z_tp[time[n]];
       }
       if (iid_re == 2) {
         for (n in 1:N)
-          m_aux[n] += z_i[patch[n]];
+          m_aux[n] += z_i[1][patch[n]];
       }
       if (sp_re == 2) {
         for (n in 1:N)
           m_aux[n] += z_s[patch[n]];
       }
       current_m = to_matrix(m_aux, n_time, n_patches);
-      past_m = X_m_past * beta_s;
+      past_m = X_m_past * beta_s[1];
     }
     // forecast_simplest is a function in the utils/theoretical_mean.stan file
     lambda_proj = forecast_simplest(n_patches,
@@ -282,7 +282,7 @@ generated quantities {
     }
     if (iid_re == 3) {
       for (n in 1:N)
-        mu_proj[n] *= exp(z_i[patch[n]]);
+        mu_proj[n] *= exp(z_i[1][patch[n]]);
     }
     if (sp_re == 3) {
       for (n in 1:N)

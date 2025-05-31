@@ -1,7 +1,7 @@
 Package: drmr
 Type: Package
 Title: An R package with pre-compiled cmdstan code for dynamic range models
-Version: 0.1.4
+Version: 0.2.0
 Authors@R: 
     person(given = "Lucas",
            family = "da Cunha Godoy",
