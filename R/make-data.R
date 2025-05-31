@@ -70,7 +70,10 @@ get_phi_hat <- function(y, family) {
 ##'   \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
 ##'   \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 ##'   \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
-##'   \item \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.}
+##'   \item \code{ar_re}: a \code{character}. It assumes one of the following
+##'   values: "none" - no AR, "rec" AR(1) for recruitment, "surv" - AR(1) for
+##'   survival (only works when \code{est_surv} is on), "dens" - AR(1) for
+##'   density.}
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
 ##'   reordered. The default is TRUE and means the data points will be ordered

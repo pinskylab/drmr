@@ -146,6 +146,7 @@ check_pars <- function(dat, model) {
 ##' @author lcgodoy
 prior_sample <- function(dat, model = "drm") {
   check_pars(dat, model)
+  time_re <- ifelse(dat$ar_re != "none", 1, 0)
   out <-
     list(beta_t = stats::rnorm(ifelse(model == "drm",
                                       dat$K_t, dat$K_z),
@@ -175,18 +176,18 @@ prior_sample <- function(dat, model = "drm") {
                                        rate = dat$pr_phi_b),
                          dim = 1)))
   }
-  if (dat$time_ar) {
+  if (time_re) {
     out <-
       c(out,
-        list(log_tau = array(stats::rnorm(1,
-                                          dat$pr_ltau_mu,
-                                          dat$pr_ltau_sd),
-                             dim = 1),
+        list(log_sigma_t = array(stats::rnorm(1,
+                                              dat$pr_lsigma_t_mu,
+                                              dat$pr_lsigma_t_sd),
+                                 dim = 1),
              alpha   = array(stats::rbeta(1,
                                           dat$pr_alpha_a,
                                           dat$pr_alpha_b),
                              dim = 1),
-             raw     = stats::rnorm(dat$n_time)))
+             w_t     = stats::rnorm(dat$n_time)))
   }
   if (model == "drm") {
     if (dat$movement) {

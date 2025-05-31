@@ -11,8 +11,8 @@ fitted_pars_drm <- function(data_list) {
     output <- c(output, "mov_mat")
   if (data_list$est_surv == 1)
     output <- c(output, "beta_s")
-  if (data_list$time_ar == 1)
-    output <- c(output, "z_t", "alpha", "tau")
+  if (data_list$ar_re > 0)
+    output <- c(output, "z_t", "alpha", "sigma_t")
   return(output)
 }
 
@@ -25,7 +25,7 @@ fitted_pars_sdm <- function(data_list) {
     output <- c(output, "phi")
   }
   if (data_list$time_ar == 1)
-    output <- c(output, "z_t", "alpha", "tau")
+    output <- c(output, "z_t", "alpha", "sigma_t")
   return(output)
 }
 
@@ -115,7 +115,7 @@ predict_drm <- function(drm,
          n_time = ntime_for,
          n_time_train = drm$data$n_time,
          time = time_for,
-         time_ar = drm$data$time_ar,
+         ar_re = drm$data$ar_re,
          movement = drm$data$movement,
          est_surv = drm$data$est_surv,
          cloglog = drm$data$cloglog,

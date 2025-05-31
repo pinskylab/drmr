@@ -130,7 +130,7 @@ data {
   int n_time_train; // years for training
   array[N] int time;
   //--- toggles ---
-  int<lower = 0, upper = 1> time_ar;
+  int<lower = 0, upper = 3> ar_re;
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
@@ -169,9 +169,9 @@ parameters {
   //--- reg for mortality ---
   vector[est_surv ? K_m[1] : 0] beta_s;
   //--- parameters from AR process ----
-  vector[time_ar ? n_time_train : 0] z_t;
-  array[time_ar] real alpha;
-  array[time_ar ? 1 : 0] real tau;
+  vector[ar_re > 0 ? n_time_train : 0] z_t;
+  array[ar_re > 0 ? 1 : 0] real alpha;
+  array[ar_re > 0 ? 1 : 0] real sigma_t;
 }
 generated quantities {
   //--- projected expected density by age ---
@@ -183,19 +183,19 @@ generated quantities {
   //--- projected absence probability ----
   vector[n_time * n_patches] rho_proj;
   //--- AR term ----
-  vector[time_ar ? n_time : 0] z_tp;
-  if (time_ar) {
+  vector[ar_re > 0 ? n_time : 0] z_tp;
+  if (ar_re > 0) {
     {
       vector[n_time] raw;
-      vector[time_ar ? n_time - 1 : 0] lagged_rec;
+      vector[ar_re > 0 ? n_time - 1 : 0] lagged_rec;
       raw[1] = std_normal_rng();
       z_tp[1] = alpha[1] * z_t[n_time_train] +
-        tau[1] * raw[1];
+        sigma_t[1] * raw[1];
       for (tp in 2:n_time) {
         raw[tp] = std_normal_rng();
         lagged_rec[tp - 1] = z_tp[tp - 1];
         z_tp[tp] = alpha[1] * lagged_rec[tp - 1] +
-          tau[1] * raw[tp];
+          sigma_t[1] * raw[tp];
       }
     }
   }
@@ -203,17 +203,23 @@ generated quantities {
   {
     vector[N] log_rec;
     log_rec = X_r * beta_r;
-    if (time_ar) {
+    if (ar_re == 1) {
       for (n in 1:N)
         log_rec[n] += z_tp[time[n]];
     }
     vector[n_patches] past_m;
     matrix[n_time, n_patches] current_m;
+    vector[n_time * n_patches] m_aux;
     if (!est_surv) {
       current_m = rep_matrix(- m[1], n_time, n_patches);
       past_m = rep_vector(- m[1], n_patches);
     } else {
-      current_m = to_matrix(X_m * beta_s, n_time, n_patches);
+      m_aux = X_m * beta_s;
+      if (ar_re == 2) {
+        for (n in 1:N)
+          m_aux[n] += z_tp[time[n]];
+      }
+      current_m = to_matrix(m_aux, n_time, n_patches);
       past_m = X_m_past * beta_s;
     }
     // forecast_simplest is a function in the utils/theoretical_mean.stan file
@@ -247,6 +253,10 @@ generated quantities {
       } // close patches
     }
     mu_proj = to_vector(mu_aux);
+    if (ar_re == 3) {
+      for (n in 1:N)
+        mu_proj[n] *= exp(z_tp[time[n]]);
+    }
   }
   //--- absence probabilities ----
   if (cloglog) {

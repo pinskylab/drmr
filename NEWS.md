@@ -1,3 +1,18 @@
+# drmr 0.1.4
+
+* Allowing for choosing which process is correlated in time;
+
+    * The variable `raw` became `w_t`;
+    * `tau` became `sigma_t`
+    * The flag `time_ar` became `ar_re` (stands for AR random effect). Now,
+      `ar_re` can assume three values: 
+      - "none" (for no AR), 
+      - "rec" (AR for recruitment)
+      - "surv" (AR for survival)
+      - "dens" (AR for density)
+
+* Unstructured random effects;
+
 # drmr 0.1.3
 
 * Modified `examples.qmd` to prevent errors due to pathfinder failing.
@@ -5,7 +20,7 @@
 * Updated github actions.
 
 * Same problematic behaviour that was affecting `make_data` had to be dealed
-  with in prior initialization.
+  with prior initialization and predictions.
   
 * Options for "data informed" phi priors through the floag `phi_hat`
   

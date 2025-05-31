@@ -78,6 +78,10 @@ gen_adj <- function(x) {
 safe_modify <- function(original, replacements) {
   if (!missing(replacements)) {
     stopifnot(all(names(replacements) %in% names(original)))
+    if ("ar_re" %in% names(replacements)) {
+      replacements[["ar_re"]] <-
+        fix_re(replacements[["ar_re"]])
+    }
     out <- utils::modifyList(original, replacements)
   } else {
     out <- original
@@ -245,4 +249,16 @@ marg_surv <- function(drm, newdata) {
   output <- dplyr::bind_rows(output)
   output <- dplyr::mutate(output, survival = est_samples)
   return(output)
+}
+
+##' @title Random effects verbose to code
+##' @param x a \code{character}
+##' @return a \code{integer}
+##' @author lcgogoy
+fix_re <- function(x) {
+    switch(x,
+           none = 0,
+           rec  = 1,
+           surv = 2,
+           dens = 3)
 }

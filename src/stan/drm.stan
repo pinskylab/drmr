@@ -212,7 +212,7 @@ data {
   array[N] int<lower = 1, upper = n_time> time;
   vector[N] y;
   //--- toggles ---
-  int<lower = 0, upper = 1> time_ar;
+  int<lower = 0, upper = 3> ar_re;
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> est_init; // estimate "initial cohort"
@@ -243,8 +243,8 @@ data {
   real pr_sigma_obs_sd; // formerly sigma_obs_cv
   real<lower = 0> pr_phi_a; // revise this. It is for phi in gamma, loglogistic, and
   real<lower = 0> pr_phi_b;
-  real pr_ltau_mu; 
-  real pr_ltau_sd;
+  real pr_lsigma_t_mu; 
+  real pr_lsigma_t_sd;
   real pr_alpha_a; 
   real pr_alpha_b;
   real pr_zeta_a; 
@@ -293,38 +293,24 @@ parameters {
   array[est_init ? n_ages - 1 : 0] real log_init;
   //--- * AR process parameters ----
   // conditional SD
-  array[time_ar] real log_tau;
+  array[ar_re > 0 ? 1 : 0] real log_sigma_t;
   // autocorrelation
-  array[time_ar] real<lower = 0, upper = 1> alpha;
+  array[ar_re > 0 ? 1 : 0] real<lower = 0, upper = 1> alpha;
   // aux latent variable
-  vector[time_ar ? n_time : 0] raw;
+  vector[ar_re > 0 ? n_time : 0] w_t;
   //--- * Movement parameter ----
   // logit of the probability of staying in the same patch
   array[movement] real<lower = 0, upper = 1> zeta;
 }
 transformed parameters {
-  //--- Recruitment ----
-  // we are working with "log recruitment" here
-  vector[N] log_rec;
-  log_rec = X_r * beta_r;
   //--- Initialization ----
   array[est_init ? n_ages - 1 : 0] real init_par;
   if (est_init)
     init_par = exp(log_init);
-  //--- AR process ----
-  array[time_ar] real tau;
-  vector[time_ar ? n_time : 0] z_t;
-  vector[time_ar ? n_time : 0] lagged_z_t;
-  if (time_ar) {
-    tau[1] = exp(log_tau[1]);
-    z_t = tau[1] * raw;
-    for (tp in 2:n_time) {
-      lagged_z_t[tp] = z_t[tp - 1];
-      z_t[tp] += alpha[1] * lagged_z_t[tp];
-    }
-    for (n in 1:N)
-        log_rec[n] += z_t[time[n]];
-  }
+  //--- Recruitment ----
+  // we are working with "log recruitment" here
+  vector[N] log_rec;
+  log_rec = X_r * beta_r;
   //--- Mortality ----
   vector[est_surv ? N : 0] mortality;
   if (est_surv)
@@ -346,7 +332,28 @@ transformed parameters {
     // this matrix is "row standardized". That is, its rows add up to 1.
     mov_mat += d * adj_mat;
   }
+  //--- AR process ----
+  array[ar_re > 0 ? 1 : 0] real sigma_t;
+  vector[ar_re > 0 ? n_time : 0] z_t;
+  vector[ar_re > 0 ? n_time : 0] lagged_z_t;
+  if (ar_re > 0) {
+    sigma_t[1] = exp(log_sigma_t[1]);
+    z_t = sigma_t[1] * w_t;
+    for (tp in 2:n_time) {
+      lagged_z_t[tp] = z_t[tp - 1];
+      z_t[tp] += alpha[1] * lagged_z_t[tp];
+    }
+  }
   {
+    //--- inputing the AR effects ----
+    if (ar_re == 1) {
+      for (n in 1:N)
+        log_rec[n] += z_t[time[n]];
+    }
+    if (ar_re == 2) {
+      for (n in 1:N)
+        mortality[n] += z_t[time[n]];
+    }
     // Expected density at specific time/patch combinations by age
     array[n_ages] matrix[n_time, n_patches] lambda_aux;
     // filling lambda according to our "simplest model"
@@ -377,11 +384,14 @@ transformed parameters {
       } // close patches
     }
     mu = to_vector(mu_aux);
+    if (ar_re == 3) {
+      for (n in 1:N)
+        mu[n] *= exp(z_t[time[n]]);
+    }
   }
   //--- quantities used in the likelihood ----
   // probability of encounter at specific time/patch combinations
   vector[N] rho;
-
   // rho now hasa "regression like" type
   if (cloglog) {
     rho =
@@ -397,9 +407,9 @@ model {
   if (est_init)
     target += std_normal_lpdf(log_init);
   //--- AR process ----
-  if (time_ar) {
-    target += std_normal_lpdf(raw);
-    target += normal_lpdf(log_tau[1] | pr_ltau_mu, pr_ltau_sd);
+  if (ar_re > 0) {
+    target += std_normal_lpdf(w_t);
+    target += normal_lpdf(log_sigma_t[1] | pr_lsigma_t_mu, pr_lsigma_t_sd);
     target += beta_lpdf(alpha[1] | pr_alpha_a, pr_alpha_b); 
   }
   //--- Movement ----

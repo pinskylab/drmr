@@ -9,8 +9,8 @@ default_priors <- function() {
        pr_sigma_obs_sd = 1,
        pr_phi_a = 2,
        pr_phi_b = 1,
-       pr_ltau_mu = -2,
-       pr_ltau_sd = .25,
+       pr_lsigma_t_mu = -2,
+       pr_lsigma_t_sd = .25,
        pr_alpha_a = .5,
        pr_alpha_b = .5,
        pr_zeta_a = .5,
@@ -34,5 +34,5 @@ default_toggles <- function() {
        movement = 0,
        est_surv = 0,
        est_init = 1,
-       time_ar = 0)
+       ar_re = 0)
 }
