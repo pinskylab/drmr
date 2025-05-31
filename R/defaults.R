@@ -11,6 +11,10 @@ default_priors <- function() {
        pr_phi_b = 1,
        pr_lsigma_t_mu = -2,
        pr_lsigma_t_sd = .25,
+       pr_lsigma_i_mu = -2,
+       pr_lsigma_i_sd = .25,
+       pr_lsigma_s_mu = -2,
+       pr_lsigma_s_sd = .25,
        pr_alpha_a = .5,
        pr_alpha_b = .5,
        pr_zeta_a = .5,
@@ -34,5 +38,7 @@ default_toggles <- function() {
        movement = 0,
        est_surv = 0,
        est_init = 1,
-       ar_re = 0)
+       ar_re = 0,
+       iid_re = 0,
+       sp_re = 0)
 }

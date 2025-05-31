@@ -210,9 +210,12 @@ data {
   int n_patches; // number of patches
   int n_time; // years for training
   array[N] int<lower = 1, upper = n_time> time;
+  array[N] int<lower = 1, upper = n_patches> patch;
   vector[N] y;
   //--- toggles ---
   int<lower = 0, upper = 3> ar_re;
+  int<lower = 0, upper = 3> iid_re;
+  int<lower = 0, upper = 3> sp_re;
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> est_init; // estimate "initial cohort"
@@ -231,6 +234,12 @@ data {
   vector[n_ages] selectivity_at_age;
   //--- initial cohort (if not estimated) ----
   array[est_init ? 0 : n_ages - 1] real init_data;
+   //--- for spatial random effects ----
+  array[sp_re > 0 ? 1 : 0] int<lower = 0> N_edges;  // number of neighbor pairs
+  array[sp_re > 0 ? 2 : 1,
+        sp_re > 0 ? N_edges[1] : 1]
+  int<lower = 1, upper = n_patches> neighbors;  // columnwise adjacent
+  array[sp_re > 0 ? 1 : 0] real scaling;
   //--- environmental data ----
   //--- * for mortality ----
   array[est_surv ? 1 : 0] int<lower = 1> K_m;
@@ -245,6 +254,10 @@ data {
   real<lower = 0> pr_phi_b;
   real pr_lsigma_t_mu; 
   real pr_lsigma_t_sd;
+  real pr_lsigma_i_mu; 
+  real pr_lsigma_i_sd;
+  real pr_lsigma_s_mu; 
+  real pr_lsigma_s_sd;
   real pr_alpha_a; 
   real pr_alpha_b;
   real pr_zeta_a; 
@@ -278,6 +291,8 @@ transformed data {
   array[N_z] int id_z;
   id_nz = non_zero_index_fun(y, N_nz);
   id_z = zero_index_fun(y, N_z);
+  //--- scaling factors ----
+  real s_iid = sqrt(n_patches / (n_patches - 1.0));
 }
 parameters {
   // parameter associated to the likelihood 
@@ -298,6 +313,14 @@ parameters {
   array[ar_re > 0 ? 1 : 0] real<lower = 0, upper = 1> alpha;
   // aux latent variable
   vector[ar_re > 0 ? n_time : 0] w_t;
+  //--- * IID RE ----
+  // SD
+  array[iid_re > 0 ? 1 : 0] real log_sigma_i;
+  // aux latent variable
+  sum_to_zero_vector[iid_re > 0 ? n_patches : 0] z_i;
+  //--- * ICAR RE ----
+  sum_to_zero_vector[sp_re ? n_patches : 0] w_s;
+  array[sp_re] real log_sigma_s;
   //--- * Movement parameter ----
   // logit of the probability of staying in the same patch
   array[movement] real<lower = 0, upper = 1> zeta;
@@ -344,6 +367,18 @@ transformed parameters {
       z_t[tp] += alpha[1] * lagged_z_t[tp];
     }
   }
+  //--- IID RE ----
+  array[iid_re > 0 ? 1 : 0] real sigma_i;
+  if (iid_re > 0) {
+    sigma_i[1] = exp(log_sigma_i[1]);
+  }
+  //--- ICAR RE ----
+  array[sp_re > 0 ? 1 : 0] real sigma_s;
+  vector[sp_re > 0 ? n_patches : 0] z_s;
+  if (sp_re > 0) {
+    sigma_s[1] = exp(log_sigma_s[1]);
+    z_s = sigma_s[1] * inv_sqrt(scaling[1]) * w_s;
+  }
   {
     //--- inputing the AR effects ----
     if (ar_re == 1) {
@@ -353,6 +388,33 @@ transformed parameters {
     if (ar_re == 2) {
       for (n in 1:N)
         mortality[n] += z_t[time[n]];
+    }
+    //--- inputing IID effects ----
+    if (iid_re == 1) {
+      for (n in 1:N)
+        log_rec[n] += z_i[patch[n]];
+    }
+    if (iid_re == 2) {
+      for (n in 1:N)
+        mortality[n] += z_i[patch[n]];
+    }
+     //--- inputing the AR effects ----
+    if (ar_re == 1) {
+      for (n in 1:N)
+        log_rec[n] += z_t[time[n]];
+    }
+    if (ar_re == 2) {
+      for (n in 1:N)
+        mortality[n] += z_t[time[n]];
+    }
+    //--- inputing IID effects ----
+    if (sp_re == 1) {
+      for (n in 1:N)
+        log_rec[n] += z_s[patch[n]];
+    }
+    if (sp_re == 2) {
+      for (n in 1:N)
+        mortality[n] += z_s[patch[n]];
     }
     // Expected density at specific time/patch combinations by age
     array[n_ages] matrix[n_time, n_patches] lambda_aux;
@@ -388,6 +450,14 @@ transformed parameters {
       for (n in 1:N)
         mu[n] *= exp(z_t[time[n]]);
     }
+    if (iid_re == 3) {
+      for (n in 1:N)
+        mu[n] *= exp(z_i[patch[n]]);
+    }
+    if (sp_re == 3) {
+      for (n in 1:N)
+        mu[n] *= exp(z_s[patch[n]]);
+    }
   }
   //--- quantities used in the likelihood ----
   // probability of encounter at specific time/patch combinations
@@ -411,6 +481,16 @@ model {
     target += std_normal_lpdf(w_t);
     target += normal_lpdf(log_sigma_t[1] | pr_lsigma_t_mu, pr_lsigma_t_sd);
     target += beta_lpdf(alpha[1] | pr_alpha_a, pr_alpha_b); 
+  }
+  //--- IID RE ----
+  if (iid_re > 0) {
+    target += normal_lpdf(log_sigma_i[1] | pr_lsigma_i_mu, pr_lsigma_i_sd);
+    target += normal_lpdf(z_i | 0, sigma_i[1] * s_iid);
+  }
+  //--- SP RE ----
+  if (sp_re > 0) {
+    target += normal_lpdf(log_sigma_s[1] | pr_lsigma_s_mu, pr_lsigma_s_sd);
+    target += -0.5 * dot_self(w_s[neighbors[1]] - w_s[neighbors[2]]); // ICAR prior
   }
   //--- Movement ----
   if (movement) {

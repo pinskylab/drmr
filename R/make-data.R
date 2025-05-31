@@ -73,6 +73,14 @@ get_phi_hat <- function(y, family) {
 ##'   \item \code{ar_re}: a \code{character}. It assumes one of the following
 ##'   values: "none" - no AR, "rec" AR(1) for recruitment, "surv" - AR(1) for
 ##'   survival (only works when \code{est_surv} is on), "dens" - AR(1) for
+##'   density.
+##'  \Item \code{iid_re}: a \code{character}. It assumes one of the following
+##'   values: "none" - no iid re, "rec" iid re for recruitment, "surv" - iir re for
+##'   survival (only works when \code{est_surv} is on), "dens" - iid_re for
+##'   density.
+##'  \Item \code{sp_re}: a \code{character}. It assumes one of the following
+##'   values: "none" - no ICAR re, "rec" ICAR re for recruitment, "surv" - ICAR re for
+##'   survival (only works when \code{est_surv} is on), "dens" - ICAR_re for
 ##'   density.}
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
@@ -228,11 +236,29 @@ make_data <- function(y,
   if (!toggles$est_init) {
     stopifnot(length(init_data) == n_ages - 1)
   }
+  if (toggles$sp_re > 0) {
+    stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
+              nrow(adj_mat) == n_patches)
+    aux_sp <- get_nodes(adj_mat)
+    adj2 <- matrix(0, ncol = NCOL(adj_mat), nrow = NROW(adj_mat))
+    adj2[adj_mat > 0] <- 1
+    scaling <- array(get_scaling(adj2), dim = 1)
+    N_edges <- array(as.integer(aux_sp$N_edges), dim = 1)
+    neighbors <- aux_sp$neighbors
+    if (!toggles$movement) {
+      adj_mat <- matrix(0, ncol = 1, nrow = 1)
+    }
+  } else {
+    scaling <- numeric(0)
+    neighbors <- matrix(1, ncol = 1, nrow = 1)
+    N_edges <- integer(0)
+  }
   output <- list(N = n_time * n_patches,
                  n_ages = n_ages,
                  n_patches = n_patches,
                  n_time = n_time,
                  time = time,
+                 patch = site,
                  init_data = init_data,
                  y = y,
                  f = f_mort,
@@ -243,6 +269,9 @@ make_data <- function(y,
                  K_m = K_m,
                  X_r = x_r,
                  K_r = K_r,
+                 scaling = scaling,
+                 neighbors = neighbors,
+                 N_edges = N_edges,
                  adj_mat = adj_mat,
                  ages_movement = ages_movement,
                  selectivity_at_age = selectivity_at_age) |>

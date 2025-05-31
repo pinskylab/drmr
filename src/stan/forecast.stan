@@ -129,8 +129,11 @@ data {
   int n_time; // years for forecasts
   int n_time_train; // years for training
   array[N] int time;
+  array[N] int patch;
   //--- toggles ---
   int<lower = 0, upper = 3> ar_re;
+  int<lower = 0, upper = 3> iid_re;
+  int<lower = 0, upper = 3> sp_re;
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
@@ -172,6 +175,10 @@ parameters {
   vector[ar_re > 0 ? n_time_train : 0] z_t;
   array[ar_re > 0 ? 1 : 0] real alpha;
   array[ar_re > 0 ? 1 : 0] real sigma_t;
+  //--- IID RE ----
+  vector[iid_re > 0 ? n_patches : 0] z_i;
+  //--- SP RE ----
+  vector[sp_re > 0 ? n_patches : 0] z_s;
 }
 generated quantities {
   //--- projected expected density by age ---
@@ -207,6 +214,14 @@ generated quantities {
       for (n in 1:N)
         log_rec[n] += z_tp[time[n]];
     }
+    if (iid_re == 1) {
+      for (n in 1:N)
+        log_rec[n] += z_i[patch[n]];
+    }
+    if (sp_re == 1) {
+      for (n in 1:N)
+        log_rec[n] += z_s[patch[n]];
+    }
     vector[n_patches] past_m;
     matrix[n_time, n_patches] current_m;
     vector[n_time * n_patches] m_aux;
@@ -218,6 +233,14 @@ generated quantities {
       if (ar_re == 2) {
         for (n in 1:N)
           m_aux[n] += z_tp[time[n]];
+      }
+      if (iid_re == 2) {
+        for (n in 1:N)
+          m_aux[n] += z_i[patch[n]];
+      }
+      if (sp_re == 2) {
+        for (n in 1:N)
+          m_aux[n] += z_s[patch[n]];
       }
       current_m = to_matrix(m_aux, n_time, n_patches);
       past_m = X_m_past * beta_s;
@@ -256,6 +279,14 @@ generated quantities {
     if (ar_re == 3) {
       for (n in 1:N)
         mu_proj[n] *= exp(z_tp[time[n]]);
+    }
+    if (iid_re == 3) {
+      for (n in 1:N)
+        mu_proj[n] *= exp(z_i[patch[n]]);
+    }
+    if (sp_re == 3) {
+      for (n in 1:N)
+        mu_proj[n] *= exp(z_s[patch[n]]);
     }
   }
   //--- absence probabilities ----

@@ -13,6 +13,8 @@ fitted_pars_drm <- function(data_list) {
     output <- c(output, "beta_s")
   if (data_list$ar_re > 0)
     output <- c(output, "z_t", "alpha", "sigma_t")
+  if (data_list$iid_re > 0)
+    output <- c(output, "z_i", "sigma_i")
   return(output)
 }
 
@@ -115,7 +117,10 @@ predict_drm <- function(drm,
          n_time = ntime_for,
          n_time_train = drm$data$n_time,
          time = time_for,
+         patch = new_data[[drm$cols$site_col]],
          ar_re = drm$data$ar_re,
+         iid_re = drm$data$iid_re,
+         sp_re = drm$data$sp_re,
          movement = drm$data$movement,
          est_surv = drm$data$est_surv,
          cloglog = drm$data$cloglog,

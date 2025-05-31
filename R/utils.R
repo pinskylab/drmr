@@ -82,6 +82,14 @@ safe_modify <- function(original, replacements) {
       replacements[["ar_re"]] <-
         fix_re(replacements[["ar_re"]])
     }
+    if ("iid_re" %in% names(replacements)) {
+      replacements[["iid_re"]] <-
+        fix_re(replacements[["iid_re"]])
+    }
+    if ("sp_re" %in% names(replacements)) {
+      replacements[["sp_re"]] <-
+        fix_re(replacements[["sp_re"]])
+    }
     out <- utils::modifyList(original, replacements)
   } else {
     out <- original
@@ -261,4 +269,83 @@ fix_re <- function(x) {
            rec  = 1,
            surv = 2,
            dens = 3)
+}
+
+##' @title Get nodes for ICAR spatial random effects
+##' @param adj adjacency \code{matrix}
+##' @return a \code{list}.
+##' @author lcgodoy
+get_nodes <- function(adj) {
+  adj <- unlist(apply(adj > 0, MARGIN = 1,
+                      which))
+  num <- lengths(adj, use.names = FALSE)
+  N <- length(num)
+  nn <- num
+  N_edges <- length(adj) / 2
+  node1 <- vector(mode = "numeric", length = N_edges)
+  node2 <- vector(mode = "numeric", length = N_edges)
+  iAdj <- 0
+  iEdge <- 0
+  for (i in seq_len(N)) {
+    for (j in seq_len(nn[i])) {
+      iAdj <- iAdj + 1
+      if (i < adj[iAdj]) {
+        iEdge <- iEdge + 1
+        node1[iEdge] <- i
+        node2[iEdge] <- adj[iAdj]
+      }
+    }
+  }
+  return(list("N_edges" = N_edges,
+              "neighbors" = rbind(node1,  node2)))
+}
+
+##' @title Generalized Inverse
+##'
+##' @details this function is taken from the package \code{MASS}
+##' 
+##' @param X A matrix we wish to invert.
+##' @param tol A relative tolerance to detect zero singular values.
+##' @return The generalized inverse of \code{X}
+ginv <- function (X, tol = sqrt(.Machine$double.eps)) {
+    if (length(dim(X)) > 2L || !(is.numeric(X) || is.complex(X))) 
+        stop("'X' must be a numeric or complex matrix")
+    if (!is.matrix(X)) 
+        X <- as.matrix(X)
+    Xsvd <- svd(X)
+    if (is.complex(X)) 
+        Xsvd$u <- Conj(Xsvd$u)
+    Positive <- Xsvd$d > max(tol * Xsvd$d[1L], 0)
+    if (all(Positive)) 
+        Xsvd$v %*% (1/Xsvd$d * t(Xsvd$u))
+    else if (!any(Positive)) 
+        array(0, dim(X)[2L:1L])
+    else Xsvd$v[, Positive, drop = FALSE] %*% ((1/Xsvd$d[Positive]) * 
+        t(Xsvd$u[, Positive, drop = FALSE]))
+}
+
+##' @title Scaling factor for ICAR
+##'
+##' @description Using results from Rue and Held 2005 and Morris et al. 2019.
+##' 
+##' @param adj adjacency \code{matrix}
+##' @return a \code{scalar}
+##' @author lcgodoy
+get_scaling <- function(adj) {
+  Q <- matrix(0, nrow = nrow(adj), ncol = ncol(adj))
+  diag(Q) <- apply(adj, 1, sum)
+  Q <- Q - adj
+  jitter <- max(diag(Q)) * sqrt(.Machine$double.eps)
+  Q <- Q +
+    diag(jitter,
+         ncol = NCOL(Q), nrow = NROW(Q))  
+  Q_inv <- tryCatch(
+      solve(Q),
+      error = function(e) ginv(Q)
+  )
+  A <- matrix(1, nrow = 1, ncol = NCOL(Q))
+  QA <- tcrossprod(Q_inv, A)
+  Q_inv_const <- Q_inv - tcrossprod(QA, QA) / as.numeric(A %*% QA)
+  vars <- diag(Q_inv_const)
+  exp(mean(log(vars[vars > 0])))
 }

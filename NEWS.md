@@ -2,16 +2,24 @@
 
 * Allowing for choosing which process is correlated in time;
 
-    * The variable `raw` became `w_t`;
-    * `tau` became `sigma_t`
-    * The flag `time_ar` became `ar_re` (stands for AR random effect). Now,
-      `ar_re` can assume three values: 
-      - "none" (for no AR), 
-      - "rec" (AR for recruitment)
-      - "surv" (AR for survival)
-      - "dens" (AR for density)
+  * The variable `raw` became `w_t`;
+  * `tau` became `sigma_t`
+  * The flag `time_ar` became `ar_re` (stands for AR random effect). Now,
+    `ar_re` can assume three values: 
+    - "none" (for no AR), 
+    - "rec" (AR for recruitment)
+    - "surv" (AR for survival)
+    - "dens" (AR for density)
 
-* Unstructured random effects;
+* Unstructured random effects.
+  
+  * The following variables are added to the model: `z_i` patch specific random
+    effect and `sigma_i` the SD of the iid random effect.
+
+* ICAR random effects
+  
+  * The following variables are added to the model: `w_s`, `z_s` patch specific
+    random effect and `sigma_s` the approx marginal SD of the spatial random effect.  
 
 # drmr 0.1.3
 
