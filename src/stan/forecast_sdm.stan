@@ -43,14 +43,12 @@ generated quantities {
   if (time_ar) {
     {
       vector[n_time] w_t;
-      vector[time_ar ? n_time - 1 : 0] lagged_rec;
       w_t[1] = std_normal_rng();
       z_tp[1] = alpha[1] * z_t[n_time_train] +
         sigma_t[1] * w_t[1];
       for (tp in 2:n_time) {
         w_t[tp] = std_normal_rng();
-        lagged_rec[tp - 1] = z_tp[tp - 1];
-        z_tp[tp] = alpha[1] * lagged_rec[tp - 1] +
+        z_tp[tp] = alpha[1] * z_tp[tp - 1] +
           sigma_t[1] * w_t[tp];
       }
     }

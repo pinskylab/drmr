@@ -209,13 +209,12 @@ transformed parameters {
   array[time_ar] real sigma_t;
   vector[time_ar ? n_time : 0] z_t;
   {
-    vector[time_ar ? n_time : 0] lagged_z_t;
     if (time_ar) {
       sigma_t[1] = exp(log_sigma_t[1]);
-      z_t = sigma_t[1] * w_t;
+      z_t[1] = sigma_t[1] * w_t[1];
       for (tp in 2:n_time) {
-        lagged_z_t[tp] = z_t[tp - 1];
-        z_t[tp] += alpha[1] * lagged_z_t[tp];
+        z_t[tp] += alpha[1] * z_t[tp - 1] +
+          sigma_t[1] * w_t[tp];
       }
     }
   }

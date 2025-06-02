@@ -193,16 +193,14 @@ generated quantities {
   vector[ar_re > 0 ? n_time : 0] z_tp;
   if (ar_re > 0) {
     {
-      vector[n_time] raw;
-      vector[ar_re > 0 ? n_time - 1 : 0] lagged_rec;
-      raw[1] = std_normal_rng();
+      vector[n_time] w_t;
+      w_t[1] = std_normal_rng();
       z_tp[1] = alpha[1] * z_t[n_time_train] +
-        sigma_t[1] * raw[1];
+        sigma_t[1] * w_t[1];
       for (tp in 2:n_time) {
-        raw[tp] = std_normal_rng();
-        lagged_rec[tp - 1] = z_tp[tp - 1];
-        z_tp[tp] = alpha[1] * lagged_rec[tp - 1] +
-          sigma_t[1] * raw[tp];
+        w_t[tp] = std_normal_rng();
+        z_tp[tp] = alpha[1] * z_tp[tp - 1] +
+          sigma_t[1] * w_t[tp];
       }
     }
   }
