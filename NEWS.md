@@ -1,5 +1,7 @@
 # drmr 0.2.0
 
+* `init` now admits real numbers too.
+
 * Allowing for choosing which process is correlated in time;
 
   * The variable `raw` became `w_t`;

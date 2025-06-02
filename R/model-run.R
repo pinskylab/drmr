@@ -32,9 +32,12 @@
 ##' @param parallel_chains An \code{integer} specifying the number of chains to
 ##'   run in parallel. Defaults to 4.
 ##' @param seed An \code{integer} specifying the random number seed.
-##' @param init A \code{character} specifying the initialization method.  Can be
-##'   "cmdstan_default" (the default), "prior" (to initialize the model
-##'   parameters using samples from their prior) or "pathfinder".
+##' @param init A scalar specifying the initialization method. The default
+##'   (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
+##'   say \code{x}, initialized all parameters from a uniform between \code{-x}
+##'   and \code{x}, a \code{0} initialize all parameters at \code{0}, "prior"
+##'   (to initialize the model parameters using samples from their prior) or
+##'   "pathfinder".
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws, the model data, the linear
@@ -71,7 +74,9 @@ fit_drm <- function(.data,
                     seed,
                     init = "cmdstan_default",
                     ...) {
-  stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
+  stopifnot(length(init) == 1)
+  if (is.character(init))
+    stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
   x_t <- stats::model.matrix(formula_zero, data = .data)
   x_r <- stats::model.matrix(formula_rec, data = .data)
   if (is.null(formula_surv)) {
@@ -102,13 +107,15 @@ fit_drm <- function(.data,
   } else if (init == "prior") {
     drm_init <-
       prior_inits(model_dat, chains, "drm")
-  } else {
+  } else if (init == "pathfinder") {
     drm_init <-
       model$pathfinder(data = model_dat,
                        seed = seed,
                        num_paths = chains,
                        save_single_paths = TRUE,
                        psis_resample = FALSE)
+  } else {
+    drm_init <- init
   }
   draws <- model$sample(data = model_dat,
                         iter_warmup = iter_warmup,
@@ -162,8 +169,12 @@ fit_drm <- function(.data,
 ##' @param parallel_chains An \code{integer} specifying the number of chains to
 ##'   run in parallel. Defaults to 4.
 ##' @param seed An \code{integer} specifying the random number seed.
-##' @param init A \code{character} specifying the initialization method.  Can be
-##'   "cmdstan_default" (the default) or "pathfinder".
+##' @param init A scalar specifying the initialization method. The default
+##'   (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
+##'   say \code{x}, initialized all parameters from a uniform between \code{-x}
+##'   and \code{x}, a \code{0} initialize all parameters at \code{0}, "prior"
+##'   (to initialize the model parameters using samples from their prior) or
+##'   "pathfinder".
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws, the model data, the linear
@@ -199,7 +210,9 @@ fit_sdm <- function(.data,
                     seed,
                     init = "cmdstan_default",
                     ...) {
-  stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
+  stopifnot(length(init) == 1)
+  if (is.character(init))
+    stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
   x_t <- stats::model.matrix(formula_zero, data = .data)
   x_r <- stats::model.matrix(formula_dens, data = .data)
   model_dat <- make_data_sdm(y = .data[[y_col]],
@@ -214,17 +227,19 @@ fit_sdm <- function(.data,
                             package = "drmr"
                         )
   if (init == "cmdstan_default") {
-    sdm_init <- NULL
+    drm_init <- NULL
   } else if (init == "prior") {
-    sdm_init <-
-      prior_inits(model_dat, chains, "sdm")
-  } else {
-    sdm_init <-
+    drm_init <-
+      prior_inits(model_dat, chains, "drm")
+  } else if (init == "pathfinder") {
+    drm_init <-
       model$pathfinder(data = model_dat,
                        seed = seed,
                        num_paths = chains,
                        save_single_paths = TRUE,
                        psis_resample = FALSE)
+  } else {
+    drm_init <- init
   }
   draws <- model$sample(data = model_dat,
                         iter_warmup = iter_warmup,
