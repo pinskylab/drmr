@@ -6,7 +6,7 @@
   * `tau` became `sigma_t`
   * The flag `time_ar` became `ar_re` (stands for AR random effect). Now,
     `ar_re` can assume three values: 
-    - "none" (for no AR), 
+    - "none", the default indicating no AR random effects.
     - "rec" (AR for recruitment)
     - "surv" (AR for survival)
     - "dens" (AR for density)
@@ -15,12 +15,23 @@
   
   * The following variables are added to the model: `z_i` patch specific random
     effect and `sigma_i` the SD of the iid random effect.
+  * Similarly to `ar_re`, the unstructured random effects can be enabled through
+    the flat `iid_re`, which also admits the following entries:
+    - "none" (default) indicating no IID random effects.
+    - "rec" (IID for recruitment)
+    - "surv" (IID for survival)
+    - "dens" (iID for density)
 
 * ICAR random effects
   
   * The following variables are added to the model: `w_s`, `z_s` patch specific
     random effect and `sigma_s` the approx marginal SD of the spatial random
     effect.
+  * Similarly to the two structures mentioned above, the flag `sp_re` admits the
+    following values: "none" (default), "rec" (recruitment), "surv" (survival),
+    and "dens" (density).
+
+* Functions for data simulation were temporarily removed.
 
 # drmr 0.1.3
 

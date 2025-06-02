@@ -119,7 +119,6 @@ apply_movement <- function(lambda, M, mov_age) {
 ##'   adjacency \code{matrix}.
 ##' @param mov_age a \code{vector} of ages at which movement starts.
 ##' @return an array of expected densities per age-group, patch, and timepoint.
-##' @export
 ##' @author lcgodoy
 pop_dyn <- function(n_patches,
                     n_time, n_ages,
@@ -266,7 +265,6 @@ sim_dens <- function(x, pars) {
 ##'   of the model parameters.
 ##' @importFrom rlang .data
 ##' @seealso [prior_inits()]
-##' @export
 ##' @author lcgodoy
 model_sim <- function(dat, model,
                       selectivity,
@@ -324,7 +322,6 @@ model_sim <- function(dat, model,
 ##' @return A \code{list} containing samples drawn from the prior distributions
 ##'   of the model parameters.
 ##' @seealso [prior_inits()]
-##' @export
 ##' @author lcgodoy
 pp_sim <- function(dat, model = "drm",
                    selectivity = NULL,
@@ -354,7 +351,6 @@ pp_sim <- function(dat, model = "drm",
 ## ##' @return A \code{list} containing samples drawn from the prior distributions
 ## ##'   of the model parameters.
 ## ##' @seealso [prior_inits()] [pps_aux()]
-## ##' @export
 ## ##' @author lcgodoy
 ## prior_predictive_sim <- function(n, dat, model,
 ##                                  selectivity,
