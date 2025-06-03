@@ -329,7 +329,7 @@ transformed parameters {
   //--- Initialization ----
   array[est_init ? n_ages - 1 : 0] real init_par;
   if (est_init)
-    init_par = exp(log_init);
+    init_par = log_init;
   //--- Recruitment ----
   // we are working with "log recruitment" here
   vector[N] log_rec;

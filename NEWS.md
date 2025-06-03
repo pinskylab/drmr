@@ -2,6 +2,9 @@
 
 * `init` now admits real numbers too.
 
+* `init_data`: default now is to initialize the age-classes for all patches
+  ranging from `.9` to `.01`.
+
 * Allowing for choosing which process is correlated in time;
 
   * The variable `raw` became `w_t`;

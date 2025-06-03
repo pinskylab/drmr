@@ -227,19 +227,19 @@ fit_sdm <- function(.data,
                             package = "drmr"
                         )
   if (init == "cmdstan_default") {
-    drm_init <- NULL
+    sdm_init <- NULL
   } else if (init == "prior") {
-    drm_init <-
-      prior_inits(model_dat, chains, "drm")
+    sdm_init <-
+      prior_inits(model_dat, chains, "sdm")
   } else if (init == "pathfinder") {
-    drm_init <-
+    sdm_init <-
       model$pathfinder(data = model_dat,
                        seed = seed,
                        num_paths = chains,
                        save_single_paths = TRUE,
                        psis_resample = FALSE)
   } else {
-    drm_init <- init
+    sdm_init <- init
   }
   draws <- model$sample(data = model_dat,
                         iter_warmup = iter_warmup,

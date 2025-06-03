@@ -234,7 +234,12 @@ make_data <- function(y,
     }
   }
   if (!toggles$est_init) {
-    stopifnot(length(init_data) == n_ages - 1)
+    if (length(init_data) > 0) {
+      stopifnot(length(init_data) == n_ages - 1)
+    } else {
+      init_data <- seq(from = 1, to = .01,
+                       length.out = n_ages - 1)
+    }
   }
   if (toggles$sp_re > 0) {
     stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
