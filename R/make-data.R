@@ -405,6 +405,9 @@ make_data_sdm <- function(y,
                                    dim = 1)
     }
   }
+  if (any(is.na(y))) {
+    
+  }
   output <- list(N = n_time * n_patches,
                  n_patches = n_patches,
                  n_time = n_time,
