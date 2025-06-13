@@ -239,6 +239,8 @@ make_data <- function(y,
     } else {
       init_data <- seq(from = 1, to = .01,
                        length.out = n_ages - 1)
+      if (length(init_data) == 1)
+        init_data <- array(init_data, dim = 1)
     }
   }
   if (toggles$sp_re > 0) {

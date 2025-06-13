@@ -70,7 +70,7 @@ data(sum_fl)
 
 ## computing density
 sum_fl <- sum_fl |>
-  mutate(dens = 1000 * y / area_km2,
+  mutate(dens = 100 * y / area_km2,
          .before = y)
 ```
 
@@ -88,7 +88,7 @@ predictions:
 #| label: data-split
 
 ## 5 years-ahead predictions
-first_year_forecast <- max(sum_fl$year) - 5
+first_year_forecast <- max(sum_fl$year) - 4
 
 first_id_forecast <-
   first_year_forecast - min(sum_fl$year) + 1
@@ -321,7 +321,7 @@ drm_3 <-
           formula_rec = ~ 1 + c_stemp + I(c_stemp * c_stemp),
           formula_surv = ~ 1,
           .toggles = list(est_surv = 1,
-                          time_ar = 1))
+                          ar_re = "rec"))
 ## loading map
 map_name <- system.file("maps/sum_fl.shp", package = "drmr")
 
@@ -348,7 +348,7 @@ drm_4 <-
           adj_mat = adj_mat, ## A matrix for movement routine
           ages_movement = c(0, 0, 1, 1, 1, 0), ## ages allowed to move
           .toggles = list(est_surv = 1,
-                          time_ar = 1,
+                          ar_re = "rec",
                           movement = 1))
 
 drm_5 <-
@@ -363,7 +363,7 @@ drm_5 <-
           formula_surv = ~ 1,
           n_ages = 6,
           .toggles = list(est_surv = 1,
-                          time_ar = 1))
+                          ar_re = "rec"))
 
 ## instantaneous fishing mortality rates
 fmat <-
@@ -385,7 +385,7 @@ drm_6 <-
           formula_surv = ~ 1,
           n_ages = NROW(f_train),
           f_mort = f_train,
-          .toggles = list(time_ar = 1,
+          .toggles = list(ar_re = "rec",
                           est_surv = 1))
 
 drm_7 <-
@@ -398,7 +398,7 @@ drm_7 <-
           formula_zero = ~ 1 + c_hauls + c_btemp + c_stemp,
           formula_rec = ~ 1,
           formula_surv = ~ 1 + c_btemp + I(c_btemp * c_btemp),
-          .toggles = list(time_ar = 1,
+          .toggles = list(ar_re = "rec",
                           est_surv = 1))
 
 sdm <-
@@ -409,7 +409,7 @@ sdm <-
           seed = 202505,
           formula_zero = ~ 1 + c_hauls + c_btemp + c_stemp,
           formula_dens = ~ 1 + c_stemp + I(c_stemp * c_stemp),
-          .toggles = list(time_ar = 1))
+          .toggles = list(ar_re = "rec"))
 ```
 
 ```{r}
@@ -440,7 +440,7 @@ drm_3 <-
           formula_rec = ~ 1 + c_stemp + I(c_stemp * c_stemp),
           formula_surv = ~ 1,
           .toggles = list(est_surv = 1,
-                          time_ar = 1))
+                          ar_re = "rec"))
 
 ## loading map
 map_name <- system.file("maps/sum_fl.shp", package = "drmr")
@@ -468,7 +468,7 @@ drm_4 <-
           adj_mat = adj_mat, ## A matrix for movement routine
           ages_movement = c(0, 0, 1, 1, 1, 0), ## ages allowed to move
           .toggles = list(est_surv = 1,
-                          time_ar = 1,
+                          ar_re = "rec",
                           movement = 1))
 
 drm_5 <-
@@ -483,7 +483,7 @@ drm_5 <-
           formula_surv = ~ 1,
           n_ages = 6,
           .toggles = list(est_surv = 1,
-                          time_ar = 1))
+                          ar_re = "rec"))
 
 ## instantaneous fishing mortality rates
 fmat <-
@@ -505,7 +505,7 @@ drm_6 <-
           formula_surv = ~ 1,
           n_ages = NROW(f_train),
           f_mort = f_train,
-          .toggles = list(time_ar = 1,
+          .toggles = list(ar_re = "rec",
                           est_surv = 1))
 
 drm_7 <-
@@ -518,7 +518,7 @@ drm_7 <-
           formula_zero = ~ 1 + c_hauls + c_btemp + c_stemp,
           formula_rec = ~ 1,
           formula_surv = ~ 1 + c_btemp + I(c_btemp * c_btemp),
-          .toggles = list(time_ar = 1,
+          .toggles = list(ar_re = "rec",
                           est_surv = 1))
 
 sdm <-
@@ -529,7 +529,7 @@ sdm <-
           seed = 202505,
           formula_zero = ~ 1 + c_hauls + c_btemp + c_stemp,
           formula_dens = ~ 1 + c_stemp + I(c_stemp * c_stemp),
-          .toggles = list(time_ar = 1))
+          .toggles = list(ar_re = "rec"))
 }
 ```
 

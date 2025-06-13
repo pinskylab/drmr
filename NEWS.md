@@ -38,6 +38,8 @@
 
 * Functions for data simulation were temporarily removed.
 
+* Fixing `init_data`
+
 # drmr 0.1.3
 
 * Modified `examples.qmd` to prevent errors due to pathfinder failing.
