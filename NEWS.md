@@ -38,9 +38,6 @@
 
 * Functions for data simulation were temporarily removed.
 
-* Automagically deals with missing values on the densities (as long as we have
-  environmental information for those patch/time combinations).
-
 # drmr 0.1.3
 
 * Modified `examples.qmd` to prevent errors due to pathfinder failing.
