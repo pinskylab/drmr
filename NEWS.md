@@ -40,6 +40,8 @@
 
 * Fixing `init_data`
 
+* Fixing bugs regarding the popdyn initialization.
+
 # drmr 0.1.3
 
 * Modified `examples.qmd` to prevent errors due to pathfinder failing.

@@ -1,25 +1,3 @@
-##' @title Estimate phi
-##' @inheritParams make_data
-##' @return a \code{numeric} scalar representing an estimate for phi
-##' @author lcgodoy
-get_phi_hat <- function(y, family) {
-  if (family == "gamma") {
-    ng0 <- sum(y > 0)
-    xbar <- mean(y[y > 0])
-    xbar2 <- xbar * xbar
-    s2 <- var(y[y > 0]) * (ng0 - 1) / ng0
-    return(xbar2 * s2)
-  } else if (family == "lognormal") {
-    lxbar <- mean(log(y[y > 0]))
-    ng0 <- sum(y > 0)
-    ls2 <- var(log(y[y > 0])) * (ng0 - 1) / ng0
-    muhat <- exp(lxbar + 0.5 * ls2)
-    return(muhat * muhat * (exp(ls2) - 1))
-  } else {
-    return(1)
-  }
-}
-
 ##' This function creates the \code{list} used as the input for the \code{stan}
 ##' model.
 ##'
@@ -70,15 +48,17 @@ get_phi_hat <- function(y, family) {
 ##'   \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
 ##'   \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 ##'   \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
+##'   \item
+##'   \code{minit}: 1 to use mortality to estimate initial age classes and 0 otherwise.
 ##'   \item \code{ar_re}: a \code{character}. It assumes one of the following
 ##'   values: "none" - no AR, "rec" AR(1) for recruitment, "surv" - AR(1) for
 ##'   survival (only works when \code{est_surv} is on), "dens" - AR(1) for
 ##'   density.
-##'  \Item \code{iid_re}: a \code{character}. It assumes one of the following
+##'  \item \code{iid_re}: a \code{character}. It assumes one of the following
 ##'   values: "none" - no iid re, "rec" iid re for recruitment, "surv" - iir re for
 ##'   survival (only works when \code{est_surv} is on), "dens" - iid_re for
 ##'   density.
-##'  \Item \code{sp_re}: a \code{character}. It assumes one of the following
+##'  \item \code{sp_re}: a \code{character}. It assumes one of the following
 ##'   values: "none" - no ICAR re, "rec" ICAR re for recruitment, "surv" - ICAR re for
 ##'   survival (only works when \code{est_surv} is on), "dens" - ICAR_re for
 ##'   density.}
@@ -237,8 +217,8 @@ make_data <- function(y,
     if (length(init_data) > 0) {
       stopifnot(length(init_data) == n_ages - 1)
     } else {
-      init_data <- seq(from = 1, to = .01,
-                       length.out = n_ages - 1)
+      init_data <- log(seq(from = 1, to = .01,
+                           length.out = n_ages - 1))
       if (length(init_data) == 1)
         init_data <- array(init_data, dim = 1)
     }
@@ -304,19 +284,20 @@ make_data <- function(y,
 ##'   components are: \itemize{ \item \code{cloglog}: 1 to use the complementary
 ##'   log-log and 0 for the logit link function for the absence probabilities.
 ##'   \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
-##'   \item \code{est_surv}: 1 to estimate survival rates and 0 otherwise.  \item
-##'   \code{time_ar}: 1 to incorporate an AR(1) process for recruitment.}
+##'   \item \code{est_surv}: 1 to estimate survival rates and 0 otherwise.
+##'   \item \code{ar_re}: "rec" to incorporate an AR(1) process density. The
+##'   only other accepted option is "none"}
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
 ##'   reordered. The default is TRUE and means the data points will be ordered
 ##'   by site and time, respectively.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{
-##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
-##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
-##'    }
+##'   distribution assumed for density. The options are: \itemize{ \item
+##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
+##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
+##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual
+##'   parametrization; }
 ##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
 ##'   should be determined through the data.
 ##' @return a \code{list} to be used as the input for a \code{stan} model
@@ -342,10 +323,11 @@ make_data_sdm <- function(y,
                        lognormal        = 1,
                        gamma            = 2,
                        loglogistic      = 3)
-  toggles <- list(time_ar = 0,
+  toggles <- list(ar_re = 0,
                   cloglog = 0) |>
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
+  stopifnot(toggles$ar_re <= 1)
   ## getting the default priors and using user options
   if (phi_hat) {
     phi_hat <- get_phi_hat(y, family)
@@ -406,9 +388,6 @@ make_data_sdm <- function(y,
       priors$pr_beta_t_sd <- array(priors$pr_beta_t_sd,
                                    dim = 1)
     }
-  }
-  if (any(is.na(y))) {
-    
   }
   output <- list(N = n_time * n_patches,
                  n_patches = n_patches,

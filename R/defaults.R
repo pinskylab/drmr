@@ -38,6 +38,7 @@ default_toggles <- function() {
        movement = 0,
        est_surv = 0,
        est_init = 0,
+       minit = 0,
        ar_re = 0,
        iid_re = 0,
        sp_re = 0)

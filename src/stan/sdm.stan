@@ -151,7 +151,7 @@ data {
   array[N] int<lower = 1, upper = n_time> time;
   vector[N] y;
   //--- toggles ---
-  int<lower = 0, upper = 1> time_ar;
+  int<lower = 0, upper = 1> ar_re;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic)
@@ -198,18 +198,18 @@ parameters {
   vector[K_z] beta_t;
   //--- * AR process parameters ----
   // conditional SD
-  array[time_ar] real log_sigma_t;
+  array[ar_re] real log_sigma_t;
   // autocorrelation
-  array[time_ar] real<lower = 0, upper = 1> alpha;
+  array[ar_re] real<lower = 0, upper = 1> alpha;
   // aux latent variable
-  vector[time_ar ? n_time : 0] w_t;
+  vector[ar_re ? n_time : 0] w_t;
 }
 transformed parameters {
   //--- AR process ----
-  array[time_ar] real sigma_t;
-  vector[time_ar ? n_time : 0] z_t;
+  array[ar_re] real sigma_t;
+  vector[ar_re ? n_time : 0] z_t;
   {
-    if (time_ar) {
+    if (ar_re) {
       sigma_t[1] = exp(log_sigma_t[1]);
       z_t[1] = sigma_t[1] * w_t[1];
       for (tp in 2:n_time) {
@@ -235,7 +235,7 @@ transformed parameters {
   {
     vector[N] lmu;
     lmu = X * beta_r;
-    if (time_ar) {
+    if (ar_re) {
       for (n in 1:N)
         lmu[n] += z_t[time[n]];
     }
@@ -245,7 +245,7 @@ transformed parameters {
 // close transformed parameters block
 model {
   //--- AR process ----
-  if (time_ar) {
+  if (ar_re) {
     target += std_normal_lpdf(w_t);
     target += normal_lpdf(log_sigma_t[1] | pr_lsigma_t_mu, pr_lsigma_t_sd);
     target += beta_lpdf(alpha[1] | pr_alpha_a, pr_alpha_b); 

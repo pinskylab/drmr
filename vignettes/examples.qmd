@@ -177,7 +177,7 @@ baseline <-
 
 ```{r}
 #| label: baseline
-#| eval: true
+#| eval: false
 #| echo: false
 
 if (instantiate::stan_cmdstan_exists()) {
@@ -235,7 +235,7 @@ drm_1 <-
 
 ```{r}
 #| label: simplest_fit
-#| eval: true
+#| eval: false
 #| echo: false
 
 if (instantiate::stan_cmdstan_exists()) {
@@ -414,7 +414,7 @@ sdm <-
 
 ```{r}
 #| label: drms
-#| eval: true
+#| eval: false
 #| echo: false
 
 if (instantiate::stan_cmdstan_exists()) {
@@ -559,7 +559,7 @@ loos_out <- loo::loo_compare(loos)
 
 ```{r}
 #| label: loo
-#| eval: true
+#| eval: false
 #| echo: false
 
 if (instantiate::stan_cmdstan_exists()) {

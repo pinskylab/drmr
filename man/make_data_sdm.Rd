@@ -36,18 +36,19 @@ densities.}
 components are: \itemize{ \item \code{cloglog}: 1 to use the complementary
 log-log and 0 for the logit link function for the absence probabilities.
 \item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
-\item \code{est_surv}: 1 to estimate survival rates and 0 otherwise.  \item
-\code{time_ar}: 1 to incorporate an AR(1) process for recruitment.}}
+\item \code{est_surv}: 1 to estimate survival rates and 0 otherwise.
+\item \code{ar_re}: "rec" to incorporate an AR(1) process density. The
+only other accepted option is "none"}}
 
 \item{.priors}{a \code{list} of priors hyperparameters.}
 
 \item{family}{a \code{character} specifying the family of the probability
-distribution assumed for density. The options are: \itemize{
-\item \code{"gamma"} (default): gamma parametrized in terms of its mean;
-\item \code{"lognormal"}: log-normal parametrized in terms of its mean;
-\item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-\item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
-}}
+distribution assumed for density. The options are: \itemize{ \item
+\code{"gamma"} (default): gamma parametrized in terms of its mean; \item
+\code{"lognormal"}: log-normal parametrized in terms of its mean; \item
+\code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+\item \code{"lognormal_legacy"} (default): log-normal with its usual
+parametrization; }}
 
 \item{reorder}{a \code{boolean} telling whether the data needs to be
 reordered. The default is TRUE and means the data points will be ordered

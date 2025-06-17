@@ -338,3 +338,25 @@ get_scaling <- function(adj) {
   vars <- diag(Q_inv_const)
   exp(mean(log(vars[vars > 0])))
 }
+
+##' @title Estimate phi
+##' @inheritParams make_data
+##' @return a \code{numeric} scalar representing an estimate for phi
+##' @author lcgodoy
+get_phi_hat <- function(y, family) {
+  if (family == "gamma") {
+    ng0 <- sum(y > 0)
+    xbar <- mean(y[y > 0])
+    xbar2 <- xbar * xbar
+    s2 <- stats::var(y[y > 0]) * (ng0 - 1) / ng0
+    return(xbar2 * s2)
+  } else if (family == "lognormal") {
+    lxbar <- mean(log(y[y > 0]))
+    ng0 <- sum(y > 0)
+    ls2 <- stats::var(log(y[y > 0])) * (ng0 - 1) / ng0
+    muhat <- exp(lxbar + 0.5 * ls2)
+    return(muhat * muhat * (exp(ls2) - 1))
+  } else {
+    return(1)
+  }
+}
