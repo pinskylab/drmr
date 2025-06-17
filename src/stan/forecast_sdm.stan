@@ -8,7 +8,7 @@ data {
   int n_time_train; // years for training
   array[N] int time;
   //--- toggles ---
-  int<lower = 0, upper = 1> time_ar;
+  int<lower = 0, upper = 1> ar_re;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic)
@@ -27,9 +27,9 @@ parameters {
   array[likelihood > 0 ? 1 : 0] real phi;
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
   //--- parameters from AR process ----
-  vector[time_ar ? n_time_train : 0] z_t;
-  array[time_ar] real alpha;
-  array[time_ar] real sigma_t;
+  vector[ar_re ? n_time_train : 0] z_t;
+  array[ar_re] real alpha;
+  array[ar_re] real sigma_t;
 }
 generated quantities {
   //--- projected expected density ----
@@ -39,8 +39,8 @@ generated quantities {
   //--- projected absence probability ----
   vector[n_time * n_patches] rho_proj;
   //--- AR term ----
-  vector[time_ar ? n_time : 0] z_tp;
-  if (time_ar) {
+  vector[ar_re ? n_time : 0] z_tp;
+  if (ar_re) {
     {
       vector[n_time] w_t;
       w_t[1] = std_normal_rng();
@@ -57,7 +57,7 @@ generated quantities {
   {
     vector[N] lmu;
     lmu = X * beta_r;
-    if (time_ar) {
+    if (ar_re) {
       for (n in 1:N)
         lmu[n] += z_tp[time[n]];
     }
