@@ -28,7 +28,7 @@ fitted_pars_sdm <- function(data_list) {
   } else {
     output <- c(output, "phi")
   }
-  if (data_list$time_ar == 1)
+  if (data_list$ar_re == 1)
     output <- c(output, "z_t", "alpha", "sigma_t")
   return(output)
 }
