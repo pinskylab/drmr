@@ -9,7 +9,7 @@ model."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,7 +96,8 @@ components are:</p><ul><li><p><code>cloglog</code>: 1 to use the complementary
 log-log and 0 for the logit link function for the absence probabilities.</p></li>
 <li><p><code>movement</code>: 1 to allow for (adjacent) moviment; 0 for static.</p></li>
 <li><p><code>est_surv</code>: 1 to estimate survival rates and 0 otherwise.</p></li>
-<li><p><code>time_ar</code>: 1 to incorporate an AR(1) process for recruitment.</p></li>
+<li><p><code>ar_re</code>: "rec" to incorporate an AR(1) process density. The
+only other accepted option is "none"</p></li>
 </ul></dd>
 
 
@@ -109,7 +110,8 @@ log-log and 0 for the logit link function for the absence probabilities.</p></li
 distribution assumed for density. The options are:</p><ul><li><p><code>"gamma"</code> (default): gamma parametrized in terms of its mean;</p></li>
 <li><p><code>"lognormal"</code>: log-normal parametrized in terms of its mean;</p></li>
 <li><p><code>"loglogistic"</code>: log-logistic parametrized in terms of its mean.</p></li>
-<li><p><code>"lognormal_legacy"</code> (default): log-normal with its usual parametrization;</p></li>
+<li><p><code>"lognormal_legacy"</code> (default): log-normal with its usual
+parametrization;</p></li>
 </ul></dd>
 
 

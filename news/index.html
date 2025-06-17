@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,10 +39,46 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="drmr-020">drmr 0.2.0<a class="anchor" aria-label="anchor" href="#drmr-020"></a></h2>
+<ul><li><p><code>init</code> now admits real numbers too.</p></li>
+<li><p><code>init_data</code>: default now is to initialize the age-classes for all patches ranging from <code>.9</code> to <code>.01</code>.</p></li>
+<li>
+<p>Allowing for choosing which process is correlated in time;</p>
+<ul><li>The variable <code>raw</code> became <code>w_t</code>;</li>
+<li>
+<code>tau</code> became <code>sigma_t</code>
+</li>
+<li>The flag <code>time_ar</code> became <code>ar_re</code> (stands for AR random effect). Now, <code>ar_re</code> can assume three values:
+<ul><li>“none”, the default indicating no AR random effects.</li>
+<li>“rec” (AR for recruitment)</li>
+<li>“surv” (AR for survival)</li>
+<li>“dens” (AR for density)</li>
+</ul></li>
+</ul></li>
+<li>
+<p>Unstructured random effects.</p>
+<ul><li>The following variables are added to the model: <code>z_i</code> patch specific random effect and <code>sigma_i</code> the SD of the iid random effect.</li>
+<li>Similarly to <code>ar_re</code>, the unstructured random effects can be enabled through the flat <code>iid_re</code>, which also admits the following entries:
+<ul><li>“none” (default) indicating no IID random effects.</li>
+<li>“rec” (IID for recruitment)</li>
+<li>“surv” (IID for survival)</li>
+<li>“dens” (iID for density)</li>
+</ul></li>
+</ul></li>
+<li>
+<p>ICAR random effects</p>
+<ul><li>The following variables are added to the model: <code>w_s</code>, <code>z_s</code> patch specific random effect and <code>sigma_s</code> the approx marginal SD of the spatial random effect.</li>
+<li>Similarly to the two structures mentioned above, the flag <code>sp_re</code> admits the following values: “none” (default), “rec” (recruitment), “surv” (survival), and “dens” (density).</li>
+</ul></li>
+<li><p>Functions for data simulation were temporarily removed.</p></li>
+<li><p>Fixing <code>init_data</code></p></li>
+<li><p>Fixing bugs regarding the popdyn initialization.</p></li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.3" id="drmr-013">drmr 0.1.3<a class="anchor" aria-label="anchor" href="#drmr-013"></a></h2>
 <ul><li><p>Modified <code>examples.qmd</code> to prevent errors due to pathfinder failing.</p></li>
 <li><p>Updated github actions.</p></li>
-<li><p>Same problematic behaviour that was affecting <code>make_data</code> had to be dealed with in prior initialization.</p></li>
+<li><p>Same problematic behaviour that was affecting <code>make_data</code> had to be dealed with prior initialization and predictions.</p></li>
 <li>
 <p>Options for “data informed” phi priors through the floag <code>phi_hat</code></p>
 <ul><li><p>When <code>family = "gamma"</code> and a prior for <code>phi</code> is not provided, the default prior for this parameter is a Gamma with <code>shape = 2</code> and <code>rate = ybar *   s2</code>. This prior has its theoretical mean at the method of moments estimator of <code>phi</code>.</p></li>
