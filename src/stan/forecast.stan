@@ -131,6 +131,7 @@ data {
   array[N] int time;
   array[N] int patch;
   //--- toggles ---
+  int<lower = 0, upper = 1> rho_mu;
   int<lower = 0, upper = 3> ar_re;
   int<lower = 0, upper = 3> iid_re;
   int<lower = 0, upper = 3> sp_re;
@@ -164,6 +165,8 @@ parameters {
   vector[K_r] beta_r;
   //--- pop dyn parameters ----
   matrix[n_ages, n_patches] lambda;
+  //--- rel between rho and mu ----
+  array[rho_mu] real xi;
   //--- additional parameter for different lik functions ----
   array[likelihood > 0 ? 1 : 0] real phi;
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
@@ -289,11 +292,21 @@ generated quantities {
   }
   //--- absence probabilities ----
   if (cloglog) {
-    rho_proj =
-      inv_cloglog(X_t * beta_t);
+    if (rho_mu) {
+      rho_proj =
+        inv_cloglog(X_t * beta_t + xi[1] .* log(mu_proj));
+    } else {
+      rho_proj =
+        inv_cloglog(X_t * beta_t);
+    }
   } else {
-    rho_proj =
-      inv_logit(X_t * beta_t);
+    if (rho_mu) {
+      rho_proj =
+        inv_logit(X_t * beta_t + xi[1] .* log(mu_proj));
+    } else {
+      rho_proj =
+        inv_logit(X_t * beta_t);
+    }
   }
   //--- y_proj calculations ----
   for (n in 1:N) {

@@ -271,6 +271,7 @@ data {
   array[N] int<lower = 1, upper = n_patches> patch;
   vector[N] y;
   //--- toggles ---
+  int<lower = 0, upper = 1> rho_mu;
   int<lower = 0, upper = 3> ar_re;
   int<lower = 0, upper = 3> iid_re;
   int<lower = 0, upper = 3> sp_re;
@@ -323,6 +324,8 @@ data {
   real pr_alpha_b;
   real pr_zeta_a; 
   real pr_zeta_b;
+  real pr_lmxi_mu;
+  real pr_lmxi_sd;
   vector[K_t] pr_beta_t_mu;
   vector[K_t] pr_beta_t_sd;
   vector[est_surv ? K_m[1] : 0] pr_beta_s_mu;
@@ -356,6 +359,8 @@ transformed data {
   real s_iid = sqrt(n_patches / (n_patches - 1.0));
 }
 parameters {
+  // relationship between mu and rho
+  array[rho_mu] real lxi;
   // parameter associated to the likelihood 
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
   array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
@@ -387,6 +392,10 @@ parameters {
   array[movement] real<lower = 0, upper = 1> zeta;
 }
 transformed parameters {
+  // relationship between mu and rho
+  array[rho_mu] real xi;
+  if (rho_mu)
+    xi = - exp(lxi);
   //--- Initialization ----
   array[est_init ? n_ages - 1 : 0] real init_par;
   if (est_init)
@@ -525,11 +534,21 @@ transformed parameters {
   vector[N] rho;
   // rho now hasa "regression like" type
   if (cloglog) {
-    rho =
-      inv_cloglog(X_t * beta_t);
+    if (rho_mu) {
+      rho =
+        inv_cloglog(X_t * beta_t + xi[1] .* log(mu));
+    } else {
+      rho =
+        inv_cloglog(X_t * beta_t);
+    }
   } else {
+    if (rho_mu) {
+    rho =
+      inv_logit(X_t * beta_t + xi[1] .* log(mu));
+    } else {
     rho =
       inv_logit(X_t * beta_t);
+    }
   }
 }
 // close transformed parameters block
@@ -537,6 +556,9 @@ model {
   //--- initialization parameters ----
   if (est_init)
     target += std_normal_lpdf(log_init);
+  //--- rel between rho and mu ----
+  if (rho_mu)
+    target += normal_lpdf(lxi[1] | pr_lmxi_mu, pr_lmxi_sd);
   //--- AR process ----
   if (ar_re > 0) {
     target += std_normal_lpdf(w_t[1]);

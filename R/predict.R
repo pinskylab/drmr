@@ -2,6 +2,8 @@
 fitted_pars_drm <- function(data_list) {
   output <- c("beta_t", "beta_r",
               "lambda")
+  if (data_list$rho_mu == 1)
+    output <- c(output, "xi")
   if (data_list$likelihood == 0) {
     output <- c(output, "sigma_obs")
   } else {
@@ -120,6 +122,7 @@ predict_drm <- function(drm,
          n_time_train = drm$data$n_time,
          time = time_for,
          patch = new_data[[drm$cols$site_col]],
+         rho_mu = drm$data$rho_mu,
          ar_re = drm$data$ar_re,
          iid_re = drm$data$iid_re,
          sp_re = drm$data$sp_re,

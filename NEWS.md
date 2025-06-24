@@ -1,3 +1,10 @@
+# drmr 0.2.1
+
+* A new toggle called `rho_mu` introduced. Its default value is `1` and stands
+  for explicitly relating the probability of observing a 0 (`rho`) to the latent
+  density (`mu`). See [Yee 2014](https://doi.org/10.1016/j.csda.2013.01.012) and
+  references therein.
+
 # drmr 0.2.0
 
 * `init` now admits real numbers too.

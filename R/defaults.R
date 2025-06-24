@@ -19,6 +19,8 @@ default_priors <- function() {
        pr_alpha_b = .5,
        pr_zeta_a = .5,
        pr_zeta_b = .5,
+       pr_lmxi_mu = 0,
+       pr_lmxi_sd = 1,
        pr_beta_t_mu = 0,
        pr_beta_t_sd = 1,
        pr_beta_s_mu = numeric(0),
@@ -34,7 +36,8 @@ default_priors <- function() {
 ##' @author lcgodoy
 ##' @export
 default_toggles <- function() {
-  list(cloglog = 0,
+  list(rho_mu = 1,
+       cloglog = 0,
        movement = 0,
        est_surv = 0,
        est_init = 0,

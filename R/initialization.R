@@ -162,6 +162,11 @@ prior_sample <- function(dat, model = "drm") {
     out$beta_t <- array(out$beta_t, dim = 1)
   if (length(out$beta_r) == 1)
     out$beta_r <- array(out$beta_r, dim = 1)
+  if (dat$rho_mu == 1) {
+    out <- c(out, list("lxi" =
+                         array(stats::rnorm(1, mean = dat$pr_lmxi_mu,
+                                            sd = dat$pr_lmxi_sd))))
+  }
   if (dat$likelihood == 0) {
     out <-
       c(out,
