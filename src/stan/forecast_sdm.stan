@@ -8,6 +8,7 @@ data {
   int n_time_train; // years for training
   array[N] int time;
   //--- toggles ---
+  int<lower = 0, upper = 1> rho_mu;
   int<lower = 0, upper = 1> ar_re;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
@@ -23,6 +24,7 @@ parameters {
   //--- "regression" coefficients ----
   vector[K_z] beta_t;
   vector[K_x] beta_r;
+  array[rho_mu] real xi;
   //--- additional parameter for different lik functions ----
   array[likelihood > 0 ? 1 : 0] real phi;
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
@@ -62,14 +64,24 @@ generated quantities {
         lmu[n] += z_tp[time[n]];
     }
     mu_proj = exp(lmu);
-  }
-  //--- absence probabilities ----
-  if (cloglog) {
-    rho_proj =
-      inv_cloglog(Z * beta_t);
-  } else {
-    rho_proj =
-      inv_logit(Z * beta_t);
+    //--- absence probabilities ----
+    if (cloglog) {
+      if (rho_mu) {
+      rho_proj =
+        inv_cloglog(Z * beta_t + xi[1] .* lmu);
+      } else {
+      rho_proj =
+        inv_cloglog(Z * beta_t);
+      }
+    } else {
+      if (rho_mu) {
+        rho_proj =
+          inv_logit(Z * beta_t + xi[1] .* lmu);
+      } else {
+        rho_proj =
+          inv_logit(Z * beta_t);
+      }
+    }
   }
   //--- y_proj calculations ----
   for (n in 1:N) {

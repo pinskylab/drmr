@@ -151,6 +151,7 @@ data {
   array[N] int<lower = 1, upper = n_time> time;
   vector[N] y;
   //--- toggles ---
+  int<lower = 0, upper = 1> rho_mu;
   int<lower = 0, upper = 1> ar_re;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
@@ -173,6 +174,8 @@ data {
   real pr_lsigma_t_sd;
   real pr_alpha_a; 
   real pr_alpha_b;
+  real pr_lmxi_mu;
+  real pr_lmxi_sd;
   vector[K_z] pr_beta_t_mu;
   vector[K_z] pr_beta_t_sd;
   vector[K_x] pr_beta_r_mu;
@@ -189,6 +192,8 @@ transformed data {
   id_z = zero_index_fun(y, N_z);
 }
 parameters {
+  // relationship between mu and rho
+  array[rho_mu] real lxi;
   // parameter associated to the likelihood 
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
   array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
@@ -205,6 +210,10 @@ parameters {
   vector[ar_re ? n_time : 0] w_t;
 }
 transformed parameters {
+  // relationship between mu and rho
+  array[rho_mu] real xi;
+  if (rho_mu)
+    xi = - exp(lxi);
   //--- AR process ----
   array[ar_re] real sigma_t;
   vector[ar_re ? n_time : 0] z_t;
@@ -225,13 +234,6 @@ transformed parameters {
   vector[N] mu =
     rep_vector(0.0, N);
   // rho now hasa "regression like" type
-  if (cloglog) {
-    rho =
-      inv_cloglog(Z * beta_t);
-  } else {
-    rho =
-      inv_logit(Z * beta_t);
-  }
   {
     vector[N] lmu;
     lmu = X * beta_r;
@@ -239,11 +241,31 @@ transformed parameters {
       for (n in 1:N)
         lmu[n] += z_t[time[n]];
     }
+    if (cloglog) {
+      if (rho_mu) {
+      rho =
+        inv_cloglog(Z * beta_t + xi[1] .* lmu);
+      } else {
+      rho =
+        inv_cloglog(Z * beta_t);
+      }
+    } else {
+      if (rho_mu) {
+      rho =
+        inv_logit(Z * beta_t + xi[1] .* lmu);
+      } else {
+        rho =
+          inv_logit(Z * beta_t);
+      }
+    }
     mu = exp(lmu);
   }
 }
 // close transformed parameters block
 model {
+  //--- rel between rho and mu ----
+  if (rho_mu)
+    target += normal_lpdf(lxi[1] | pr_lmxi_mu, pr_lmxi_sd);
   //--- AR process ----
   if (ar_re) {
     target += std_normal_lpdf(w_t);

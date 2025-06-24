@@ -25,6 +25,8 @@ fitted_pars_drm <- function(data_list) {
 ##' @inherit get_fitted_pars
 fitted_pars_sdm <- function(data_list) {
   output <- c("beta_t", "beta_r")
+  if (data_list$rho_mu == 1)
+    output <- c(output, "xi")
   if (data_list$likelihood == 0) {
     output <- c(output, "sigma_obs")
   } else {
@@ -219,6 +221,7 @@ predict_sdm <- function(sdm,
          n_time = ntime_for,
          n_time_train = sdm$data$n_time,
          time = time_for,
+         ar_re = sdm$data$rho_mu,
          ar_re = sdm$data$ar_re,
          cloglog = sdm$data$cloglog,
          likelihood = sdm$data$likelihood,

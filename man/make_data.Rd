@@ -73,8 +73,8 @@ while 3 and 4 are mobile.}
 and zero otherwise.}
 
 \item{.toggles}{a \code{list} of toggles for model components. The
-components are: \itemize{ \item \code{rho_mu}: 1 to use explicitly relate
-rho to mu and 0 otherwise.  \item \code{cloglog}: 1 to use the
+components are: \itemize{ \item \code{rho_mu}: 1 to use explicitly relates
+rho to mu and 0 otherwise. \item \code{cloglog}: 1 to use the
 complementary log-log and 0 for the logit link function for the absence
 probabilities.  \item \code{movement}: 1 to allow for (adjacent) moviment;
 0 for static.  \item \code{est_surv}: 1 to estimate mortality and 0

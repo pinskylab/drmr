@@ -33,12 +33,13 @@ of absence at each site/time.}
 densities.}
 
 \item{.toggles}{a \code{list} of toggles for model components. The
-components are: \itemize{ \item \code{cloglog}: 1 to use the complementary
-log-log and 0 for the logit link function for the absence probabilities.
-\item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
-\item \code{est_surv}: 1 to estimate survival rates and 0 otherwise.
-\item \code{ar_re}: "rec" to incorporate an AR(1) process density. The
-only other accepted option is "none"}}
+components are: \itemize{\item \code{rho_mu}: 1 to use
+explicitly relate rho to mu and 0 otherwise. \item \code{cloglog}: 1 to
+use the complementary log-log and 0 for the logit link function for the
+absence probabilities.  \item \code{movement}: 1 to allow for (adjacent)
+moviment; 0 for static.  \item \code{est_surv}: 1 to estimate survival
+rates and 0 otherwise.  \item \code{ar_re}: "rec" to incorporate an AR(1)
+process density. The only other accepted option is "none"}}
 
 \item{.priors}{a \code{list} of priors hyperparameters.}
 
