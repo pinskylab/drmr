@@ -78,12 +78,12 @@
 <p>The table below details each parameter in the DRM. The “Toggle” column indicates the condition needed to include a parameter in the model. If a parameter is not activated by its toggle, it is excluded from the model, and its prior is not used.</p>
 <table class="table caption-top">
 <colgroup>
-<col style="width: 7%">
-<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 6%">
 <col style="width: 28%">
 <col style="width: 16%">
-<col style="width: 22%">
-<col style="width: 17%">
+<col style="width: 23%">
+<col style="width: 16%">
 </colgroup>
 <thead><tr class="header">
 <th style="text-align: center;">Parameter</th>
@@ -99,7 +99,7 @@
 <td style="text-align: center;"><code>beta_t</code></td>
 <td style="text-align: center;">Reg. coef. for proba. of absence</td>
 <td style="text-align: center;">N/A</td>
-<td><span class="math inline">${\rm N}(m_t, s_t)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>t</mi></msub><mo>,</mo><msub><mi>s</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{N}(m_t, s_t)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>t</mi></msub><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>s</mi><mi>t</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">m_t = 0, s_t = 1</annotation></semantics></math></td>
 </tr>
 <tr class="even">
@@ -107,7 +107,7 @@
 <td style="text-align: center;"><code>beta_r</code></td>
 <td style="text-align: center;">Reg. coef. for recruitment</td>
 <td style="text-align: center;">N/A</td>
-<td><span class="math inline">${\rm N}(m_t, s_t)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>t</mi></msub><mo>,</mo><msub><mi>s</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{N}(m_t, s_t)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>r</mi></msub><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>s</mi><mi>r</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">m_r = 0, s_r = 1</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
@@ -115,7 +115,7 @@
 <td style="text-align: center;"><code>phi</code></td>
 <td style="text-align: center;">Dispersion parameter</td>
 <td style="text-align: center;">N/A</td>
-<td><span class="math inline">${\rm Gamma}(a_p, b_p)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>p</mi></msub><mo>,</mo><msub><mi>b</mi><mi>p</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{Gamma}(a_p, b_p)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>p</mi></msub><mo>=</mo><mn>2</mn><mo>,</mo><msub><mi>b</mi><mi>p</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a_p = 2, b_p = 1</annotation></semantics></math></td>
 </tr>
 <tr class="even">
@@ -123,15 +123,15 @@
 <td style="text-align: center;"><code>beta_s</code></td>
 <td style="text-align: center;">Reg. coef. for survival</td>
 <td style="text-align: center;"><code>est_surv</code></td>
-<td><span class="math inline">${\rm N}(m_s, s_s)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>s</mi></msub><mo>,</mo><msub><mi>s</mi><mi>s</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{N}(m_s, s_s)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>s</mi></msub><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>s</mi><mi>s</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">m_s = 0, s_s = 1</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ξ</mi><annotation encoding="application/x-tex">\xi</annotation></semantics></math></td>
 <td style="text-align: center;"><code>xi</code></td>
-<td style="text-align: center;">${}() = ()</td>
+<td style="text-align: center;">$() = ()</td>
 <td style="text-align: center;"><code>rho_mu</code></td>
-<td><span class="math inline">${- \rm LN}(m_lxi, s_lxi)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>l</mi></msub><mi>x</mi><mi>i</mi><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>x</mi><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">- \mathrm{LN}(m_lxi, s_lxi)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>l</mi></msub><mi>x</mi><mi>i</mi><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>x</mi><mi>i</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">m_lxi = 0, s_lxi = 1</annotation></semantics></math></td>
 </tr>
 <tr class="even">
@@ -139,7 +139,7 @@
 <td style="text-align: center;"><code>zeta</code></td>
 <td style="text-align: center;">Prob. of remaining in the same patch</td>
 <td style="text-align: center;"><code>movement</code></td>
-<td><span class="math inline">${\rm Beta}(a_z, b_z)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>z</mi></msub><mo>,</mo><msub><mi>b</mi><mi>z</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{Beta}(a_z, b_z)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>z</mi></msub><mo>=</mo><mn>.5</mn><mo>,</mo><msub><mi>b</mi><mi>z</mi></msub><mo>=</mo><mn>.5</mn></mrow><annotation encoding="application/x-tex">a_z = .5, b_z = .5</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
@@ -149,7 +149,7 @@
 <td style="text-align: center;">
 <code>ar_re</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\neq</annotation></semantics></math><code>"none"</code>
 </td>
-<td><span class="math inline">${\rm Beta}(a_a, b_a)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>a</mi></msub><mo>,</mo><msub><mi>b</mi><mi>a</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{Beta}(a_a, b_a)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>a</mi></msub><mo>=</mo><mn>.5</mn><mo>,</mo><msub><mi>b</mi><mi>a</mi></msub><mo>=</mo><mn>.5</mn></mrow><annotation encoding="application/x-tex">a_a = .5, b_a = .5</annotation></semantics></math></td>
 </tr>
 <tr class="even">
@@ -159,7 +159,7 @@
 <td style="text-align: center;">
 <code>ar_re</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\neq</annotation></semantics></math><code>"none"</code>
 </td>
-<td><span class="math inline">${\rm LN}(m_lst, s_lst)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>l</mi></msub><mi>s</mi><mi>t</mi><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>s</mi><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{LN}(m_lst, s_lst)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>l</mi></msub><mi>s</mi><mi>t</mi><mo>=</mo><mi>−</mi><mn>2</mn><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>s</mi><mi>t</mi><mo>=</mo><mn>.25</mn></mrow><annotation encoding="application/x-tex">m_lst = -2, s_lst = .25</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
@@ -179,7 +179,7 @@
 <td style="text-align: center;">
 <code>iid_re</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\neq</annotation></semantics></math><code>"none"</code>
 </td>
-<td><span class="math inline">${\rm LN}(m_lsi, s_lsi)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>l</mi></msub><mi>s</mi><mi>i</mi><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>s</mi><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{LN}(m_lsi, s_lsi)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>l</mi></msub><mi>s</mi><mi>i</mi><mo>=</mo><mi>−</mi><mn>2</mn><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>s</mi><mi>i</mi><mo>=</mo><mn>.25</mn></mrow><annotation encoding="application/x-tex">m_lsi = -2, s_lsi = .25</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
@@ -189,7 +189,7 @@
 <td style="text-align: center;">
 <code>iid_re</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\neq</annotation></semantics></math><code>"none"</code>
 </td>
-<td><span class="math inline">$z_i \sim {\rm N}(0, \sigma^2_i)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>i</mi></msub><mo>∼</mo><mi mathvariant="normal">N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">z_i \sim \mathrm{N}(0, \sigma^2_i)</annotation></semantics></math></td>
 <td style="text-align: center;">N/A</td>
 </tr>
 <tr class="even">
@@ -199,7 +199,7 @@
 <td style="text-align: center;">
 <code>sp_re</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\neq</annotation></semantics></math><code>"none"</code>
 </td>
-<td><span class="math inline">${\rm LN}(m_lss, s_lss)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>l</mi></msub><mi>s</mi><mi>s</mi><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>s</mi><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{LN}(m_lss, s_lss)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>l</mi></msub><mi>s</mi><mi>s</mi><mo>=</mo><mi>−</mi><mn>2</mn><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>s</mi><mi>s</mi><mo>=</mo><mn>.25</mn></mrow><annotation encoding="application/x-tex">m_lss = -2, s_lss = .25</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
@@ -209,7 +209,7 @@
 <td style="text-align: center;">
 <code>sp_re</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\neq</annotation></semantics></math><code>"none"</code>
 </td>
-<td><span class="math inline">$z_s \sim {\rm N}(0, \sigma^2_i)$</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>s</mi></msub><mo>∼</mo><mi mathvariant="normal">N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">z_s \sim \mathrm{N}(0, \sigma^2_i)</annotation></semantics></math></td>
 <td style="text-align: center;">N/A</td>
 </tr>
 </tbody>
