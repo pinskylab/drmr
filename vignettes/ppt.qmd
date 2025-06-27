@@ -1,6 +1,6 @@
 ---
 title: "Parameters, priors, and toggles"
-author: Lucas da Cunha Godoy
+author: Anonymous
 date: 2025-06-26
 format:
   html:

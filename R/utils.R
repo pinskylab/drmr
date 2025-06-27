@@ -11,7 +11,7 @@
 ##' @param offset a \code{numeric} representing the "center" of \eqn{x}.
 ##' @return a \code{numeric} representing the regression coefficient of the
 ##'   linear term for the model where \eqn{x} is not centered.
-##' @author Lucas Godoy
+##' @author lcgodoy
 ##' @export
 fix_linbeta <- function(beta1, beta2, offset) {
   beta1 - 2 * offset * beta2
@@ -31,7 +31,7 @@ fix_linbeta <- function(beta1, beta2, offset) {
 ##' @param offset a \code{numeric} representing the "center" of \eqn{x}.
 ##' @return a \code{numeric} representing the uncentered \eqn{x} that maximizes
 ##'   (or minimizes) the linear predictor.
-##' @author Lucas Godoy
+##' @author lcgodoy
 ##' @export
 max_quad_x <- function(beta1, beta2, offset = 0) {
   stopifnot(NROW(beta1) == NROW(beta2))

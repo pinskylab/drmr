@@ -1,6 +1,6 @@
 ---
 title: "Examples"
-author: Lucas da Cunha Godoy
+author: Anonymous
 format:
   html:
     html-math-method: mathjax

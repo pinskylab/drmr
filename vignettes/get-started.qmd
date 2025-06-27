@@ -1,6 +1,6 @@
 ---
 title: "Get Started"
-author: Lucas da Cunha Godoy
+author: Anonymous
 bibliography: [notes.bib, zim.bib]
 execute:
   eval: true
