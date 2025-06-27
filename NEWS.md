@@ -5,6 +5,11 @@
   density (`mu`). See [Yee 2014](https://doi.org/10.1016/j.csda.2013.01.012) and
   references therein.
 
+* A new vignette with a comprehensive list of the model parameters and their
+  priors is available.
+
+* A new vignette detailing the initialization procedures is also included.
+
 # drmr 0.2.0
 
 * `init` now admits real numbers too.
