@@ -58,7 +58,7 @@
 ##'           site_col = "patch",
 ##'           seed = 2025)$stanfit$summary()
 ##' }
-##' @author lcgodoy
+##' @author anonymous
 fit_drm <- function(.data,
                     y_col,
                     time_col,
@@ -195,7 +195,7 @@ fit_drm <- function(.data,
 ##'           site_col = "patch",
 ##'           seed = 2025)$stanfit$summary()
 ##' }
-##' @author lcgodoy
+##' @author anonymous
 fit_sdm <- function(.data,
                     y_col,
                     time_col,

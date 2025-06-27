@@ -2,7 +2,7 @@
 ##'
 ##' @title Default priors' hyperparameters
 ##' @return a `list` with (explain values)
-##' @author lcgodoy
+##' @author anonymous
 ##' @export
 default_priors <- function() {
   list(pr_sigma_obs_mu = 0,
@@ -33,7 +33,7 @@ default_priors <- function() {
 ##'
 ##' @title Default toggles
 ##' @return a `list` with (explain values)
-##' @author lcgodoy
+##' @author anonymous
 ##' @export
 default_toggles <- function() {
   list(rho_mu = 1,

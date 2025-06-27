@@ -5,7 +5,7 @@
 ##' @param n_time number of time points
 ##' @return a \code{vector} of length \code{n_time} representing a realization
 ##'   of a zero-mean AR(1) process.
-##' @author lcgodoy
+##' @author anonymous
 sim_ar <- function(pars,
                    n_time) {
   out <- vector(mode = "numeric", length = n_time)
@@ -32,7 +32,7 @@ sim_ar <- function(pars,
 ##'   (the conditional SD).
 ##' @return a \code{matrix} with \code{n_patches} columns and \code{n_time} rows
 ##'   representing the log-recruitment at each patch/site and time.
-##' @author lcgodoy
+##' @author anonymous
 sim_log_rec <- function(n_patches,
                         n_time,
                         x_rec,
@@ -62,7 +62,7 @@ sim_log_rec <- function(n_patches,
 ##'   length equal to the number of columnts in \code{x_sv}.
 ##' @return a \code{matrix} with \code{n_patches} columns and \code{n_time} rows
 ##'   representing the log-survival at each patch/site and time.
-##' @author lcgodoy
+##' @author anonymous
 make_surv <- function(n_patches,
                       n_time,
                       x_sv,
@@ -82,7 +82,7 @@ make_surv <- function(n_patches,
 ##' @param M movement matrix
 ##' @param mov_age ages at which movement starts (this can be generalized)
 ##' @return an array of numbers by age, year and patch
-##' @author lcgodoy
+##' @author anonymous
 apply_movement <- function(lambda, M, mov_age) {
   dimensions <- dim(lambda)
   output <- lambda
@@ -119,7 +119,7 @@ apply_movement <- function(lambda, M, mov_age) {
 ##'   adjacency \code{matrix}.
 ##' @param mov_age a \code{vector} of ages at which movement starts.
 ##' @return an array of expected densities per age-group, patch, and timepoint.
-##' @author lcgodoy
+##' @author anonymous
 pop_dyn <- function(n_patches,
                     n_time, n_ages,
                     x_rec, ar_time,
@@ -183,7 +183,7 @@ pop_dyn <- function(n_patches,
 ##' @title Transform parameters to a meaningful and interpretable scale.
 ##' @param pars \code{list} of parameters
 ##' @return \code{list} of parameters
-##' @author lcgodoy
+##' @author anonymous
 pars_transform <- function(pars) {
   names_pars <- names(pars)
   names_pars <- gsub("0$", "", names_pars)
@@ -202,7 +202,7 @@ pars_transform <- function(pars) {
 ##'   \code{data.frame}
 ##' @param lbd a 3-dimensional \code{array}
 ##' @return return a \code{data.frame}.
-##' @author lcgodoy
+##' @author anonymous
 lambda2df <- function(lbd) {
   dim_lambdas <- dim(lbd)
   dimnames(lbd) <-
@@ -227,7 +227,7 @@ lambda2df <- function(lbd) {
 ##' @param pars a \code{list} of parameters.
 ##' @return a \code{numeric} value representing a realization of the probability
 ##'   distribution with mean \code{x} and parameters \code{pars}.
-##' @author lcgodoy
+##' @author anonymous
 sim_dens <- function(x, pars) {
   if (pars$likelihood == 0) {
     stats::rlnorm(1,
@@ -265,7 +265,7 @@ sim_dens <- function(x, pars) {
 ##'   of the model parameters.
 ##' @importFrom rlang .data
 ##' @seealso [prior_inits()]
-##' @author lcgodoy
+##' @author anonymous
 model_sim <- function(dat, model,
                       selectivity,
                       pars,
@@ -322,7 +322,7 @@ model_sim <- function(dat, model,
 ##' @return A \code{list} containing samples drawn from the prior distributions
 ##'   of the model parameters.
 ##' @seealso [prior_inits()]
-##' @author lcgodoy
+##' @author anonymous
 pp_sim <- function(dat, model = "drm",
                    selectivity = NULL,
                    ...) {
@@ -351,7 +351,7 @@ pp_sim <- function(dat, model = "drm",
 ## ##' @return A \code{list} containing samples drawn from the prior distributions
 ## ##'   of the model parameters.
 ## ##' @seealso [prior_inits()] [pps_aux()]
-## ##' @author lcgodoy
+## ##' @author anonymous
 ## prior_predictive_sim <- function(n, dat, model,
 ##                                  selectivity,
 ##                                  ...) {

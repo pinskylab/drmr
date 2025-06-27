@@ -15,7 +15,7 @@
 ##' @return A numeric vector of the same length as \code{x}, containing the
 ##'   (log) density values of the truncated t distribution.
 ##' @seealso [stats::dt()], [stats::pt()]
-##' @author lcgodoy
+##' @author anonymous
 dtt <- function(x, mu = 0, sd = 1,
                 df = 3, range = c(0, Inf),
                 log = FALSE) {
@@ -49,7 +49,7 @@ dtt <- function(x, mu = 0, sd = 1,
 ##' @return A \code{numeric vector} of length \code{n} containing random numbers
 ##'   drawn from the specified truncated t distribution.
 ##' @seealso [stats::rt()], [stats::qt()]
-##' @author lcgodoy
+##' @author anonymous
 rtt <- function(n, mu = 0, sd = 1,
                 df = 3, range = c(0, Inf)) {
   ll <- stats::pt(q = min(range - mu) / sd, df = df)
@@ -73,7 +73,7 @@ rtt <- function(n, mu = 0, sd = 1,
 ##' @return A numeric vector of the same length as \code{x}, containing the
 ##'   (log) density values of the truncated normal distribution.
 ##' @seealso [stats::dnorm()], [stats::pnorm()]
-##' @author lcgodoy
+##' @author anonymous
 dtn <- function(x, mean = 0, sd = 1, range = c(0, Inf),
                 log = FALSE) {
   ll <- stats::pnorm(q = min(range), mean = mean, sd = sd)
@@ -99,7 +99,7 @@ dtn <- function(x, mean = 0, sd = 1, range = c(0, Inf),
 ##' @return A \code{numeric vector} of length \code{n} containing random numbers
 ##'   drawn from the specified truncated normal distribution.
 ##' @seealso [stats::rnorm()], [stats::qnorm()]
-##' @author lcgodoy
+##' @author anonymous
 rtn <- function(n, mean = 0, sd = 1, range = c(0, Inf)) {
   ll <- stats::pnorm(q = min(range), mean = mean, sd = sd)
   hh <- stats::pnorm(q = max(range), mean = mean, sd = sd)
@@ -119,7 +119,7 @@ rtn <- function(n, mean = 0, sd = 1, range = c(0, Inf)) {
 ##' @seealso [make_data()], [make_data_sdm()]
 ##' @keywords internal
 ##' @export
-##' @author lcgodoy
+##' @author anonymous
 check_pars <- function(dat, model) {
   if (model == "drm") {
     names_check <-
@@ -143,7 +143,7 @@ check_pars <- function(dat, model) {
 ##'   of the model parameters.
 ##' @seealso [prior_inits()]
 ##' @export
-##' @author lcgodoy
+##' @author anonymous
 prior_sample <- function(dat, model = "drm") {
   check_pars(dat, model)
   time_re <- ifelse(dat$ar_re != "none", 1, 0)
@@ -250,7 +250,7 @@ prior_sample <- function(dat, model = "drm") {
 ##'   the output of \code{prior_sample()}.
 ##' @seealso [prior_sample()]
 ##' @export
-##' @author lcgodoy
+##' @author anonymous
 prior_inits <- function(dat, chains, model = "drm") {
   check_pars(dat, model)
   out <-

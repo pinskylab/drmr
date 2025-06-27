@@ -48,7 +48,7 @@ fitted_pars_sdm <- function(data_list) {
 ##'   for. This input admits two possible entries: "drm" (default) or "sdm".
 ##' @return a \code{character} vector of labels indicating the parameters
 ##'   necessary for the forecast.
-##' @author lcgodoy
+##' @author anonymous
 get_fitted_pars <- function(data_list, model = "drm") {
   stopifnot(inherits(data_list, "list"))
   stopifnot(length(model) == 1)
@@ -85,7 +85,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{drm} object.
 ##'
-##' @author lcgodoy
+##' @author anonymous
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.
@@ -196,7 +196,7 @@ predict_drm <- function(drm,
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{sdm} object.
 ##'
-##' @author lcgodoy
+##' @author anonymous
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.

@@ -75,7 +75,7 @@
 ##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
 ##'   should be determined through the data.
 ##' @return a \code{list} to be used as the input for a \code{stan} model
-##' @author lcgodoy
+##' @author anonymous
 ##' @export
 make_data <- function(y,
                       time,
@@ -301,7 +301,7 @@ make_data <- function(y,
 ##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
 ##'   should be determined through the data.
 ##' @return a \code{list} to be used as the input for a \code{stan} model
-##' @author lcgodoy
+##' @author anonymous
 ##' @export
 make_data_sdm <- function(y,
                           time,

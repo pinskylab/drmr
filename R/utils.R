@@ -11,7 +11,7 @@
 ##' @param offset a \code{numeric} representing the "center" of \eqn{x}.
 ##' @return a \code{numeric} representing the regression coefficient of the
 ##'   linear term for the model where \eqn{x} is not centered.
-##' @author lcgodoy
+##' @author anonymous
 ##' @export
 fix_linbeta <- function(beta1, beta2, offset) {
   beta1 - 2 * offset * beta2
@@ -31,7 +31,7 @@ fix_linbeta <- function(beta1, beta2, offset) {
 ##' @param offset a \code{numeric} representing the "center" of \eqn{x}.
 ##' @return a \code{numeric} representing the uncentered \eqn{x} that maximizes
 ##'   (or minimizes) the linear predictor.
-##' @author lcgodoy
+##' @author anonymous
 ##' @export
 max_quad_x <- function(beta1, beta2, offset = 0) {
   stopifnot(NROW(beta1) == NROW(beta2))
@@ -44,7 +44,7 @@ max_quad_x <- function(beta1, beta2, offset = 0) {
 ##' @title Generates an adjacency matrix
 ##' @param x an \code{sf} object representing the patches.
 ##' @return an adjacency \code{matrix}
-##' @author lcgodoy
+##' @author anonymous
 ##' @export
 gen_adj <- function(x) {
   if (!inherits(x, "sfc")) {
@@ -74,7 +74,7 @@ gen_adj <- function(x) {
 ##' @param replacements a named \code{list} containing elements to be modified
 ##'   in the \code{original} \code{list}
 ##' @return an updated \code{original list}.
-##' @author lcgodoy
+##' @author anonymous
 safe_modify <- function(original, replacements) {
   if (!missing(replacements)) {
     stopifnot(all(names(replacements) %in% names(original)))
@@ -184,7 +184,7 @@ int_score <- function(y, l, u, alpha) {
 ##'   or absence probabilities) posterior distribution.
 ##' @name marg
 ##' @export
-##' @author lcgodoy
+##' @author anonymous
 marg_rec <- function(drm, newdata) {
   stopifnot(inherits(drm$stanfit, "CmdStanFit"))
   my_formula <- drm$formulas$formula_rec
@@ -274,7 +274,7 @@ fix_re <- function(x) {
 ##' @title Get nodes for ICAR spatial random effects
 ##' @param adj adjacency \code{matrix}
 ##' @return a \code{list}.
-##' @author lcgodoy
+##' @author anonymous
 get_nodes <- function(adj) {
   ladj <- apply(adj > 0, MARGIN = 1,
                 which)
@@ -319,7 +319,7 @@ ginv <- function (X, tol = sqrt(.Machine$double.eps)) {
 ##' 
 ##' @param adj adjacency \code{matrix}
 ##' @return a \code{scalar}
-##' @author lcgodoy
+##' @author anonymous
 get_scaling <- function(adj) {
   Q <- matrix(0, nrow = nrow(adj), ncol = ncol(adj))
   diag(Q) <- apply(adj, 1, sum)
@@ -342,7 +342,7 @@ get_scaling <- function(adj) {
 ##' @title Estimate phi
 ##' @inheritParams make_data
 ##' @return a \code{numeric} scalar representing an estimate for phi
-##' @author lcgodoy
+##' @author anonymous
 get_phi_hat <- function(y, family) {
   if (family == "gamma") {
     ng0 <- sum(y > 0)

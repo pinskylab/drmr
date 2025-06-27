@@ -20,7 +20,7 @@ fitted_pars_lambda <- function(data_list) {
 ##' @param cores number of threads used for the forecast. If four chains were
 ##'   used in the \code{drm}, then four (or less) threads are recommended.
 ##'
-##' @author lcgodoy
+##' @author anonymous
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.
