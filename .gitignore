@@ -4,6 +4,7 @@
 .RData
 .Rhistory
 .Rproj.user/
+.Rproj*
 inst/stan/**
 !inst/stan/**/*.*
 inst/stan/**/*.exe
