@@ -25,5 +25,5 @@ representing the log-survival at each patch/site and time.
 Generate the "survival" terms
 }
 \author{
-lcgodoy
+anonymous
 }

@@ -31,5 +31,5 @@ Generates random numbers from a truncated Normal distribution.
 \code{\link[stats:Normal]{stats::rnorm()}}, \code{\link[stats:Normal]{stats::qnorm()}}
 }
 \author{
-lcgodoy
+anonymous
 }

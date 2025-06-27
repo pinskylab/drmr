@@ -39,5 +39,5 @@ For details on the method used, see:
 \code{\link[stats:TDist]{stats::rt()}}, \code{\link[stats:TDist]{stats::qt()}}
 }
 \author{
-lcgodoy
+anonymous
 }

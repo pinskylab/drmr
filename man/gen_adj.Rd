@@ -16,5 +16,5 @@ an adjacency \code{matrix}
 Generates an adjacency matrix for "movement"
 }
 \author{
-lcgodoy
+anonymous
 }

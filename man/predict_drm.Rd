@@ -42,5 +42,5 @@ MUST be the same as the ones used to obtain the parameters' estimates from
 the the \code{drm} object.
 }
 \author{
-lcgodoy
+anonymous
 }

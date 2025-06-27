@@ -22,5 +22,5 @@ Considering a new dataset (across the same patches), computes
 forecasts based on the DRM passed as \code{drm}.
 }
 \author{
-lcgodoy
+anonymous
 }

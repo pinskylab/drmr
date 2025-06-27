@@ -6,7 +6,7 @@ Authors@R:
     person(given = "Author",
            family = "1",
            role = c("aut", "cre"),
-           email = "email@removed.for.review"))
+           email = "email@removed.for.review")
 Description: The models available are described in the vignette. The class of
   models we provide were first discussed in Pagel and Schur (2012)
   (<doi:10.1111/j.1466-8238.2011.00663.x>).

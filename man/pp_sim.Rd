@@ -32,5 +32,5 @@ generate initial values for MCMC.
 \code{\link[=prior_inits]{prior_inits()}}
 }
 \author{
-lcgodoy
+anonymous
 }

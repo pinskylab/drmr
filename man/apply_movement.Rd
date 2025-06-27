@@ -20,5 +20,5 @@ an array of numbers by age, year and patch
 Apply "simple" movement to population dynamics.
 }
 \author{
-lcgodoy
+anonymous
 }

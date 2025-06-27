@@ -102,6 +102,6 @@ Other models:
 \code{\link{fit_drm}()}
 }
 \author{
-lcgodoy
+anonymous
 }
 \concept{models}

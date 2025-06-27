@@ -25,6 +25,6 @@ This is an internal function not intended for direct use.
 \code{\link[=make_data]{make_data()}}, \code{\link[=make_data_sdm]{make_data_sdm()}}
 }
 \author{
-lcgodoy
+anonymous
 }
 \keyword{internal}

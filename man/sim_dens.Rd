@@ -21,5 +21,5 @@ Given the expected value \code{x} and a list of parameters
 density function which is also specified by the list \code{pars}.
 }
 \author{
-lcgodoy
+anonymous
 }

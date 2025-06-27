@@ -13,5 +13,5 @@ a \code{list} with (explain values)
 Returns default priors' hyperparameters for the DRM model.
 }
 \author{
-lcgodoy
+anonymous
 }

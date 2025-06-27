@@ -16,5 +16,5 @@ pars_transform(pars)
 Transform parameters to a meaningful and interpretable scale.
 }
 \author{
-lcgodoy
+anonymous
 }

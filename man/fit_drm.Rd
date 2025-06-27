@@ -106,6 +106,6 @@ Other models:
 \code{\link{fit_sdm}()}
 }
 \author{
-lcgodoy
+anonymous
 }
 \concept{models}

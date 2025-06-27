@@ -18,5 +18,5 @@ Turn an array of density per age, time, and patch/site into a
 \code{data.frame}
 }
 \author{
-lcgodoy
+anonymous
 }

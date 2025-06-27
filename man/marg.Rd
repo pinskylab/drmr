@@ -33,5 +33,5 @@ regarding recruitment, while \code{marg_surv} and \code{marg_abs} evaluate
 relationships with survival and absence probability, respectively.
 }
 \author{
-lcgodoy
+anonymous
 }

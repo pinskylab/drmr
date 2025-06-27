@@ -21,5 +21,5 @@ of a zero-mean AR(1) process.
 Simulate AR(1)
 }
 \author{
-lcgodoy
+anonymous
 }

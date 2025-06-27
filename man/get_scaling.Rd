@@ -16,5 +16,5 @@ a \code{scalar}
 Using results from Rue and Held 2005 and Morris et al. 2019.
 }
 \author{
-lcgodoy
+anonymous
 }

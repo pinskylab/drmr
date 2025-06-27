@@ -39,5 +39,5 @@ link} for the \link[rlang:dot-data]{rlang::.data} import.
 \code{\link[=prior_inits]{prior_inits()}}
 }
 \author{
-lcgodoy
+anonymous
 }

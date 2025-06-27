@@ -28,5 +28,5 @@ value of \eqn{x} (on its original scale) such that the linear predictor is
 maximized (or minimized).
 }
 \author{
-Lucas Godoy
+anonymous
 }

@@ -13,5 +13,5 @@ a \code{list} with (explain values)
 Returns default toggles for the DRM model.
 }
 \author{
-lcgodoy
+anonymous
 }

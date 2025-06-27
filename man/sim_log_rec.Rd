@@ -32,5 +32,5 @@ representing the log-recruitment at each patch/site and time.
 Simulate log-recruitment
 }
 \author{
-lcgodoy
+anonymous
 }

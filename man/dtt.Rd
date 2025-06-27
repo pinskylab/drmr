@@ -36,5 +36,5 @@ Calculates the density of a truncated Student's t distribution.
 \code{\link[stats:TDist]{stats::dt()}}, \code{\link[stats:TDist]{stats::pt()}}
 }
 \author{
-lcgodoy
+anonymous
 }

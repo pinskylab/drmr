@@ -66,5 +66,5 @@ This function creates the \code{list} used as the input for the \code{stan}
 model.
 }
 \author{
-lcgodoy
+anonymous
 }

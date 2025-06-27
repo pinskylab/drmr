@@ -64,5 +64,5 @@ an array of expected densities per age-group, patch, and timepoint.
 Given a set of parameters, simulate population dynamics.
 }
 \author{
-lcgodoy
+anonymous
 }

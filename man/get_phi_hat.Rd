@@ -24,5 +24,5 @@ a \code{numeric} scalar representing an estimate for phi
 Estimate phi
 }
 \author{
-lcgodoy
+anonymous
 }

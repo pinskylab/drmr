@@ -16,5 +16,5 @@ a \code{list}.
 Get nodes for ICAR spatial random effects
 }
 \author{
-lcgodoy
+anonymous
 }

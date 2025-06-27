@@ -23,5 +23,5 @@ This function returns an error if any of the names found in the
 \code{replacements} object are not in the \code{list} to be modified.
 }
 \author{
-lcgodoy
+anonymous
 }

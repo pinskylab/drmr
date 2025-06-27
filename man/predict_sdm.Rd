@@ -40,5 +40,5 @@ MUST be the same as the ones used to obtain the parameters' estimates from
 the the \code{sdm} object.
 }
 \author{
-lcgodoy
+anonymous
 }

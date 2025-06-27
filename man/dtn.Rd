@@ -33,5 +33,5 @@ Calculates the density of a truncated Normal distribution.
 \code{\link[stats:Normal]{stats::dnorm()}}, \code{\link[stats:Normal]{stats::pnorm()}}
 }
 \author{
-lcgodoy
+anonymous
 }
