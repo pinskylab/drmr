@@ -9,7 +9,7 @@ model."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,6 +22,8 @@ model."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/examples.html">Examples</a></li>
     <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
+    <li><a class="dropdown-item" href="../articles/init.html">Densities' initialization</a></li>
+    <li><a class="dropdown-item" href="../articles/ppt.html">Parameters, priors, and toggles</a></li>
     <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -148,22 +150,29 @@ and zero otherwise.</p></dd>
 
 <dt id="arg--toggles">.toggles<a class="anchor" aria-label="anchor" href="#arg--toggles"></a></dt>
 <dd><p>a <code>list</code> of toggles for model components. The
-components are:</p><ul><li><p><code>cloglog</code>: 1 to use the complementary
-log-log and 0 for the logit link function for the absence probabilities.</p></li>
-<li><p><code>movement</code>: 1 to allow for (adjacent) moviment; 0 for static.</p></li>
-<li><p><code>est_surv</code>: 1 to estimate mortality and 0 otherwise.</p></li>
-<li><p><code>est_init</code>: 1 to estimate initial values for lambda and 0 otherwise.</p></li>
-<li><p><code>minit</code>: 1 to use mortality to estimate initial age classes and 0 otherwise.</p></li>
-<li><p><code>ar_re</code>: a <code>character</code>. It assumes one of the following
-values: "none" - no AR, "rec" AR(1) for recruitment, "surv" - AR(1) for
-survival (only works when <code>est_surv</code> is on), "dens" - AR(1) for
-density.</p></li>
-<li><p><code>iid_re</code>: a <code>character</code>. It assumes one of the following
-values: "none" - no iid re, "rec" iid re for recruitment, "surv" - iir re for
-survival (only works when <code>est_surv</code> is on), "dens" - iid_re for
-density.</p></li>
-<li><p><code>sp_re</code>: a <code>character</code>. It assumes one of the following
-values: "none" - no ICAR re, "rec" ICAR re for recruitment, "surv" - ICAR re for
+components are:</p><ul><li><p><code>rho_mu</code>: 1 to use explicitly relates
+rho to mu and 0 otherwise.</p></li>
+<li><p><code>cloglog</code>: 1 to use the
+complementary log-log and 0 for the logit link function for the absence
+probabilities.</p></li>
+<li><p><code>movement</code>: 1 to allow for (adjacent) moviment;
+0 for static.</p></li>
+<li><p><code>est_surv</code>: 1 to estimate mortality and 0
+otherwise.</p></li>
+<li><p><code>est_init</code>: 1 to estimate initial values for lambda
+and 0 otherwise.</p></li>
+<li><p><code>minit</code>: 1 to use mortality to estimate
+initial age classes and 0 otherwise.</p></li>
+<li><p><code>ar_re</code>: a
+<code>character</code>. It assumes one of the following values: "none" - no AR,
+"rec" AR(1) for recruitment, "surv" - AR(1) for survival (only works when
+<code>est_surv</code> is on), "dens" - AR(1) for density.</p></li>
+<li><p><code>iid_re</code>:
+a <code>character</code>. It assumes one of the following values: "none" - no
+iid re, "rec" iid re for recruitment, "surv" - iir re for survival (only
+works when <code>est_surv</code> is on), "dens" - iid_re for density.</p></li>
+<li><p><code>sp_re</code>: a <code>character</code>. It assumes one of the following values:
+"none" - no ICAR re, "rec" ICAR re for recruitment, "surv" - ICAR re for
 survival (only works when <code>est_surv</code> is on), "dens" - ICAR_re for
 density.</p></li>
 </ul></dd>

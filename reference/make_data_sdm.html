@@ -9,7 +9,7 @@ model."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,6 +22,8 @@ model."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/examples.html">Examples</a></li>
     <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
+    <li><a class="dropdown-item" href="../articles/init.html">Densities' initialization</a></li>
+    <li><a class="dropdown-item" href="../articles/ppt.html">Parameters, priors, and toggles</a></li>
     <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -92,12 +94,15 @@ densities.</p></dd>
 
 <dt id="arg--toggles">.toggles<a class="anchor" aria-label="anchor" href="#arg--toggles"></a></dt>
 <dd><p>a <code>list</code> of toggles for model components. The
-components are:</p><ul><li><p><code>cloglog</code>: 1 to use the complementary
-log-log and 0 for the logit link function for the absence probabilities.</p></li>
-<li><p><code>movement</code>: 1 to allow for (adjacent) moviment; 0 for static.</p></li>
-<li><p><code>est_surv</code>: 1 to estimate survival rates and 0 otherwise.</p></li>
-<li><p><code>ar_re</code>: "rec" to incorporate an AR(1) process density. The
-only other accepted option is "none"</p></li>
+components are:</p><ul><li><p><code>cloglog</code>: 1 to
+use the complementary log-log and 0 for the logit link function for the
+absence probabilities.</p></li>
+<li><p><code>movement</code>: 1 to allow for (adjacent)
+moviment; 0 for static.</p></li>
+<li><p><code>est_surv</code>: 1 to estimate survival
+rates and 0 otherwise.</p></li>
+<li><p><code>ar_re</code>: "rec" to incorporate an AR(1)
+process density. The only other accepted option is "none"</p></li>
 </ul></dd>
 
 
