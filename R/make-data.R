@@ -279,14 +279,20 @@ make_data <- function(y,
 ##'   of absence at each site/time.
 ##' @param x a design \code{matrix} of variables associated to the non-zero
 ##'   densities.
+##' @param adj_mat an adjacency \code{matrix} of dimensions \code{sites}
+##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
+##'   and zero otherwise.
 ##' @param .toggles a \code{list} of toggles for model components. The
-##'   components are: \itemize{\item \code{rho_mu}: 1 to use
-##'   explicitly relate rho to mu and 0 otherwise. \item \code{cloglog}: 1 to
-##'   use the complementary log-log and 0 for the logit link function for the
-##'   absence probabilities.  \item \code{movement}: 1 to allow for (adjacent)
-##'   moviment; 0 for static.  \item \code{est_surv}: 1 to estimate survival
-##'   rates and 0 otherwise.  \item \code{ar_re}: "rec" to incorporate an AR(1)
-##'   process density. The only other accepted option is "none"}
+##'   components are: \itemize{\item \code{rho_mu}: 1 to use explicitly relate
+##'   rho to mu and 0 otherwise. \item \code{cloglog}: 1 to use the
+##'   complementary log-log and 0 for the logit link function for the absence
+##'   probabilities.  \item \code{movement}: 1 to allow for (adjacent) moviment;
+##'   0 for static.  \item \code{est_surv}: 1 to estimate survival rates and 0
+##'   otherwise. \item \code{ar_re}: 1 to incorporate an AR(1) process to
+##'   density and 0 otherwise. \item \code{iid_re}: 1 to incorporate a patch
+##'   specific IID random effect to density and 0 otherwise. \item \code{sp_re}:
+##'   1 to incorporate a patch specific ICAR random effect to density and 0
+##'   otherwise.}
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
 ##'   reordered. The default is TRUE and means the data points will be ordered
@@ -308,7 +314,7 @@ make_data_sdm <- function(y,
                           site,
                           z,
                           x,
-                          ## age_zero = FALSE
+                          adj_mat = matrix(0, ncol = 1, nrow = 1),
                           .toggles,
                           .priors,
                           family = "gamma",
@@ -325,6 +331,8 @@ make_data_sdm <- function(y,
                        loglogistic      = 3)
   toggles <- list(rho_mu = 1,
                   ar_re = 0,
+                  sp_re = 0,
+                  iid_re = 0,
                   cloglog = 0) |>
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
@@ -390,15 +398,33 @@ make_data_sdm <- function(y,
                                    dim = 1)
     }
   }
+  if (toggles$sp_re > 0) {
+    stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
+              nrow(adj_mat) == n_patches)
+    aux_sp <- get_nodes(adj_mat)
+    adj2 <- matrix(0, ncol = NCOL(adj_mat), nrow = NROW(adj_mat))
+    adj2[adj_mat > 0] <- 1
+    scaling <- array(get_scaling(adj2), dim = 1)
+    N_edges <- array(as.integer(aux_sp$N_edges), dim = 1)
+    neighbors <- aux_sp$neighbors
+  } else {
+    scaling <- numeric(0)
+    neighbors <- matrix(1, ncol = 1, nrow = 1)
+    N_edges <- integer(0)
+  }
   output <- list(N = n_time * n_patches,
                  n_patches = n_patches,
                  n_time = n_time,
                  time = time,
+                 patch = site,
                  y = y,
                  X = x,
                  K_x = K_x,
                  Z = z,
-                 K_z = K_z) |>
+                 K_z = K_z,
+                 scaling = scaling,
+                 neighbors = neighbors,
+                 N_edges = N_edges) |>
     c(toggles,
       priors)
   return(output)

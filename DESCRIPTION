@@ -1,7 +1,7 @@
 Package: drmr
 Type: Package
 Title: An R package with pre-compiled cmdstan code for dynamic range models
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: 
     person(given = "Lucas",
            family = "da Cunha Godoy",
@@ -15,7 +15,7 @@ BugReports: https://github.com/pinskylab/drmr/issues/
 Depends:
   R (>= 4.0.0)
 Imports:
-  instantiate,
+  instantiate (>= 0.2.3.9002),
   sf,
   spdep,
   stats,

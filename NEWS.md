@@ -1,3 +1,12 @@
+# drmr 0.2.2
+
+* Spatial and iid random effects also included in the SDM functions.
+
+* Typos in the "Parameters, priors, and toggles" vignette were fixed.
+
+* `instantiate` version must be at least `0.2.3.9002`, so we can use `#include`
+  for functions.
+
 # drmr 0.2.1
 
 * A new toggle called `rho_mu` introduced. Its default value is `1` and stands

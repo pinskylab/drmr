@@ -264,11 +264,13 @@ marg_surv <- function(drm, newdata) {
 ##' @return a \code{integer}
 ##' @author lcgogoy
 fix_re <- function(x) {
+  if (!x %in% c(0:3)) {
     switch(x,
            none = 0,
            rec  = 1,
            surv = 2,
            dens = 3)
+  } else x
 }
 
 ##' @title Get nodes for ICAR spatial random effects
