@@ -1,5 +1,9 @@
 # drmr 0.2.2
 
+* Ensuring there are no `NA`s in the covariates, `site`, or `time`.
+
+* Added support for missingness on `y`.
+
 * Functions for vectorzing the zero-inflated densities were moved to `R` (as
   opposed to `Stan`). Therefore, the indexes of the "zeros" in the response
   variables become an input from `R` to `Stan`.

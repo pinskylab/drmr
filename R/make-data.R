@@ -96,11 +96,17 @@ make_data <- function(y,
                       reorder = TRUE,
                       phi_hat = FALSE) {
   ## getting the default toggles and using user options
+  stopifnot(all(!is.na(c(x_t))))
+  stopifnot(all(!is.na(c(x_r))))
+  stopifnot(all(!is.na(c(time))))
+  stopifnot(all(!is.na(c(site))))
+  zeros <- get_zeros(y)
+  if (any(is.na(y)))
+    y <- -99
   stopifnot(length(family) == 1)
   stopifnot(family %in% c("lognormal_legacy", "lognormal",
                           "gamma", "loglogistic",
                           "truncnorm"))
-  zeros <- get_zeros(y)
   likelihood <- switch(family,
                        lognormal_legacy  = 0,
                        lognormal         = 1,
@@ -162,6 +168,7 @@ make_data <- function(y,
     K_m <- integer(0)
   } else {
     stopifnot(ncol(x_m) >= 1)
+    stopifnot(all(!is.na(c(x_m))))
     m <- numeric(0)
     if (reorder)
       x_m <- x_m[my_ord, , drop = FALSE]
@@ -323,10 +330,16 @@ make_data_sdm <- function(y,
                           reorder = TRUE,
                           phi_hat = FALSE) {
   ## getting the default toggles and using user options
+  stopifnot(all(!is.na(c(x))))
+  stopifnot(all(!is.na(c(z))))
+  stopifnot(all(!is.na(c(time))))
+  stopifnot(all(!is.na(c(site))))
+  zeros <- get_zeros(y)
+  if (any(is.na(y)))
+    y <- -99
   stopifnot(length(family) == 1)
   stopifnot(family %in% c("lognormal_legacy", "lognormal",
                           "gamma", "loglogistic"))
-  zeros <- get_zeros(y)
   likelihood <- switch(family,
                        lognormal_legacy = 0,
                        lognormal        = 1,
