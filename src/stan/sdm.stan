@@ -1,5 +1,4 @@
 functions {
-#include utils/zero_aug.stan
 #include utils/lpdfs.stan
 }
 data {
@@ -10,6 +9,11 @@ data {
   array[N] int<lower = 1, upper = n_time> time;
   array[N] int<lower = 1, upper = n_patches> patch;
   vector[N] y;
+  //--- for vectorizing zero-inflation ----
+  int N_nz;
+  int N_z;
+  array[N_nz] int id_nz;
+  array[N_z] int id_z;
   //--- toggles ---
   int<lower = 0, upper = 1> rho_mu;
   int<lower = 0, upper = 1> ar_re;
@@ -54,14 +58,6 @@ data {
   vector[K_x] pr_beta_r_sd;
 }
 transformed data {
-  //--- Vectorizing zero-inflation ----
-  int N_nz;
-  N_nz = num_non_zero_fun(y);
-  int N_z = N - N_nz;
-  array[N_nz] int id_nz;
-  array[N_z] int id_z;
-  id_nz = non_zero_index_fun(y, N_nz);
-  id_z = zero_index_fun(y, N_z);
   //--- scaling factors ----
   real s_iid = sqrt(n_patches / (n_patches - 1.0));
 }

@@ -100,6 +100,7 @@ make_data <- function(y,
   stopifnot(family %in% c("lognormal_legacy", "lognormal",
                           "gamma", "loglogistic",
                           "truncnorm"))
+  zeros <- get_zeros(y)
   likelihood <- switch(family,
                        lognormal_legacy  = 0,
                        lognormal         = 1,
@@ -261,7 +262,8 @@ make_data <- function(y,
                  adj_mat = adj_mat,
                  ages_movement = ages_movement,
                  selectivity_at_age = selectivity_at_age) |>
-    c(toggles,
+    c(zeros,
+      toggles,
       priors)
   return(output)
 }
@@ -324,6 +326,7 @@ make_data_sdm <- function(y,
   stopifnot(length(family) == 1)
   stopifnot(family %in% c("lognormal_legacy", "lognormal",
                           "gamma", "loglogistic"))
+  zeros <- get_zeros(y)
   likelihood <- switch(family,
                        lognormal_legacy = 0,
                        lognormal        = 1,
@@ -425,7 +428,8 @@ make_data_sdm <- function(y,
                  scaling = scaling,
                  neighbors = neighbors,
                  N_edges = N_edges) |>
-    c(toggles,
+    c(zeros,
+      toggles,
       priors)
   return(output)
 }

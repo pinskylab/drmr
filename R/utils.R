@@ -362,3 +362,21 @@ get_phi_hat <- function(y, family) {
     return(1)
   }
 }
+
+##' @title Zeros and nonzeros
+##' @inheritParams make_data
+##' @return a \code{list} containing necessary input for stan to identify zeros
+##'   and nonzeros in the response variable.
+##' @author lcgodoy
+get_zeros <- function(y) {
+  stopifnot(NCOL(y) == 1)
+  stopifnot(all(y >= 0))
+  id_z  <- which(y == 0)
+  id_nz <- which(y > 0)
+  N_z  <- length(id_z)
+  N_nz <- length(id_nz)
+  return(list(id_z = id_z,
+              id_nz = id_nz,
+              N_z = N_z,
+              N_nz = N_nz))
+}

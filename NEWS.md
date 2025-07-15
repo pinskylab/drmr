@@ -1,5 +1,9 @@
 # drmr 0.2.2
 
+* Functions for vectorzing the zero-inflated densities were moved to `R` (as
+  opposed to `Stan`). Therefore, the indexes of the "zeros" in the response
+  variables become an input from `R` to `Stan`.
+
 * Spatial and iid random effects also included in the SDM functions.
 
 * Typos in the "Parameters, priors, and toggles" vignette were fixed.

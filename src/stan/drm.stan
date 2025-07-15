@@ -1,5 +1,4 @@
 functions {
-#include utils/zero_aug.stan
 #include utils/lpdfs.stan
 #include utils/age_struct.stan
 }
@@ -12,6 +11,11 @@ data {
   array[N] int<lower = 1, upper = n_time> time;
   array[N] int<lower = 1, upper = n_patches> patch;
   vector[N] y;
+  //--- for vectorizing zero-inflation ----
+  int N_nz;
+  int N_z;
+  array[N_nz] int id_nz;
+  array[N_z] int id_z;
   //--- toggles ---
   int<lower = 0, upper = 1> rho_mu;
   int<lower = 0, upper = 3> ar_re;
@@ -89,14 +93,6 @@ transformed data {
   matrix[est_surv ? 0 : n_time, est_surv ? 0 : n_patches] fixed_m;
   if (!est_surv)
     fixed_m = rep_matrix(- m[1], n_time, n_patches);
-  //--- Vectorizing zero-inflation ----
-  int N_nz;
-  N_nz = num_non_zero_fun(y);
-  int N_z = N - N_nz;
-  array[N_nz] int id_nz;
-  array[N_z] int id_z;
-  id_nz = non_zero_index_fun(y, N_nz);
-  id_z = zero_index_fun(y, N_z);
   //--- scaling factors ----
   real s_iid = sqrt(n_patches / (n_patches - 1.0));
 }
