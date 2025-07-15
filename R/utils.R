@@ -370,7 +370,7 @@ get_phi_hat <- function(y, family) {
 ##' @author lcgodoy
 get_zeros <- function(y) {
   stopifnot(NCOL(y) == 1)
-  stopifnot(all(y >= 0))
+  stopifnot(all(y[!is.na(y)] >= 0))
   id_z  <- which(y == 0)
   id_nz <- which(y > 0)
   N_z  <- length(id_z)
