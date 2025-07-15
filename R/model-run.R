@@ -77,8 +77,10 @@ fit_drm <- function(.data,
   stopifnot(length(init) == 1)
   if (is.character(init))
     stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
-  x_t <- stats::model.matrix(formula_zero, data = .data)
-  x_r <- stats::model.matrix(formula_rec, data = .data)
+  x_t <- stats::model.matrix.lm(formula_zero, data = .data,
+                                na.action = stats::na.fail)
+  x_r <- stats::model.matrix.lm(formula_rec, data = .data,
+                                na.action = stats::na.fail)
   if (is.null(formula_surv)) {
     model_dat <- make_data(y = .data[[y_col]],
                            time = .data[[time_col]],
@@ -88,7 +90,8 @@ fit_drm <- function(.data,
                            x_r = x_r,
                            ...)
   } else {
-    x_m <- stats::model.matrix(formula_surv, data = .data)
+    x_m <- stats::model.matrix.lm(formula_surv, data = .data,
+                                  na.action = stats::na.fail)
     model_dat <- make_data(y = .data[[y_col]],
                            time = .data[[time_col]],
                            site = .data[[site_col]],
@@ -213,8 +216,10 @@ fit_sdm <- function(.data,
   stopifnot(length(init) == 1)
   if (is.character(init))
     stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
-  x_t <- stats::model.matrix(formula_zero, data = .data)
-  x_r <- stats::model.matrix(formula_dens, data = .data)
+  x_t <- stats::model.matrix.lm(formula_zero, data = .data,
+                                na.action = stats::na.fail)
+  x_r <- stats::model.matrix.lm(formula_dens, data = .data,
+                                na.action = stats::na.fail)
   model_dat <- make_data_sdm(y = .data[[y_col]],
                              time = .data[[time_col]],
                              site = .data[[site_col]],

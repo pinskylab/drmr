@@ -230,13 +230,13 @@ generated quantities {
       loc_par = log(mu[n]) + square(sigma_obs[1]) / 2;
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         lognormal_rng(loc_par, sigma_obs[1]);
-      if (y[n] == 0) {
-        // only evaluate density if there are length comps to evaluate
-        log_lik[n] = log(rho[n]);
-      } else {
-        log_lik[n] = log1m(rho[n]) +
-          lognormal_lpdf(y[n] | loc_par, sigma_obs[1]);
-      }
+      /* if (y[n] == 0) { */
+      /*   // only evaluate density if there are length comps to evaluate */
+      /*   log_lik[n] = log(rho[n]); */
+      /* } else { */
+      /*   log_lik[n] = log1m(rho[n]) + */
+      /*     lognormal_lpdf(y[n] | loc_par, sigma_obs[1]); */
+      /* } */
     } else if (likelihood == 1) {
       real mu_ln;
       real sigma_ln;
@@ -244,23 +244,23 @@ generated quantities {
       mu_ln = log(square(mu[n]) * inv_sqrt(square(mu[n]) + phi[1]));
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         lognormal_rng(mu_ln, sigma_ln);
-      if (y[n] == 0) {
-        log_lik[n] = log(rho[n]);
-      } else {
-        log_lik[n] = log1m(rho[n]) +
-          ln_mu_lpdf(y[n] | mu[n], phi[1]);
-      }
+      /* if (y[n] == 0) { */
+      /*   log_lik[n] = log(rho[n]); */
+      /* } else { */
+      /*   log_lik[n] = log1m(rho[n]) + */
+      /*     ln_mu_lpdf(y[n] | mu[n], phi[1]); */
+      /* } */
     } else if (likelihood == 2) {
       real gamma_beta;
       gamma_beta = phi[1] / mu[n];
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         gamma_rng(phi[1], gamma_beta);
-      if (y[n] == 0) {
-        log_lik[n] = log(rho[n]);
-      } else {
-        log_lik[n] = log1m(rho[n]) +
-          gamma_lpdf(y[n] | phi[1], gamma_beta);
-      }
+      /* if (y[n] == 0) { */
+      /*   log_lik[n] = log(rho[n]); */
+      /* } else { */
+      /*   log_lik[n] = log1m(rho[n]) + */
+      /*     gamma_lpdf(y[n] | phi[1], gamma_beta); */
+      /* } */
     } else if (likelihood == 3) {
       real a_ll;
       real b_ll;
@@ -268,12 +268,12 @@ generated quantities {
       a_ll = sin(pi() / b_ll) * mu[n]  * b_ll * inv(pi());
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         loglogistic_rng(a_ll, b_ll);
-      if (y[n] == 0) {
-        log_lik[n] = log(rho[n]);
-      } else {
-        log_lik[n] = log1m(rho[n]) +
-          loglogistic_lpdf(y[n] | a_ll, b_ll);
-      }
+      /* if (y[n] == 0) { */
+      /*   log_lik[n] = log(rho[n]); */
+      /* } else { */
+      /*   log_lik[n] = log1m(rho[n]) + */
+      /*     loglogistic_lpdf(y[n] | a_ll, b_ll); */
+      /* } */
     }
   }
 }
