@@ -1,265 +1,6 @@
 functions {
-  // counting number of zeros
-  int num_non_zero_fun(vector y) {
-    int A = 0;
-    int N = size(y);
-    
-    for (n in 1 : N) {
-      if (y[n] != 0) {
-        A += 1;
-      }
-    }
-    return A;
-  }
-  
-  array[] int non_zero_index_fun(vector y, int A) {
-    int N = size(y);
-    array[A] int non_zero_index;
-    int counter = 0;
-    for (n in 1 : N) {
-      if (y[n] != 0) {
-        counter += 1;
-        non_zero_index[counter] = n;
-      }
-    }
-    return non_zero_index;
-  }
-  
-  array[] int zero_index_fun(vector y, int Z) {
-    int N = size(y);
-    array[Z] int zero_index;
-    int counter = 0;
-    for (n in 1 : N) {
-      if (y[n] == 0) {
-        counter += 1;
-        zero_index[counter] = n;
-      }
-    }
-    return zero_index;
-  }
-  /**
-   * @title Generate theoretical mean according to the simplest model possible
-   *
-   * @description
-   * 
-   * @param n_patches number of patches
-   * @param n_time number of years of training data
-   * @param n_ages number of age classes
-   * @param f_a_t fishing mortality at age "a" and time "t"
-   * @param neg_mort minus natural mortality (instantaneous) rate
-   * @param init a n_ages - 1 array.
-   * @param recruitment a n_time by n_patches matrix;
-   * @param init_type a n_time by n_patches matrix;
-   * 
-   * @return an array of numbers by age, year and patch
-   */
-  array[] matrix simplest(int n_patches,
-                          int n_time,
-                          int n_ages,
-                          // Mortality parameter
-                          matrix f_a_t,
-                          matrix neg_mort,
-                          // initialization
-                          array[] real init,
-                          matrix recruitment,
-                          int minit) {
-    // initializing output with zeros
-    array[n_ages] matrix[n_time, n_patches] output
-      = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
-    output[1] = recruitment;
-    if (minit) {
-      for (p in 1:n_patches) {
-        for (a in 2:n_ages) {
-          output[a, 1, p] = output[1, 1, p] +
-            neg_mort[2, p] - f_a_t[a - 1, 2];
-        }
-      }
-    } else {
-      for (a in 1 : (n_ages - 1)) {
-        output[a + 1, 1, ] = rep_row_vector(init[a], n_patches);
-      }
-    }
-    /* output[1] += init; */
-    for (i in 2 : n_time) {
-      for (p in 1 : n_patches) {
-        for (a in 2 : n_ages) {
-          output[a, i, p] = output[a - 1, i - 1, p] +
-            neg_mort[i - 1, p] - f_a_t[a - 1, i - 1];
-        }
-      }
-    }
-    return exp(output);
-  }
-  /**
-   * @title Generate theoretical mean according to a Ricker model
-   *
-   * @description
-   * 
-   * @param n_patches number of patches
-   * @param n_time number of years of training data
-   * @param n_ages number of age classes
-   * @param f_a_t fishing mortality at age "a" and time "t"
-   * @param neg_mort minus natural mortality (instantaneous) rate
-   * @param init a n_ages - 1 array.
-   * @param rep_age a n_ages array specifying ages that contribute to
-   * recruitment.
-   * @param g_r growth rate.
-   * recruitment.
-   * 
-   * @return an array of numbers by age, year and patch
-   */
-  /* array[] matrix popricker(int n_patches, */
-  /*                          int n_time, */
-  /*                          int n_ages, */
-  /*                          // Mortality parameter */
-  /*                          matrix f_a_t, */
-  /*                          matrix neg_mort, */
-  /*                          // initialization */
-  /*                          array[] real init, */
-  /*                          array[] int rep_age, */
-  /*                          matrix g_r) { */
-  /*   // initializing output with zeros */
-  /*   array[n_ages] matrix[n_time, n_patches] output */
-  /*     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages); */
-  /*   for (p in 1:n_patches) { */
-  /*     for (i in 1:n_time) { */
-  /*       output[1, i, p] = recruitment[i, p]; */
-  /*     } */
-  /*   } */
-  /*   for (a in 1 : (n_ages - 1)) { */
-  /*     output[a, 1 : a, ] = rep_matrix(to_vector(init[1 : a]), n_patches); */
-  /*   } */
-  /*   /\* output[1] += init; *\/ */
-  /*   for (i in 2 : n_time) { */
-  /*     for (p in 1 : n_patches) { */
-  /*       for (a in 2 : n_ages) { */
-  /*         output[a, i, p] = output[a - 1, i - 1, p] + */
-  /*           neg_mort[i - 1, p] - f_a_t[a - 1, i - 1]; */
-  /*       } */
-  /*     } */
-  /*   } */
-  /*   return exp(output); */
-  /* } */
-  /**
-   * @title Adding process error
-   *
-   * @description
-   * 
-   * @param lrec log recruitment for each site
-   * @param z "process error"
-   * 
-   * @return an array of numbers by age, year and patch
-   */
-  matrix add_pe(vector lrec, vector z) {
-    array[3] int dimensions;
-    int nt = num_elements(z);
-    int np = num_elements(lrec) %/% nt; // %/% is integer division!
-    matrix[nt, np] output = to_matrix(lrec, nt, np);
-    for (p in 1:np) {
-      output[, p] += z;
-    }
-    return output;
-  }
-
-  /**
-   * @title Applying movement
-   *
-   * @description
-   * 
-   * @param lambda array of number of individuals per age, time, and patch
-   * @param M movement matrix
-   * @param mov_age ages at which movement starts (this can be generalized)
-   * 
-   * @return an array of numbers by age, year and patch
-   */
-  array[] matrix apply_movement(array[] matrix lambda, matrix M,
-                                array[] int mov_age) {
-    array[3] int dimensions;
-    dimensions = dims(lambda);
-    array[dimensions[1]] matrix[dimensions[2], dimensions[3]] output;
-    output = lambda;
-    for (a in 1:dimensions[1]) {
-      if (mov_age[a]) {
-        for (time in 1:dimensions[2]) {
-          output[a, time, 1:dimensions[3]] =
-            lambda[a, time, 1:dimensions[3]] * M';
-        }
-      }
-    }
-    return output;
-  }
-
-  /**
-   * Gamma lpdf reparametrized.
-   *
-   * Reference: https://doi.org/10.1111/jtsa.12242
-   * 
-   * @param x non-negative random variable
-   * @param mu theoretical mean of X
-   * @param phi inverse scale parameter.
-   * 
-   * @return a log-pdf
-   */
-  real gamma_mu_lpdf(real x, real mu, real phi) {
-    return - lgamma(phi) + lmultiply(phi, phi) - lmultiply(phi, mu) +
-      lmultiply(phi, x) - phi * x * inv(mu);
-  }
-
-  /**
-   * Log-Normal lpdf reparametrized.
-   *
-   * Reference: https://doi.org/10.1111/jtsa.12242
-   * 
-   * @param x non-negative random variable
-   * @param mu theoretical mean of X
-   * @param phi weird parameter parameter.
-   * 
-   * @return a log-pdf
-   */
-  real ln_mu_lpdf(real x, real mu, real phi) {
-    real f_mu_phi;
-    f_mu_phi = log1p(phi * inv_square(mu));
-    real output = 0;
-    output += log2() + log(pi()) + log(f_mu_phi) + log(x) +
-      square(log(x) + log2() - 0.5 * f_mu_phi) * inv(f_mu_phi);
-    return - 0.5 * output;
-  }
-
-  /**
-   * Inverse Gaussian lpdf reparametrized.
-   *
-   * Reference: https://doi.org/10.1111/jtsa.12242
-   * 
-   * @param x non-negative random variable
-   * @param mu theoretical mean of X
-   * @param phi weird parameter parameter.
-   * 
-   * @return a log-pdf
-   */
-  real igaus_mu_lpdf(real x, real mu, real phi) {
-    real f_mu_phi;
-    real output = 0;
-    output += log2() + log(pi()) + 3 * log(x) - log(phi) +
-      log(phi) * square(x - mu) * inv(mu * mu * x);
-    return - 0.5 * output;
-  }
-
-  real igaus_mu_rng(real mu, real phi) {
-    real nu;
-    real output;
-    real z;
-    nu = std_normal_rng();
-    z = uniform_rng(0, 1);
-    output = square(nu);
-    output = mu + square(mu) * output * inv(2 * phi) -
-      mu * inv(2 * phi) *
-      sqrt(4 * mu * phi * output + square(mu * output));
-    if (z <= mu * inv(mu + output)) {
-      return output;
-    } else {
-      return square(mu) * inv(output);
-    }
-  }
+#include utils/lpdfs.stan
+#include utils/age_struct.stan
 }
 data {
   //--- survey data  ---
@@ -270,6 +11,11 @@ data {
   array[N] int<lower = 1, upper = n_time> time;
   array[N] int<lower = 1, upper = n_patches> patch;
   vector[N] y;
+  //--- for vectorizing zero-inflation ----
+  int N_nz;
+  int N_z;
+  array[N_nz] int id_nz;
+  array[N_z] int id_z;
   //--- toggles ---
   int<lower = 0, upper = 1> rho_mu;
   int<lower = 0, upper = 3> ar_re;
@@ -347,14 +93,6 @@ transformed data {
   matrix[est_surv ? 0 : n_time, est_surv ? 0 : n_patches] fixed_m;
   if (!est_surv)
     fixed_m = rep_matrix(- m[1], n_time, n_patches);
-  //--- Vectorizing zero-inflation ----
-  int N_nz;
-  N_nz = num_non_zero_fun(y);
-  int N_z = N - N_nz;
-  array[N_nz] int id_nz;
-  array[N_z] int id_z;
-  id_nz = non_zero_index_fun(y, N_nz);
-  id_z = zero_index_fun(y, N_z);
   //--- scaling factors ----
   real s_iid = sqrt(n_patches / (n_patches - 1.0));
 }
@@ -628,7 +366,7 @@ model {
   }
 }
 generated quantities {
-  vector[N] log_lik;
+  /* vector[N] log_lik; */
   vector[N] y_pp;
   for (n in 1:N) {
     if (likelihood == 0) {
@@ -636,13 +374,13 @@ generated quantities {
       loc_par = log(mu[n]) + square(sigma_obs[1]) / 2;
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         lognormal_rng(loc_par, sigma_obs[1]);
-      if (y[n] == 0) {
-        // only evaluate density if there are length comps to evaluate
-        log_lik[n] = log(rho[n]);
-      } else {
-        log_lik[n] = log1m(rho[n]) +
-          lognormal_lpdf(y[n] | loc_par, sigma_obs[1]);
-      }
+      /* if (y[n] == 0) { */
+      /*   // only evaluate density if there are length comps to evaluate */
+      /*   log_lik[n] = log(rho[n]); */
+      /* } else { */
+      /*   log_lik[n] = log1m(rho[n]) + */
+      /*     lognormal_lpdf(y[n] | loc_par, sigma_obs[1]); */
+      /* } */
     } else if (likelihood == 1) {
       real mu_ln;
       real sigma_ln;
@@ -650,23 +388,23 @@ generated quantities {
       mu_ln = log(square(mu[n]) * inv_sqrt(square(mu[n]) + phi[1]));
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         lognormal_rng(mu_ln, sigma_ln);
-      if (y[n] == 0) {
-        log_lik[n] = log(rho[n]);
-      } else {
-        log_lik[n] = log1m(rho[n]) +
-          ln_mu_lpdf(y[n] | mu[n], phi[1]);
-      }
+      /* if (y[n] == 0) { */
+      /*   log_lik[n] = log(rho[n]); */
+      /* } else { */
+      /*   log_lik[n] = log1m(rho[n]) + */
+      /*     ln_mu_lpdf(y[n] | mu[n], phi[1]); */
+      /* } */
     } else if (likelihood == 2) {
       real gamma_beta;
       gamma_beta = phi[1] / mu[n];
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         gamma_rng(phi[1], gamma_beta);
-      if (y[n] == 0) {
-        log_lik[n] = log(rho[n]);
-      } else {
-        log_lik[n] = log1m(rho[n]) +
-          gamma_lpdf(y[n] | phi[1], gamma_beta);
-      }
+      /* if (y[n] == 0) { */
+      /*   log_lik[n] = log(rho[n]); */
+      /* } else { */
+      /*   log_lik[n] = log1m(rho[n]) + */
+      /*     gamma_lpdf(y[n] | phi[1], gamma_beta); */
+      /* } */
     } else if (likelihood == 3) {
       real a_ll;
       real b_ll;
@@ -674,26 +412,26 @@ generated quantities {
       a_ll = sin(pi() / b_ll) * mu[n] * b_ll * inv(pi());
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         loglogistic_rng(a_ll, b_ll);
-      if (y[n] == 0) {
-        log_lik[n] = log(rho[n]);
-      } else {
-        log_lik[n] = log1m(rho[n]) +
-          loglogistic_lpdf(y[n] | a_ll, b_ll);
-      }
+      /* if (y[n] == 0) { */
+      /*   log_lik[n] = log(rho[n]); */
+      /* } else { */
+      /*   log_lik[n] = log1m(rho[n]) + */
+      /*     loglogistic_lpdf(y[n] | a_ll, b_ll); */
+      /* } */
     } else {
       array[2] real aux_tn = rep_array(0.0, 2);
       aux_tn[2] = normal_rng(mu[n], phi[1]);
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         max(aux_tn);
-      if (y[n] == 0) {
-        log_lik[n] = log(rho[n]) +
-          normal_lpdf(0.0 | mu[n], phi[1]) +
-          normal_lccdf(0.0 | mu[n], phi[1]);
-      } else {
-        log_lik[n] = log1m(rho[n]) +
-          normal_lpdf(y[n] | mu[n], phi[1]) +
-          normal_lccdf(0.0 | mu[n], phi[1]);
-      }
+      /* if (y[n] == 0) { */
+      /*   log_lik[n] = log(rho[n]) + */
+      /*     normal_lpdf(0.0 | mu[n], phi[1]) + */
+      /*     normal_lccdf(0.0 | mu[n], phi[1]); */
+      /* } else { */
+      /*   log_lik[n] = log1m(rho[n]) + */
+      /*     normal_lpdf(y[n] | mu[n], phi[1]) + */
+      /*     normal_lccdf(0.0 | mu[n], phi[1]); */
+      /* } */
     }
   }
 }

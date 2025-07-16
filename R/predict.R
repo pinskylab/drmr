@@ -34,6 +34,10 @@ fitted_pars_sdm <- function(data_list) {
   }
   if (data_list$ar_re == 1)
     output <- c(output, "z_t", "alpha", "sigma_t")
+  if (data_list$iid_re == 1)
+    output <- c(output, "z_i")
+  if (data_list$sp_re == 1)
+    output <- c(output, "z_s")
   return(output)
 }
 
@@ -221,8 +225,11 @@ predict_sdm <- function(sdm,
          n_time = ntime_for,
          n_time_train = sdm$data$n_time,
          time = time_for,
+         patch = new_data[[sdm$cols$site_col]],
          rho_mu = sdm$data$rho_mu,
          ar_re = sdm$data$ar_re,
+         iid_re = sdm$data$iid_re,
+         sp_re = sdm$data$sp_re,
          cloglog = sdm$data$cloglog,
          likelihood = sdm$data$likelihood,
          Z = stats::model.matrix(sdm[["formulas"]][["formula_zero"]],

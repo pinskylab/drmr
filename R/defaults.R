@@ -20,7 +20,7 @@ default_priors <- function() {
        pr_zeta_a = .5,
        pr_zeta_b = .5,
        pr_lmxi_mu = 0,
-       pr_lmxi_sd = 1,
+       pr_lmxi_sd = 2.5,
        pr_beta_t_mu = 0,
        pr_beta_t_sd = 1,
        pr_beta_s_mu = numeric(0),
