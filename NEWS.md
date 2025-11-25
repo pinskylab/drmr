@@ -1,3 +1,9 @@
+# drmr 0.2.3
+
+* Fixing `lambda_gq`.
+
+* Creating `fitted` and `log_likelihood` functions.
+
 # drmr 0.2.2
 
 * Ensuring there are no `NA`s in the covariates, `site`, or `time`.

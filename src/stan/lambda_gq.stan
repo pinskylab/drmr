@@ -104,7 +104,7 @@ parameters {
   // coefficients for recruitment (it is a log-linear model)
   vector[N] log_rec;
   // coefficients for mortality/survival (it is a log-linear model)
-  vector[est_surv ? K_m[1] : 0] beta_s;
+  array[est_surv] vector[est_surv ? K_m[1] : 0] beta_s;
   //--- * movement ----
   matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
   //--- * initialization parameter ----
@@ -123,7 +123,7 @@ generated quantities {
     //--- Mortality ----
     vector[est_surv ? N : 0] mortality;
     if (est_surv)
-      mortality = X_m * beta_s;
+      mortality = X_m * beta_s[1];
 
     // filling lambda according to our "simplest model"
     lambda =
