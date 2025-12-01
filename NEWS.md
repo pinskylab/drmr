@@ -1,5 +1,7 @@
 # drmr 0.2.3
 
+* Improved the code to facilitate manteinance of the likelihood functions
+
 * Fixing `lambda_gq`.
 
 * Creating `fitted` and `log_likelihood` functions.
