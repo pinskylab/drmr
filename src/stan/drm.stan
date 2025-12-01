@@ -333,37 +333,10 @@ model {
     target += gamma_lpdf(phi[1] | pr_phi_a, pr_phi_b);
   }
   // only evaluate density if there are length comps to evaluate
-  target += sum(log(rho[id_z]));
-  if (likelihood == 0) {
-    vector[N_nz] loc_par;
-    loc_par = log(mu[id_nz]) + square(sigma_obs[1]) / 2;
-    target += log1m(rho[id_nz]);
-    target += lognormal_lpdf(y[id_nz] | loc_par, sigma_obs[1]);
-  } else if (likelihood == 1) {
-    vector[N_nz] mu_ln;
-    vector[N_nz] sigma_ln;
-    sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[id_nz])));
-    mu_ln = log(square(mu[id_nz]) .*
-                inv_sqrt(square(mu[id_nz]) + phi[1]));
-    target += log1m(rho[id_nz]);
-    target += lognormal_lpdf(y[id_nz] | mu_ln, sigma_ln);
-  } else if (likelihood == 2) {
-    vector[N_nz] b_g;
-    b_g = phi[1] / mu[id_nz];
-    target += log1m(rho[id_nz]);
-    target += gamma_lpdf(y[id_nz] | phi[1], b_g);
-  } else if (likelihood == 3) {
-    vector[N_nz] a_ll;
-    real b_ll;
-    b_ll = phi[1] + 1;
-    a_ll = sin(pi() / b_ll) * mu[id_nz] * b_ll / inv(pi());
-    target += log1m(rho[id_nz]);
-    target += loglogistic_lpdf(y[id_nz] | a_ll, b_ll);
-  } else {
-    target += log1m(rho[id_nz]);
-    target += normal_lpdf(y | mu, phi[1]) -
-      normal_lccdf(rep_vector(0.0, N) | mu, phi[1]);
-  }
+  target += ziloglik_lpdf(y | likelihood, N_nz, N,
+                          id_nz, id_z,
+                          mu, rho,
+                          likelihood == 0 ? sigma_obs[1] : phi[1]);
 }
 generated quantities {
   /* vector[N] log_lik; */

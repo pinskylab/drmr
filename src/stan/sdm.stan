@@ -20,7 +20,7 @@ data {
   int<lower = 0, upper = 1> iid_re;
   int<lower = 0, upper = 1> sp_re;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
-  int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
+  int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic)
   //--- suitability (for rho) ----
   int<lower = 1> K_z;
@@ -193,33 +193,10 @@ model {
     target += gamma_lpdf(phi[1] | pr_phi_a, pr_phi_b);
   }
   // only evaluate density if there are length comps to evaluate
-  target += sum(log(rho[id_z]));
-  if (likelihood == 0) {
-    vector[N_nz] loc_par;
-    loc_par = log(mu[id_nz]) + square(sigma_obs[1]) / 2;
-    target += log1m(rho[id_nz]);
-    target += lognormal_lpdf(y[id_nz] | loc_par, sigma_obs[1]);
-  } else if (likelihood == 1) {
-    vector[N_nz] mu_ln;
-    vector[N_nz] sigma_ln;
-    sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[id_nz])));
-    mu_ln = log(square(mu[id_nz]) .*
-                inv_sqrt(square(mu[id_nz]) + phi[1]));
-    target += log1m(rho[id_nz]);
-    target += lognormal_lpdf(y[id_nz] | mu_ln, sigma_ln);
-  } else if (likelihood == 2) {
-    vector[N_nz] b_g;
-    b_g = phi[1] / mu[id_nz];
-    target += log1m(rho[id_nz]);
-    target += gamma_lpdf(y[id_nz] | phi[1], b_g);
-  } else {
-    vector[N_nz] a_ll;
-    real b_ll;
-    b_ll = phi[1] + 1;
-    a_ll = sin(pi() / b_ll) * mu[id_nz] * b_ll * inv(pi());
-    target += log1m(rho[id_nz]);
-    target += loglogistic_lpdf(y[id_nz] | a_ll, b_ll);
-  }
+  target += ziloglik_lpdf(y | likelihood, N_nz, N,
+                          id_nz, id_z,
+                          mu, rho,
+                          likelihood == 0 ? sigma_obs[1] : phi[1]);
 }
 generated quantities {
   vector[N] log_lik;

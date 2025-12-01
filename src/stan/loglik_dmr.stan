@@ -60,43 +60,17 @@ generated quantities {
           inv_logit(X_t * beta_t);
       }
     }
-    // zeros
     for (n in 1:N_z) {
-      log_lik[n] = log(rho[id_z[n]]);
+      log_lik[id_z[n]] =
+        ptziloglik_lpdf(y[id_z[n]] | likelihood, 1,
+                        mu[id_z[n]], rho[id_z[n]],
+                        likelihood == 0 ? sigma_obs[1] : phi[1]);
     }
-    // non-zeros
     for (n in 1:N_nz) {
-      if (likelihood == 0) {
-        real loc_par;
-        loc_par = log(mu[id_nz[n]]) + square(sigma_obs[1]) / 2;
-        log_lik[n + N_z] = log1m(rho[id_nz[n]]) +
-          lognormal_lpdf(y[id_nz[n]] | loc_par, sigma_obs[1]);
-      } else if (likelihood == 1) {
-        real mu_ln;
-        real sigma_ln;
-        sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[id_nz[n]])));
-        mu_ln = log(square(mu[id_nz[n]]) * inv_sqrt(square(mu[id_nz[n]]) + phi[1]));
-        log_lik[n + N_z] = log1m(rho[id_nz[n]]) +
-          ln_mu_lpdf(y[id_nz[n]] | mu[id_nz[n]], phi[1]);
-      } else if (likelihood == 2) {
-        real gamma_beta;
-        gamma_beta = phi[1] / mu[id_nz[n]];
-        log_lik[n + N_z] = log1m(rho[id_nz[n]]) +
-          gamma_lpdf(y[id_nz[n]] | phi[1], gamma_beta);
-      } else if (likelihood == 3) {
-        real a_ll;
-        real b_ll;
-        b_ll = phi[1] + 1;
-        a_ll = sin(pi() / b_ll) * mu[id_nz[n]] * b_ll * inv(pi());
-        log_lik[n + N_z] = log1m(rho[id_nz[n]]) +
-          loglogistic_lpdf(y[id_nz[n]] | a_ll, b_ll);
-      } else {
-        array[2] real aux_tn = rep_array(0.0, 2);
-        aux_tn[2] = normal_rng(mu[id_nz[n]], phi[1]);
-        log_lik[n + N_z] = log1m(rho[id_nz[n]]) +
-          normal_lpdf(y[id_nz[n]] | mu[id_nz[n]], phi[1]) +
-          normal_lccdf(0.0 | mu[id_nz[n]], phi[1]);
-      }
+      log_lik[id_nz[n]] =
+        ptziloglik_lpdf(y[id_nz[n]] | likelihood, 0,
+                        mu[id_nz[n]], rho[id_nz[n]],
+                        likelihood == 0 ? sigma_obs[1] : phi[1]);
     }
   }
 }
