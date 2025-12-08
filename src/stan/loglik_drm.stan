@@ -118,11 +118,11 @@ generated quantities {
         aux_tn[2] = normal_rng(mu[n], phi[1]);
         if (y[n] == 0) {
           log_lik[n] = log(rho[n]) +
-            normal_lpdf(0.0 | mu[n], phi[1]) +
+            normal_lpdf(0.0 | mu[n], phi[1]) -
             normal_lccdf(0.0 | mu[n], phi[1]);
         } else {
           log_lik[n] = log1m(rho[n]) +
-            normal_lpdf(y[n] | mu[n], phi[1]) +
+            normal_lpdf(y[n] | mu[n], phi[1]) -
             normal_lccdf(0.0 | mu[n], phi[1]);
         }
       }

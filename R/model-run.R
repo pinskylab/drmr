@@ -74,6 +74,7 @@ fit_drm <- function(.data,
                     seed,
                     init = "cmdstan_default",
                     ...) {
+  cl <- match.call()
   stopifnot(length(init) == 1)
   if (is.character(init))
     stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
@@ -135,9 +136,10 @@ fit_drm <- function(.data,
                            "formula_surv" = formula_surv),
          "cols" = list("y_col" = y_col,
                        "time_col" = time_col,
-                       "site_col" = site_col))
-
-  return(output)
+                       "site_col" = site_col),
+         "seed" = seed,
+         "call" = cl)
+  return(new_adrm(output))
 }
 
 ##' @title Fit a GLM based SDM
@@ -213,6 +215,7 @@ fit_sdm <- function(.data,
                     seed,
                     init = "cmdstan_default",
                     ...) {
+  cl <- match.call()
   stopifnot(length(init) == 1)
   if (is.character(init))
     stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
@@ -260,6 +263,8 @@ fit_sdm <- function(.data,
                            "formula_dens" = formula_dens),
          "cols" = list("y_col" = y_col,
                        "time_col" = time_col,
-                       "site_col" = site_col))
-  return(output)
+                       "site_col" = site_col),
+         "seed" = seed,
+         "call" = cl)
+  return(new_sdm(output))
 }

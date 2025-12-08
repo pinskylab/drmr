@@ -1,4 +1,23 @@
+# drmr 0.3.0
+
+* New classes (and validators) created for the output of the `fit_drm` and
+  `fit_sdm` functions. The classes are called `adrm` and `sdm`, respectively.
+
+* An `update` method to facilitate model refitting is introduced.
+
 # drmr 0.2.3
+
+* Bug fixed when computing the log-lik from a truncated normal model.
+
+* The `elpd_*` functions have been included with the package. These functions
+  are helpful in calculating out-of-sample ELPD to perform leave-future-out
+  cross validation (e.g., see https://mc-stan.org/loo/articles/loo2-lfo.html )
+
+* The `predict_*` functions have been modified so they only return the predicted
+  values at the new sites/times. Before this update, those functions also
+  returned other quantities such as `mu_proj` (the expected value of the
+  "non-zero" part of the density), `rho_proj` (probability of non-zero density),
+  and `zt` (the AR random effect, if its switch is turned on).
 
 * Improved the code to facilitate manteinance of the likelihood functions
 
