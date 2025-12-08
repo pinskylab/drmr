@@ -12,12 +12,10 @@ fit_sdm(
   family = "gamma",
   formula_zero = ~1,
   formula_dens = ~1,
-  iter_warmup = 1000,
-  iter_sampling = 1000,
-  chains = 4,
-  parallel_chains = 4,
   seed,
   init = "cmdstan_default",
+  algorithm = "nuts",
+  algo_args = list(),
   ...
 )
 }
@@ -47,18 +45,6 @@ inflation component. Defaults to \code{~ 1} (intercept only).}
 \item{formula_dens}{A \code{formula} specifying the model for the non-zero
 density component. Defaults to \code{~ 1} (intercept only).}
 
-\item{iter_warmup}{An \code{integer} specifying the number of warmup
-iterations for the MCMC sampler. Defaults to 1000.}
-
-\item{iter_sampling}{An \code{integer} specifying the number of sampling
-iterations for the MCMC sampler. Defaults to 1000.}
-
-\item{chains}{An \code{integer} specifying the number of MCMC chains.
-Defaults to 4.}
-
-\item{parallel_chains}{An \code{integer} specifying the number of chains to
-run in parallel. Defaults to 4.}
-
 \item{seed}{An \code{integer} specifying the random number seed.}
 
 \item{init}{A scalar specifying the initialization method. The default
@@ -67,6 +53,15 @@ say \code{x}, initialized all parameters from a uniform between \code{-x}
 and \code{x}, a \code{0} initialize all parameters at \code{0}, "prior"
 (to initialize the model parameters using samples from their prior) or
 "pathfinder".}
+
+\item{algorithm}{a \code{character} specifying the algorithm used for
+inference. Default is \code{nuts} (the default MCMC in Stan). The
+remaining options are different flavors of variational bayes algorithms:
+"vb" (for ADVI), "pathfinder" (for Pathfinder) or "optimize" for
+(penalized) MLEs.}
+
+\item{algo_args}{a \code{list} with arguments for the sampling
+algorithms. For instance, \code{tol_rel_obj} for variational .}
 
 \item{...}{Passed on to the \code{\link[=make_data]{make_data()}} function used to build the input
 \code{list} for our \code{cmdstanr} model.}

@@ -1,3 +1,14 @@
+# drmr 0.3.1
+
+* Differene inference algorithms are now alowed through the `algorithm`
+  argument. A new `alg_args` argument is also introduced for specific inputs
+  regarding the `algorithms`. For example, `iter_warmup` (specifying the number
+  of warmup iterations), `iter_sampling` (number of sampling iterations),
+  `chains` (number of MCMC chains), `parallel_chains` (number of chains to run
+  in parallel), `adapt_delta` among others are supposed to be input as elements
+  of a list passed as `algo_args` parameter.
+
+
 # drmr 0.3.0
 
 * New classes (and validators) created for the output of the `fit_drm` and

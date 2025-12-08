@@ -10,8 +10,6 @@
 \item{object}{An object of class \code{adrm}.}
 
 \item{...}{Arguments to be updated in the new call (e.g., .data, formula_zero, iter_sampling).}
-
-\item{evaluate}{If \code{TRUE} (default), re-runs the model. If \code{FALSE}, returns the call.}
 }
 \value{
 An updated \code{adrm} object or the unevaluated call.
