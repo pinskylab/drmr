@@ -8,6 +8,7 @@
   in parallel), `adapt_delta` among others are supposed to be input as elements
   of a list passed as `algo_args` parameter.
 
+* `print` and `summary` methods are now available for `adrm` and `sdm` objects.
 
 # drmr 0.3.0
 
