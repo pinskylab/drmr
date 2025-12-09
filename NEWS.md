@@ -1,4 +1,12 @@
-# drmr 0.3.1
+# drmr 0.4.0
+
+* Fixed (again) the `lambda_drm` function (to extract age specific densities)
+
+* `log_lik` and `fitted` methods are now defined for `adrm` and `sdm` objects.
+
+* Calculations for log-likelihood improved for easier maintenance.
+
+* `predict_drm` and `predict_sdm` are now methods.
 
 * Another increase in performance for the `predict` (and `elpd`)
   function. Especially relevant for larger datasets.
@@ -24,9 +32,10 @@
 
 * Bug fixed when computing the log-lik from a truncated normal model.
 
-* The `elpd_*` functions have been included with the package. These functions
-  are helpful in calculating out-of-sample ELPD to perform leave-future-out
-  cross validation (e.g., see https://mc-stan.org/loo/articles/loo2-lfo.html )
+* The `elpd` method has been included with the package and works with the
+  outputs of `fit_drm` and `fit_sdm`. This method is helpful in calculating
+  out-of-sample ELPD to perform leave-future-out cross validation (e.g., see
+  https://mc-stan.org/loo/articles/loo2-lfo.html )
 
 * The `predict_*` functions have been modified so they only return the predicted
   values at the new sites/times. Before this update, those functions also

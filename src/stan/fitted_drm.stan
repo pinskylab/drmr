@@ -9,7 +9,6 @@ data {
   int n_time; // years for training
   //--- toggles ---
   vector[N] y;
-  int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> cloglog;
   int<lower = 0, upper = 1> rho_mu;
@@ -33,7 +32,7 @@ parameters {
 transformed parameters {
 }
 generated quantities {
-  vector[N] log_lik;
+  vector[N] y_pp;
   {
     array[rho_mu] real xi;
     if (rho_mu)
@@ -58,13 +57,9 @@ generated quantities {
       }
     }
     for (n in 1:N) {
-      int is_zero = 0;
-      if (y[n] == 0) {
-        is_zero += 1;
-      }
-      log_lik[n] = ptziloglik_lpdf(y[n] | likelihood, is_zero,
-                                   mu[n], rho[n],
-                                   likelihood == 0 ? sigma_obs[1] : phi[1]);
+      y_pp[n] = drmsdm_rng(mu[n], rho[n],
+                           likelihood == 0 ? sigma_obs[1] : phi[1],
+                           likelihood);
     }
   }
 }

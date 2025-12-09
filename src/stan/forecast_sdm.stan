@@ -83,11 +83,11 @@ generated quantities {
     //--- absence probabilities ----
     if (cloglog) {
       if (rho_mu) {
-      rho_proj =
-        inv_cloglog(Z * beta_t + xi[1] .* lmu);
+        rho_proj =
+          inv_cloglog(Z * beta_t + xi[1] .* lmu);
       } else {
-      rho_proj =
-        inv_cloglog(Z * beta_t);
+        rho_proj =
+          inv_cloglog(Z * beta_t);
       }
     } else {
       if (rho_mu) {
@@ -98,33 +98,11 @@ generated quantities {
           inv_logit(Z * beta_t);
       }
     }
-  //--- y_proj calculations ----
-  for (n in 1:N) {
-    if (likelihood == 0) {
-      real loc_par;
-      loc_par = log(mu_proj[n]) + square(sigma_obs[1]) / 2;
-      y_proj[n] = (1 - bernoulli_rng(rho_proj[n])) *
-        lognormal_rng(loc_par, sigma_obs[1]);
-    } else if (likelihood == 1) {
-      real mu_ln;
-      real sigma_ln;
-      sigma_ln = sqrt(log1p(phi[1] * inv_square(mu_proj[n])));
-      mu_ln = log(square(mu_proj[n]) * inv_sqrt(square(mu_proj[n]) + phi[1]));
-      y_proj[n] = (1 - bernoulli_rng(rho_proj[n])) *
-        lognormal_rng(mu_ln, sigma_ln);
-    } else if (likelihood == 2) {
-      real gamma_beta;
-      gamma_beta = phi[1] / mu_proj[n];
-      y_proj[n] = (1 - bernoulli_rng(rho_proj[n])) *
-        gamma_rng(phi[1], gamma_beta);
-    } else if (likelihood == 3) {
-      real a_ll;
-      real b_ll;
-      b_ll = phi[1] + 1;
-      a_ll = sin(pi() / b_ll) * mu_proj[n] * inv(pi() * b_ll);
-      y_proj[n] = (1 - bernoulli_rng(rho_proj[n])) *
-        loglogistic_rng(a_ll, b_ll);
+    //--- y_proj calculations ----
+    for (n in 1:N) {
+      y_proj[n] = drmsdm_rng(mu_proj[n], rho_proj[n],
+                             likelihood == 0 ? sigma_obs[1] : phi[1],
+                             likelihood);
     }
-  }
   }
 }

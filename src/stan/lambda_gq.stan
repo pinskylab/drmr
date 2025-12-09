@@ -16,6 +16,7 @@ data {
   matrix[n_ages, n_time] f;
   array[est_surv ? 0 : 1] real m; // total mortality
   //--- movement related quantities ----
+  matrix[movement ? n_patches: 1, movement ? n_patches : 1] adj_mat;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
   //--- initial cohort (if not estimated) ----
@@ -29,6 +30,9 @@ transformed data {
   matrix[est_surv ? 0 : n_time, est_surv ? 0 : n_patches] fixed_m;
   if (!est_surv)
     fixed_m = rep_matrix(- m[1], n_time, n_patches);
+  matrix[movement ? n_patches : 0, movement ? n_patches : 0] identity_mat;
+  if (movement)
+    identity_mat = identity_matrix(n_patches);
 }
 parameters {
   // coefficients for recruitment (it is a log-linear model)
@@ -36,7 +40,7 @@ parameters {
   // coefficients for mortality/survival (it is a log-linear model)
   array[est_surv] vector[est_surv ? K_m[1] : 0] beta_s;
   //--- * movement ----
-  matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+  array[movement] real<lower = 0, upper = 1> zeta;
   //--- * initialization parameter ----
   array[est_init ? n_ages - 1 : 0] real log_init;
 }
@@ -65,6 +69,12 @@ generated quantities {
                minit);
   }
   //--- Movement ----
-  if (movement)
-    lambda = apply_movement(lambda, mov_mat, ages_movement);
+  if (movement) {
+    matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+    real d = (1 - zeta[1]);
+    mov_mat = zeta[1] * identity_mat;
+    mov_mat += d * adj_mat;
+    lambda =
+      apply_movement(lambda, mov_mat, ages_movement);
+  }
 }

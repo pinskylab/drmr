@@ -11,38 +11,59 @@ fitted_pars_ll <- function(data_list) {
   return(output)
 }
 
-##' @title DRM log-likelihood (for model comparisons' purpose)
-##'
-##' @description Calculates the log-likelihood associated to a given \code{drm}
-##'   model.
-##'
-##' @param drm A \code{list} object containing the output from the [fit_drm]
-##'   function.
-##' @param cores number of threads used for the forecast. If four chains were
-##'   used in the \code{drm}, then four (or less) threads are recommended.
-##'
+##' @title Computing the log-likelihood function fot `adrm` and `sdm` objets.
+##' @param x an object of class \code{adrm} or \code{sdm}. These objects are
+##'   generated as the output of the [fit_drm()] and [fit_sdm()] functions,
+##'   respectively,
+##' @param cores number of threads used to calculate the log-likelihood
+##'   function. If four chains were used in the \code{fit_drm} (of
+##'   \code{fit_sdm}), then four (or less) threads are recommended.
+##' @return an object of class \code{"CmdStanGQ"} containing the log-likelihood
+##'   function evaluated at each data point given each sample from the
+##'   posterior.
+##' @name loglik
 ##' @author lcgodoy
-##'
-##' @return an object of class \code{"CmdStanGQ"} containing samples for the
-##'   posterior predictive distribution for forecasting.
-##'
 ##' @export
-loglik_drm <- function(drm,
-                       cores = 1) {
-  stopifnot(inherits(drm$stanfit, "CmdStanFit"))
-  ## number time points for forecasting
+log_lik <- function(x, cores = 1) UseMethod("log_lik", x)
+
+##' @rdname loglik
+##' @export
+log_lik.adrm <- function(x,
+                         cores = 1) {
+  stopifnot(inherits(x$stanfit, "CmdStanFit"))
   ##--- pars from model fitted ----
-  pars <- fitted_pars_ll(drm$data)
+  pars <- fitted_pars_ll(x$data)
   fitted_params <-
-    drm$stanfit$draws(variables = pars)
-  ## load compiled lambda
+    x$stanfit$draws(variables = pars)
+  ## load compiled model
   ll_out <-
     instantiate::stan_package_model(name = "loglik_drm",
                                     package = "drmr")
-  ## computing forecast
+  ## computing loglik
   output <- ll_out$
     generate_quantities(fitted_params = fitted_params,
-                        data = drm$data,
+                        data = x$data,
+                        parallel_chains = cores)
+  return(output)
+}
+
+##' @rdname loglik
+##' @export
+log_lik.sdm <- function(x,
+                        cores = 1) {
+  stopifnot(inherits(x$stanfit, "CmdStanFit"))
+  ##--- pars from model fitted ----
+  pars <- fitted_pars_ll(x$data)
+  fitted_params <-
+    x$stanfit$draws(variables = pars)
+  ## load compiled model
+  ll_out <-
+    instantiate::stan_package_model(name = "loglik_sdm",
+                                    package = "drmr")
+  ## computing log_lik
+  output <- ll_out$
+    generate_quantities(fitted_params = fitted_params,
+                        data = x$data,
                         parallel_chains = cores)
   return(output)
 }

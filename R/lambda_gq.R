@@ -4,7 +4,7 @@ fitted_pars_lambda <- function(data_list) {
   if (data_list$est_surv == 1)
     output <- c(output, "beta_s")
   if (data_list$movement == 1)
-    output <- c(output, "mov_mat")
+    output <- c(output, "zeta")
   if (data_list$est_init == 1)
     output <- c(output, "log_init")
   return(output)

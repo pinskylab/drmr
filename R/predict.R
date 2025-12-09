@@ -68,8 +68,8 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   forecasts based on the DRM passed as \code{drm}.
 ##'
-##' @param drm A \code{list} object containing the output from the [fit_drm]
-##'   function.
+##' @param x A \code{adrm} (or \code{sdm}) object containing the output from the
+##'   [fit_drm()] (or [fit_sdm()]) function.
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
 ##' @param past_data a \code{data.frame} with the dataset last year used in
@@ -91,68 +91,70 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'
 ##' @author lcgodoy
 ##'
+##' @name preddrm
+##' 
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.
 ##'
 ##' @export
-predict_drm <- function(drm,
-                        new_data,
-                        past_data,
-                        f_test,
-                        seed = 1,
-                        cores = 1) {
-  stopifnot(inherits(drm$stanfit, "CmdStanFit"))
+predict.adrm <- function(x,
+                         new_data,
+                         past_data,
+                         f_test,
+                         seed = 1,
+                         cores = 1) {
+  stopifnot(inherits(x$stanfit, "CmdStanFit"))
   ## number time points for forecasting
-  ntime_for <- length(unique(new_data[[drm$cols$time_col]]))
-  time_for <- new_data[[drm$cols$time_col]] -
-    min(new_data[[drm$cols$time_col]]) + 1
+  ntime_for <- length(unique(new_data[[x$cols$time_col]]))
+  time_for <- new_data[[x$cols$time_col]] -
+    min(new_data[[x$cols$time_col]]) + 1
   if (!missing(f_test)) {
-    stopifnot(NROW(f_test) == drm$data[["n_ages"]])
+    stopifnot(NROW(f_test) == x$data[["n_ages"]])
   }
-  x_tt <- stats::model.matrix(drm[["formulas"]][["formula_zero"]],
+  x_tt <- stats::model.matrix(x[["formulas"]][["formula_zero"]],
                               data = new_data)
-  x_rt <- stats::model.matrix(drm[["formulas"]][["formula_rec"]],
+  x_rt <- stats::model.matrix(x[["formulas"]][["formula_rec"]],
                               data = new_data)
   if (missing(f_test)) {
-    f_test <- matrix(0, ncol = ntime_for, nrow = drm$data$n_ages)
+    f_test <- matrix(0, ncol = ntime_for, nrow = x$data$n_ages)
   }
   ##--- pars from model fitted ----
-  pars <- get_fitted_pars(drm$data, "drm")
+  pars <- get_fitted_pars(x$data, "drm")
   fitted_params <-
-    drm$stanfit$draws(variables = pars)
+    x$stanfit$draws(variables = pars)
   ##--- list for forecast object ----
   forecast_data <-
-    list(n_patches = drm$data$n_patches,
-         n_ages = drm$data$n_ages,
+    list(n_patches = x$data$n_patches,
+         n_ages = x$data$n_ages,
          n_time = ntime_for,
-         n_time_train = drm$data$n_time,
+         n_time_train = x$data$n_time,
          time = time_for,
-         patch = new_data[[drm$cols$site_col]],
-         rho_mu = drm$data$rho_mu,
-         ar_re = drm$data$ar_re,
-         iid_re = drm$data$iid_re,
-         sp_re = drm$data$sp_re,
-         movement = drm$data$movement,
-         est_surv = drm$data$est_surv,
-         cloglog = drm$data$cloglog,
-         likelihood = drm$data$likelihood,
-         K_t = drm$data$K_t,
+         patch = new_data[[x$cols$site_col]],
+         rho_mu = x$data$rho_mu,
+         ar_re = x$data$ar_re,
+         iid_re = x$data$iid_re,
+         sp_re = x$data$sp_re,
+         movement = x$data$movement,
+         est_surv = x$data$est_surv,
+         cloglog = x$data$cloglog,
+         likelihood = x$data$likelihood,
+         K_t = x$data$K_t,
          X_t = x_tt,
          f = f_test,
-         f_past = drm$data$f,
-         m = drm$data$m,
-         adj_mat = drm$data$adj_mat,
-         ages_movement = drm$data$ages_movement,
-         selectivity_at_age = drm$data$selectivity_at_age,
-         K_r = drm$data$K_r,
+         f_past = x$data$f,
+         m = x$data$m,
+         adj_mat = x$data$adj_mat,
+         ages_movement = x$data$ages_movement,
+         selectivity_at_age = x$data$selectivity_at_age,
+         K_r = x$data$K_r,
          X_r = x_rt)
   forecast_data$N <- forecast_data$n_patches * forecast_data$n_time
-  if (length(drm$data$K_m) > 0) {
+  if (length(x$data$K_m) > 0) {
     stopifnot(!missing(past_data))
     x_mpast <-
-      stats::model.matrix(drm[["formulas"]][["formula_surv"]],
+      stats::model.matrix(x[["formulas"]][["formula_surv"]],
                           data = past_data)
-    x_m <- stats::model.matrix(drm[["formulas"]][["formula_surv"]],
+    x_m <- stats::model.matrix(x[["formulas"]][["formula_surv"]],
                                data = new_data)
     forecast_data$K_m <- array(NCOL(x_m), dim = 1)
     forecast_data$X_m <- x_m
@@ -186,8 +188,8 @@ predict_drm <- function(drm,
 ##'   value of \eqn{x} (on its original scale) such that the linear predictor is
 ##'   maximized (or minimized).
 ##'
-##' @param sdm A \code{list} object containing the output of a [fit_sdm] call.
-##'
+##' @param x A \code{adrm} (or \code{sdm}) object containing the output from the
+##'   [fit_drm()] (or [fit_sdm()]) function.
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
 ##' @param seed a seed used for the forecasts. Forecasts are obtained through
@@ -206,36 +208,36 @@ predict_drm <- function(drm,
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.
 ##'
-##' @export
-predict_sdm <- function(sdm,
+##' @rdname predsdm
+predict.sdm <- function(x,
                         new_data,
                         seed = 1,
                         cores = 1) {
-  stopifnot(inherits(sdm$stanfit, "CmdStanFit"))
+  stopifnot(inherits(x$stanfit, "CmdStanFit"))
   ## time points for forecasting
-  ntime_for <- length(unique(new_data[[sdm$cols$time_col]]))
-  time_for <- new_data[[sdm$cols$time_col]] -
-    min(new_data[[sdm$cols$time_col]]) + 1
+  ntime_for <- length(unique(new_data[[x$cols$time_col]]))
+  time_for <- new_data[[x$cols$time_col]] -
+    min(new_data[[x$cols$time_col]]) + 1
   ##--- pars from model fitted ----
-  pars <- get_fitted_pars(sdm$data, "sdm")
+  pars <- get_fitted_pars(x$data, "sdm")
   fitted_params <-
-    sdm$stanfit$draws(variables = pars)
+    x$stanfit$draws(variables = pars)
   ##--- list for forecast object ----
   forecast_data <-
-    list(n_patches = sdm$data$n_patches,
+    list(n_patches = x$data$n_patches,
          n_time = ntime_for,
-         n_time_train = sdm$data$n_time,
+         n_time_train = x$data$n_time,
          time = time_for,
-         patch = new_data[[sdm$cols$site_col]],
-         rho_mu = sdm$data$rho_mu,
-         ar_re = sdm$data$ar_re,
-         iid_re = sdm$data$iid_re,
-         sp_re = sdm$data$sp_re,
-         cloglog = sdm$data$cloglog,
-         likelihood = sdm$data$likelihood,
-         Z = stats::model.matrix(sdm[["formulas"]][["formula_zero"]],
+         patch = new_data[[x$cols$site_col]],
+         rho_mu = x$data$rho_mu,
+         ar_re = x$data$ar_re,
+         iid_re = x$data$iid_re,
+         sp_re = x$data$sp_re,
+         cloglog = x$data$cloglog,
+         likelihood = x$data$likelihood,
+         Z = stats::model.matrix(x[["formulas"]][["formula_zero"]],
                                  data = new_data),
-         X = stats::model.matrix(sdm[["formulas"]][["formula_dens"]],
+         X = stats::model.matrix(x[["formulas"]][["formula_dens"]],
                                  data = new_data))
   forecast_data$N <- forecast_data$n_patches * forecast_data$n_time
   forecast_data$K_z <- NCOL(forecast_data$Z)
@@ -251,4 +253,20 @@ predict_sdm <- function(sdm,
                         seed = seed,
                         parallel_chains = cores)
   return(output)
+}
+
+##' @rdname preddrm
+##' @param ... params to be passed to \code{predict.adrm}
+##' @export
+predict_drm <- function(...) {
+  lifecycle::deprecate_warn("0.3.1", "predict_drm()", "predict()")
+  predict.adrm(...)
+}
+
+##' @rdname predsdm
+##' @param ... params to be passed to \code{predict.sdm}
+##' @export
+predict_sdm <- function(...) {
+  lifecycle::deprecate_warn("0.3.1", "predict_sdm()", "predict()")
+  predict.sdm(...)
 }
