@@ -10,7 +10,7 @@ fitted_pars_drm <- function(data_list) {
     output <- c(output, "phi")
   }
   if (data_list$movement == 1)
-    output <- c(output, "mov_mat")
+    output <- c(output, "zeta")
   if (data_list$est_surv == 1)
     output <- c(output, "beta_s")
   if (data_list$ar_re > 0)
@@ -141,6 +141,7 @@ predict_drm <- function(drm,
          f = f_test,
          f_past = drm$data$f,
          m = drm$data$m,
+         adj_mat = drm$data$adj_mat,
          ages_movement = drm$data$ages_movement,
          selectivity_at_age = drm$data$selectivity_at_age,
          K_r = drm$data$K_r,

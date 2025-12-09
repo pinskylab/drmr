@@ -31,6 +31,7 @@ data {
   matrix[n_ages, n_time_train] f_past;
   array[est_surv ? 0 : 1] real m; // total mortality
   //--- movement related quantities ----
+  matrix[movement ? n_patches: 1, movement ? n_patches : 1] adj_mat;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
   //--- environmental data ----
@@ -43,7 +44,9 @@ data {
   matrix[N, K_r] X_r;
 }
 transformed data {
-  int nout = n_time * n_patches;
+  matrix[movement ? n_patches : 0, movement ? n_patches : 0] identity_mat;
+  if (movement)
+    identity_mat = identity_matrix(n_patches);
 }
 parameters {
   //--- "regression" coefficients for absence and recr ----
@@ -56,8 +59,8 @@ parameters {
   //--- additional parameter for different lik functions ----
   array[likelihood > 0 ? 1 : 0] real phi;
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
-  //--- movement matrix ---
-  matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+  //--- movement ---
+  array[movement] real<lower = 0, upper = 1> zeta;
   //--- reg for mortality ---
   array[est_surv] vector[est_surv ? K_m[1] : 0] beta_s;
   //--- parameters from AR process ----
@@ -71,13 +74,13 @@ parameters {
 }
 generated quantities {
   //--- ELPD ----
-  vector[nout] log_lik;
+  vector[N] log_lik;
   //--- lambda_proj calculations ----
   {
     //--- projected expected density ----
-    vector[nout] mu_proj;
+    vector[N] mu_proj;
     //--- projected absence probability ----
-    vector[nout] rho_proj;
+    vector[N] rho_proj;
     //--- AR term ----
     vector[ar_re > 0 ? n_time : 0] z_tp;
     if (ar_re > 0) {
@@ -145,6 +148,10 @@ generated quantities {
                                     f_past,
                                     past_m);
     if (movement) {
+      matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+      real d = (1 - zeta[1]);
+      mov_mat = zeta[1] * identity_mat;
+      mov_mat += d * adj_mat;
       lambda_proj =
         apply_movement(lambda_proj, mov_mat, ages_movement);
     }

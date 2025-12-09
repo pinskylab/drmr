@@ -42,7 +42,7 @@ data {
   vector[n_ages] selectivity_at_age;
   //--- initial cohort (if not estimated) ----
   array[est_init ? 0 : n_ages - 1] real init_data;
-   //--- for spatial random effects ----
+  //--- for spatial random effects ----
   array[sp_re > 0 ? 1 : 0] int<lower = 0> N_edges;  // number of neighbor pairs
   array[sp_re > 0 ? 2 : 1,
         sp_re > 0 ? N_edges[1] : 1]
@@ -151,18 +151,6 @@ transformed parameters {
     rep_vector(0.0, N);
   matrix[n_ages, n_patches] lambda =
     rep_matrix(0.0, n_ages, n_patches);
-  //--- Movement ----
-  // probability of staying in the current patch
-  // movement matrix
-  matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
-  if (movement) {
-    // probability of movement is evenly distributed across neighbors
-    real d = (1 - zeta[1]);
-    mov_mat = zeta[1] * identity_mat;
-    // It is super important that the adj_mat is setup correctly. Note that,
-    // this matrix is "row standardized". That is, its rows add up to 1.
-    mov_mat += d * adj_mat;
-  }
   //--- AR process ----
   array[ar_re > 0 ? 1 : 0] real sigma_t;
   vector[ar_re > 0 ? n_time : 0] z_t;
@@ -233,9 +221,19 @@ transformed parameters {
                est_init ? init_par : init_data,
                to_matrix(log_rec, n_time, n_patches),
                minit);
-    //--- Movement ----
-    if (movement)
+      //--- Movement ----
+    // probability of staying in the current patch
+    // movement matrix
+    matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+    if (movement) {
+      // probability of movement is evenly distributed across neighbors
+      real d = (1 - zeta[1]);
+      mov_mat = zeta[1] * identity_mat;
+      // It is super important that the adj_mat is setup correctly. Note that,
+      // this matrix is "row standardized". That is, its rows add up to 1.
+      mov_mat += d * adj_mat;
       lambda_aux = apply_movement(lambda_aux, mov_mat, ages_movement);
+    }
     matrix[n_time, n_patches] mu_aux =
       rep_matrix(0.0, n_time, n_patches);
     //--- filling mu ----
@@ -347,13 +345,6 @@ generated quantities {
       loc_par = log(mu[n]) + square(sigma_obs[1]) / 2;
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         lognormal_rng(loc_par, sigma_obs[1]);
-      /* if (y[n] == 0) { */
-      /*   // only evaluate density if there are length comps to evaluate */
-      /*   log_lik[n] = log(rho[n]); */
-      /* } else { */
-      /*   log_lik[n] = log1m(rho[n]) + */
-      /*     lognormal_lpdf(y[n] | loc_par, sigma_obs[1]); */
-      /* } */
     } else if (likelihood == 1) {
       real mu_ln;
       real sigma_ln;
@@ -361,23 +352,11 @@ generated quantities {
       mu_ln = log(square(mu[n]) * inv_sqrt(square(mu[n]) + phi[1]));
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         lognormal_rng(mu_ln, sigma_ln);
-      /* if (y[n] == 0) { */
-      /*   log_lik[n] = log(rho[n]); */
-      /* } else { */
-      /*   log_lik[n] = log1m(rho[n]) + */
-      /*     ln_mu_lpdf(y[n] | mu[n], phi[1]); */
-      /* } */
     } else if (likelihood == 2) {
       real gamma_beta;
       gamma_beta = phi[1] / mu[n];
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         gamma_rng(phi[1], gamma_beta);
-      /* if (y[n] == 0) { */
-      /*   log_lik[n] = log(rho[n]); */
-      /* } else { */
-      /*   log_lik[n] = log1m(rho[n]) + */
-      /*     gamma_lpdf(y[n] | phi[1], gamma_beta); */
-      /* } */
     } else if (likelihood == 3) {
       real a_ll;
       real b_ll;
@@ -385,26 +364,11 @@ generated quantities {
       a_ll = sin(pi() / b_ll) * mu[n] * b_ll * inv(pi());
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         loglogistic_rng(a_ll, b_ll);
-      /* if (y[n] == 0) { */
-      /*   log_lik[n] = log(rho[n]); */
-      /* } else { */
-      /*   log_lik[n] = log1m(rho[n]) + */
-      /*     loglogistic_lpdf(y[n] | a_ll, b_ll); */
-      /* } */
     } else {
       array[2] real aux_tn = rep_array(0.0, 2);
       aux_tn[2] = normal_rng(mu[n], phi[1]);
       y_pp[n] = (1 - bernoulli_rng(rho[n])) *
         max(aux_tn);
-      /* if (y[n] == 0) { */
-      /*   log_lik[n] = log(rho[n]) + */
-      /*     normal_lpdf(0.0 | mu[n], phi[1]) + */
-      /*     normal_lccdf(0.0 | mu[n], phi[1]); */
-      /* } else { */
-      /*   log_lik[n] = log1m(rho[n]) + */
-      /*     normal_lpdf(y[n] | mu[n], phi[1]) + */
-      /*     normal_lccdf(0.0 | mu[n], phi[1]); */
-      /* } */
     }
   }
 }

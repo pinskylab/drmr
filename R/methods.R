@@ -53,7 +53,9 @@ update.sdm <- function(object, ...) {
 print.adrm <- function(x, ...) {
   cat("Age-structured Dynamic Range Model (ADRM)\n")
   cat("\nInference method:\n")
-  method <- tryCatch(x$stanfit$metadata()$method, error = function(e) "Unknown")
+  method <- tryCatch(x$stanfit$metadata()$method, error = function(e) "Unknown") |>
+    toupper()
+  method <- ifelse(method == "SAMPLE", "NUTS", method)
   cat(paste0("  ", toupper(method), "\n"))
 
   cat("\nFormulas:\n")
@@ -85,7 +87,9 @@ print.adrm <- function(x, ...) {
 print.sdm <- function(x, ...) {
   cat("Species Distribution Model (SDM)\n")
   cat("\nInference method:\n")
-  method <- tryCatch(x$stanfit$metadata()$method, error = function(e) "Unknown")
+  method <- tryCatch(x$stanfit$metadata()$method, error = function(e) "Unknown") |>
+    toupper()
+  method <- ifelse(method == "SAMPLE", "NUTS", method)
   cat(paste0("  ", toupper(method), "\n"))
 
   cat("\nFormulas:\n")

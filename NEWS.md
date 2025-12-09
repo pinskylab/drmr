@@ -1,14 +1,17 @@
 # drmr 0.3.1
 
-* Differene inference algorithms are now alowed through the `algorithm`
+* Another increase in performance for the `predict` (and `elpd`)
+  function. Especially relevant for larger datasets.
+
+* `print` and `summary` methods are now available for `adrm` and `sdm` objects.
+
+* Different inference algorithms are now alowed through the `algorithm`
   argument. A new `alg_args` argument is also introduced for specific inputs
   regarding the `algorithms`. For example, `iter_warmup` (specifying the number
   of warmup iterations), `iter_sampling` (number of sampling iterations),
   `chains` (number of MCMC chains), `parallel_chains` (number of chains to run
   in parallel), `adapt_delta` among others are supposed to be input as elements
   of a list passed as `algo_args` parameter.
-
-* `print` and `summary` methods are now available for `adrm` and `sdm` objects.
 
 # drmr 0.3.0
 
