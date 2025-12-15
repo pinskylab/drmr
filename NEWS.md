@@ -1,6 +1,11 @@
 # drmr 0.4.0
 
+* A function called `summary_age_densities` to process the output of
+  `ages_edens` is now available.
+
 * Fixed (again) the `lambda_drm` function (to extract age specific densities)
+  and changed its name to `ages_edens` (stands for "age-specific expected age
+  densities".
 
 * `log_lik` and `fitted` methods are now defined for `adrm` and `sdm` objects.
 
@@ -14,7 +19,7 @@
 * `print` and `summary` methods are now available for `adrm` and `sdm` objects.
 
 * Different inference algorithms are now alowed through the `algorithm`
-  argument. A new `alg_args` argument is also introduced for specific inputs
+  argument. A new `algo_args` argument is also introduced for specific inputs
   regarding the `algorithms`. For example, `iter_warmup` (specifying the number
   of warmup iterations), `iter_sampling` (number of sampling iterations),
   `chains` (number of MCMC chains), `parallel_chains` (number of chains to run
