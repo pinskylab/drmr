@@ -395,8 +395,8 @@ get_zeros <- function(y) {
 ##' @return A \code{data.frame} containing the summary statistics and parsed indices
 ##'   (age, time, patch).
 ##' @export
-summary_age_densities <- function(lambda_obj, ages = NULL,
-                                  probs = c(0.05, 0.5, 0.95)) {
+summarise_adens <- function(lambda_obj, ages = NULL,
+                            probs = c(0.05, 0.5, 0.95)) {
   summ <- lambda_obj$summary(NULL, "mean", "sd",
                              ~quantile(., probs = probs))
   summ <- as.data.frame(summ)
