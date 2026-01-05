@@ -1,3 +1,59 @@
+# drmr 0.4.0
+
+* A function called `summary_age_densities` to process the output of
+  `ages_edens` is now available.
+
+* Fixed (again) the `lambda_drm` function (to extract age specific densities)
+  and changed its name to `ages_edens` (stands for "age-specific expected age
+  densities".
+
+* `log_lik` and `fitted` methods are now defined for `adrm` and `sdm` objects.
+
+* Calculations for log-likelihood improved for easier maintenance.
+
+* `predict_drm` and `predict_sdm` are now methods.
+
+* Another increase in performance for the `predict` (and `elpd`)
+  function. Especially relevant for larger datasets.
+
+* `print` and `summary` methods are now available for `adrm` and `sdm` objects.
+
+* Different inference algorithms are now alowed through the `algorithm`
+  argument. A new `algo_args` argument is also introduced for specific inputs
+  regarding the `algorithms`. For example, `iter_warmup` (specifying the number
+  of warmup iterations), `iter_sampling` (number of sampling iterations),
+  `chains` (number of MCMC chains), `parallel_chains` (number of chains to run
+  in parallel), `adapt_delta` among others are supposed to be input as elements
+  of a list passed as `algo_args` parameter.
+
+# drmr 0.3.0
+
+* New classes (and validators) created for the output of the `fit_drm` and
+  `fit_sdm` functions. The classes are called `adrm` and `sdm`, respectively.
+
+* An `update` method to facilitate model refitting is introduced.
+
+# drmr 0.2.3
+
+* Bug fixed when computing the log-lik from a truncated normal model.
+
+* The `elpd` method has been included with the package and works with the
+  outputs of `fit_drm` and `fit_sdm`. This method is helpful in calculating
+  out-of-sample ELPD to perform leave-future-out cross validation (e.g., see
+  https://mc-stan.org/loo/articles/loo2-lfo.html )
+
+* The `predict_*` functions have been modified so they only return the predicted
+  values at the new sites/times. Before this update, those functions also
+  returned other quantities such as `mu_proj` (the expected value of the
+  "non-zero" part of the density), `rho_proj` (probability of non-zero density),
+  and `zt` (the AR random effect, if its switch is turned on).
+
+* Improved the code to facilitate manteinance of the likelihood functions
+
+* Fixing `lambda_gq`.
+
+* Creating `fitted` and `log_likelihood` functions.
+
 # drmr 0.2.2
 
 * Ensuring there are no `NA`s in the covariates, `site`, or `time`.

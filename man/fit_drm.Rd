@@ -13,12 +13,10 @@ fit_drm(
   formula_zero = ~1,
   formula_rec = ~1,
   formula_surv = NULL,
-  iter_warmup = 1000,
-  iter_sampling = 1000,
-  chains = 4,
-  parallel_chains = 4,
   seed,
   init = "cmdstan_default",
+  algorithm = "nuts",
+  algo_args = list(),
   ...
 )
 }
@@ -35,12 +33,12 @@ that contains the response variable.}
 \code{.data} that contains the site variable.}
 
 \item{family}{a \code{character} specifying the family of the probability
-distribution assumed for density. The options are: \itemize{
-\item \code{"gamma"} (default): gamma parametrized in terms of its mean;
-\item \code{"lognormal"}: log-normal parametrized in terms of its mean;
-\item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-\item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
-}}
+distribution assumed for density. The options are: \itemize{ \item
+\code{"gamma"} (default): gamma parametrized in terms of its mean; \item
+\code{"lognormal"}: log-normal parametrized in terms of its mean; \item
+\code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+\item \code{"lognormal_legacy"} (default): log-normal with its usual
+parametrization; }}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero
 inflation component. Defaults to \code{~ 1} (intercept only).}
@@ -51,26 +49,22 @@ component. Defaults to \code{~ 1} (intercept only).}
 \item{formula_surv}{A \code{formula} specifying the model for the survival
 component. If \code{NULL} (the default), no survival component is included.}
 
-\item{iter_warmup}{An \code{integer} specifying the number of warmup
-iterations for the MCMC sampler. Defaults to 1000.}
-
-\item{iter_sampling}{An \code{integer} specifying the number of sampling
-iterations for the MCMC sampler. Defaults to 1000.}
-
-\item{chains}{An \code{integer} specifying the number of MCMC chains.
-Defaults to 4.}
-
-\item{parallel_chains}{An \code{integer} specifying the number of chains to
-run in parallel. Defaults to 4.}
-
 \item{seed}{An \code{integer} specifying the random number seed.}
 
 \item{init}{A scalar specifying the initialization method. The default
 (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
 say \code{x}, initialized all parameters from a uniform between \code{-x}
-and \code{x}, a \code{0} initialize all parameters at \code{0}, "prior"
-(to initialize the model parameters using samples from their prior) or
-"pathfinder".}
+and \code{x}, a \code{0} initialize all parameters at \code{0}, or "prior"
+(to initialize the model parameters using samples from their prior)}
+
+\item{algorithm}{a \code{character} specifying the algorithm used for
+inference. Default is \code{nuts} (the default MCMC in Stan). The
+remaining options are different flavors of variational bayes algorithms:
+"vb" (for ADVI), "pathfinder" (for Pathfinder) or "optimize" for
+(penalized) MLEs.}
+
+\item{algo_args}{a \code{list} with arguments for the sampling
+algorithms. For instance, \code{tol_rel_obj} for variational .}
 
 \item{...}{Passed on to the \code{\link[=make_data]{make_data()}} function used to build the input
 \code{list} for our \code{cmdstanr} model.}
@@ -78,12 +72,10 @@ and \code{x}, a \code{0} initialize all parameters at \code{0}, "prior"
 \value{
 A \code{list} containing the MCMC draws, the model data, the linear
 predictors formulas, and the (response, time, site) column names.
-Specifically: \itemize{
-\item \code{stanfit}: The MCMC draws from the fitted model.
-\item\code{data}: The data used to fit the model (as a list).
-\item\code{formulas}: The formulas used to create design matrices.
-\item\code{cols}: Important column names.
-}
+Specifically: \itemize{ \item \code{stanfit}: The MCMC draws from the
+fitted model.  \item\code{data}: The data used to fit the model (as a
+list).  \item\code{formulas}: The formulas used to create design matrices.
+\item\code{cols}: Important column names.  }
 }
 \description{
 Fit the DRM Stan model (this function is not stable yet and

@@ -20,7 +20,7 @@ data {
   int<lower = 0, upper = 1> iid_re;
   int<lower = 0, upper = 1> sp_re;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
-  int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
+  int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic)
   //--- suitability (for rho) ----
   int<lower = 1> K_z;
@@ -193,87 +193,10 @@ model {
     target += gamma_lpdf(phi[1] | pr_phi_a, pr_phi_b);
   }
   // only evaluate density if there are length comps to evaluate
-  target += sum(log(rho[id_z]));
-  if (likelihood == 0) {
-    vector[N_nz] loc_par;
-    loc_par = log(mu[id_nz]) + square(sigma_obs[1]) / 2;
-    target += log1m(rho[id_nz]);
-    target += lognormal_lpdf(y[id_nz] | loc_par, sigma_obs[1]);
-  } else if (likelihood == 1) {
-    vector[N_nz] mu_ln;
-    vector[N_nz] sigma_ln;
-    sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[id_nz])));
-    mu_ln = log(square(mu[id_nz]) .*
-                inv_sqrt(square(mu[id_nz]) + phi[1]));
-    target += log1m(rho[id_nz]);
-    target += lognormal_lpdf(y[id_nz] | mu_ln, sigma_ln);
-  } else if (likelihood == 2) {
-    vector[N_nz] b_g;
-    b_g = phi[1] / mu[id_nz];
-    target += log1m(rho[id_nz]);
-    target += gamma_lpdf(y[id_nz] | phi[1], b_g);
-  } else {
-    vector[N_nz] a_ll;
-    real b_ll;
-    b_ll = phi[1] + 1;
-    a_ll = sin(pi() / b_ll) * mu[id_nz] * b_ll * inv(pi());
-    target += log1m(rho[id_nz]);
-    target += loglogistic_lpdf(y[id_nz] | a_ll, b_ll);
-  }
+  target += ziloglik_lpdf(y | likelihood, N_nz, N,
+                          id_nz, id_z,
+                          mu, rho,
+                          likelihood == 0 ? sigma_obs[1] : phi[1]);
 }
 generated quantities {
-  vector[N] log_lik;
-  vector[N] y_pp;
-  for (n in 1:N) {
-    if (likelihood == 0) {
-      real loc_par;
-      loc_par = log(mu[n]) + square(sigma_obs[1]) / 2;
-      y_pp[n] = (1 - bernoulli_rng(rho[n])) *
-        lognormal_rng(loc_par, sigma_obs[1]);
-      /* if (y[n] == 0) { */
-      /*   // only evaluate density if there are length comps to evaluate */
-      /*   log_lik[n] = log(rho[n]); */
-      /* } else { */
-      /*   log_lik[n] = log1m(rho[n]) + */
-      /*     lognormal_lpdf(y[n] | loc_par, sigma_obs[1]); */
-      /* } */
-    } else if (likelihood == 1) {
-      real mu_ln;
-      real sigma_ln;
-      sigma_ln = sqrt(log1p(phi[1] * inv_square(mu[n])));
-      mu_ln = log(square(mu[n]) * inv_sqrt(square(mu[n]) + phi[1]));
-      y_pp[n] = (1 - bernoulli_rng(rho[n])) *
-        lognormal_rng(mu_ln, sigma_ln);
-      /* if (y[n] == 0) { */
-      /*   log_lik[n] = log(rho[n]); */
-      /* } else { */
-      /*   log_lik[n] = log1m(rho[n]) + */
-      /*     ln_mu_lpdf(y[n] | mu[n], phi[1]); */
-      /* } */
-    } else if (likelihood == 2) {
-      real gamma_beta;
-      gamma_beta = phi[1] / mu[n];
-      y_pp[n] = (1 - bernoulli_rng(rho[n])) *
-        gamma_rng(phi[1], gamma_beta);
-      /* if (y[n] == 0) { */
-      /*   log_lik[n] = log(rho[n]); */
-      /* } else { */
-      /*   log_lik[n] = log1m(rho[n]) + */
-      /*     gamma_lpdf(y[n] | phi[1], gamma_beta); */
-      /* } */
-    } else if (likelihood == 3) {
-      real a_ll;
-      real b_ll;
-      b_ll = phi[1] + 1;
-      a_ll = sin(pi() / b_ll) * mu[n]  * b_ll * inv(pi());
-      y_pp[n] = (1 - bernoulli_rng(rho[n])) *
-        loglogistic_rng(a_ll, b_ll);
-      /* if (y[n] == 0) { */
-      /*   log_lik[n] = log(rho[n]); */
-      /* } else { */
-      /*   log_lik[n] = log1m(rho[n]) + */
-      /*     loglogistic_lpdf(y[n] | a_ll, b_ll); */
-      /* } */
-    }
-  }
 }

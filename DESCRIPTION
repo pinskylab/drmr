@@ -1,7 +1,7 @@
 Package: drmr
 Type: Package
 Title: An R package with pre-compiled cmdstan code for dynamic range models
-Version: 0.2.2
+Version: 0.4.0
 Authors@R: 
     person(given = "Lucas",
            family = "da Cunha Godoy",
@@ -20,7 +20,8 @@ Imports:
   spdep,
   stats,
   utils,
-  rlang
+  rlang,
+  lifecycle
 Suggests: 
   knitr,
   rmarkdown,

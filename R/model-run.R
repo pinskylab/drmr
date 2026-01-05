@@ -23,21 +23,19 @@
 ##'   component. Defaults to `~ 1` (intercept only).
 ##' @param formula_surv A \code{formula} specifying the model for the survival
 ##'   component. If `NULL` (the default), no survival component is included.
-##' @param iter_warmup An \code{integer} specifying the number of warmup
-##'   iterations for the MCMC sampler. Defaults to 1000.
-##' @param iter_sampling An \code{integer} specifying the number of sampling
-##'   iterations for the MCMC sampler. Defaults to 1000.
-##' @param chains An \code{integer} specifying the number of MCMC chains.
-##'   Defaults to 4.
-##' @param parallel_chains An \code{integer} specifying the number of chains to
-##'   run in parallel. Defaults to 4.
 ##' @param seed An \code{integer} specifying the random number seed.
 ##' @param init A scalar specifying the initialization method. The default
-##'   (NULL) represents the \code{cmdstan} default. A scalar greater than zero,
-##'   say \code{x}, initializes all parameters from a uniform between \code{-x}
-##'   and \code{x}. A \code{0} initializes all parameters at \code{0}. "prior"
-##'   initializes the model parameters using samples from their prior.
-##'   "pathfinder" uses the pathfinder algorithm.
+##'   (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
+##'   say \code{x}, initialized all parameters from a uniform between \code{-x}
+##'   and \code{x}, a \code{0} initialize all parameters at \code{0}, or "prior"
+##'   (to initialize the model parameters using samples from their prior)
+##' @param algorithm a \code{character} specifying the algorithm used for
+##'   inference. Default is \code{nuts} (the default MCMC in Stan). The
+##'   remaining options are different flavors of variational bayes algorithms:
+##'   "vb" (for ADVI), "pathfinder" (for Pathfinder) or "optimize" for
+##'   (penalized) MLEs.
+##' @param algo_args a \code{list} with arguments for the sampling
+##'   algorithms. For instance, \code{tol_rel_obj} for variational .
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws, the model data, the linear
@@ -67,14 +65,14 @@ fit_drm <- function(.data,
                     formula_zero = ~ 1,
                     formula_rec = ~ 1,
                     formula_surv = NULL,
-                    iter_warmup   = 1000,
-                    iter_sampling = 1000,
-                    chains = 4,
-                    parallel_chains = 4,
                     seed,
                     init = "cmdstan_default",
+                    algorithm = "nuts",
+                    algo_args = list(),
                     ...) {
+  cl <- match.call()
   stopifnot(length(init) == 1)
+  stopifnot(length(algorithm) == 1)
   if (is.character(init))
     stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
   x_t <- stats::model.matrix.lm(formula_zero, data = .data,
@@ -110,23 +108,26 @@ fit_drm <- function(.data,
   } else if (init == "prior") {
     drm_init <-
       prior_inits(model_dat, chains, "drm")
-  } else if (init == "pathfinder") {
-    drm_init <-
-      model$pathfinder(data = model_dat,
-                       seed = seed,
-                       num_paths = chains,
-                       save_single_paths = TRUE,
-                       psis_resample = FALSE)
   } else {
     drm_init <- init
   }
-  draws <- model$sample(data = model_dat,
-                        iter_warmup = iter_warmup,
-                        iter_sampling = iter_sampling,
-                        seed = seed,
-                        chains = chains,
-                        parallel_chains = parallel_chains,
-                        init = drm_init)
+  my_args <- c(list(
+      data = model_dat,
+      seed = seed,
+      init = drm_init
+  ), algo_args)
+
+  if (algorithm == "nuts") {
+    draws <- do.call(model$sample, my_args)
+  } else if (algorithm == "vb") {
+    draws <- do.call(model$variational, my_args)
+  } else if (algorithm == "optimize") {    
+    draws <- do.call(model$optimize, my_args)    
+  } else if (algorithm == "pathfinder") {
+    draws <- do.call(model$pathfinder, my_args)
+  } else {
+    stop("Algorithm must one of the following: 'nuts', 'vb', 'optimize', or 'pathfinder'")
+  }
   output <-
     list("stanfit"  = draws,
          "data"     = model_dat,
@@ -135,9 +136,10 @@ fit_drm <- function(.data,
                            "formula_surv" = formula_surv),
          "cols" = list("y_col" = y_col,
                        "time_col" = time_col,
-                       "site_col" = site_col))
-
-  return(output)
+                       "site_col" = site_col),
+         "seed" = seed,
+         "call" = cl)
+  return(new_adrm(output))
 }
 
 ##' @title Fit a GLM based SDM
@@ -163,21 +165,20 @@ fit_drm <- function(.data,
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_dens A \code{formula} specifying the model for the non-zero
 ##'   density component. Defaults to `~ 1` (intercept only).
-##' @param iter_warmup An \code{integer} specifying the number of warmup
-##'   iterations for the MCMC sampler. Defaults to 1000.
-##' @param iter_sampling An \code{integer} specifying the number of sampling
-##'   iterations for the MCMC sampler. Defaults to 1000.
-##' @param chains An \code{integer} specifying the number of MCMC chains.
-##'   Defaults to 4.
-##' @param parallel_chains An \code{integer} specifying the number of chains to
-##'   run in parallel. Defaults to 4.
 ##' @param seed An \code{integer} specifying the random number seed.
 ##' @param init A scalar specifying the initialization method. The default
-##'   (NULL) represents the \code{cmdstan} default. A scalar greater than zero,
-##'   say \code{x}, initializes all parameters from a uniform between \code{-x}
-##'   and \code{x}. A \code{0} initializes all parameters at \code{0}. "prior"
-##'   initializes the model parameters using samples from their prior.
-##'   "pathfinder" uses the pathfinder algorithm.
+##'   (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
+##'   say \code{x}, initialized all parameters from a uniform between \code{-x}
+##'   and \code{x}, a \code{0} initialize all parameters at \code{0}, "prior"
+##'   (to initialize the model parameters using samples from their prior) or
+##'   "pathfinder".
+##' @param algorithm a \code{character} specifying the algorithm used for
+##'   inference. Default is \code{nuts} (the default MCMC in Stan). The
+##'   remaining options are different flavors of variational bayes algorithms:
+##'   "vb" (for ADVI), "pathfinder" (for Pathfinder) or "optimize" for
+##'   (penalized) MLEs.
+##' @param algo_args a \code{list} with arguments for the sampling
+##'   algorithms. For instance, \code{tol_rel_obj} for variational .
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws, the model data, the linear
@@ -206,13 +207,12 @@ fit_sdm <- function(.data,
                     family = "gamma",
                     formula_zero = ~ 1,
                     formula_dens = ~ 1,
-                    iter_warmup   = 1000,
-                    iter_sampling = 1000,
-                    chains = 4,
-                    parallel_chains = 4,
                     seed,
                     init = "cmdstan_default",
+                    algorithm = "nuts",
+                    algo_args = list(),
                     ...) {
+  cl <- match.call()
   stopifnot(length(init) == 1)
   if (is.character(init))
     stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
@@ -236,23 +236,25 @@ fit_sdm <- function(.data,
   } else if (init == "prior") {
     sdm_init <-
       prior_inits(model_dat, chains, "sdm")
-  } else if (init == "pathfinder") {
-    sdm_init <-
-      model$pathfinder(data = model_dat,
-                       seed = seed,
-                       num_paths = chains,
-                       save_single_paths = TRUE,
-                       psis_resample = FALSE)
   } else {
     sdm_init <- init
   }
-  draws <- model$sample(data = model_dat,
-                        iter_warmup = iter_warmup,
-                        iter_sampling = iter_sampling,
-                        seed = seed,
-                        chains = chains,
-                        parallel_chains = parallel_chains,
-                        init = sdm_init)
+  my_args <- c(list(
+      data = model_dat,
+      seed = seed,
+      init = drm_init
+  ), algo_args)
+  if (algorithm == "nuts") {
+    draws <- do.call(model$sample, my_args)
+  } else if (algorithm == "vb") {
+    draws <- do.call(model$variational, my_args)
+  } else if (algorithm == "optimize") {    
+    draws <- do.call(model$optimize, my_args)    
+  } else if (algorithm == "pathfinder") {
+    draws <- do.call(model$pathfinder, my_args)
+  } else {
+    stop("Algorithm must one of the following: 'nuts', 'vb', 'optimize', or 'pathfinder'")
+  }
   output <-
     list("stanfit"  = draws,
          "data"     = model_dat,
@@ -260,6 +262,8 @@ fit_sdm <- function(.data,
                            "formula_dens" = formula_dens),
          "cols" = list("y_col" = y_col,
                        "time_col" = time_col,
-                       "site_col" = site_col))
-  return(output)
+                       "site_col" = site_col),
+         "seed" = seed,
+         "call" = cl)
+  return(new_sdm(output))
 }

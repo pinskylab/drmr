@@ -4,16 +4,13 @@ fitted_pars_lambda <- function(data_list) {
   if (data_list$est_surv == 1)
     output <- c(output, "beta_s")
   if (data_list$movement == 1)
-    output <- c(output, "mov_mat")
+    output <- c(output, "zeta")
   if (data_list$est_init == 1)
     output <- c(output, "log_init")
   return(output)
 }
 
-##' @title Age-specific densities based on DRM.
-##'
-##' @description Considering a new dataset (across the same patches), computes
-##'   forecasts based on the DRM passed as \code{drm}.
+##' @title Age-specific expected densities based on DRM.
 ##'
 ##' @param drm A \code{list} object containing the output from the [fit_drm]
 ##'   function.
@@ -25,8 +22,10 @@ fitted_pars_lambda <- function(data_list) {
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.
 ##'
+##' @name age_dens
+##' 
 ##' @export
-lambda_drm <- function(drm,
+ages_edens <- function(drm,
                        cores = 1) {
   stopifnot(inherits(drm$stanfit, "CmdStanFit"))
   ## number time points for forecasting
@@ -44,4 +43,12 @@ lambda_drm <- function(drm,
                         data = drm$data,
                         parallel_chains = cores)
   return(output)
+}
+
+##' @rdname age_dens
+##' @param ... params to be passed to \code{age_edens}
+##' @export
+lambda_drm <- function(...) {
+  lifecycle::deprecate_warn("0.3.1", "lambda_drm()", "ages_edens()")
+  ages_edens(...)
 }

@@ -17,6 +17,7 @@ data {
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic)
+  vector[N] new_y;
   //--- suitability (for rho) ----
   int<lower = 1> K_z;
   matrix[N, K_z] Z;
@@ -43,7 +44,7 @@ parameters {
 }
 generated quantities {
   //--- projected total density ----
-  vector[n_time * n_patches] y_proj;
+  vector[n_time * n_patches] log_lik;
   //--- mu_proj calculations ----
   {
     //--- projected expected density ----
@@ -83,11 +84,11 @@ generated quantities {
     //--- absence probabilities ----
     if (cloglog) {
       if (rho_mu) {
-        rho_proj =
-          inv_cloglog(Z * beta_t + xi[1] .* lmu);
+      rho_proj =
+        inv_cloglog(Z * beta_t + xi[1] .* lmu);
       } else {
-        rho_proj =
-          inv_cloglog(Z * beta_t);
+      rho_proj =
+        inv_cloglog(Z * beta_t);
       }
     } else {
       if (rho_mu) {
@@ -98,11 +99,59 @@ generated quantities {
           inv_logit(Z * beta_t);
       }
     }
-    //--- y_proj calculations ----
-    for (n in 1:N) {
-      y_proj[n] = drmsdm_rng(mu_proj[n], rho_proj[n],
-                             likelihood == 0 ? sigma_obs[1] : phi[1],
-                             likelihood);
+  //--- y_proj calculations ----
+  for (n in 1:N) {
+        if (likelihood == 0) {
+      real loc_par;
+      loc_par = log(mu_proj[n]) + square(sigma_obs[1]) / 2;
+      if (new_y[n] == 0) {
+        log_lik[n] = log(rho_proj[n]);
+      } else {
+        log_lik[n] = log1m(rho_proj[n]) +
+          lognormal_lpdf(new_y[n] | loc_par, sigma_obs[1]);
+      }
+    } else if (likelihood == 1) {
+      real mu_ln;
+      real sigma_ln;
+      sigma_ln = sqrt(log1p(phi[1] * inv_square(mu_proj[n])));
+      mu_ln = log(square(mu_proj[n]) * inv_sqrt(square(mu_proj[n]) + phi[1]));
+      if (new_y[n] == 0) {
+        log_lik[n] = log(rho_proj[n]);
+      } else {
+        log_lik[n] = log1m(rho_proj[n]) +
+          lognormal_lpdf(new_y[n] | mu_ln, sigma_ln);
+      }
+    } else if (likelihood == 2) {
+      real gamma_beta;
+      gamma_beta = phi[1] / mu_proj[n];
+      if (new_y[n] == 0) {
+        log_lik[n] = log(rho_proj[n]);
+      } else {
+        log_lik[n] = log1m(rho_proj[n]) +
+          gamma_lpdf(new_y[n] | phi[1], gamma_beta);
+      }
+    } else if (likelihood == 3) {
+      real a_ll;
+      real b_ll;
+      b_ll = phi[1] + 1;
+      a_ll = sin(pi() / b_ll) * mu_proj[n] * inv(pi() * b_ll);
+      if (new_y[n] == 0) {
+        log_lik[n] = log(rho_proj[n]);
+      } else {
+        log_lik[n] = log1m(rho_proj[n]) +
+          loglogistic_lpdf(new_y[n] | a_ll, b_ll);
+      }
+    } else {
+      array[2] real aux_tn = rep_array(0.0, 2);
+      aux_tn[2] = normal_rng(mu_proj[n], phi[1]);
+      if (new_y[n] == 0) {
+        log_lik[n] = log(rho_proj[n]);
+      } else {
+        log_lik[n] = log1m(rho_proj[n]) +
+          normal_lpdf(new_y[n] | mu_proj[n], phi[1]) -
+          normal_lccdf(0.0 | mu_proj[n], phi[1]);
+      }
     }
+  }
   }
 }
