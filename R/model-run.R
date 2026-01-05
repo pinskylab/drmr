@@ -15,7 +15,7 @@
 ##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
 ##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
 ##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
+##'   \item \code{"lognormal_legacy"}: log-normal with its usual parametrization;
 ##'    }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
@@ -33,20 +33,20 @@
 ##'   run in parallel. Defaults to 4.
 ##' @param seed An \code{integer} specifying the random number seed.
 ##' @param init A scalar specifying the initialization method. The default
-##'   (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
-##'   say \code{x}, initialized all parameters from a uniform between \code{-x}
-##'   and \code{x}, a \code{0} initialize all parameters at \code{0}, "prior"
-##'   (to initialize the model parameters using samples from their prior) or
-##'   "pathfinder".
+##'   (NULL) represents the \code{cmdstan} default. A scalar greater than zero,
+##'   say \code{x}, initializes all parameters from a uniform between \code{-x}
+##'   and \code{x}. A \code{0} initializes all parameters at \code{0}. "prior"
+##'   initializes the model parameters using samples from their prior.
+##'   "pathfinder" uses the pathfinder algorithm.
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws, the model data, the linear
 ##'   predictors formulas, and the (response, time, site) column names.
 ##'   Specifically: \itemize{
 ##'    \item \code{stanfit}: The MCMC draws from the fitted model.
-##'    \item\code{data}: The data used to fit the model (as a list).
-##'    \item\code{formulas}: The formulas used to create design matrices.
-##'    \item\code{cols}: Important column names.
+##'    \item \code{data}: The data used to fit the model (as a list).
+##'    \item \code{formulas}: The formulas used to create design matrices.
+##'    \item \code{cols}: Important column names.
 ##'   }
 ##' @seealso [make_data()]
 ##' @examples
@@ -157,7 +157,7 @@ fit_drm <- function(.data,
 ##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
 ##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
 ##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
+##'   \item \code{"lognormal_legacy"}: log-normal with its usual parametrization;
 ##'    }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
@@ -173,20 +173,20 @@ fit_drm <- function(.data,
 ##'   run in parallel. Defaults to 4.
 ##' @param seed An \code{integer} specifying the random number seed.
 ##' @param init A scalar specifying the initialization method. The default
-##'   (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
-##'   say \code{x}, initialized all parameters from a uniform between \code{-x}
-##'   and \code{x}, a \code{0} initialize all parameters at \code{0}, "prior"
-##'   (to initialize the model parameters using samples from their prior) or
-##'   "pathfinder".
+##'   (NULL) represents the \code{cmdstan} default. A scalar greater than zero,
+##'   say \code{x}, initializes all parameters from a uniform between \code{-x}
+##'   and \code{x}. A \code{0} initializes all parameters at \code{0}. "prior"
+##'   initializes the model parameters using samples from their prior.
+##'   "pathfinder" uses the pathfinder algorithm.
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws, the model data, the linear
 ##'   predictors formulas, and the (response, time, site) column names.
 ##'    \itemize{
 ##'     \item \code{stanfit}: The MCMC draws from the fitted model.
-##'     \item\code{data}: The data used to fit the model (as a list).
-##'     \item\code{formulas}: The data used to fit the model (as a list).
-##'     \item\code{cols}: Important column names.
+##'     \item \code{data}: The data used to fit the model (as a list).
+##'     \item \code{formulas}: The formulas used to create design matrices.
+##'     \item \code{cols}: Important column names.
 ##'   }
 ##' @seealso [make_data()]
 ##' @examples

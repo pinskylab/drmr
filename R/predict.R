@@ -91,8 +91,9 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'
 ##' @author lcgodoy
 ##'
-##' @return an object of class \code{"CmdStanGQ"} containing samples for the
-##'   posterior predictive distribution for forecasting.
+##' @return An object of class \code{CmdStanGQ} (from the \code{instantiate}
+##'   package) containing samples for the posterior predictive distribution for
+##'   forecasting.
 ##'
 ##' @export
 predict_drm <- function(drm,
@@ -179,12 +180,6 @@ predict_drm <- function(drm,
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   forecasts based on the SDM passed as \code{sdm}.
 ##'
-##' @description Consider a linear predictor having linear and square terms
-##'   associated with a variable \eqn{x}. Assume this variable was centered
-##'   before being included in the linear predictor. This functions returns the
-##'   value of \eqn{x} (on its original scale) such that the linear predictor is
-##'   maximized (or minimized).
-##'
 ##' @param sdm A \code{list} object containing the output of a [fit_sdm] call.
 ##'
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
@@ -202,8 +197,9 @@ predict_drm <- function(drm,
 ##'
 ##' @author lcgodoy
 ##'
-##' @return an object of class \code{"CmdStanGQ"} containing samples for the
-##'   posterior predictive distribution for forecasting.
+##' @return An object of class \code{CmdStanGQ} (from the \code{instantiate}
+##'   package) containing samples for the posterior predictive distribution for
+##'   forecasting.
 ##'
 ##' @export
 predict_sdm <- function(sdm,
