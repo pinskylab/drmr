@@ -1,12 +1,12 @@
 ##' @title Regression coefficient for non-centered variable
 ##' @description Consider a linear predictor having linear and square terms
 ##'   associated with a variable \eqn{x}. Assume this variable was centered
-##'   before being included in the linear predictor. This functions recovers the
-##'   regression coefficient associated to the linear term as if the variable
+##'   before being included in the linear predictor. This function recovers the
+##'   regression coefficient associated with the linear term as if the variable
 ##'   was not centered.
-##' @param beta1 A \code{numeric} regression coefficient associated to the
+##' @param beta1 A \code{numeric} regression coefficient associated with the
 ##'   linear term.
-##' @param beta2 A \code{numeric} regression coefficient associated to the
+##' @param beta2 A \code{numeric} regression coefficient associated with the
 ##'   quadratic term.
 ##' @param offset a \code{numeric} representing the "center" of \eqn{x}.
 ##' @return a \code{numeric} representing the regression coefficient of the
@@ -21,12 +21,12 @@ fix_linbeta <- function(beta1, beta2, offset) {
 ##'   quadratic model.
 ##' @description Consider a linear predictor having linear and square terms
 ##'   associated with a variable \eqn{x}. Assume this variable was centered
-##'   before being included in the linear predictor. This functions returns the
+##'   before being included in the linear predictor. This function returns the
 ##'   value of \eqn{x} (on its original scale) such that the linear predictor is
 ##'   maximized (or minimized).
-##' @param beta1 A \code{numeric} regression coefficient associated to the
+##' @param beta1 A \code{numeric} regression coefficient associated with the
 ##'   linear term.
-##' @param beta2 A \code{numeric} regression coefficient associated to the
+##' @param beta2 A \code{numeric} regression coefficient associated with the
 ##'   quadratic term.
 ##' @param offset a \code{numeric} representing the "center" of \eqn{x}.
 ##' @return a \code{numeric} representing the uncentered \eqn{x} that maximizes
@@ -72,7 +72,7 @@ gen_adj <- function(x) {
 ##' @title Modifying a named list
 ##' @param original a named \code{list} with "original" parameters.
 ##' @param replacements a named \code{list} containing elements to be modified
-##'   in the \code{original} \code{list}
+##'   in the \code{original} \code{list}.
 ##' @return an updated \code{original list}.
 ##' @author lcgodoy
 safe_modify <- function(original, replacements) {
@@ -262,7 +262,7 @@ marg_surv <- function(drm, newdata) {
 ##' @title Random effects verbose to code
 ##' @param x a \code{character}
 ##' @return a \code{integer}
-##' @author lcgogoy
+##' @author lcgodoy
 fix_re <- function(x) {
   if (!x %in% c(0:3)) {
     switch(x,

@@ -11,12 +11,12 @@
 ##' @param site_col A \code{character} specifying the name of the column in
 ##'   `.data` that contains the site variable.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{ \item
-##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
-##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
-##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual
-##'   parametrization; }
+##'   distribution assumed for density. The options are: \itemize{
+##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
+##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
+##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+##'   \item \code{"lognormal_legacy"}: log-normal with its usual parametrization;
+##'    }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_rec A \code{formula} specifying the model for the recruitment
@@ -40,10 +40,12 @@
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws, the model data, the linear
 ##'   predictors formulas, and the (response, time, site) column names.
-##'   Specifically: \itemize{ \item \code{stanfit}: The MCMC draws from the
-##'   fitted model.  \item\code{data}: The data used to fit the model (as a
-##'   list).  \item\code{formulas}: The formulas used to create design matrices.
-##'   \item\code{cols}: Important column names.  }
+##'   Specifically: \itemize{
+##'    \item \code{stanfit}: The MCMC draws from the fitted model.
+##'    \item \code{data}: The data used to fit the model (as a list).
+##'    \item \code{formulas}: The formulas used to create design matrices.
+##'    \item \code{cols}: Important column names.
+##'   }
 ##' @seealso [make_data()]
 ##' @examples
 ##' if (instantiate::stan_cmdstan_exists()) {
@@ -157,7 +159,7 @@ fit_drm <- function(.data,
 ##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
 ##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
 ##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-##'   \item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
+##'   \item \code{"lognormal_legacy"}: log-normal with its usual parametrization;
 ##'    }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
@@ -183,9 +185,9 @@ fit_drm <- function(.data,
 ##'   predictors formulas, and the (response, time, site) column names.
 ##'    \itemize{
 ##'     \item \code{stanfit}: The MCMC draws from the fitted model.
-##'     \item\code{data}: The data used to fit the model (as a list).
-##'     \item\code{formulas}: The data used to fit the model (as a list).
-##'     \item\code{cols}: Important column names.
+##'     \item \code{data}: The data used to fit the model (as a list).
+##'     \item \code{formulas}: The formulas used to create design matrices.
+##'     \item \code{cols}: Important column names.
 ##'   }
 ##' @seealso [make_data()]
 ##' @examples

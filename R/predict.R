@@ -182,14 +182,8 @@ predict.adrm <- function(x,
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   forecasts based on the SDM passed as \code{sdm}.
 ##'
-##' @description Consider a linear predictor having linear and square terms
-##'   associated with a variable \eqn{x}. Assume this variable was centered
-##'   before being included in the linear predictor. This functions returns the
-##'   value of \eqn{x} (on its original scale) such that the linear predictor is
-##'   maximized (or minimized).
+##' @param sdm A \code{list} object containing the output of a [fit_sdm] call.
 ##'
-##' @param x A \code{adrm} (or \code{sdm}) object containing the output from the
-##'   [fit_drm()] (or [fit_sdm()]) function.
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
 ##' @param seed a seed used for the forecasts. Forecasts are obtained through
@@ -205,8 +199,9 @@ predict.adrm <- function(x,
 ##'
 ##' @author lcgodoy
 ##'
-##' @return an object of class \code{"CmdStanGQ"} containing samples for the
-##'   posterior predictive distribution for forecasting.
+##' @return An object of class \code{CmdStanGQ} (from the \code{instantiate}
+##'   package) containing samples for the posterior predictive distribution for
+##'   forecasting.
 ##'
 ##' @rdname predsdm
 predict.sdm <- function(x,
