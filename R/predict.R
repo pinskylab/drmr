@@ -63,7 +63,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
   return(output)
 }
 
-##' @title Forecasts based on DRM.
+##' @title Predictions based on DRM.
 ##'
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   forecasts based on the DRM passed as \code{drm}.
@@ -82,6 +82,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'   a \code{seed} is needed to ensure the results' reproducibility.
 ##' @param cores number of threads used for the forecast. If four chains were
 ##'   used in the \code{drm}, then four (or less) threads are recommended.
+##' @param ... additional parameters to be passed to \code{$generated_quantities}
 ##'
 ##'
 ##' @details The current version of the code assumes the data where forecasts
@@ -102,8 +103,10 @@ predict.adrm <- function(x,
                          past_data,
                          f_test,
                          seed = 1,
-                         cores = 1) {
-  stopifnot(inherits(x$stanfit, "CmdStanFit"))
+                         cores = 1,
+                         ...) {
+  stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
+                                  "CmdStanPathfinder", "CmdStanVB")))
   ## number time points for forecasting
   ntime_for <- length(unique(new_data[[x$cols$time_col]]))
   time_for <- new_data[[x$cols$time_col]] -
@@ -173,16 +176,17 @@ predict.adrm <- function(x,
     generate_quantities(fitted_params = fitted_params,
                         data = forecast_data,
                         seed = seed,
-                        parallel_chains = cores)
+                        parallel_chains = cores,
+                        ...)
   return(output)
 }
 
-##' @title Forecasts based on SDM.
+##' @title Predictions based on SDM.
 ##'
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   forecasts based on the SDM passed as \code{sdm}.
 ##'
-##' @param sdm A \code{list} object containing the output of a [fit_sdm] call.
+##' @param x A \code{list} object containing the output of a [fit_sdm] call.
 ##'
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
@@ -191,6 +195,7 @@ predict.adrm <- function(x,
 ##'   a \code{seed} is needed to ensure the results' reproducibility.
 ##' @param cores number of threads used for the forecast. If four chains were
 ##'   used in the \code{drm}, then four (or less) threads are recommended.
+##' @param ... additional parameters to be passed to \code{$generated_quantities}
 ##'
 ##' @details The current version of the code assumes the data where forecasts
 ##'   are needed is ordered by "patch" and "site" and, in addition, its patches
@@ -207,8 +212,10 @@ predict.adrm <- function(x,
 predict.sdm <- function(x,
                         new_data,
                         seed = 1,
-                        cores = 1) {
-  stopifnot(inherits(x$stanfit, "CmdStanFit"))
+                        cores = 1,
+                        ...) {
+  stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
+                                  "CmdStanPathfinder", "CmdStanVB")))
   ## time points for forecasting
   ntime_for <- length(unique(new_data[[x$cols$time_col]]))
   time_for <- new_data[[x$cols$time_col]] -
@@ -246,7 +253,8 @@ predict.sdm <- function(x,
     generate_quantities(fitted_params = fitted_params,
                         data = forecast_data,
                         seed = seed,
-                        parallel_chains = cores)
+                        parallel_chains = cores,
+                        ...)
   return(output)
 }
 

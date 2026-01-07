@@ -7,10 +7,10 @@
 fix_linbeta(beta1, beta2, offset)
 }
 \arguments{
-\item{beta1}{A \code{numeric} regression coefficient associated to the
+\item{beta1}{A \code{numeric} regression coefficient associated with the
 linear term.}
 
-\item{beta2}{A \code{numeric} regression coefficient associated to the
+\item{beta2}{A \code{numeric} regression coefficient associated with the
 quadratic term.}
 
 \item{offset}{a \code{numeric} representing the "center" of \eqn{x}.}
@@ -22,8 +22,8 @@ linear term for the model where \eqn{x} is not centered.
 \description{
 Consider a linear predictor having linear and square terms
 associated with a variable \eqn{x}. Assume this variable was centered
-before being included in the linear predictor. This functions recovers the
-regression coefficient associated to the linear term as if the variable
+before being included in the linear predictor. This function recovers the
+regression coefficient associated with the linear term as if the variable
 was not centered.
 }
 \author{

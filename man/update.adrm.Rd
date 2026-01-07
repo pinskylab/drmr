@@ -4,7 +4,7 @@
 \alias{update.adrm}
 \title{Update and Re-fit a DRM Model}
 \usage{
-\method{update}{adrm}(object, ..., evaluate = TRUE)
+\method{update}{adrm}(object, ...)
 }
 \arguments{
 \item{object}{An object of class \code{adrm}.}
@@ -12,7 +12,7 @@
 \item{...}{Arguments to be updated in the new call (e.g., .data, formula_zero, iter_sampling).}
 }
 \value{
-An updated \code{adrm} object or the unevaluated call.
+An updated \code{adrm} object.
 }
 \description{
 Update and Re-fit a DRM Model

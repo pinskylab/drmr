@@ -3,9 +3,9 @@
 ##' @param object An object of class \code{adrm}.
 ##' @param ... Arguments to be updated in the new call (e.g., .data, formula_zero, iter_sampling).
 ##'
-##' @return An updated \code{adrm} object or the unevaluated call.
+##' @return An updated \code{adrm} object.
 ##' @export
-update.adrm <- function(object, ..., evaluate = TRUE) {
+update.adrm <- function(object, ...) {
   call <- object$call
   extras <- list(...)  
   if (length(extras) > 0) {

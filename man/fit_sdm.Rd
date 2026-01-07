@@ -36,7 +36,7 @@ distribution assumed for density. The options are: \itemize{
 \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
 \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
 \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-\item \code{"lognormal_legacy"} (default): log-normal with its usual parametrization;
+\item \code{"lognormal_legacy"}: log-normal with its usual parametrization;
 }}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero
@@ -50,14 +50,14 @@ density component. Defaults to \code{~ 1} (intercept only).}
 \item{init}{A scalar specifying the initialization method. The default
 (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
 say \code{x}, initialized all parameters from a uniform between \code{-x}
-and \code{x}, a \code{0} initialize all parameters at \code{0}, "prior"
-(to initialize the model parameters using samples from their prior) or
-"pathfinder".}
+and \code{x}, a \code{0} initialize all parameters at \code{0}, or "prior"
+(to initialize the model parameters using samples from their prior)}
 
 \item{algorithm}{a \code{character} specifying the algorithm used for
 inference. Default is \code{nuts} (the default MCMC in Stan). The
 remaining options are different flavors of variational bayes algorithms:
-"vb" (for ADVI), "pathfinder" (for Pathfinder) or "optimize" for
+"vb" (for ADVI), "pathfinder" (for Pathfinder), "laplace" (normal
+approximation centered at the mode of the posterior) or "optimize" for
 (penalized) MLEs.}
 
 \item{algo_args}{a \code{list} with arguments for the sampling
@@ -71,9 +71,9 @@ A \code{list} containing the MCMC draws, the model data, the linear
 predictors formulas, and the (response, time, site) column names.
 \itemize{
 \item \code{stanfit}: The MCMC draws from the fitted model.
-\item\code{data}: The data used to fit the model (as a list).
-\item\code{formulas}: The data used to fit the model (as a list).
-\item\code{cols}: Important column names.
+\item \code{data}: The data used to fit the model (as a list).
+\item \code{formulas}: The formulas used to create design matrices.
+\item \code{cols}: Important column names.
 }
 }
 \description{

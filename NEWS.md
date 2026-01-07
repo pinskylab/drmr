@@ -1,5 +1,9 @@
 # drmr 0.4.0
 
+* Some improvements to documentation.
+
+* Fixed bug in how we deal with zeros and NAs.
+
 * A function called `summary_age_densities` to process the output of
   `ages_edens` is now available.
 

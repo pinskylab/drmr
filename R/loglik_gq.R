@@ -30,7 +30,9 @@ log_lik <- function(x, cores = 1) UseMethod("log_lik", x)
 ##' @export
 log_lik.adrm <- function(x,
                          cores = 1) {
-  stopifnot(inherits(x$stanfit, "CmdStanFit"))
+  stopifnot(inherits(x$stanfit,
+                     c("CmdStanFit", "CmdStanLaplace",
+                       "CmdStanPathfinder", "CmdStanVB")))
   ##--- pars from model fitted ----
   pars <- fitted_pars_ll(x$data)
   fitted_params <-
@@ -51,7 +53,9 @@ log_lik.adrm <- function(x,
 ##' @export
 log_lik.sdm <- function(x,
                         cores = 1) {
-  stopifnot(inherits(x$stanfit, "CmdStanFit"))
+  stopifnot(inherits(x$stanfit,
+                     c("CmdStanFit", "CmdStanLaplace",
+                       "CmdStanPathfinder", "CmdStanVB")))
   ##--- pars from model fitted ----
   pars <- fitted_pars_ll(x$data)
   fitted_params <-

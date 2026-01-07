@@ -95,9 +95,6 @@ make_data <- function(y,
   ## getting the default toggles and using user options
   stopifnot(all(!is.na(c(time))))
   stopifnot(all(!is.na(c(site))))
-  zeros <- get_zeros(y)
-  if (any(is.na(y)))
-    y <- ifelse(is.na(y), -99, y)
   stopifnot(length(family) == 1)
   stopifnot(family %in% c("lognormal_legacy", "lognormal",
                           "gamma", "loglogistic",
@@ -241,6 +238,9 @@ make_data <- function(y,
     neighbors <- matrix(1, ncol = 1, nrow = 1)
     N_edges <- integer(0)
   }
+  zeros <- get_zeros(y)
+  if (any(is.na(y)))
+    y <- ifelse(is.na(y), -99, y)
   output <- list(N = n_time * n_patches,
                  n_ages = n_ages,
                  n_patches = n_patches,
@@ -326,9 +326,6 @@ make_data_sdm <- function(y,
   ## getting the default toggles and using user options
   stopifnot(all(!is.na(c(time))))
   stopifnot(all(!is.na(c(site))))
-  zeros <- get_zeros(y)
-  if (any(is.na(y)))
-    y <- ifelse(is.na(y), -99, y)
   stopifnot(length(family) == 1)
   stopifnot(family %in% c("lognormal_legacy", "lognormal",
                           "gamma", "loglogistic"))
@@ -420,6 +417,9 @@ make_data_sdm <- function(y,
     neighbors <- matrix(1, ncol = 1, nrow = 1)
     N_edges <- integer(0)
   }
+  zeros <- get_zeros(y)
+  if (any(is.na(y)))
+    y <- ifelse(is.na(y), -99, y)
   output <- list(N = n_time * n_patches,
                  n_patches = n_patches,
                  n_time = n_time,

@@ -10,7 +10,7 @@ safe_modify(original, replacements)
 \item{original}{a named \code{list} with "original" parameters.}
 
 \item{replacements}{a named \code{list} containing elements to be modified
-in the \code{original} \code{list}}
+in the \code{original} \code{list}.}
 }
 \value{
 an updated \code{original list}.

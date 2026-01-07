@@ -56,7 +56,7 @@ distribution assumed for density. The options are: \itemize{ \item
 \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
 \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-\item \code{"lognormal_legacy"} (default): log-normal with its usual
+\item \code{"lognormal_legacy"}: log-normal with its usual
 parametrization; }}
 
 \item{reorder}{a \code{boolean} telling whether the data needs to be
@@ -64,7 +64,7 @@ reordered. The default is TRUE and means the data points will be ordered
 by site and time, respectively.}
 
 \item{phi_hat}{a \code{boolean} indicating whether the prior on \code{phi}
-should be determined through the data.}
+should be determined through the data (using \code{\link[=get_phi_hat]{get_phi_hat()}}).}
 }
 \value{
 a \code{list} to be used as the input for a \code{stan} model

@@ -9,9 +9,9 @@
 \usage{
 elpd(x, ...)
 
-\method{elpd}{adrm}(x, new_data, past_data, f_test, seed = 1, cores = 1)
+\method{elpd}{adrm}(x, new_data, past_data, f_test, seed = 1, cores = 1, ...)
 
-\method{elpd}{sdm}(x, new_data, seed = 1, cores = 1)
+\method{elpd}{sdm}(x, new_data, seed = 1, cores = 1, ...)
 }
 \arguments{
 \item{x}{A \code{list} object containing the output from the \code{\link[=fit_drm]{fit_drm()}} (or

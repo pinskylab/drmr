@@ -4,10 +4,10 @@
 \alias{fitted.adrm}
 \title{DRM fitted values}
 \usage{
-\method{fitted}{adrm}(x, cores = 1)
+\method{fitted}{adrm}(object, cores = 1)
 }
 \arguments{
-\item{x}{\code{adrm} object containing the output from the \link{fit_drm}
+\item{object}{\code{adrm} object containing the output from the \link{fit_drm}
 function.}
 
 \item{cores}{number of threads used for the forecast. If four chains were

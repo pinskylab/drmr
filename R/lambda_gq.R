@@ -27,7 +27,9 @@ fitted_pars_lambda <- function(data_list) {
 ##' @export
 ages_edens <- function(drm,
                        cores = 1) {
-  stopifnot(inherits(drm$stanfit, "CmdStanFit"))
+  stopifnot(inherits(drm$stanfit,
+                     c("CmdStanFit", "CmdStanLaplace",
+                       "CmdStanPathfinder", "CmdStanVB")))
   ## number time points for forecasting
   ##--- pars from model fitted ----
   pars <- fitted_pars_lambda(drm$data)

@@ -3,15 +3,14 @@
 \name{predict.sdm}
 \alias{predict.sdm}
 \alias{predict_sdm}
-\title{Forecasts based on SDM.}
+\title{Predictions based on SDM.}
 \usage{
 \method{predict}{sdm}(x, new_data, seed = 1, cores = 1)
 
 predict_sdm(...)
 }
 \arguments{
-\item{x}{A \code{adrm} (or \code{sdm}) object containing the output from the
-\code{\link[=fit_drm]{fit_drm()}} (or \code{\link[=fit_sdm]{fit_sdm()}}) function.}
+\item{x}{A \code{list} object containing the output of a \link{fit_sdm} call.}
 
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
@@ -26,18 +25,13 @@ used in the \code{drm}, then four (or less) threads are recommended.}
 \item{...}{params to be passed to \code{predict.sdm}}
 }
 \value{
-an object of class \code{"CmdStanGQ"} containing samples for the
-posterior predictive distribution for forecasting.
+An object of class \code{CmdStanGQ} (from the \code{instantiate}
+package) containing samples for the posterior predictive distribution for
+forecasting.
 }
 \description{
 Considering a new dataset (across the same patches), computes
 forecasts based on the SDM passed as \code{sdm}.
-
-Consider a linear predictor having linear and square terms
-associated with a variable \eqn{x}. Assume this variable was centered
-before being included in the linear predictor. This functions returns the
-value of \eqn{x} (on its original scale) such that the linear predictor is
-maximized (or minimized).
 }
 \details{
 The current version of the code assumes the data where forecasts

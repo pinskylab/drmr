@@ -186,7 +186,9 @@ int_score <- function(y, l, u, alpha) {
 ##' @export
 ##' @author lcgodoy
 marg_rec <- function(drm, newdata) {
-  stopifnot(inherits(drm$stanfit, "CmdStanFit"))
+  stopifnot(inherits(drm$stanfit,
+                     c("CmdStanFit", "CmdStanLaplace",
+                       "CmdStanPathfinder", "CmdStanVB")))
   my_formula <- drm$formulas$formula_rec
   new_x <- stats::model.matrix(my_formula, newdata)
   est_samples <-
@@ -211,7 +213,9 @@ marg_rec <- function(drm, newdata) {
 ##' @rdname marg
 ##' @export
 marg_pabs <- function(drm, newdata) {
-  stopifnot(inherits(drm$stanfit, "CmdStanFit"))
+  stopifnot(inherits(drm$stanfit,
+                     c("CmdStanFit", "CmdStanLaplace",
+                       "CmdStanPathfinder", "CmdStanVB")))
   my_formula <- drm$formulas$formula_zero
   new_x <- stats::model.matrix(my_formula, newdata)
   est_samples <-
@@ -236,7 +240,9 @@ marg_pabs <- function(drm, newdata) {
 ##' @rdname marg
 ##' @export
 marg_surv <- function(drm, newdata) {
-  stopifnot(inherits(drm$stanfit, "CmdStanFit"))
+  stopifnot(inherits(drm$stanfit,
+                     c("CmdStanFit", "CmdStanLaplace",
+                       "CmdStanPathfinder", "CmdStanVB")))
   stopifnot(!is.null(drm$data$K_m))
   my_formula <- drm$formulas$formula_surv
   new_x <- stats::model.matrix(my_formula, newdata)

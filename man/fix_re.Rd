@@ -16,5 +16,5 @@ a \code{integer}
 Random effects verbose to code
 }
 \author{
-lcgogoy
+lcgodoy
 }

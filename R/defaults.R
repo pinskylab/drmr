@@ -46,3 +46,150 @@ default_toggles <- function() {
        iid_re = 0,
        sp_re = 0)
 }
+
+##' Returns default for NUTS
+##'
+##' @title Default nuts arguments
+##' @return a `list` with (explain values)
+##' @author lcgodoy
+##' @export
+default_nuts <- function() {
+  list(chains = 4,
+       parallel_chains = getOption("mc.cores", 1),
+       threads_per_chain = NULL,
+       opencl_ids = NULL,
+       iter_warmup = NULL,
+       iter_sampling = NULL,
+       save_warmup = FALSE,
+       thin = NULL,
+       max_treedepth = NULL,
+       adapt_engaged = TRUE,
+       adapt_delta = NULL,
+       step_size = NULL,
+       metric = NULL,
+       metric_file = NULL,
+       inv_metric = NULL,
+       init_buffer = NULL,
+       term_buffer = NULL,
+       window = NULL,
+       fixed_param = FALSE,
+       show_messages = TRUE,
+       show_exceptions = TRUE,
+       diagnostics = c("divergences", "treedepth", "ebfmi"),
+       save_metric = NULL,
+       save_cmdstan_config = NULL)
+}
+
+##' Returns default for Variational Bayes
+##'
+##' @title Default VB arguments
+##' @return a `list` with (explain values)
+##' @author lcgodoy
+##' @export
+default_vb <- function() {
+  list(threads = NULL,
+       opencl_ids = NULL,
+       algorithm = NULL,
+       iter = NULL,
+       grad_samples = NULL,
+       elbo_samples = NULL,
+       eta = NULL,
+       adapt_engaged = NULL,
+       adapt_iter = NULL,
+       tol_rel_obj = NULL,
+       eval_elbo = NULL,
+       output_samples = NULL,
+       draws = NULL,
+       show_messages = TRUE,
+       show_exceptions = TRUE,
+       save_cmdstan_config = NULL)
+}
+
+##' Returns default for Pathfinder
+##'
+##' @title Default Pathfinder arguments
+##' @return a `list` with (explain values)
+##' @author lcgodoy
+##' @export
+default_pf <- function() {
+  list(opencl_ids = NULL,
+       num_threads = NULL,
+       init_alpha = NULL,
+       tol_obj = NULL,
+       tol_rel_obj = NULL,
+       tol_grad = NULL,
+       tol_rel_grad = NULL,
+       tol_param = NULL,
+       history_size = NULL,
+       single_path_draws = NULL,
+       draws = NULL,
+       num_paths = 4,
+       max_lbfgs_iters = NULL,
+       num_elbo_draws = NULL,
+       save_single_paths = NULL,
+       psis_resample = NULL,
+       calculate_lp = NULL,
+       show_messages = TRUE,
+       show_exceptions = TRUE,
+       save_cmdstan_config = NULL)
+}
+
+##' Returns default for Laplace
+##'
+##' @title Default Laplace arguments
+##' @return a `list` with (explain values)
+##' @author lcgodoy
+##' @export
+default_laplace <- function() {
+  list(threads = NULL,
+       opencl_ids = NULL,
+       mode = NULL,
+       opt_args = NULL,
+       jacobian = TRUE,
+       draws = NULL,
+       show_messages = TRUE,
+       show_exceptions = TRUE,
+       save_cmdstan_config = NULL)
+}
+
+##' Returns default for Laplace
+##'
+##' @title Default Laplace arguments
+##' @return a `list` with (explain values)
+##' @author lcgodoy
+##' @export
+default_opt <- function() {
+  list(threads = NULL,
+       opencl_ids = NULL,
+       algorithm = NULL,
+       jacobian = FALSE,
+       init_alpha = NULL,
+       iter = NULL,
+       tol_obj = NULL,
+       tol_rel_obj = NULL,
+       tol_grad = NULL,
+       tol_rel_grad = NULL,
+       tol_param = NULL,
+       history_size = NULL,
+       show_messages = TRUE,
+       show_exceptions = TRUE,
+       save_cmdstan_config = NULL)
+}
+
+##' Returns default for a given algorithm
+##'
+##' @title Default arguments for inference algorithm
+##' @inheritParams fit_drm
+##' @return a `list` with (explain values)
+##' @author lcgodoy
+##' @export
+default_algo <- function(algorithm = "nuts",
+                         algo_args = list()) {
+    switch(algorithm,
+           nuts       = default_nuts(),
+           vb         = default_vb(),
+           pathfinder = default_pf(),
+           laplace    = default_laplace(),
+           optimize   = default_opt()) |>
+      safe_modify(algo_args)
+}

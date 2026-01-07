@@ -18,7 +18,7 @@
 ##'   a \code{seed} is needed to ensure the results' reproducibility.
 ##' @param cores number of threads used for the forecast. If four chains were
 ##'   used in the \code{drm}, then four (or less) threads are recommended.
-##' @param ... parameters to be passed to \code{elpd}
+##' @param ... additional parameters to be passed to \code{elpd}
 ##' 
 ##' @details The current version of the code assumes the data where forecasts
 ##'   are needed are ordered by "patch" and "site" and, in addition, the patches
@@ -42,8 +42,10 @@ elpd.adrm <- function(x,
                       past_data,
                       f_test,
                       seed = 1,
-                      cores = 1) {
-  stopifnot(inherits(x$stanfit, "CmdStanFit"))
+                      cores = 1,
+                      ...) {
+  stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
+                                  "CmdStanPathfinder", "CmdStanVB")))
   ## number time points for forecasting
   ntime_for <- length(unique(new_data[[x$cols$time_col]]))
   time_for <- new_data[[x$cols$time_col]] -
@@ -123,8 +125,10 @@ elpd.adrm <- function(x,
 elpd.sdm <- function(x,
                      new_data,
                      seed = 1,
-                     cores = 1) {
-  stopifnot(inherits(x$stanfit, "CmdStanFit"))
+                     cores = 1,
+                      ...) {
+  stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
+                                  "CmdStanPathfinder", "CmdStanVB")))
   ## time points for forecasting
   ntime_for <- length(unique(new_data[[x$cols$time_col]]))
   time_for <- new_data[[x$cols$time_col]] -

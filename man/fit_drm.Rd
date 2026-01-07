@@ -37,7 +37,7 @@ distribution assumed for density. The options are: \itemize{ \item
 \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
 \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-\item \code{"lognormal_legacy"} (default): log-normal with its usual
+\item \code{"lognormal_legacy"}: log-normal with its usual
 parametrization; }}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero
@@ -60,7 +60,8 @@ and \code{x}, a \code{0} initialize all parameters at \code{0}, or "prior"
 \item{algorithm}{a \code{character} specifying the algorithm used for
 inference. Default is \code{nuts} (the default MCMC in Stan). The
 remaining options are different flavors of variational bayes algorithms:
-"vb" (for ADVI), "pathfinder" (for Pathfinder) or "optimize" for
+"vb" (for ADVI), "pathfinder" (for Pathfinder), "laplace" (normal
+approximation centered at the mode of the posterior) or "optimize" for
 (penalized) MLEs.}
 
 \item{algo_args}{a \code{list} with arguments for the sampling
@@ -73,9 +74,9 @@ algorithms. For instance, \code{tol_rel_obj} for variational .}
 A \code{list} containing the MCMC draws, the model data, the linear
 predictors formulas, and the (response, time, site) column names.
 Specifically: \itemize{ \item \code{stanfit}: The MCMC draws from the
-fitted model.  \item\code{data}: The data used to fit the model (as a
-list).  \item\code{formulas}: The formulas used to create design matrices.
-\item\code{cols}: Important column names.  }
+fitted model.  \item \code{data}: The data used to fit the model (as a
+list).  \item \code{formulas}: The formulas used to create design
+matrices.  \item \code{cols}: Important column names.  }
 }
 \description{
 Fit the DRM Stan model (this function is not stable yet and

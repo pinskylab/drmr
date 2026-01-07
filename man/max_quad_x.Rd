@@ -8,10 +8,10 @@ quadratic model.}
 max_quad_x(beta1, beta2, offset = 0)
 }
 \arguments{
-\item{beta1}{A \code{numeric} regression coefficient associated to the
+\item{beta1}{A \code{numeric} regression coefficient associated with the
 linear term.}
 
-\item{beta2}{A \code{numeric} regression coefficient associated to the
+\item{beta2}{A \code{numeric} regression coefficient associated with the
 quadratic term.}
 
 \item{offset}{a \code{numeric} representing the "center" of \eqn{x}.}
@@ -23,7 +23,7 @@ a \code{numeric} representing the uncentered \eqn{x} that maximizes
 \description{
 Consider a linear predictor having linear and square terms
 associated with a variable \eqn{x}. Assume this variable was centered
-before being included in the linear predictor. This functions returns the
+before being included in the linear predictor. This function returns the
 value of \eqn{x} (on its original scale) such that the linear predictor is
 maximized (or minimized).
 }

@@ -14,7 +14,7 @@ distribution assumed for density. The options are: \itemize{ \item
 \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
 \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-\item \code{"lognormal_legacy"} (default): log-normal with its usual
+\item \code{"lognormal_legacy"}: log-normal with its usual
 parametrization; }}
 }
 \value{

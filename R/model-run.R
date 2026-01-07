@@ -11,12 +11,12 @@
 ##' @param site_col A \code{character} specifying the name of the column in
 ##'   `.data` that contains the site variable.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{
-##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
-##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
-##'   \item \code{"lognormal_legacy"}: log-normal with its usual parametrization;
-##'    }
+##'   distribution assumed for density. The options are: \itemize{ \item
+##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
+##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
+##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+##'   \item \code{"lognormal_legacy"}: log-normal with its usual
+##'   parametrization; }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_rec A \code{formula} specifying the model for the recruitment
@@ -32,7 +32,8 @@
 ##' @param algorithm a \code{character} specifying the algorithm used for
 ##'   inference. Default is \code{nuts} (the default MCMC in Stan). The
 ##'   remaining options are different flavors of variational bayes algorithms:
-##'   "vb" (for ADVI), "pathfinder" (for Pathfinder) or "optimize" for
+##'   "vb" (for ADVI), "pathfinder" (for Pathfinder), "laplace" (normal
+##'   approximation centered at the mode of the posterior) or "optimize" for
 ##'   (penalized) MLEs.
 ##' @param algo_args a \code{list} with arguments for the sampling
 ##'   algorithms. For instance, \code{tol_rel_obj} for variational .
@@ -40,12 +41,10 @@
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return A \code{list} containing the MCMC draws, the model data, the linear
 ##'   predictors formulas, and the (response, time, site) column names.
-##'   Specifically: \itemize{
-##'    \item \code{stanfit}: The MCMC draws from the fitted model.
-##'    \item \code{data}: The data used to fit the model (as a list).
-##'    \item \code{formulas}: The formulas used to create design matrices.
-##'    \item \code{cols}: Important column names.
-##'   }
+##'   Specifically: \itemize{ \item \code{stanfit}: The MCMC draws from the
+##'   fitted model.  \item \code{data}: The data used to fit the model (as a
+##'   list).  \item \code{formulas}: The formulas used to create design
+##'   matrices.  \item \code{cols}: Important column names.  }
 ##' @seealso [make_data()]
 ##' @examples
 ##' if (instantiate::stan_cmdstan_exists()) {
@@ -74,7 +73,7 @@ fit_drm <- function(.data,
   stopifnot(length(init) == 1)
   stopifnot(length(algorithm) == 1)
   if (is.character(init))
-    stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
+    stopifnot(init %in% c("cmdstan_default", "prior"))
   x_t <- stats::model.matrix.lm(formula_zero, data = .data,
                                 na.action = stats::na.fail)
   x_r <- stats::model.matrix.lm(formula_rec, data = .data,
@@ -103,20 +102,24 @@ fit_drm <- function(.data,
                             name = "drm",
                             package = "drmr"
                         )
+  .algo_args <- default_algo(algorithm, algo_args)
   if (init == "cmdstan_default") {
     drm_init <- NULL
   } else if (init == "prior") {
+    chains <- ifelse("chains" %in% names(algo_args), algo_args[["chains"]],
+              ifelse("num_paths" %in% names(algo_args), algo_args[["num_paths"]],
+                     1))
     drm_init <-
       prior_inits(model_dat, chains, "drm")
   } else {
     drm_init <- init
   }
+
   my_args <- c(list(
       data = model_dat,
       seed = seed,
       init = drm_init
-  ), algo_args)
-
+  ), .algo_args)
   if (algorithm == "nuts") {
     draws <- do.call(model$sample, my_args)
   } else if (algorithm == "vb") {
@@ -125,8 +128,10 @@ fit_drm <- function(.data,
     draws <- do.call(model$optimize, my_args)    
   } else if (algorithm == "pathfinder") {
     draws <- do.call(model$pathfinder, my_args)
+  } else if (algorithm == "laplace") {
+    draws <- do.call(model$laplace, my_args)
   } else {
-    stop("Algorithm must one of the following: 'nuts', 'vb', 'optimize', or 'pathfinder'")
+    stop("Algorithm must one of the following: 'nuts', 'vb', 'optimize', 'laplace', or 'pathfinder'")
   }
   output <-
     list("stanfit"  = draws,
@@ -169,13 +174,13 @@ fit_drm <- function(.data,
 ##' @param init A scalar specifying the initialization method. The default
 ##'   (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
 ##'   say \code{x}, initialized all parameters from a uniform between \code{-x}
-##'   and \code{x}, a \code{0} initialize all parameters at \code{0}, "prior"
-##'   (to initialize the model parameters using samples from their prior) or
-##'   "pathfinder".
+##'   and \code{x}, a \code{0} initialize all parameters at \code{0}, or "prior"
+##'   (to initialize the model parameters using samples from their prior)
 ##' @param algorithm a \code{character} specifying the algorithm used for
 ##'   inference. Default is \code{nuts} (the default MCMC in Stan). The
 ##'   remaining options are different flavors of variational bayes algorithms:
-##'   "vb" (for ADVI), "pathfinder" (for Pathfinder) or "optimize" for
+##'   "vb" (for ADVI), "pathfinder" (for Pathfinder), "laplace" (normal
+##'   approximation centered at the mode of the posterior) or "optimize" for
 ##'   (penalized) MLEs.
 ##' @param algo_args a \code{list} with arguments for the sampling
 ##'   algorithms. For instance, \code{tol_rel_obj} for variational .
@@ -215,7 +220,7 @@ fit_sdm <- function(.data,
   cl <- match.call()
   stopifnot(length(init) == 1)
   if (is.character(init))
-    stopifnot(init %in% c("cmdstan_default", "pathfinder", "prior"))
+    stopifnot(init %in% c("cmdstan_default", "prior"))
   x_t <- stats::model.matrix.lm(formula_zero, data = .data,
                                 na.action = stats::na.fail)
   x_r <- stats::model.matrix.lm(formula_dens, data = .data,
@@ -229,21 +234,24 @@ fit_sdm <- function(.data,
                              ...)
   model <- instantiate::stan_package_model(
                             name = "sdm",
-                            package = "drmr"
-                        )
+                            package = "drmr"                        )
   if (init == "cmdstan_default") {
     sdm_init <- NULL
   } else if (init == "prior") {
+    chains <- ifelse("chains" %in% names(algo_args), algo_args[["chains"]],
+              ifelse("num_paths" %in% names(algo_args), algo_args[["num_paths"]],
+                     1))
     sdm_init <-
       prior_inits(model_dat, chains, "sdm")
   } else {
     sdm_init <- init
   }
+  .algo_args <- default_algo(algorithm, algo_args)
   my_args <- c(list(
       data = model_dat,
       seed = seed,
-      init = drm_init
-  ), algo_args)
+      init = sdm_init
+  ), .algo_args)
   if (algorithm == "nuts") {
     draws <- do.call(model$sample, my_args)
   } else if (algorithm == "vb") {
@@ -252,8 +260,10 @@ fit_sdm <- function(.data,
     draws <- do.call(model$optimize, my_args)    
   } else if (algorithm == "pathfinder") {
     draws <- do.call(model$pathfinder, my_args)
+  } else if (algorithm == "laplace") {
+    draws <- do.call(model$laplace, my_args)
   } else {
-    stop("Algorithm must one of the following: 'nuts', 'vb', 'optimize', or 'pathfinder'")
+    stop("Algorithm must one of the following: 'nuts', 'vb', 'optimize', 'laplace' or 'pathfinder'")
   }
   output <-
     list("stanfit"  = draws,

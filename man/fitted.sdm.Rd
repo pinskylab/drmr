@@ -4,10 +4,10 @@
 \alias{fitted.sdm}
 \title{SDM fitted values}
 \usage{
-\method{fitted}{sdm}(x, cores = 1)
+\method{fitted}{sdm}(object, cores = 1)
 }
 \arguments{
-\item{x}{A \code{sdm} object containing the output from the \link{fit_sdm}
+\item{object}{A \code{sdm} object containing the output from the \link{fit_sdm}
 function.}
 
 \item{cores}{number of threads used for the forecast. If four chains were
