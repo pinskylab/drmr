@@ -17,7 +17,7 @@ elpd(x, ...)
 \item{x}{A \code{list} object containing the output from the \code{\link[=fit_drm]{fit_drm()}} (or
 \code{\link[=fit_sdm]{fit_sdm()}}) function.}
 
-\item{...}{parameters to be passed to \code{elpd}}
+\item{...}{additional parameters to be passed to \code{elpd}}
 
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions. Note that, this \code{data.frame} must contain the

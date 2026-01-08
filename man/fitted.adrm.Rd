@@ -4,7 +4,7 @@
 \alias{fitted.adrm}
 \title{DRM fitted values}
 \usage{
-\method{fitted}{adrm}(object, cores = 1)
+\method{fitted}{adrm}(object, cores = 1, ...)
 }
 \arguments{
 \item{object}{\code{adrm} object containing the output from the \link{fit_drm}
@@ -12,6 +12,8 @@ function.}
 
 \item{cores}{number of threads used for the forecast. If four chains were
 used in the \code{fit_drm}, then four (or less) threads are recommended.}
+
+\item{...}{additional parameters to be passed to \code{$generated_quantities}}
 }
 \value{
 an object of class \code{"CmdStanGQ"} containing samples for the

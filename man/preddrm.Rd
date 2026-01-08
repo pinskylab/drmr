@@ -6,7 +6,7 @@
 \alias{predict_drm}
 \title{Predictions based on DRM.}
 \usage{
-\method{predict}{adrm}(x, new_data, past_data, f_test, seed = 1, cores = 1)
+\method{predict}{adrm}(x, new_data, past_data, f_test, seed = 1, cores = 1, ...)
 
 predict_drm(...)
 }

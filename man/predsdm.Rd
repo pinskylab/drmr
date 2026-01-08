@@ -5,7 +5,7 @@
 \alias{predict_sdm}
 \title{Predictions based on SDM.}
 \usage{
-\method{predict}{sdm}(x, new_data, seed = 1, cores = 1)
+\method{predict}{sdm}(x, new_data, seed = 1, cores = 1, ...)
 
 predict_sdm(...)
 }
