@@ -152,31 +152,30 @@ real drmsdm_rng(real mu,
   real out;
   out = (1 - bernoulli_rng(rho));
   if (out > 0) {
-    out += log1m(rho);
     if (likelihood == 0) {
       real loc_par;
       loc_par = log(mu) + square(phi) / 2;
-      out += lognormal_rng(loc_par, phi);
+      out *= lognormal_rng(loc_par, phi);
     } else if (likelihood == 1) {
       real mu_ln;
       real sigma_ln;
       sigma_ln = sqrt(log1p(phi * inv_square(mu)));
       mu_ln = log(square(mu) * inv_sqrt(square(mu) + phi));
-      out += lognormal_rng(mu_ln, sigma_ln);
+      out *= lognormal_rng(mu_ln, sigma_ln);
     } else if (likelihood == 2) {
       real gamma_beta;
       gamma_beta = phi / mu;
-      out += gamma_rng(phi, gamma_beta);
+      out *= gamma_rng(phi, gamma_beta);
     } else if (likelihood == 3) {
       real a_ll;
       real b_ll;
       b_ll = phi + 1;
       a_ll = sin(pi() / b_ll) * mu * b_ll * inv(pi());
-      out += loglogistic_rng(a_ll, b_ll);
+      out *= loglogistic_rng(a_ll, b_ll);
     } else {
       array[2] real aux_tn = rep_array(0.0, 2);
       aux_tn[2] = normal_rng(mu, phi);
-      out += max(aux_tn);
+      out *= max(aux_tn);
     }
   }
   return out;
