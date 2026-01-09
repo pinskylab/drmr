@@ -155,7 +155,7 @@ real drmsdm_rng(real mu,
   if (out > 0) {
     if (likelihood == 0) {
       real loc_par;
-      loc_par = log(mu) + square(phi) / 2;
+      loc_par = log(mu) - square(phi) / 2;
       out *= lognormal_rng(loc_par, phi);
     } else if (likelihood == 1) {
       real mu_ln;
