@@ -1,5 +1,7 @@
 # drmr 0.4.0
 
+* Major bug in the fitted/predict functions fixed.
+
 * Some improvements to documentation.
 
 * Fixed bug in how we deal with zeros and NAs.

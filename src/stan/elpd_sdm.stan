@@ -103,7 +103,7 @@ generated quantities {
   for (n in 1:N) {
         if (likelihood == 0) {
       real loc_par;
-      loc_par = log(mu_proj[n]) + square(sigma_obs[1]) / 2;
+      loc_par = log(mu_proj[n]) - square(sigma_obs[1]) / 2;
       if (new_y[n] == 0) {
         log_lik[n] = log(rho_proj[n]);
       } else {

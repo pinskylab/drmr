@@ -10,8 +10,9 @@
  * @return a log-pdf
  */
 real gamma_mu_lpdf(real x, real mu, real phi) {
-  return - lgamma(phi) + lmultiply(phi, phi) - lmultiply(phi, mu) +
-    lmultiply(phi, x) - phi * x * inv(mu);
+  real pmu = phi * inv(mu);
+  return - lgamma(phi) + lmultiply(phi, pmu) +
+    lmultiply(phi - 1, x) - pmu * x;
 }
 
 /**
@@ -27,13 +28,13 @@ real gamma_mu_lpdf(real x, real mu, real phi) {
  */
 real ln_mu_lpdf(real x, real mu, real phi) {
   real f_mu_phi;
-  f_mu_phi = log1p(phi * inv_square(mu));
+  f_mu_phi = log1p(phi * inv(square(mu))); 
   real output = 0;
-  output += log2() + log(pi()) + log(f_mu_phi) + log(x) +
-    square(log(x) + log2() - 0.5 * f_mu_phi) * inv(f_mu_phi);
-  return - 0.5 * output;
+  output += log2() + log(pi()) + log(f_mu_phi);
+  output += 2 * log(x);
+  output += square(log(x) - log(mu) + 0.5 * f_mu_phi) * inv(f_mu_phi); 
+  return -0.5 * output;
 }
-
 /**
  * Inverse Gaussian lpdf reparametrized.
  *
@@ -84,7 +85,7 @@ real ziloglik_lpdf(vector y,
   out += sum(log1m(rho[id_nz]));
   if (likelihood == 0) {
     vector[N_nz] loc_par;
-    loc_par = log(mu[id_nz]) + square(phi) / 2;
+    loc_par = log(mu[id_nz]) - square(phi) / 2;
     out += lognormal_lpdf(y[id_nz] | loc_par, phi);
   } else if (likelihood == 1) {
     vector[N_nz] mu_ln;
@@ -95,13 +96,13 @@ real ziloglik_lpdf(vector y,
     out += lognormal_lpdf(y[id_nz] | mu_ln, sigma_ln);
   } else if (likelihood == 2) {
     vector[N_nz] b_g;
-    b_g = phi / mu[id_nz];
+    b_g = phi * inv(mu[id_nz]);
     out += gamma_lpdf(y[id_nz] | phi, b_g);
   } else if (likelihood == 3) {
     vector[N_nz] a_ll;
     real b_ll;
     b_ll = phi + 1;
-    a_ll = sin(pi() / b_ll) * mu[id_nz] * b_ll / inv(pi());
+    a_ll = sin(pi() / b_ll) * mu[id_nz] * b_ll / pi();
     out += loglogistic_lpdf(y[id_nz] | a_ll, b_ll);
   } else {
     out += normal_lpdf(y | mu, phi) -
@@ -123,7 +124,7 @@ real ptziloglik_lpdf(real y,
     out += log1m(rho);
     if (likelihood == 0) {
       real loc_par;
-      loc_par = log(mu) + square(phi) / 2;
+      loc_par = log(mu) - square(phi) / 2;
       out += lognormal_lpdf(y | loc_par, phi);
     } else if (likelihood == 1) {
       out += ln_mu_lpdf(y | mu, phi);
