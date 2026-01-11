@@ -6,6 +6,12 @@
 ##'
 ##' @param object \code{adrm} object containing the output from the [fit_drm]
 ##'   function.
+##' @param type type of predictions to be computed. Admitted values are
+##' \itemize{
+##' \item `"predictive"` (default): posterior predictive distribution;
+##' \item `"expected"`: theoretical mean of the posterior predictive distribution;
+##' \item `"latent"`: latent density (i.e., disconsidering the observation error);
+##' }
 ##' @param cores number of threads used for the forecast. If four chains were
 ##'   used in the \code{fit_drm}, then four (or less) threads are recommended.
 ##' @param ... additional parameters to be passed to \code{$generated_quantities}
@@ -17,10 +23,16 @@
 ##'
 ##' @export
 fitted.adrm <- function(object,
+                        type = "predictive",
                         cores = 1,
                         ...) {
   stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                        "CmdStanPathfinder", "CmdStanVB")))
+  stopifnot(type %in% c("predictive", "expected", "latent"))
+  type_prep <- switch(type,
+                      predictive = 0,
+                      expected   = 1,
+                      latent     = 2)
   ##--- pars from model fitted ----
   pars <- fitted_pars_ll(object$data)
   fitted_params <-
@@ -32,7 +44,7 @@ fitted.adrm <- function(object,
   ## computing fitted values
   output <- ft_out$
     generate_quantities(fitted_params = fitted_params,
-                        data = object$data,
+                        data = c(object$data, list(type = type_prep)),
                         parallel_chains = cores,
                         ...)
   return(output)
@@ -45,6 +57,12 @@ fitted.adrm <- function(object,
 ##'
 ##' @param object A \code{sdm} object containing the output from the [fit_sdm]
 ##'   function.
+##' @param type type of predictions to be computed. Admitted values are
+##' \itemize{
+##' \item `"predictive"` (default): posterior predictive distribution;
+##' \item `"expected"`: theoretical mean of the posterior predictive distribution;
+##' \item `"latent"`: latent density (i.e., disconsidering the observation error);
+##' }
 ##' @param cores number of threads used for the forecast. If four chains were
 ##'   used in the \code{sdm}, then four (or less) threads are recommended.
 ##' @param ... additional parameters to be passed to \code{$generated_quantities}
@@ -56,10 +74,16 @@ fitted.adrm <- function(object,
 ##'
 ##' @export
 fitted.sdm <- function(object,
+                       type = "predictive",
                        cores = 1,
                        ...) {
   stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                        "CmdStanPathfinder", "CmdStanVB")))
+  stopifnot(type %in% c("predictive", "expected", "latent"))
+  type_prep <- switch(type,
+                      predictive = 0,
+                      expected   = 1,
+                      latent     = 2)
   ##--- pars from model fitted ----
   pars <- fitted_pars_ll(object$data)
   fitted_params <-
@@ -71,7 +95,7 @@ fitted.sdm <- function(object,
   ## computing forecast
   output <- ft_out$
     generate_quantities(fitted_params = fitted_params,
-                        data = object$data,
+                        data = c(object$data, list(type = type_prep)),
                         parallel_chains = cores,
                         ...)
   return(output)

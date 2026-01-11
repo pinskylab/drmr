@@ -1,5 +1,11 @@
 # drmr 0.4.0
 
+* `predict` and `fitted` methods now have an argument called `type`, which
+  allows to compute predictions based on the posterior predictive distribution
+  (default and corresponds to old behavior), expected value of the posterior
+  predictive distribution (i.e., its theoretical mean), and latent density
+  (disconsidering observation error).
+
 * Major bug in the fitted/predict functions fixed.
 
 * Some improvements to documentation.

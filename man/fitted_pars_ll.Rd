@@ -2,7 +2,7 @@
 % Please edit documentation in R/loglik_gq.R
 \name{fitted_pars_ll}
 \alias{fitted_pars_ll}
-\title{Retrieve parameters needed for forecasting}
+\title{Retrieve parameters needed for predictions}
 \usage{
 fitted_pars_ll(data_list)
 }
@@ -12,11 +12,11 @@ the output from the \link{make_data} function.}
 }
 \value{
 a \code{character} vector of labels indicating the parameters
-necessary for the forecast.
+necessary for the predictions.
 }
 \description{
 This function identifies the parameters necessary for carrying
-out forecasts based on the data used to fit a DRM (or SDM).
+out predictions based on the data used to fit a DRM (or SDM).
 }
 \author{
 lcgodoy

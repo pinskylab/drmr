@@ -20,8 +20,9 @@ data {
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
-  int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
-                                        // Gamma, 3 = log-Logistic, 4 = truncated normal)
+  int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
+                                        // Gamma, 3 = truncated normal)
+  int<lower = 0, upper = 2> type;
   //--- suitability (for rho) ----
   int<lower = 1> K_t;
   matrix[N, K_t] X_t;
@@ -201,10 +202,20 @@ generated quantities {
       }
     }
     //--- y_proj calculations ----
-    for (n in 1:N) {
-      y_proj[n] = drmsdm_rng(mu_proj[n], rho_proj[n],
-                             likelihood == 0 ? sigma_obs[1] : phi[1],
-                             likelihood);
+    if (type == 0) {
+      for (n in 1:N) {
+        y_proj[n] = drmsdm_rng(mu_proj[n], rho_proj[n],
+                               likelihood == 0 ? sigma_obs[1] : phi[1],
+                               likelihood);
+      }
+    } else if (type == 1) {
+      for (n in 1:N) {
+        y_proj[n] = mu_proj[n] * (1 - rho_proj[n]);
+      }
+    } else if (type == 2) {
+      for (n in 1:N) {
+        y_proj[n] = mu_proj[n];
+      }
     }
   }
 }

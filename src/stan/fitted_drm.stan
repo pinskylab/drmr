@@ -13,6 +13,7 @@ data {
   int<lower = 0, upper = 1> cloglog;
   int<lower = 0, upper = 1> rho_mu;
   int<lower = 0, upper = 4> likelihood;
+  int<lower = 0, upper = 2> type;
   //--- environmental data ----
   //--- * for mortality ----
   array[est_surv ? 1 : 0] int<lower = 1> K_m;
@@ -38,7 +39,6 @@ generated quantities {
     if (rho_mu)
       xi = - exp(lxi);
     vector[N] rho;
-    // rho now hasa "regression like" type
     if (cloglog) {
       if (rho_mu) {
         rho =
@@ -56,10 +56,20 @@ generated quantities {
           inv_logit(X_t * beta_t);
       }
     }
-    for (n in 1:N) {
-      y_pp[n] = drmsdm_rng(mu[n], rho[n],
-                           likelihood == 0 ? sigma_obs[1] : phi[1],
-                           likelihood);
+    if (type == 0) {
+      for (n in 1:N) {
+        y_pp[n] = drmsdm_rng(mu[n], rho[n],
+                             likelihood == 0 ? sigma_obs[1] : phi[1],
+                             likelihood);
+      }
+    } else if (type == 1) {
+      for (n in 1:N) {
+        y_pp[n] = mu[n] * (1 - rho[n]);
+      }
+    } else if (type == 2) {
+      for (n in 1:N) {
+        y_pp[n] = mu[n];
+      }
     }
   }
 }

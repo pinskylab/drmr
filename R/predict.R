@@ -41,17 +41,18 @@ fitted_pars_sdm <- function(data_list) {
   return(output)
 }
 
-##' @title Retrieve parameters needed for forecasting
+##' @title Retrieve parameters needed for predictions
 ##'
 ##' @description This function identifies the parameters necessary for carrying
-##'   out forecasts based on the data used to fit a DRM (or SDM).
+##'   out predictions based on the data used to fit a DRM (or SDM).
 ##'
 ##' @param data_list a \code{list} used as input for model fitting. Typically,
 ##'   the output from the [make_data] function.
-##' @param model a \code{character} indicating which model forecasts are sought
-##'   for. This input admits two possible entries: "drm" (default) or "sdm".
+##' @param model a \code{character} indicating which model predictions are
+##'   sought for. This input admits two possible entries: "drm" (default) or
+##'   "sdm".
 ##' @return a \code{character} vector of labels indicating the parameters
-##'   necessary for the forecast.
+##'   necessary for the predictions.
 ##' @author lcgodoy
 get_fitted_pars <- function(data_list, model = "drm") {
   stopifnot(inherits(data_list, "list"))
@@ -66,7 +67,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##' @title Predictions based on DRM.
 ##'
 ##' @description Considering a new dataset (across the same patches), computes
-##'   forecasts based on the DRM passed as \code{drm}.
+##'   predictions based on the DRM passed as \code{drm}.
 ##'
 ##' @param x A \code{adrm} (or \code{sdm}) object containing the output from the
 ##'   [fit_drm()] (or [fit_sdm()]) function.
@@ -77,15 +78,24 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'   estimating survival.
 ##' @param f_test a \code{matrix} informing the instantaneous fishing mortality
 ##'   rates at each age (columns) and timepoint (rows).
-##' @param seed a seed used for the forecasts. Forecasts are obtained through
-##'   Monte Carlo samples from the posterior predictive distribution. Therefore,
-##'   a \code{seed} is needed to ensure the results' reproducibility.
-##' @param cores number of threads used for the forecast. If four chains were
-##'   used in the \code{drm}, then four (or less) threads are recommended.
-##' @param ... additional parameters to be passed to \code{$generated_quantities}
+##' @param type type of predictions to be computed. Admitted values are
+##' \itemize{
+##' \item `"predictive"` (default): posterior predictive distribution;
+##' \item `"expected"`: theoretical mean of the posterior predictive distribution;
+##' \item `"latent"`: latent density (i.e., disconsidering the observation error);
+##' }
+##' @param seed a seed used for the predictions. predictiosn are obtained
+##'   through Monte Carlo samples from the posterior predictive
+##'   distribution. Therefore, a \code{seed} is needed to ensure the results'
+##'   reproducibility.
+##' @param cores number of threads used to compute the predictions. If four
+##'   chains were used in the \code{drm}, then four (or less) threads are
+##'   recommended.
+##' @param ... additional parameters to be passed to
+##'   \code{$generated_quantities}
 ##'
 ##'
-##' @details The current version of the code assumes the data where forecasts
+##' @details The current version of the code assumes the data where predictions
 ##'   are needed is ordered by "patch" and "site" and, in addition, its patches
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{drm} object.
@@ -95,19 +105,25 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##' @name preddrm
 ##' 
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
-##'   posterior predictive distribution for forecasting.
+##'   posterior predictive distribution for predictions.
 ##'
 ##' @export
 predict.adrm <- function(x,
                          new_data,
                          past_data,
                          f_test,
+                         type = "predictive",
                          seed = 1,
                          cores = 1,
                          ...) {
   stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                   "CmdStanPathfinder", "CmdStanVB")))
-  ## number time points for forecasting
+  stopifnot(type %in% c("predictive", "expected", "latent"))
+  type_prep <- switch(type,
+                      predictive = 0,
+                      expected   = 1,
+                      latent     = 2)
+  ## number time points for predictions
   ntime_for <- length(unique(new_data[[x$cols$time_col]]))
   time_for <- new_data[[x$cols$time_col]] -
     min(new_data[[x$cols$time_col]]) + 1
@@ -125,8 +141,8 @@ predict.adrm <- function(x,
   pars <- get_fitted_pars(x$data, "drm")
   fitted_params <-
     x$stanfit$draws(variables = pars)
-  ##--- list for forecast object ----
-  forecast_data <-
+  ##--- list for predictions gq ----
+  pred_data <-
     list(n_patches = x$data$n_patches,
          n_ages = x$data$n_ages,
          n_time = ntime_for,
@@ -141,6 +157,7 @@ predict.adrm <- function(x,
          est_surv = x$data$est_surv,
          cloglog = x$data$cloglog,
          likelihood = x$data$likelihood,
+         type = type_prep,
          K_t = x$data$K_t,
          X_t = x_tt,
          f = f_test,
@@ -151,7 +168,7 @@ predict.adrm <- function(x,
          selectivity_at_age = x$data$selectivity_at_age,
          K_r = x$data$K_r,
          X_r = x_rt)
-  forecast_data$N <- forecast_data$n_patches * forecast_data$n_time
+  pred_data$N <- pred_data$n_patches * pred_data$n_time
   if (length(x$data$K_m) > 0) {
     stopifnot(!missing(past_data))
     x_mpast <-
@@ -159,22 +176,22 @@ predict.adrm <- function(x,
                           data = past_data)
     x_m <- stats::model.matrix(x[["formulas"]][["formula_surv"]],
                                data = new_data)
-    forecast_data$K_m <- array(NCOL(x_m), dim = 1)
-    forecast_data$X_m <- x_m
-    forecast_data$X_m_past <- x_mpast
+    pred_data$K_m <- array(NCOL(x_m), dim = 1)
+    pred_data$X_m <- x_m
+    pred_data$X_m_past <- x_mpast
   } else {
-    forecast_data$K_m <- integer(0)
-    forecast_data$X_m <- matrix(0)
-    forecast_data$X_m_past <- matrix(0)
+    pred_data$K_m <- integer(0)
+    pred_data$X_m <- matrix(0)
+    pred_data$X_m_past <- matrix(0)
   }
-  ## load compiled forecast
-  forecast_comp <-
-    instantiate::stan_package_model(name = "forecast",
+  ## load compiled "predict"
+  pred_comp <-
+    instantiate::stan_package_model(name = "predict",
                                     package = "drmr")
-  ## computing forecast
-  output <- forecast_comp$
+  ## computing predictions
+  output <- pred_comp$
     generate_quantities(fitted_params = fitted_params,
-                        data = forecast_data,
+                        data = pred_data,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
@@ -184,20 +201,29 @@ predict.adrm <- function(x,
 ##' @title Predictions based on SDM.
 ##'
 ##' @description Considering a new dataset (across the same patches), computes
-##'   forecasts based on the SDM passed as \code{sdm}.
+##'   predictions based on the SDM passed as \code{sdm}.
 ##'
 ##' @param x A \code{list} object containing the output of a [fit_sdm] call.
 ##'
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
-##' @param seed a seed used for the forecasts. Forecasts are obtained through
-##'   Monte Carlo samples from the posterior predictive distribution. Therefore,
-##'   a \code{seed} is needed to ensure the results' reproducibility.
-##' @param cores number of threads used for the forecast. If four chains were
-##'   used in the \code{drm}, then four (or less) threads are recommended.
-##' @param ... additional parameters to be passed to \code{$generated_quantities}
+##' @param seed a seed used for the predictions. predictions are obtained
+##'   through Monte Carlo samples from the posterior predictive
+##'   distribution. Therefore, a \code{seed} is needed to ensure the results'
+##'   reproducibility.
+##' @param type type of predictions to be computed. Admitted values are
+##' \itemize{
+##' \item `"predictive"` (default): posterior predictive distribution;
+##' \item `"expected"`: theoretical mean of the posterior predictive distribution;
+##' \item `"latent"`: latent density (i.e., disconsidering the observation error);
+##' }
+##' @param cores number of threads used to compute the predictions. If four
+##'   chains were used in the \code{drm}, then four (or less) threads are
+##'   recommended.
+##' @param ... additional parameters to be passed to
+##'   \code{$generated_quantities}
 ##'
-##' @details The current version of the code assumes the data where forecasts
+##' @details The current version of the code assumes the data where predictions
 ##'   are needed is ordered by "patch" and "site" and, in addition, its patches
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{sdm} object.
@@ -206,7 +232,7 @@ predict.adrm <- function(x,
 ##'
 ##' @return An object of class \code{CmdStanGQ} (from the \code{instantiate}
 ##'   package) containing samples for the posterior predictive distribution for
-##'   forecasting.
+##'   predictions.
 ##'
 ##' @rdname predsdm
 predict.sdm <- function(x,
@@ -216,7 +242,12 @@ predict.sdm <- function(x,
                         ...) {
   stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                   "CmdStanPathfinder", "CmdStanVB")))
-  ## time points for forecasting
+  stopifnot(type %in% c("predictive", "expected", "latent"))
+  type_prep <- switch(type,
+                      predictive = 0,
+                      expected   = 1,
+                      latent     = 2)
+  ## time points for predictions
   ntime_for <- length(unique(new_data[[x$cols$time_col]]))
   time_for <- new_data[[x$cols$time_col]] -
     min(new_data[[x$cols$time_col]]) + 1
@@ -224,8 +255,7 @@ predict.sdm <- function(x,
   pars <- get_fitted_pars(x$data, "sdm")
   fitted_params <-
     x$stanfit$draws(variables = pars)
-  ##--- list for forecast object ----
-  forecast_data <-
+  pred_data <-
     list(n_patches = x$data$n_patches,
          n_time = ntime_for,
          n_time_train = x$data$n_time,
@@ -237,21 +267,22 @@ predict.sdm <- function(x,
          sp_re = x$data$sp_re,
          cloglog = x$data$cloglog,
          likelihood = x$data$likelihood,
+         type = type_prep,
          Z = stats::model.matrix(x[["formulas"]][["formula_zero"]],
                                  data = new_data),
          X = stats::model.matrix(x[["formulas"]][["formula_dens"]],
                                  data = new_data))
-  forecast_data$N <- forecast_data$n_patches * forecast_data$n_time
-  forecast_data$K_z <- NCOL(forecast_data$Z)
-  forecast_data$K_x <- NCOL(forecast_data$X)
-  ## load compiled forecast
-  forecast_comp <-
-    instantiate::stan_package_model(name = "forecast_sdm",
+  pred_data$N <- pred_data$n_patches * pred_data$n_time
+  pred_data$K_z <- NCOL(pred_data$Z)
+  pred_data$K_x <- NCOL(pred_data$X)
+  ## load compiled predict_sdm
+  pred_comp <-
+    instantiate::stan_package_model(name = "predict_sdm",
                                     package = "drmr")
-  ## computing forecast
-  output <- forecast_comp$
+  ## computing predictions
+  output <- pred_comp$
     generate_quantities(fitted_params = fitted_params,
-                        data = forecast_data,
+                        data = pred_data,
                         seed = seed,
                         parallel_chains = cores,
                         ...)

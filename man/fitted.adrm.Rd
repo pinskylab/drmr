@@ -4,11 +4,18 @@
 \alias{fitted.adrm}
 \title{DRM fitted values}
 \usage{
-\method{fitted}{adrm}(object, cores = 1, ...)
+\method{fitted}{adrm}(object, type = "predictive", cores = 1, ...)
 }
 \arguments{
 \item{object}{\code{adrm} object containing the output from the \link{fit_drm}
 function.}
+
+\item{type}{type of predictions to be computed. Admitted values are
+\itemize{
+\item \code{"predictive"} (default): posterior predictive distribution;
+\item \code{"expected"}: theoretical mean of the posterior predictive distribution;
+\item \code{"latent"}: latent density (i.e., disconsidering the observation error);
+}}
 
 \item{cores}{number of threads used for the forecast. If four chains were
 used in the \code{fit_drm}, then four (or less) threads are recommended.}

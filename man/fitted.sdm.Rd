@@ -4,11 +4,18 @@
 \alias{fitted.sdm}
 \title{SDM fitted values}
 \usage{
-\method{fitted}{sdm}(object, cores = 1, ...)
+\method{fitted}{sdm}(object, type = "predictive", cores = 1, ...)
 }
 \arguments{
 \item{object}{A \code{sdm} object containing the output from the \link{fit_sdm}
 function.}
+
+\item{type}{type of predictions to be computed. Admitted values are
+\itemize{
+\item \code{"predictive"} (default): posterior predictive distribution;
+\item \code{"expected"}: theoretical mean of the posterior predictive distribution;
+\item \code{"latent"}: latent density (i.e., disconsidering the observation error);
+}}
 
 \item{cores}{number of threads used for the forecast. If four chains were
 used in the \code{sdm}, then four (or less) threads are recommended.}

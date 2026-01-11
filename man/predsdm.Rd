@@ -15,26 +15,35 @@ predict_sdm(...)
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
 
-\item{seed}{a seed used for the forecasts. Forecasts are obtained through
-Monte Carlo samples from the posterior predictive distribution. Therefore,
-a \code{seed} is needed to ensure the results' reproducibility.}
+\item{seed}{a seed used for the predictions. predictions are obtained
+through Monte Carlo samples from the posterior predictive
+distribution. Therefore, a \code{seed} is needed to ensure the results'
+reproducibility.}
 
-\item{cores}{number of threads used for the forecast. If four chains were
-used in the \code{drm}, then four (or less) threads are recommended.}
+\item{cores}{number of threads used to compute the predictions. If four
+chains were used in the \code{drm}, then four (or less) threads are
+recommended.}
 
 \item{...}{params to be passed to \code{predict.sdm}}
+
+\item{type}{type of predictions to be computed. Admitted values are
+\itemize{
+\item \code{"predictive"} (default): posterior predictive distribution;
+\item \code{"expected"}: theoretical mean of the posterior predictive distribution;
+\item \code{"latent"}: latent density (i.e., disconsidering the observation error);
+}}
 }
 \value{
 An object of class \code{CmdStanGQ} (from the \code{instantiate}
 package) containing samples for the posterior predictive distribution for
-forecasting.
+predictions.
 }
 \description{
 Considering a new dataset (across the same patches), computes
-forecasts based on the SDM passed as \code{sdm}.
+predictions based on the SDM passed as \code{sdm}.
 }
 \details{
-The current version of the code assumes the data where forecasts
+The current version of the code assumes the data where predictions
 are needed is ordered by "patch" and "site" and, in addition, its patches
 MUST be the same as the ones used to obtain the parameters' estimates from
 the the \code{sdm} object.

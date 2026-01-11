@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{get_fitted_pars}
 \alias{get_fitted_pars}
-\title{Retrieve parameters needed for forecasting}
+\title{Retrieve parameters needed for predictions}
 \usage{
 get_fitted_pars(data_list, model = "drm")
 }
@@ -10,16 +10,17 @@ get_fitted_pars(data_list, model = "drm")
 \item{data_list}{a \code{list} used as input for model fitting. Typically,
 the output from the \link{make_data} function.}
 
-\item{model}{a \code{character} indicating which model forecasts are sought
-for. This input admits two possible entries: "drm" (default) or "sdm".}
+\item{model}{a \code{character} indicating which model predictions are
+sought for. This input admits two possible entries: "drm" (default) or
+"sdm".}
 }
 \value{
 a \code{character} vector of labels indicating the parameters
-necessary for the forecast.
+necessary for the predictions.
 }
 \description{
 This function identifies the parameters necessary for carrying
-out forecasts based on the data used to fit a DRM (or SDM).
+out predictions based on the data used to fit a DRM (or SDM).
 }
 \author{
 lcgodoy
