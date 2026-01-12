@@ -13,8 +13,7 @@
 ##' @param family a \code{character} specifying the family of the probability
 ##'   distribution assumed for density. The options are: \itemize{ \item
 ##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
-##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
-##'   \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
+##'   \code{"lognormal"}: log-normal parametrized in terms of its mean;
 ##'   \item \code{"lognormal_legacy"}: log-normal with its usual
 ##'   parametrization; }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
@@ -163,7 +162,6 @@ fit_drm <- function(.data,
 ##'   distribution assumed for density. The options are: \itemize{
 ##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
 ##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean;
-##'   \item \code{"loglogistic"}: log-logistic parametrized in terms of its mean.
 ##'   \item \code{"lognormal_legacy"}: log-normal with its usual parametrization;
 ##'    }
 ##' @param formula_zero A \code{formula} specifying the model for the zero

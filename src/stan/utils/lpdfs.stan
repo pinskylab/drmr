@@ -10,7 +10,7 @@
  * @return a log-pdf
  */
 real gamma_mu_lpdf(real x, real mu, real phi) {
-  real pmu = phi * inv(mu);
+  real pmu = phi / mu;
   return - lgamma(phi) + lmultiply(phi, pmu) +
     lmultiply(phi - 1, x) - pmu * x;
 }
@@ -27,14 +27,14 @@ real gamma_mu_lpdf(real x, real mu, real phi) {
  * @return a log-pdf
  */
 real ln_mu_lpdf(real x, real mu, real phi) {
-  real f_mu_phi;
-  f_mu_phi = log1p(phi * inv(square(mu))); 
-  real output = 0;
-  output += log2() + log(pi()) + log(f_mu_phi);
-  output += 2 * log(x);
-  output += square(log(x) - log(mu) + 0.5 * f_mu_phi) * inv(f_mu_phi); 
-  return -0.5 * output;
+  real out = 0.0;
+  real aux;
+  aux = log(x) - log(mu) + phi;
+  out += 0.5 * log(pi()) + 0.5 * log(phi) + log(x);
+  out += square(aux) / phi;
+  return - out;
 }
+
 /**
  * Inverse Gaussian lpdf reparametrized.
  *
@@ -89,21 +89,12 @@ real ziloglik_lpdf(vector y,
     out += lognormal_lpdf(y[id_nz] | loc_par, phi);
   } else if (likelihood == 1) {
     vector[N_nz] mu_ln;
-    vector[N_nz] sigma_ln;
-    sigma_ln = sqrt(log1p(phi * inv_square(mu[id_nz])));
-    mu_ln = log(square(mu[id_nz]) .*
-                inv_sqrt(square(mu[id_nz]) + phi));
-    out += lognormal_lpdf(y[id_nz] | mu_ln, sigma_ln);
+    mu_ln = log(mu[id_nz]) - phi;
+    out += lognormal_lpdf(y[id_nz] | mu_ln, sqrt(2 * phi));
   } else if (likelihood == 2) {
     vector[N_nz] b_g;
     b_g = phi * inv(mu[id_nz]);
     out += gamma_lpdf(y[id_nz] | phi, b_g);
-  } else if (likelihood == 3) {
-    vector[N_nz] a_ll;
-    real b_ll;
-    b_ll = phi + 1;
-    a_ll = sin(pi() / b_ll) * mu[id_nz] * b_ll / pi();
-    out += loglogistic_lpdf(y[id_nz] | a_ll, b_ll);
   } else {
     out += normal_lpdf(y | mu, phi) -
       normal_lccdf(rep_vector(0.0, N) | mu, phi);
@@ -132,12 +123,6 @@ real ptziloglik_lpdf(real y,
       real gamma_beta;
       gamma_beta = phi / mu;
       out += gamma_lpdf(y | phi, gamma_beta);
-    } else if (likelihood == 3) {
-      real a_ll;
-      real b_ll;
-      b_ll = phi + 1;
-      a_ll = sin(pi() / b_ll) * mu * b_ll * inv(pi());
-      out += loglogistic_lpdf(y | a_ll, b_ll);
     } else {
       out += normal_lpdf(y | mu, phi) -
         normal_lccdf(0.0 | mu, phi);
@@ -159,20 +144,12 @@ real drmsdm_rng(real mu,
       out *= lognormal_rng(loc_par, phi);
     } else if (likelihood == 1) {
       real mu_ln;
-      real sigma_ln;
-      sigma_ln = sqrt(log1p(phi * inv_square(mu)));
-      mu_ln = log(square(mu) * inv_sqrt(square(mu) + phi));
-      out *= lognormal_rng(mu_ln, sigma_ln);
+      mu_ln = log(mu) - phi;
+      out *= lognormal_rng(mu_ln, sqrt(2 * phi));
     } else if (likelihood == 2) {
       real gamma_beta;
       gamma_beta = phi / mu;
       out *= gamma_rng(phi, gamma_beta);
-    } else if (likelihood == 3) {
-      real a_ll;
-      real b_ll;
-      b_ll = phi + 1;
-      a_ll = sin(pi() / b_ll) * mu * b_ll * inv(pi());
-      out *= loglogistic_rng(a_ll, b_ll);
     } else {
       array[2] real aux_tn = rep_array(0.0, 2);
       aux_tn[2] = normal_rng(mu, phi);

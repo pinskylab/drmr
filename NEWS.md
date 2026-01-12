@@ -6,6 +6,9 @@
   predictive distribution (i.e., its theoretical mean), and latent density
   (disconsidering observation error).
 
+* Removing loglogistic distribution for now (need to do some work on the
+  parametrization)
+
 * Major bug in the fitted/predict functions fixed.
 
 * Some improvements to documentation.
