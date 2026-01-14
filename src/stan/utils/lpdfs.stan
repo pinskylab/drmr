@@ -95,6 +95,8 @@ real ziloglik_lpdf(vector y,
     vector[N_nz] b_g;
     b_g = phi * inv(mu[id_nz]);
     out += gamma_lpdf(y[id_nz] | phi, b_g);
+  } else if (likelihood == 3) {
+    out += loglogistic_lpdf(y[id_nz] | mu[id_nz], phi);
   } else {
     out += normal_lpdf(y | mu, phi) -
       normal_lccdf(rep_vector(0.0, N) | mu, phi);
@@ -123,6 +125,9 @@ real ptziloglik_lpdf(real y,
       real gamma_beta;
       gamma_beta = phi / mu;
       out += gamma_lpdf(y | phi, gamma_beta);
+    } else if (likelihood == 3) {
+      real gamma_beta;
+      out += loglogistic_lpdf(y | mu, phi);
     } else {
       out += normal_lpdf(y | mu, phi) -
         normal_lccdf(0.0 | mu, phi);
@@ -150,6 +155,8 @@ real drmsdm_rng(real mu,
       real gamma_beta;
       gamma_beta = phi / mu;
       out *= gamma_rng(phi, gamma_beta);
+    } else if (likelihood == 3) {
+      out *= loglogistic_rng(mu, phi);
     } else {
       array[2] real aux_tn = rep_array(0.0, 2);
       aux_tn[2] = normal_rng(mu, phi);

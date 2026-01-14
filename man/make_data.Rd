@@ -73,37 +73,34 @@ while 3 and 4 are mobile.}
 and zero otherwise.}
 
 \item{.toggles}{a \code{list} of toggles for model components. The
-components are: \itemize{
-\item \code{rho_mu}: 1 to use explicitly relates rho to mu and 0 otherwise.
-\item \code{cloglog}: 1 to use the complementary log-log and 0 for the
-logit link function for the absence probabilities.
-\item \code{movement}: 1 to allow for (adjacent) moviment; 0 for static.
-\item \code{est_surv}: 1 to estimate mortality and 0 otherwise.
-\item \code{est_init}: 1 to estimate initial values for lambda and 0
-otherwise.
-\item \code{minit}: 1 to use mortality to estimate initial age classes and
-0 otherwise.
-\item \code{ar_re}: a \code{character}. It assumes one of the following
-values: "none" - no AR, "rec" AR(1) for recruitment, "surv" - AR(1) for
-survival (only works when \code{est_surv} is on), "dens" - AR(1) for
-density.
-\item \code{iid_re}: a \code{character}. It assumes one of the following
-values: "none" - no iid re, "rec" iid re for recruitment, "surv" - iir re
-for survival (only works when \code{est_surv} is on), "dens" - iid_re for
-density.
-\item \code{sp_re}: a \code{character}. It assumes one of the following
-values: "none" - no ICAR re, "rec" ICAR re for recruitment, "surv" - ICAR
-re for survival (only works when \code{est_surv} is on), "dens" - ICAR_re
-for density.}}
+components are: \itemize{ \item \code{rho_mu}: 1 to use explicitly relates
+rho to mu and 0 otherwise.  \item \code{cloglog}: 1 to use the
+complementary log-log and 0 for the logit link function for the absence
+probabilities.  \item \code{movement}: 1 to allow for (adjacent) moviment;
+0 for static.  \item \code{est_surv}: 1 to estimate mortality and 0
+otherwise.  \item \code{est_init}: 1 to estimate initial values for lambda
+and 0 otherwise.  \item \code{minit}: 1 to use mortality to estimate
+initial age classes and 0 otherwise.  \item \code{ar_re}: a
+\code{character}. It assumes one of the following values: "none" - no AR,
+"rec" AR(1) for recruitment, "surv" - AR(1) for survival (only works when
+\code{est_surv} is on), "dens" - AR(1) for density.  \item \code{iid_re}:
+a \code{character}. It assumes one of the following values: "none" - no
+iid re, "rec" iid re for recruitment, "surv" - iir re for survival (only
+works when \code{est_surv} is on), "dens" - iid_re for density.  \item
+\code{sp_re}: a \code{character}. It assumes one of the following values:
+"none" - no ICAR re, "rec" ICAR re for recruitment, "surv" - ICAR re for
+survival (only works when \code{est_surv} is on), "dens" - ICAR_re for
+density.}}
 
 \item{.priors}{a \code{list} of priors hyperparameters.}
 
 \item{family}{a \code{character} specifying the family of the probability
 distribution assumed for density. The options are: \itemize{ \item
 \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
-\code{"lognormal"}: log-normal parametrized in terms of its mean;
-\item \code{"lognormal_legacy"}: log-normal with its usual
-parametrization; }}
+\code{"lognormal"}: log-normal parametrized in terms of its mean; \item
+\code{"loglogistic"}: log-logistic parametrized in terms of its median
+(usual parametrization); \item \code{"lognormal_legacy"}: log-normal with
+its usual parametrization; }}
 
 \item{reorder}{a \code{boolean} telling whether the data needs to be
 reordered. The default is TRUE and means the data points will be ordered

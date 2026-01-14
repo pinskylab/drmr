@@ -15,8 +15,9 @@ data {
   int<lower = 0, upper = 1> iid_re;
   int<lower = 0, upper = 1> sp_re;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
-  int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
-                                        // Gamma, 3 = log-Logistic)
+  int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
+                                        // Gamma, 3 = log-Logistic. 4 =
+                                        // trunc-normal)
   int<lower = 0, upper = 2> type;
   //--- suitability (for rho) ----
   int<lower = 1> K_z;

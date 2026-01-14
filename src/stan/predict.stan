@@ -20,8 +20,9 @@ data {
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
-  int<lower = 0, upper = 3> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
-                                        // Gamma, 3 = truncated normal)
+  int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
+                                        // Gamma, 3 = loglogistic, 4 = truncated
+                                        // normal)
   int<lower = 0, upper = 2> type;
   //--- suitability (for rho) ----
   int<lower = 1> K_t;

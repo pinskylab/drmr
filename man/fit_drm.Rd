@@ -35,9 +35,10 @@ that contains the response variable.}
 \item{family}{a \code{character} specifying the family of the probability
 distribution assumed for density. The options are: \itemize{ \item
 \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
-\code{"lognormal"}: log-normal parametrized in terms of its mean;
-\item \code{"lognormal_legacy"}: log-normal with its usual
-parametrization; }}
+\code{"lognormal"}: log-normal parametrized in terms of its mean; \item
+\code{"loglogistic"}: log-logistic parametrized in terms of its median
+(usual parametrization); \item \code{"lognormal_legacy"}: log-normal with
+its usual parametrization; }}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero
 inflation component. Defaults to \code{~ 1} (intercept only).}
