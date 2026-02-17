@@ -2,9 +2,9 @@
 
 * `draws` method added to the package.
 
-* Output of `predict` and `fitted` getting easier to work with.
+* (TODO) Output of `predict` and `fitted` getting easier to work with.
 
-* Improving documentation.
+* (TODO) Improving documentation.
 
 # drmr 0.4.0
 

@@ -5,15 +5,22 @@
 \alias{predict_sdm}
 \title{Predictions based on SDM.}
 \usage{
-\method{predict}{sdm}(x, new_data, seed = 1, cores = 1, ...)
+\method{predict}{sdm}(object, new_data, type = "predictive", seed = 1, cores = 1, ...)
 
 predict_sdm(...)
 }
 \arguments{
-\item{x}{A \code{list} object containing the output of a \link{fit_sdm} call.}
+\item{object}{A \code{list} object containing the output of a \link{fit_sdm} call.}
 
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
+
+\item{type}{type of predictions to be computed. Admitted values are
+\itemize{
+\item \code{"predictive"} (default): posterior predictive distribution;
+\item \code{"expected"}: theoretical mean of the posterior predictive distribution;
+\item \code{"latent"}: latent density (i.e., disconsidering the observation error);
+}}
 
 \item{seed}{a seed used for the predictions. predictions are obtained
 through Monte Carlo samples from the posterior predictive
@@ -25,13 +32,6 @@ chains were used in the \code{drm}, then four (or less) threads are
 recommended.}
 
 \item{...}{params to be passed to \code{predict.sdm}}
-
-\item{type}{type of predictions to be computed. Admitted values are
-\itemize{
-\item \code{"predictive"} (default): posterior predictive distribution;
-\item \code{"expected"}: theoretical mean of the posterior predictive distribution;
-\item \code{"latent"}: latent density (i.e., disconsidering the observation error);
-}}
 }
 \value{
 An object of class \code{CmdStanGQ} (from the \code{instantiate}

@@ -227,8 +227,9 @@ print.summary.sdm <- function(x, digits = 3, ...) {
 ##'   \code{summary} methods.
 ##' @param inc_warmup a boolean indicating whether the warmup samples should be
 ##'   retrieved as well. Defaults to \code{FALSE}
-##' @param format string.. See cmdstanr $draws documentation
-##' @param ... additional parameters to be passed to \code{$draws}
+##' @param format A string. See cmdstanr [$draws
+##'   documentation](https://mc-stan.org/cmdstanr/reference/fit-method-draws.html).
+##' @param ... currently ignored.
 ##'
 ##' @author lcgodoy
 ##' @return an object of class \code{"draws"} containing the posterior samples
@@ -236,7 +237,7 @@ print.summary.sdm <- function(x, digits = 3, ...) {
 ##' @name draws
 ##' @author lcgodoy
 ##' @export
-draws <- function(x, ...) UseMethod("elpd", x)
+draws <- function(x, ...) UseMethod("draws", x)
 
 ##' @rdname draws
 ##' @export
@@ -244,16 +245,52 @@ draws.adrm <- function(x,
                        variables = NULL,
                        inc_warmup = FALSE,
                        format = getOption("cmdstanr_draws_format", 
-                                          "draws_array")) {
-
+                                          "draws_array"),
+                       ...) {
+  if (length(list(...)) > 0) {
+    warning("Additional arguments passed to ... are ignored.")
+  }
+  stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
+                                  "CmdStanPathfinder", "CmdStanVB")))
+  if (is.null(variables)) {
+    variables <- get_fitted_pars(x$data, "drm")
+    variables <- variables[!grepl("^(lambda|z_)", variables)]
+  }
+  method <- tryCatch(x$stanfit$metadata()$method, error = function(e) "nuts")  
+  if (method == "optimize") {
+    stop("Draws are not available for `method = 'optimize'`")
+  } else {
+    out <- x$stanfit$draws(variables = variables,
+                           inc_warmup = inc_warmup,
+                           format = format)
+  }
+  return(out)
 }
   
 ##' @rdname draws
 ##' @export
-draws.adrm <- function(x,
-                       variables = NULL,
-                       inc_warmup = FALSE,
-                       format = getOption("cmdstanr_draws_format", 
-                                          "draws_array")) {
-
+draws.sdm <- function(x,
+                      variables = NULL,
+                      inc_warmup = FALSE,
+                      format = getOption("cmdstanr_draws_format", 
+                                         "draws_array"),
+                      ...) {
+  stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
+                                  "CmdStanPathfinder", "CmdStanVB")))
+  if (length(list(...)) > 0) {
+    warning("Additional arguments passed to ... are ignored.")
+  }
+  if (is.null(variables)) {
+    variables <- get_fitted_pars(x$data, "sdm")
+    variables <- variables[!grepl("^z_", variables)]
+  }
+  method <- tryCatch(x$stanfit$metadata()$method, error = function(e) "nuts")  
+  if (method == "optimize") {
+    stop("Draws are not available for `method = 'optimize'`")
+  } else {
+    out <- x$stanfit$draws(variables = variables,
+                           inc_warmup = inc_warmup,
+                           format = format)
+  }
+  return(out)
 }

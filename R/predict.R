@@ -69,7 +69,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   predictions based on the DRM passed as \code{drm}.
 ##'
-##' @param x A \code{adrm} (or \code{sdm}) object containing the output from the
+##' @param object A \code{adrm} (or \code{sdm}) object containing the output from the
 ##'   [fit_drm()] (or [fit_sdm()]) function.
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
@@ -108,7 +108,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'   posterior predictive distribution for predictions.
 ##'
 ##' @export
-predict.adrm <- function(x,
+predict.adrm <- function(object,
                          new_data,
                          past_data,
                          f_test,
@@ -116,65 +116,65 @@ predict.adrm <- function(x,
                          seed = 1,
                          cores = 1,
                          ...) {
-  stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
-                                  "CmdStanPathfinder", "CmdStanVB")))
+  stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
+                                       "CmdStanPathfinder", "CmdStanVB")))
   stopifnot(type %in% c("predictive", "expected", "latent"))
   type_prep <- switch(type,
                       predictive = 0,
                       expected   = 1,
                       latent     = 2)
   ## number time points for predictions
-  ntime_for <- length(unique(new_data[[x$cols$time_col]]))
-  time_for <- new_data[[x$cols$time_col]] -
-    min(new_data[[x$cols$time_col]]) + 1
+  ntime_for <- length(unique(new_data[[object$cols$time_col]]))
+  time_for <- new_data[[object$cols$time_col]] -
+    min(new_data[[object$cols$time_col]]) + 1
   if (!missing(f_test)) {
-    stopifnot(NROW(f_test) == x$data[["n_ages"]])
+    stopifnot(NROW(f_test) == object$data[["n_ages"]])
   }
-  x_tt <- stats::model.matrix(x[["formulas"]][["formula_zero"]],
+  x_tt <- stats::model.matrix(object[["formulas"]][["formula_zero"]],
                               data = new_data)
-  x_rt <- stats::model.matrix(x[["formulas"]][["formula_rec"]],
+  x_rt <- stats::model.matrix(object[["formulas"]][["formula_rec"]],
                               data = new_data)
   if (missing(f_test)) {
-    f_test <- matrix(0, ncol = ntime_for, nrow = x$data$n_ages)
+    f_test <- matrix(0, ncol = ntime_for, nrow = object$data$n_ages)
   }
   ##--- pars from model fitted ----
-  pars <- get_fitted_pars(x$data, "drm")
+  pars <- get_fitted_pars(object$data, "drm")
   fitted_params <-
-    x$stanfit$draws(variables = pars)
+    object$stanfit$draws(variables = pars)
   ##--- list for predictions gq ----
   pred_data <-
-    list(n_patches = x$data$n_patches,
-         n_ages = x$data$n_ages,
+    list(n_patches = object$data$n_patches,
+         n_ages = object$data$n_ages,
          n_time = ntime_for,
-         n_time_train = x$data$n_time,
+         n_time_train = object$data$n_time,
          time = time_for,
-         patch = new_data[[x$cols$site_col]],
-         rho_mu = x$data$rho_mu,
-         ar_re = x$data$ar_re,
-         iid_re = x$data$iid_re,
-         sp_re = x$data$sp_re,
-         movement = x$data$movement,
-         est_surv = x$data$est_surv,
-         cloglog = x$data$cloglog,
-         likelihood = x$data$likelihood,
+         patch = new_data[[object$cols$site_col]],
+         rho_mu = object$data$rho_mu,
+         ar_re = object$data$ar_re,
+         iid_re = object$data$iid_re,
+         sp_re = object$data$sp_re,
+         movement = object$data$movement,
+         est_surv = object$data$est_surv,
+         cloglog = object$data$cloglog,
+         likelihood = object$data$likelihood,
          type = type_prep,
-         K_t = x$data$K_t,
+         K_t = object$data$K_t,
          X_t = x_tt,
          f = f_test,
-         f_past = x$data$f,
-         m = x$data$m,
-         adj_mat = x$data$adj_mat,
-         ages_movement = x$data$ages_movement,
-         selectivity_at_age = x$data$selectivity_at_age,
-         K_r = x$data$K_r,
+         f_past = object$data$f,
+         m = object$data$m,
+         adj_mat = object$data$adj_mat,
+         ages_movement = object$data$ages_movement,
+         selectivity_at_age = object$data$selectivity_at_age,
+         K_r = object$data$K_r,
          X_r = x_rt)
   pred_data$N <- pred_data$n_patches * pred_data$n_time
-  if (length(x$data$K_m) > 0) {
+  if (length(object$data$K_m) > 0) {
     stopifnot(!missing(past_data))
     x_mpast <-
-      stats::model.matrix(x[["formulas"]][["formula_surv"]],
+      stats::model.matrix(object[["formulas"]][["formula_surv"]],
                           data = past_data)
-    x_m <- stats::model.matrix(x[["formulas"]][["formula_surv"]],
+    x_m <- stats::model.matrix(object[["formulas"]][["formula_surv"]],
                                data = new_data)
     pred_data$K_m <- array(NCOL(x_m), dim = 1)
     pred_data$X_m <- x_m
@@ -203,7 +203,7 @@ predict.adrm <- function(x,
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   predictions based on the SDM passed as \code{sdm}.
 ##'
-##' @param x A \code{list} object containing the output of a [fit_sdm] call.
+##' @param object A \code{list} object containing the output of a [fit_sdm] call.
 ##'
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
@@ -235,12 +235,13 @@ predict.adrm <- function(x,
 ##'   predictions.
 ##'
 ##' @rdname predsdm
-predict.sdm <- function(x,
+predict.sdm <- function(object,
                         new_data,
+                        type = "predictive",
                         seed = 1,
                         cores = 1,
                         ...) {
-  stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
+  stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                   "CmdStanPathfinder", "CmdStanVB")))
   stopifnot(type %in% c("predictive", "expected", "latent"))
   type_prep <- switch(type,
@@ -248,29 +249,29 @@ predict.sdm <- function(x,
                       expected   = 1,
                       latent     = 2)
   ## time points for predictions
-  ntime_for <- length(unique(new_data[[x$cols$time_col]]))
-  time_for <- new_data[[x$cols$time_col]] -
-    min(new_data[[x$cols$time_col]]) + 1
+  ntime_for <- length(unique(new_data[[object$cols$time_col]]))
+  time_for <- new_data[[object$cols$time_col]] -
+    min(new_data[[object$cols$time_col]]) + 1
   ##--- pars from model fitted ----
-  pars <- get_fitted_pars(x$data, "sdm")
+  pars <- get_fitted_pars(object$data, "sdm")
   fitted_params <-
-    x$stanfit$draws(variables = pars)
+    object$stanfit$draws(variables = pars)
   pred_data <-
-    list(n_patches = x$data$n_patches,
+    list(n_patches = object$data$n_patches,
          n_time = ntime_for,
-         n_time_train = x$data$n_time,
+         n_time_train = object$data$n_time,
          time = time_for,
-         patch = new_data[[x$cols$site_col]],
-         rho_mu = x$data$rho_mu,
-         ar_re = x$data$ar_re,
-         iid_re = x$data$iid_re,
-         sp_re = x$data$sp_re,
-         cloglog = x$data$cloglog,
-         likelihood = x$data$likelihood,
+         patch = new_data[[object$cols$site_col]],
+         rho_mu = object$data$rho_mu,
+         ar_re = object$data$ar_re,
+         iid_re = object$data$iid_re,
+         sp_re = object$data$sp_re,
+         cloglog = object$data$cloglog,
+         likelihood = object$data$likelihood,
          type = type_prep,
-         Z = stats::model.matrix(x[["formulas"]][["formula_zero"]],
+         Z = stats::model.matrix(object[["formulas"]][["formula_zero"]],
                                  data = new_data),
-         X = stats::model.matrix(x[["formulas"]][["formula_dens"]],
+         X = stats::model.matrix(object[["formulas"]][["formula_dens"]],
                                  data = new_data))
   pred_data$N <- pred_data$n_patches * pred_data$n_time
   pred_data$K_z <- NCOL(pred_data$Z)

@@ -7,7 +7,7 @@
 \title{Predictions based on DRM.}
 \usage{
 \method{predict}{adrm}(
-  x,
+  object,
   new_data,
   past_data,
   f_test,
@@ -20,7 +20,7 @@
 predict_drm(...)
 }
 \arguments{
-\item{x}{A \code{adrm} (or \code{sdm}) object containing the output from the
+\item{object}{A \code{adrm} (or \code{sdm}) object containing the output from the
 \code{\link[=fit_drm]{fit_drm()}} (or \code{\link[=fit_sdm]{fit_sdm()}}) function.}
 
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
