@@ -214,3 +214,46 @@ print.summary.sdm <- function(x, digits = 3, ...) {
   }
   invisible(x)
 }
+
+##' @title Draws method for \code{adrm} and \code{sdm} objects.
+##' @description Mirrors the behavior of \code{cmdstanr}'s \code{$draws} method
+##'   to retrieve the samples from the posterior distribution of the models'
+##'   parameters.
+##'
+##' @param x A \code{list} object containing the output from the [fit_drm()] (or
+##'   [fit_sdm()]) function.
+##' @param variables a string vector with the name of the variables for which we
+##'   want to obtain posteriors samples (defaults to the same variables as the
+##'   \code{summary} methods.
+##' @param inc_warmup a boolean indicating whether the warmup samples should be
+##'   retrieved as well. Defaults to \code{FALSE}
+##' @param format string.. See cmdstanr $draws documentation
+##' @param ... additional parameters to be passed to \code{$draws}
+##'
+##' @author lcgodoy
+##' @return an object of class \code{"draws"} containing the posterior samples
+##'   from specified parameters.
+##' @name draws
+##' @author lcgodoy
+##' @export
+draws <- function(x, ...) UseMethod("elpd", x)
+
+##' @rdname draws
+##' @export
+draws.adrm <- function(x,
+                       variables = NULL,
+                       inc_warmup = FALSE,
+                       format = getOption("cmdstanr_draws_format", 
+                                          "draws_array")) {
+
+}
+  
+##' @rdname draws
+##' @export
+draws.adrm <- function(x,
+                       variables = NULL,
+                       inc_warmup = FALSE,
+                       format = getOption("cmdstanr_draws_format", 
+                                          "draws_array")) {
+
+}

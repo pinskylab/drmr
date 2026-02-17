@@ -1,3 +1,11 @@
+# drmr 0.4.1
+
+* `draws` method added to the package.
+
+* Output of `predict` and `fitted` getting easier to work with.
+
+* Improving documentation.
+
 # drmr 0.4.0
 
 * `predict` and `fitted` methods now have an argument called `type`, which
