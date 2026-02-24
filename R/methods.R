@@ -220,13 +220,12 @@ print.summary.sdm <- function(x, digits = 3, ...) {
 ##'   to retrieve the samples from the posterior distribution of the models'
 ##'   parameters.
 ##'
-##' @param x A \code{list} object containing the output from the [fit_drm()] (or
-##'   [fit_sdm()]) function.
+##' @param x An object of class \code{adrm} or \code{sdm}.
 ##' @param variables a string vector with the name of the variables for which we
 ##'   want to obtain posteriors samples (defaults to the same variables as the
-##'   \code{summary} methods.
+##'   \code{summary} methods).
 ##' @param inc_warmup a boolean indicating whether the warmup samples should be
-##'   retrieved as well. Defaults to \code{FALSE}
+##'   retrieved as well. Defaults to \code{FALSE}.
 ##' @param format A string. See cmdstanr [$draws
 ##'   documentation](https://mc-stan.org/cmdstanr/reference/fit-method-draws.html).
 ##' @param ... currently ignored.
@@ -235,7 +234,6 @@ print.summary.sdm <- function(x, digits = 3, ...) {
 ##' @return an object of class \code{"draws"} containing the posterior samples
 ##'   from specified parameters.
 ##' @name draws
-##' @author lcgodoy
 ##' @export
 draws <- function(x, ...) UseMethod("draws", x)
 

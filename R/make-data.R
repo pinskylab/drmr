@@ -3,9 +3,9 @@
 ##'
 ##' @title Make data for DRM stan models
 ##' @param y a \code{numeric vector} of species' densities.
-##' @param time an \code{vector} indicating the time point associated to each
+##' @param time a \code{vector} indicating the time point associated to each
 ##'   element of \code{y}.
-##' @param site an \code{vector} indicating the sites associated to each element
+##' @param site a \code{vector} indicating the sites associated to each element
 ##'   of \code{y}.
 ##' @param init_data an optional vector (of length n_ages - 1) to initialize the
 ##'   population dynamics.
@@ -20,7 +20,7 @@
 ##' @param x_r a design \code{matrix} of variables associated to recruitment.
 ##' @param n_ages an \code{integer} indicating the number of ages for the
 ##'   underlying population dynamic model.
-##' @param age_selectivity an \code{numeric vector} with \code{n_ages} elements,
+##' @param age_selectivity a \code{numeric vector} with \code{n_ages} elements,
 ##'   where each element indicates the selectivity of a respective age. All the
 ##'   elements of this vector must lie between 0 and 1.
 ##' @param ages_movement An \code{integer} or a \code{numeric vector} specifying
@@ -36,10 +36,10 @@
 ##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
 ##'   and zero otherwise.
 ##' @param .toggles a \code{list} of toggles for model components. The
-##'   components are: \itemize{ \item \code{rho_mu}: 1 to use explicitly relates
+##'   components are: \itemize{ \item \code{rho_mu}: 1 to explicitly relate
 ##'   rho to mu and 0 otherwise.  \item \code{cloglog}: 1 to use the
 ##'   complementary log-log and 0 for the logit link function for the absence
-##'   probabilities.  \item \code{movement}: 1 to allow for (adjacent) moviment;
+##'   probabilities.  \item \code{movement}: 1 to allow for (adjacent) movement;
 ##'   0 for static.  \item \code{est_surv}: 1 to estimate mortality and 0
 ##'   otherwise.  \item \code{est_init}: 1 to estimate initial values for lambda
 ##'   and 0 otherwise.  \item \code{minit}: 1 to use mortality to estimate
@@ -67,7 +67,8 @@
 ##'   its usual parametrization; }
 ##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
 ##'   should be determined through the data (using [get_phi_hat()]).
-##' @return a \code{list} to be used as the input for a \code{stan} model
+##' @return A \code{list} containing the data and settings to be used as input
+##'   for the Stan model.
 ##' @author lcgodoy
 ##' @export
 make_data <- function(y,
@@ -269,9 +270,9 @@ make_data <- function(y,
 ##'
 ##' @title Make data for SDM stan models
 ##' @param y a \code{numeric vector} of species' densities.
-##' @param time an \code{vector} indicating the time point associated to each
+##' @param time a \code{vector} indicating the time point associated to each
 ##'   element of \code{y}.
-##' @param site an \code{vector} indicating the sites associated to each element
+##' @param site a \code{vector} indicating the sites associated to each element
 ##'   of \code{y}.
 ##' @param z a design \code{matrix} of variables associated to the probability
 ##'   of absence at each site/time.
@@ -281,12 +282,10 @@ make_data <- function(y,
 ##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
 ##'   and zero otherwise.
 ##' @param .toggles a \code{list} of toggles for model components. The
-##'   components are: \itemize{\item \code{rho_mu}: 1 to use explicitly relate
+##'   components are: \itemize{\item \code{rho_mu}: 1 to explicitly relate
 ##'   rho to mu and 0 otherwise. \item \code{cloglog}: 1 to use the
 ##'   complementary log-log and 0 for the logit link function for the absence
-##'   probabilities.  \item \code{movement}: 1 to allow for (adjacent) moviment;
-##'   0 for static.  \item \code{est_surv}: 1 to estimate survival rates and 0
-##'   otherwise. \item \code{ar_re}: 1 to incorporate an AR(1) process to
+##'   probabilities. \item \code{ar_re}: 1 to incorporate an AR(1) process to
 ##'   density and 0 otherwise. \item \code{iid_re}: 1 to incorporate a patch
 ##'   specific IID random effect to density and 0 otherwise. \item \code{sp_re}:
 ##'   1 to incorporate a patch specific ICAR random effect to density and 0
@@ -304,7 +303,8 @@ make_data <- function(y,
 ##'   its usual parametrization; }
 ##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
 ##'   should be determined through the data (using [get_phi_hat()]).
-##' @return a \code{list} to be used as the input for a \code{stan} model
+##' @return A \code{list} containing the data and settings to be used as input
+##'   for the Stan model.
 ##' @author lcgodoy
 ##' @export
 make_data_sdm <- function(y,
