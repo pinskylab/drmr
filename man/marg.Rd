@@ -14,7 +14,7 @@ marg(object, ...)
   newdata = NULL,
   n_pts = 100,
   summary = TRUE,
-  probs = c(0.05, 0.5, 0.95),
+  prob = c(0.05, 0.5, 0.95),
   ...
 )
 }
@@ -43,10 +43,10 @@ sequence of each focal variable when \code{newdata} is
 of the posterior predictions. If \code{FALSE}, returns the raw posterior
 draws.}
 
-\item{probs}{A numeric vector of probabilities to be passed to
-\code{posterior::quantile2} when \code{summary = TRUE}. Defaults to
-\code{c(0.05, 0.5, 0.95)} (representing the lower bound, median, and upper
-bound).}
+\item{prob}{A numeric scalar in \eqn{(0, 1)} specifying the probability mass
+of the equal-tailed credible interval. Defaults to \code{0.9}, which
+produces a 90\\% credible interval (i.e., the 5th and 95th percentiles)
+together with the median.}
 }
 \value{
 A \code{data.frame} with the posterior summaries (or draws) for the
@@ -63,9 +63,9 @@ The \code{marg} function computes the predicted relationships
 across a sequence of values for a focal variable (or variables), holding
 all other non-focal variables in the model matrix at zero.
 
-When \code{summary = TRUE}, the function calculates credible intervals
-using \code{\link[posterior]{quantile2}}, which is highly optimized for
-posterior draws.
+When \code{summary = TRUE}, the function calculates an equal-tailed
+credible interval and the median using \code{\link[posterior]{quantile2}},
+which is highly optimized for posterior draws.
 }
 \author{
 lcgodoy

@@ -7,9 +7,9 @@
 ##'   across a sequence of values for a focal variable (or variables), holding
 ##'   all other non-focal variables in the model matrix at zero.
 ##'   
-##'   When \code{summary = TRUE}, the function calculates credible intervals
-##'   using \code{\link[posterior]{quantile2}}, which is highly optimized for
-##'   posterior draws.
+##'   When \code{summary = TRUE}, the function calculates an equal-tailed
+##'   credible interval and the median using \code{\link[posterior]{quantile2}},
+##'   which is highly optimized for posterior draws.
 ##' 
 ##' @param object An object of class \code{adrm}, typically the output of
 ##'   \code{fit_drm()}.
@@ -27,10 +27,10 @@
 ##' @param summary Logical. If \code{TRUE} (the default), returns the quantiles
 ##'   of the posterior predictions. If \code{FALSE}, returns the raw posterior
 ##'   draws.
-##' @param probs A numeric vector of probabilities to be passed to
-##'   \code{posterior::quantile2} when \code{summary = TRUE}. Defaults to
-##'   \code{c(0.05, 0.5, 0.95)} (representing the lower bound, median, and upper
-##'   bound).
+##' @param prob A numeric scalar in \eqn{(0, 1)} specifying the probability mass
+##'   of the equal-tailed credible interval. Defaults to \code{0.9}, which
+##'   produces a 90\% credible interval (i.e., the 5th and 95th percentiles)
+##'   together with the median.
 ##' @param ... Additional arguments passed to methods.
 ##' 
 ##' @return A \code{data.frame} with the posterior summaries (or draws) for the
@@ -52,10 +52,11 @@ marg.adrm <- function(object,
                       newdata = NULL,
                       n_pts = 100,
                       summary = TRUE, 
-                      probs = c(0.05, 0.5, 0.95), ...) {
+                      prob = 0.95, ...) {
   process <- match.arg(process)
   stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                        "CmdStanPathfinder", "CmdStanVB")))
+  stopifnot(length(prob) == 1)
   config <- switch(process,
                    rec  = list(form = "formula_rec",
                                param = "beta_r",
@@ -96,6 +97,8 @@ marg.adrm <- function(object,
   lin_pred <- tcrossprod(est_samples, new_x) 
   est_ilink <- config$ilink(lin_pred)
   if (summary) {
+    alpha <- (1 - prob) / 2
+    probs <- c(alpha, 0.5, 1 - alpha)
     quants <- apply(est_ilink, 2, posterior::quantile2, probs = probs)
     quants_df <- as.data.frame(t(quants))
     
@@ -103,6 +106,7 @@ marg.adrm <- function(object,
     attr(output, "process") <- config$out
     attr(output, "variable") <- variable
     attr(output, "quant_cols") <- colnames(quants_df)
+    attr(output, "prob") <- prob
     class(output) <- c("marg_adrm", "data.frame")
     return(output)
   }
