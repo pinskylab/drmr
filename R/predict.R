@@ -69,22 +69,22 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   predictions based on the DRM passed as \code{drm}.
 ##'
-##' @param object A \code{adrm} (or \code{sdm}) object containing the output from the
-##'   [fit_drm()] (or [fit_sdm()]) function.
+##' @param object An \code{adrm} object containing the output from the
+##'   [fit_drm()] function.
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
-##' @param past_data a \code{data.frame} with the dataset last year used in
-##'   model fitting. Only needed when \code{f_test} is not missing or when
-##'   estimating survival.
+##' @param past_data a \code{data.frame} with the dataset from the last year
+##'   used in model fitting. Only needed when \code{f_test} is not missing or
+##'   when estimating survival.
 ##' @param f_test a \code{matrix} informing the instantaneous fishing mortality
 ##'   rates at each age (columns) and timepoint (rows).
 ##' @param type type of predictions to be computed. Admitted values are
 ##' \itemize{
 ##' \item `"predictive"` (default): posterior predictive distribution;
 ##' \item `"expected"`: theoretical mean of the posterior predictive distribution;
-##' \item `"latent"`: latent density (i.e., disconsidering the observation error);
+##' \item `"latent"`: latent density (i.e., disregarding the observation error);
 ##' }
-##' @param seed a seed used for the predictions. predictiosn are obtained
+##' @param seed a seed used for the predictions. predictions are obtained
 ##'   through Monte Carlo samples from the posterior predictive
 ##'   distribution. Therefore, a \code{seed} is needed to ensure the results'
 ##'   reproducibility.
@@ -103,6 +103,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##' @author lcgodoy
 ##'
 ##' @name preddrm
+##' @seealso [fit_drm()]
 ##' 
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for predictions.
@@ -203,7 +204,7 @@ predict.adrm <- function(object,
 ##' @description Considering a new dataset (across the same patches), computes
 ##'   predictions based on the SDM passed as \code{sdm}.
 ##'
-##' @param object A \code{list} object containing the output of a [fit_sdm] call.
+##' @param object An \code{sdm} object containing the output of a [fit_sdm] call.
 ##'
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
@@ -215,10 +216,10 @@ predict.adrm <- function(object,
 ##' \itemize{
 ##' \item `"predictive"` (default): posterior predictive distribution;
 ##' \item `"expected"`: theoretical mean of the posterior predictive distribution;
-##' \item `"latent"`: latent density (i.e., disconsidering the observation error);
+##' \item `"latent"`: latent density (i.e., disregarding the observation error);
 ##' }
 ##' @param cores number of threads used to compute the predictions. If four
-##'   chains were used in the \code{drm}, then four (or less) threads are
+##'   chains were used in the \code{sdm}, then four (or less) threads are
 ##'   recommended.
 ##' @param ... additional parameters to be passed to
 ##'   \code{$generated_quantities}
@@ -235,6 +236,7 @@ predict.adrm <- function(object,
 ##'   predictions.
 ##'
 ##' @rdname predsdm
+##' @seealso [fit_sdm()]
 predict.sdm <- function(object,
                         new_data,
                         type = "predictive",

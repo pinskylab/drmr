@@ -9,7 +9,7 @@
 ##' @param beta2 A \code{numeric} regression coefficient associated with the
 ##'   quadratic term.
 ##' @param offset a \code{numeric} representing the "center" of \eqn{x}.
-##' @return a \code{numeric} representing the regression coefficient of the
+##' @return A \code{numeric} value representing the regression coefficient of the
 ##'   linear term for the model where \eqn{x} is not centered.
 ##' @author Lucas Godoy
 ##' @export
@@ -29,7 +29,7 @@ fix_linbeta <- function(beta1, beta2, offset) {
 ##' @param beta2 A \code{numeric} regression coefficient associated with the
 ##'   quadratic term.
 ##' @param offset a \code{numeric} representing the "center" of \eqn{x}.
-##' @return a \code{numeric} representing the uncentered \eqn{x} that maximizes
+##' @return A \code{numeric} value representing the uncentered \eqn{x} that maximizes
 ##'   (or minimizes) the linear predictor.
 ##' @author Lucas Godoy
 ##' @export
@@ -43,7 +43,7 @@ max_quad_x <- function(beta1, beta2, offset = 0) {
 ##' Generates an adjacency matrix for "movement"
 ##' @title Generates an adjacency matrix
 ##' @param x an \code{sf} object representing the patches.
-##' @return an adjacency \code{matrix}
+##' @return An adjacency \code{matrix}.
 ##' @author lcgodoy
 ##' @export
 gen_adj <- function(x) {
@@ -73,7 +73,7 @@ gen_adj <- function(x) {
 ##' @param original a named \code{list} with "original" parameters.
 ##' @param replacements a named \code{list} containing elements to be modified
 ##'   in the \code{original} \code{list}.
-##' @return an updated \code{original list}.
+##' @return The updated \code{original} list.
 ##' @author lcgodoy
 safe_modify <- function(original, replacements) {
   if (!missing(replacements)) {
@@ -103,7 +103,7 @@ safe_modify <- function(original, replacements) {
 ##' @param lb A numeric vector of lower bounds.
 ##' @param ub A numeric vector of upper bounds.
 ##'
-##' @return No return value. This function stops execution if any of the
+##' @return Returns \code{NULL} invisibly. This function stops execution if any of the
 ##'  following conditions are met:
 ##'  * lb is greater than or equal to ub.
 ##'  * The lengths of lb and ub are not equal.
@@ -157,8 +157,8 @@ between <- function(x, lb, ub) {
 ##' @param y A numeric vector of observations.
 ##' @param l A numeric vector of lower bounds for the prediction intervals.
 ##' @param u A numeric vector of upper bounds for the prediction intervals.
-##' @param alpha A numeric value specifying the penalty parameter for interval
-##'   width.
+##' @param alpha A numeric value specifying the significance level (e.g., 0.05
+##'   for a 95% interval).
 ##'
 ##' @return A numeric vector of interval scores.
 ##'
@@ -174,7 +174,7 @@ int_score <- function(y, l, u, alpha) {
 
 ##' @title Random effects verbose to code
 ##' @param x a \code{character}
-##' @return a \code{integer}
+##' @return An \code{integer}.
 ##' @author lcgodoy
 fix_re <- function(x) {
   if (!x %in% c(0:3)) {
@@ -188,7 +188,7 @@ fix_re <- function(x) {
 
 ##' @title Get nodes for ICAR spatial random effects
 ##' @param adj adjacency \code{matrix}
-##' @return a \code{list}.
+##' @return A \code{list} containing the number of edges and the neighbors.
 ##' @author lcgodoy
 get_nodes <- function(adj) {
   ladj <- apply(adj > 0, MARGIN = 1,
@@ -210,7 +210,7 @@ get_nodes <- function(adj) {
 ##' 
 ##' @param X A matrix we wish to invert.
 ##' @param tol A relative tolerance to detect zero singular values.
-##' @return The generalized inverse of \code{X}
+##' @return The generalized inverse of \code{X}.
 ginv <- function (X, tol = sqrt(.Machine$double.eps)) {
     if (length(dim(X)) > 2L || !(is.numeric(X) || is.complex(X))) 
         stop("'X' must be a numeric or complex matrix")
@@ -233,7 +233,7 @@ ginv <- function (X, tol = sqrt(.Machine$double.eps)) {
 ##' @description Using results from Rue and Held 2005 and Morris et al. 2019.
 ##' 
 ##' @param adj adjacency \code{matrix}
-##' @return a \code{scalar}
+##' @return A \code{scalar} representing the scaling factor.
 ##' @author lcgodoy
 get_scaling <- function(adj) {
   Q <- matrix(0, nrow = nrow(adj), ncol = ncol(adj))
@@ -256,7 +256,7 @@ get_scaling <- function(adj) {
 
 ##' @title Estimate phi
 ##' @inheritParams make_data
-##' @return a \code{numeric} scalar representing an estimate for phi
+##' @return A \code{numeric} scalar representing an estimate for phi.
 ##' @author lcgodoy
 get_phi_hat <- function(y, family) {
   if (family == "gamma") {
@@ -278,7 +278,7 @@ get_phi_hat <- function(y, family) {
 
 ##' @title Zeros and nonzeros
 ##' @inheritParams make_data
-##' @return a \code{list} containing necessary input for stan to identify zeros
+##' @return A \code{list} containing necessary input for stan to identify zeros
 ##'   and nonzeros in the response variable.
 ##' @author lcgodoy
 get_zeros <- function(y) {

@@ -1,7 +1,7 @@
 ##' Returns default priors' hyperparameters for the DRM model.
 ##'
 ##' @title Default priors' hyperparameters
-##' @return a `list` with (explain values)
+##' @return A \code{list} containing the default hyperparameter values for the priors.
 ##' @author lcgodoy
 ##' @export
 default_priors <- function() {
@@ -32,7 +32,7 @@ default_priors <- function() {
 ##' Returns default toggles for the DRM model.
 ##'
 ##' @title Default toggles
-##' @return a `list` with (explain values)
+##' @return A \code{list} containing the default values for model toggles.
 ##' @author lcgodoy
 ##' @export
 default_toggles <- function() {
@@ -49,8 +49,8 @@ default_toggles <- function() {
 
 ##' Returns default for NUTS
 ##'
-##' @title Default nuts arguments
-##' @return a `list` with (explain values)
+##' @title Default NUTS arguments
+##' @return A \code{list} containing the default arguments for the NUTS algorithm.
 ##' @author lcgodoy
 ##' @export
 default_nuts <- function() {
@@ -83,7 +83,7 @@ default_nuts <- function() {
 ##' Returns default for Variational Bayes
 ##'
 ##' @title Default VB arguments
-##' @return a `list` with (explain values)
+##' @return A \code{list} containing the default arguments for the Variational Bayes algorithm.
 ##' @author lcgodoy
 ##' @export
 default_vb <- function() {
@@ -108,7 +108,7 @@ default_vb <- function() {
 ##' Returns default for Pathfinder
 ##'
 ##' @title Default Pathfinder arguments
-##' @return a `list` with (explain values)
+##' @return A \code{list} containing the default arguments for the Pathfinder algorithm.
 ##' @author lcgodoy
 ##' @export
 default_pf <- function() {
@@ -137,7 +137,7 @@ default_pf <- function() {
 ##' Returns default for Laplace
 ##'
 ##' @title Default Laplace arguments
-##' @return a `list` with (explain values)
+##' @return A \code{list} containing the default arguments for the Laplace algorithm.
 ##' @author lcgodoy
 ##' @export
 default_laplace <- function() {
@@ -152,10 +152,10 @@ default_laplace <- function() {
        save_cmdstan_config = NULL)
 }
 
-##' Returns default for Laplace
+##' Returns default for Optimization
 ##'
-##' @title Default Laplace arguments
-##' @return a `list` with (explain values)
+##' @title Default Optimization arguments
+##' @return A \code{list} containing the default arguments for the Optimization algorithm.
 ##' @author lcgodoy
 ##' @export
 default_opt <- function() {
@@ -180,7 +180,7 @@ default_opt <- function() {
 ##'
 ##' @title Default arguments for inference algorithm
 ##' @inheritParams fit_drm
-##' @return a `list` with (explain values)
+##' @return A \code{list} containing the default arguments for the specified algorithm.
 ##' @author lcgodoy
 ##' @export
 default_algo <- function(algorithm = "nuts",

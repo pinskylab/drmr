@@ -49,7 +49,7 @@ validate_sdm <- function(x) {
 ##'
 ##' Constructs an object of class `sdm` from a list, after validating its
 ##' structure. Note that, this function is mostly for internal usage. `sdm`
-##' stands for age-structured dynamic range model.
+##' stands for species distribution model.
 ##'
 ##' @param x A `list` that has the required fields for an 'sdm' object.
 ##'   Defaults to an empty `list`.

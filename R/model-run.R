@@ -2,7 +2,7 @@
 ##' @export
 ##' @family models
 ##' @description Fit the DRM Stan model (this function is not stable yet and
-##'   have not been fully tested).
+##'   has not been fully tested).
 ##' @param .data A \code{data frame} containing the data for the model.
 ##' @param y_col A \code{character} specifying the name of the column in `.data`
 ##'   that contains the response variable.
@@ -25,10 +25,11 @@
 ##'   component. If `NULL` (the default), no survival component is included.
 ##' @param seed An \code{integer} specifying the random number seed.
 ##' @param init A scalar specifying the initialization method. The default
-##'   (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
-##'   say \code{x}, initialized all parameters from a uniform between \code{-x}
-##'   and \code{x}, a \code{0} initialize all parameters at \code{0}, or "prior"
-##'   (to initialize the model parameters using samples from their prior)
+##'   ("cmdstan_default") lets \code{cmdstan} initialize parameters.
+##'   Other options include: a scalar greater than zero, say \code{x}, which
+##'   initializes all parameters uniformly between \code{-x} and \code{x};
+##'   \code{0}, which initializes all parameters at \code{0}; or "prior",
+##'   which initializes parameters by sampling from their priors.
 ##' @param algorithm a \code{character} specifying the algorithm used for
 ##'   inference. Default is \code{nuts} (the default MCMC in Stan). The
 ##'   remaining options are different flavors of variational bayes algorithms:
@@ -36,11 +37,12 @@
 ##'   approximation centered at the mode of the posterior) or "optimize" for
 ##'   (penalized) MLEs.
 ##' @param algo_args a \code{list} with arguments for the sampling
-##'   algorithms. For instance, \code{tol_rel_obj} for variational .
+##'   algorithms. For instance, \code{tol_rel_obj} for variational inference.
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
-##' @return A \code{list} containing the MCMC draws, the model data, the linear
-##'   predictors formulas, and the (response, time, site) column names.
+##' @return An object of class \code{adrm} which is a \code{list} containing the
+##'   MCMC draws, the model data, the linear predictors formulas, and the
+##'   (response, time, site) column names.
 ##'   Specifically: \itemize{ \item \code{stanfit}: The MCMC draws from the
 ##'   fitted model.  \item \code{data}: The data used to fit the model (as a
 ##'   list).  \item \code{formulas}: The formulas used to create design
@@ -151,7 +153,7 @@ fit_drm <- function(.data,
 ##' @export
 ##' @family models
 ##' @description Fit the SDM Stan model (this function is not stable yet and
-##'   have not been fully tested).
+##'   has not been fully tested).
 ##' @param .data A \code{data frame} containing the data for the model.
 ##' @param y_col A \code{character} specifying the name of the column in `.data`
 ##'   that contains the response variable.
@@ -173,10 +175,11 @@ fit_drm <- function(.data,
 ##'   density component. Defaults to `~ 1` (intercept only).
 ##' @param seed An \code{integer} specifying the random number seed.
 ##' @param init A scalar specifying the initialization method. The default
-##'   (NULL) represents the \code{cmdstan} default, a scalar greater than zero,
-##'   say \code{x}, initialized all parameters from a uniform between \code{-x}
-##'   and \code{x}, a \code{0} initialize all parameters at \code{0}, or "prior"
-##'   (to initialize the model parameters using samples from their prior)
+##'   ("cmdstan_default") lets \code{cmdstan} initialize parameters.
+##'   Other options include: a scalar greater than zero, say \code{x}, which
+##'   initializes all parameters uniformly between \code{-x} and \code{x};
+##'   \code{0}, which initializes all parameters at \code{0}; or "prior",
+##'   which initializes parameters by sampling from their priors.
 ##' @param algorithm a \code{character} specifying the algorithm used for
 ##'   inference. Default is \code{nuts} (the default MCMC in Stan). The
 ##'   remaining options are different flavors of variational bayes algorithms:
@@ -184,18 +187,19 @@ fit_drm <- function(.data,
 ##'   approximation centered at the mode of the posterior) or "optimize" for
 ##'   (penalized) MLEs.
 ##' @param algo_args a \code{list} with arguments for the sampling
-##'   algorithms. For instance, \code{tol_rel_obj} for variational .
+##'   algorithms. For instance, \code{tol_rel_obj} for variational inference.
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
-##' @return A \code{list} containing the MCMC draws, the model data, the linear
-##'   predictors formulas, and the (response, time, site) column names.
+##' @return An object of class \code{sdm} which is a \code{list} containing the
+##'   MCMC draws, the model data, the linear predictors formulas, and the
+##'   (response, time, site) column names.
 ##'    \itemize{
 ##'     \item \code{stanfit}: The MCMC draws from the fitted model.
 ##'     \item \code{data}: The data used to fit the model (as a list).
 ##'     \item \code{formulas}: The formulas used to create design matrices.
 ##'     \item \code{cols}: Important column names.
 ##'   }
-##' @seealso [make_data()]
+##' @seealso [make_data_sdm()]
 ##' @examples
 ##' if (instantiate::stan_cmdstan_exists()) {
 ##'   data(sum_fl)
