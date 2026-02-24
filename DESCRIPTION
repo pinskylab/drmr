@@ -16,6 +16,7 @@ Depends:
   R (>= 4.0.0)
 Imports:
   instantiate (>= 0.2.3.9002),
+  posterior,
   sf,
   spdep,
   stats,
@@ -31,7 +32,6 @@ Suggests:
   gridExtra,
   quarto,
   loo,
-  posterior,
   bayesplot
 Additional_repositories:
   https://mc-stan.org/r-packages/

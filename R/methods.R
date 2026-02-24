@@ -133,7 +133,7 @@ summary.adrm <- function(object, probs = c(0.05, 0.5, 0.95), ...) {
   } else {
     summ <- object$stanfit$summary(variables = params_out, 
                                    "mean", "sd", "rhat", "ess_bulk",
-                                   ~quantile(., probs = probs), 
+                                   ~posterior::quantile2(., probs = probs), 
                                    ...)
     out <- list(
       estimates = summ,
@@ -168,7 +168,7 @@ summary.sdm <- function(object, probs = c(0.05, 0.5, 0.95), ...) {
   } else {
     summ <- object$stanfit$summary(variables = params_out, 
                                    "mean", "sd", "rhat", "ess_bulk",
-                                   ~quantile(., probs = probs), 
+                                   ~posterior::quantile2(., probs = probs), 
                                    ...)
     out <- list(
       estimates = summ,
@@ -272,7 +272,7 @@ draws.adrm <- function(x,
 draws.sdm <- function(x,
                       variables = NULL,
                       inc_warmup = FALSE,
-                      format = getOption("cmdstanr_draws_format", 
+                      format = getOption("cmdstanr_draws_format",
                                          "draws_array"),
                       ...) {
   stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
