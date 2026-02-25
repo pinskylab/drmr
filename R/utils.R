@@ -222,18 +222,15 @@ marg_pabs <- function(drm, newdata) {
     drm$stanfit$draws(variables = c("beta_t"),
                       format = "draws_matrix")
   n_sim <- NROW(est_samples)
-  output <- vector(mode = "list", length = NROW(newdata))
   est_samples <-
     tcrossprod(est_samples, new_x)
   est_samples <- stats::plogis(c(est_samples))
-  rownames(newdata) <- NULL
-  for (i in seq_along(output)) {
-    output[[i]] <-
-      cbind.data.frame(newdata[i, , drop = FALSE], iter = seq_len(n_sim)) |>
-      suppressWarnings()
-  }
-  output <- dplyr::bind_rows(output)
-  output <- dplyr::mutate(output, prob_abs = est_samples)
+  n_obs <- nrow(newdata)
+  idx <- rep(seq_len(n_obs), each = n_sim)
+  output <- newdata[idx, , drop = FALSE]
+  output$iter <- rep(seq_len(n_sim), times = n_obs)
+  output$prob_abs <- est_samples
+  rownames(output) <- NULL
   return(output)
 }
 
