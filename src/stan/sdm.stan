@@ -100,7 +100,7 @@ transformed parameters {
       sigma_t[1] = exp(log_sigma_t[1]);
       z_t[1] = sigma_t[1] * w_t[1];
       for (tp in 2:n_time) {
-        z_t[tp] += alpha[1] * z_t[tp - 1] +
+        z_t[tp] = alpha[1] * z_t[tp - 1] +
           sigma_t[1] * w_t[tp];
       }
     }

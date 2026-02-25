@@ -193,24 +193,6 @@ transformed parameters {
       for (n in 1:N)
         mortality[n] += z_i[1][patch[n]];
     }
-     //--- inputing the AR effects ----
-    if (ar_re == 1) {
-      for (n in 1:N)
-        log_rec[n] += z_t[time[n]];
-    }
-    if (ar_re == 2) {
-      for (n in 1:N)
-        mortality[n] += z_t[time[n]];
-    }
-    //--- inputing IID effects ----
-    if (sp_re == 1) {
-      for (n in 1:N)
-        log_rec[n] += z_s[patch[n]];
-    }
-    if (sp_re == 2) {
-      for (n in 1:N)
-        mortality[n] += z_s[patch[n]];
-    }
     // Expected density at specific time/patch combinations by age
     array[n_ages] matrix[n_time, n_patches] lambda_aux;
     // filling lambda according to our "simplest model"

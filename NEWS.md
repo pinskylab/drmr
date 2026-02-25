@@ -4,9 +4,12 @@
 
 * `marg` method to .
 
+* Fixed a bug in the `sdm.stan` AR(1) term.
+
+* Fixed duplicated random effects in `drm.stan`
+
 
 * (TODO) Output of `predict` and `fitted` getting easier to work with.
-
 
 # drmr 0.4.0
 
