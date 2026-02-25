@@ -9,6 +9,9 @@
 \arguments{
 \item{object}{An object of class \code{CmdStanGQ}.}
 
+\item{probs}{A numeric vector of quantiles to calculate.
+Defaults to c(0.05, 0.5, 0.95).}
+
 \item{...}{Additional arguments (ignored).}
 }
 \description{

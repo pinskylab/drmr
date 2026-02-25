@@ -199,8 +199,8 @@ predict.adrm <- function(object,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
-  spt <- data.frame(v1 = pred_data$data$patch,
-                    v2 = pred_data$data$time)
+  spt <- data.frame(v1 = pred_data$patch,
+                    v2 = pred_data$time + max(object$data$time))
   colnames(spt) <- rev(unname(unlist(object$cols[-1])))
   output <- list("gq" = gq,
                  "spt" = spt)
@@ -300,8 +300,8 @@ predict.sdm <- function(object,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
-  spt <- data.frame(v1 = pred_data$data$patch,
-                    v2 = pred_data$data$time)
+  spt <- data.frame(v1 = pred_data$patch,
+                    v2 = pred_data$time + max(object$data$time))
   colnames(spt) <- rev(unname(unlist(object$cols[-1])))
   output <- list("gq" = gq,
                  "spt" = spt)
