@@ -29,7 +29,7 @@ fitted.adrm <- function(object,
   stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                        "CmdStanPathfinder", "CmdStanVB")))
   stopifnot(type %in% c("predictive", "expected", "latent"))
-  type_prep <- switch(type,
+  type_pred <- switch(type,
                       predictive = 0,
                       expected   = 1,
                       latent     = 2)
@@ -42,12 +42,17 @@ fitted.adrm <- function(object,
     instantiate::stan_package_model(name = "fitted_drm",
                                     package = "drmr")
   ## computing fitted values
-  output <- ft_out$
+  gq <- ft_out$
     generate_quantities(fitted_params = fitted_params,
-                        data = c(object$data, list(type = type_prep)),
+                        data = c(object$data, list(type = type_pred)),
                         parallel_chains = cores,
                         ...)
-  return(output)
+  spt <- data.frame(v1 = object$data$patch,
+                    v2 = object$data$time)
+  colnames(spt) <- rev(unname(unlist(object$cols[-1])))
+  output <- list("gq" = gq,
+                 "spt" = spt)
+  return(new_pred_drmr(output))
 }
 
 ##' @title SDM fitted values
@@ -80,7 +85,7 @@ fitted.sdm <- function(object,
   stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                        "CmdStanPathfinder", "CmdStanVB")))
   stopifnot(type %in% c("predictive", "expected", "latent"))
-  type_prep <- switch(type,
+  type_pred <- switch(type,
                       predictive = 0,
                       expected   = 1,
                       latent     = 2)
@@ -93,10 +98,15 @@ fitted.sdm <- function(object,
     instantiate::stan_package_model(name = "fitted_sdm",
                                     package = "drmr")
   ## computing forecast
-  output <- ft_out$
+  gq <- ft_out$
     generate_quantities(fitted_params = fitted_params,
-                        data = c(object$data, list(type = type_prep)),
+                        data = c(object$data, list(type = type_pred)),
                         parallel_chains = cores,
                         ...)
-  return(output)
+  spt <- data.frame(v1 = object$data$patch,
+                    v2 = object$data$time)
+  colnames(spt) <- rev(unname(unlist(object$cols[-1])))
+  output <- list("gq" = gq,
+                 "spt" = spt)
+  return(new_pred_drmr(output))
 }

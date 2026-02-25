@@ -2,21 +2,12 @@
 % Please edit documentation in R/methods.R
 \name{draws}
 \alias{draws}
-\alias{draws.adrm}
-\alias{draws.sdm}
+\alias{draws.drmrmodels}
 \title{Draws method for \code{adrm} and \code{sdm} objects.}
 \usage{
 draws(x, ...)
 
-\method{draws}{adrm}(
-  x,
-  variables = NULL,
-  inc_warmup = FALSE,
-  format = getOption("cmdstanr_draws_format", "draws_array"),
-  ...
-)
-
-\method{draws}{sdm}(
+\method{draws}{drmrmodels}(
   x,
   variables = NULL,
   inc_warmup = FALSE,

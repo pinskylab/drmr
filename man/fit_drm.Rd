@@ -81,8 +81,7 @@ list).  \item \code{formulas}: The formulas used to create design
 matrices.  \item \code{cols}: Important column names.  }
 }
 \description{
-Fit the DRM Stan model (this function is not stable yet and
-has not been fully tested).
+Fit the DRM Stan model
 }
 \examples{
 if (instantiate::stan_cmdstan_exists()) {

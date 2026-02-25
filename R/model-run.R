@@ -1,8 +1,7 @@
 ##' @title Fit the dynamic range model.
 ##' @export
 ##' @family models
-##' @description Fit the DRM Stan model (this function is not stable yet and
-##'   has not been fully tested).
+##' @description Fit the DRM Stan model
 ##' @param .data A \code{data frame} containing the data for the model.
 ##' @param y_col A \code{character} specifying the name of the column in `.data`
 ##'   that contains the response variable.
@@ -152,8 +151,7 @@ fit_drm <- function(.data,
 ##' @title Fit a GLM based SDM
 ##' @export
 ##' @family models
-##' @description Fit the SDM Stan model (this function is not stable yet and
-##'   has not been fully tested).
+##' @description Fit the SDM Stan model
 ##' @param .data A \code{data frame} containing the data for the model.
 ##' @param y_col A \code{character} specifying the name of the column in `.data`
 ##'   that contains the response variable.
@@ -162,24 +160,23 @@ fit_drm <- function(.data,
 ##' @param site_col A \code{character} specifying the name of the column in
 ##'   `.data` that contains the site variable.
 ##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{
-##'   \item \code{"gamma"} (default): gamma parametrized in terms of its mean;
-##'   \item \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
+##'   distribution assumed for density. The options are: \itemize{ \item
+##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
+##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 ##'   \code{"loglogistic"}: log-logistic parametrized in terms of its median
-##'   (usual parametrization);
-##'   \item \code{"lognormal_legacy"}: log-normal with its usual parametrization;
-##'    }
+##'   (usual parametrization); \item \code{"lognormal_legacy"}: log-normal with
+##'   its usual parametrization; }
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_dens A \code{formula} specifying the model for the non-zero
 ##'   density component. Defaults to `~ 1` (intercept only).
 ##' @param seed An \code{integer} specifying the random number seed.
 ##' @param init A scalar specifying the initialization method. The default
-##'   ("cmdstan_default") lets \code{cmdstan} initialize parameters.
-##'   Other options include: a scalar greater than zero, say \code{x}, which
+##'   ("cmdstan_default") lets \code{cmdstan} initialize parameters.  Other
+##'   options include: a scalar greater than zero, say \code{x}, which
 ##'   initializes all parameters uniformly between \code{-x} and \code{x};
-##'   \code{0}, which initializes all parameters at \code{0}; or "prior",
-##'   which initializes parameters by sampling from their priors.
+##'   \code{0}, which initializes all parameters at \code{0}; or "prior", which
+##'   initializes parameters by sampling from their priors.
 ##' @param algorithm a \code{character} specifying the algorithm used for
 ##'   inference. Default is \code{nuts} (the default MCMC in Stan). The
 ##'   remaining options are different flavors of variational bayes algorithms:
@@ -192,13 +189,10 @@ fit_drm <- function(.data,
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return An object of class \code{sdm} which is a \code{list} containing the
 ##'   MCMC draws, the model data, the linear predictors formulas, and the
-##'   (response, time, site) column names.
-##'    \itemize{
-##'     \item \code{stanfit}: The MCMC draws from the fitted model.
-##'     \item \code{data}: The data used to fit the model (as a list).
-##'     \item \code{formulas}: The formulas used to create design matrices.
-##'     \item \code{cols}: Important column names.
-##'   }
+##'   (response, time, site) column names.  \itemize{ \item \code{stanfit}: The
+##'   MCMC draws from the fitted model.  \item \code{data}: The data used to fit
+##'   the model (as a list).  \item \code{formulas}: The formulas used to create
+##'   design matrices.  \item \code{cols}: Important column names.  }
 ##' @seealso [make_data_sdm()]
 ##' @examples
 ##' if (instantiate::stan_cmdstan_exists()) {

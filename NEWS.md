@@ -10,7 +10,11 @@
 
 * Improved performance for `drm.stan` and `sdm.stan`
 
-* (TODO) Output of `predict` and `fitted` getting easier to work with.
+* Super class for DRMs and SDMs, so `print`, `summary`, and `draws` methods are
+  simplified.
+
+* A class `pred_drmr` was created for the output of the `predict` and `fitted`
+  methods. It facilitates joining those outputs to the observed data.
 
 # drmr 0.4.0
 

@@ -24,6 +24,12 @@ array[] matrix simplest(int n_patches,
                         array[] real init,
                         matrix recruitment,
                         int minit) {
+  /*
+    This function could be updated to have patches and time as the input as
+    opposed to n_patches and n_time. The advantage would be that the ordering
+    of these variables in the input dataset would not be important. The would
+    come at the cost of increasing the complexity of the function.
+   */
   // initializing output with zeros
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);

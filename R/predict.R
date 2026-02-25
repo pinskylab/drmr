@@ -124,6 +124,9 @@ predict.adrm <- function(object,
                       predictive = 0,
                       expected   = 1,
                       latent     = 2)
+  ord <- order(new_data[[object$cols$site_col]],
+               new_data[[object$cols$time_col]])
+  new_data <- new_data[ord, ]
   ## number time points for predictions
   ntime_for <- length(unique(new_data[[object$cols$time_col]]))
   time_for <- new_data[[object$cols$time_col]] -
@@ -190,13 +193,18 @@ predict.adrm <- function(object,
     instantiate::stan_package_model(name = "predict",
                                     package = "drmr")
   ## computing predictions
-  output <- pred_comp$
+  gq <- pred_comp$
     generate_quantities(fitted_params = fitted_params,
                         data = pred_data,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
-  return(output)
+  spt <- data.frame(v1 = pred_data$data$patch,
+                    v2 = pred_data$data$time)
+  colnames(spt) <- rev(unname(unlist(object$cols[-1])))
+  output <- list("gq" = gq,
+                 "spt" = spt)
+  return(new_pred_drmr(output))
 }
 
 ##' @title Predictions based on SDM.
@@ -250,6 +258,9 @@ predict.sdm <- function(object,
                       predictive = 0,
                       expected   = 1,
                       latent     = 2)
+  ord <- order(new_data[[object$cols$site_col]],
+               new_data[[object$cols$time_col]])
+  new_data <- new_data[ord, ]
   ## time points for predictions
   ntime_for <- length(unique(new_data[[object$cols$time_col]]))
   time_for <- new_data[[object$cols$time_col]] -
@@ -283,13 +294,18 @@ predict.sdm <- function(object,
     instantiate::stan_package_model(name = "predict_sdm",
                                     package = "drmr")
   ## computing predictions
-  output <- pred_comp$
+  gq <- pred_comp$
     generate_quantities(fitted_params = fitted_params,
                         data = pred_data,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
-  return(output)
+  spt <- data.frame(v1 = pred_data$data$patch,
+                    v2 = pred_data$data$time)
+  colnames(spt) <- rev(unname(unlist(object$cols[-1])))
+  output <- list("gq" = gq,
+                 "spt" = spt)
+  return(new_pred_drmr(output))
 }
 
 ##' @rdname preddrm
