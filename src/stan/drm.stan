@@ -180,17 +180,14 @@ transformed parameters {
       log_rec += z_t[time];
     }
     if (ar_re == 2) {
-      for (n in 1:N)
-        mortality[n] += z_t[time[n]];
+      mortality += z_t[time];
     }
     //--- inputing IID effects ----
     if (iid_re == 1) {
-      for (n in 1:N)
-        log_rec[n] += z_i[1][patch[n]];
+        log_rec += z_i[1][patch];
     }
     if (iid_re == 2) {
-      for (n in 1:N)
-        mortality[n] += z_i[1][patch[n]];
+        mortality += z_i[1][patch];
     }
     // Expected density at specific time/patch combinations by age
     array[n_ages] matrix[n_time, n_patches] lambda_aux;

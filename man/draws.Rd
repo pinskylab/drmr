@@ -25,17 +25,16 @@ draws(x, ...)
 )
 }
 \arguments{
-\item{x}{A \code{list} object containing the output from the \code{\link[=fit_drm]{fit_drm()}} (or
-\code{\link[=fit_sdm]{fit_sdm()}}) function.}
+\item{x}{An object of class \code{adrm} or \code{sdm}.}
 
 \item{...}{currently ignored.}
 
 \item{variables}{a string vector with the name of the variables for which we
 want to obtain posteriors samples (defaults to the same variables as the
-\code{summary} methods.}
+\code{summary} methods).}
 
 \item{inc_warmup}{a boolean indicating whether the warmup samples should be
-retrieved as well. Defaults to \code{FALSE}}
+retrieved as well. Defaults to \code{FALSE}.}
 
 \item{format}{A string. See cmdstanr \href{https://mc-stan.org/cmdstanr/reference/fit-method-draws.html}{$draws documentation}.}
 }

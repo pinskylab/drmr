@@ -12,7 +12,7 @@ ginv(X, tol = sqrt(.Machine$double.eps))
 \item{tol}{A relative tolerance to detect zero singular values.}
 }
 \value{
-The generalized inverse of \code{X}
+The generalized inverse of \code{X}.
 }
 \description{
 Generalized Inverse

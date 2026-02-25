@@ -49,10 +49,11 @@ density component. Defaults to \code{~ 1} (intercept only).}
 \item{seed}{An \code{integer} specifying the random number seed.}
 
 \item{init}{A scalar specifying the initialization method. The default
-(NULL) represents the \code{cmdstan} default, a scalar greater than zero,
-say \code{x}, initialized all parameters from a uniform between \code{-x}
-and \code{x}, a \code{0} initialize all parameters at \code{0}, or "prior"
-(to initialize the model parameters using samples from their prior)}
+("cmdstan_default") lets \code{cmdstan} initialize parameters.
+Other options include: a scalar greater than zero, say \code{x}, which
+initializes all parameters uniformly between \code{-x} and \code{x};
+\code{0}, which initializes all parameters at \code{0}; or "prior",
+which initializes parameters by sampling from their priors.}
 
 \item{algorithm}{a \code{character} specifying the algorithm used for
 inference. Default is \code{nuts} (the default MCMC in Stan). The
@@ -62,14 +63,15 @@ approximation centered at the mode of the posterior) or "optimize" for
 (penalized) MLEs.}
 
 \item{algo_args}{a \code{list} with arguments for the sampling
-algorithms. For instance, \code{tol_rel_obj} for variational .}
+algorithms. For instance, \code{tol_rel_obj} for variational inference.}
 
 \item{...}{Passed on to the \code{\link[=make_data]{make_data()}} function used to build the input
 \code{list} for our \code{cmdstanr} model.}
 }
 \value{
-A \code{list} containing the MCMC draws, the model data, the linear
-predictors formulas, and the (response, time, site) column names.
+An object of class \code{sdm} which is a \code{list} containing the
+MCMC draws, the model data, the linear predictors formulas, and the
+(response, time, site) column names.
 \itemize{
 \item \code{stanfit}: The MCMC draws from the fitted model.
 \item \code{data}: The data used to fit the model (as a list).
@@ -79,7 +81,7 @@ predictors formulas, and the (response, time, site) column names.
 }
 \description{
 Fit the SDM Stan model (this function is not stable yet and
-have not been fully tested).
+has not been fully tested).
 }
 \examples{
 if (instantiate::stan_cmdstan_exists()) {
@@ -92,7 +94,7 @@ if (instantiate::stan_cmdstan_exists()) {
 }
 }
 \seealso{
-\code{\link[=make_data]{make_data()}}
+\code{\link[=make_data_sdm]{make_data_sdm()}}
 
 Other models: 
 \code{\link{fit_drm}()}

@@ -7,7 +7,7 @@
 default_laplace()
 }
 \value{
-a \code{list} with (explain values)
+A \code{list} containing the default arguments for the Laplace algorithm.
 }
 \description{
 Returns default for Laplace

@@ -7,7 +7,7 @@
 default_pf()
 }
 \value{
-a \code{list} with (explain values)
+A \code{list} containing the default arguments for the Pathfinder algorithm.
 }
 \description{
 Returns default for Pathfinder

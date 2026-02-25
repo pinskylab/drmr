@@ -13,8 +13,8 @@ int_score(y, l, u, alpha)
 
 \item{u}{A numeric vector of upper bounds for the prediction intervals.}
 
-\item{alpha}{A numeric value specifying the penalty parameter for interval
-width.}
+\item{alpha}{A numeric value specifying the significance level (e.g., 0.05
+for a 95\% interval).}
 }
 \value{
 A numeric vector of interval scores.

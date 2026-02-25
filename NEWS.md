@@ -1,4 +1,4 @@
-# drmr 0.4.1
+# drmr 0.5.0
 
 * `draws` method added to the package.
 
@@ -8,6 +8,7 @@
 
 * Fixed duplicated random effects in `drm.stan`
 
+* Improved performance for `drm.stan` and `sdm.stan`
 
 * (TODO) Output of `predict` and `fitted` getting easier to work with.
 

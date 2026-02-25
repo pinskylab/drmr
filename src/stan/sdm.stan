@@ -128,16 +128,13 @@ transformed parameters {
     vector[N] lmu;
     lmu = X * beta_r;
     if (ar_re) {
-      for (n in 1:N)
-        lmu[n] += z_t[time[n]];
+      lmu += z_t[time];
     }
     if (sp_re) {
-      for (n in 1:N)
-        lmu[n] += z_s[patch[n]];
+      lmu += z_s[patch];
     }
     if (iid_re) {
-      for (n in 1:N)
-        lmu[n] += z_i[1][patch[n]];
+      lmu += z_i[1][patch];
     }
     if (cloglog) {
       if (rho_mu) {

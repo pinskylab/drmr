@@ -10,7 +10,7 @@ get_nodes(adj)
 \item{adj}{adjacency \code{matrix}}
 }
 \value{
-a \code{list}.
+A \code{list} containing the number of edges and the neighbors.
 }
 \description{
 Get nodes for ICAR spatial random effects

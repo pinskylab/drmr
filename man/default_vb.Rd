@@ -7,7 +7,7 @@
 default_vb()
 }
 \value{
-a \code{list} with (explain values)
+A \code{list} containing the default arguments for the Variational Bayes algorithm.
 }
 \description{
 Returns default for Variational Bayes

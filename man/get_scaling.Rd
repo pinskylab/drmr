@@ -10,7 +10,7 @@ get_scaling(adj)
 \item{adj}{adjacency \code{matrix}}
 }
 \value{
-a \code{scalar}
+A \code{scalar} representing the scaling factor.
 }
 \description{
 Using results from Rue and Held 2005 and Morris et al. 2019.

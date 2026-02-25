@@ -10,7 +10,7 @@ get_zeros(y)
 \item{y}{a \code{numeric vector} of species' densities.}
 }
 \value{
-a \code{list} containing necessary input for stan to identify zeros
+A \code{list} containing necessary input for stan to identify zeros
 and nonzeros in the response variable.
 }
 \description{

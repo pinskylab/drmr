@@ -14,7 +14,7 @@ marg(object, ...)
   newdata = NULL,
   n_pts = 100,
   summary = TRUE,
-  prob = c(0.05, 0.5, 0.95),
+  prob = 0.95,
   ...
 )
 }

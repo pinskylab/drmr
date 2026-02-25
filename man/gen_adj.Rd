@@ -10,7 +10,7 @@ gen_adj(x)
 \item{x}{an \code{sf} object representing the patches.}
 }
 \value{
-an adjacency \code{matrix}
+An adjacency \code{matrix}.
 }
 \description{
 Generates an adjacency matrix for "movement"

@@ -13,7 +13,7 @@ safe_modify(original, replacements)
 in the \code{original} \code{list}.}
 }
 \value{
-an updated \code{original list}.
+The updated \code{original} list.
 }
 \description{
 Safely modifies a named \code{list}.

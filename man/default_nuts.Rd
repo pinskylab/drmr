@@ -2,12 +2,12 @@
 % Please edit documentation in R/defaults.R
 \name{default_nuts}
 \alias{default_nuts}
-\title{Default nuts arguments}
+\title{Default NUTS arguments}
 \usage{
 default_nuts()
 }
 \value{
-a \code{list} with (explain values)
+A \code{list} containing the default arguments for the NUTS algorithm.
 }
 \description{
 Returns default for NUTS

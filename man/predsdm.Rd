@@ -10,7 +10,7 @@
 predict_sdm(...)
 }
 \arguments{
-\item{object}{A \code{list} object containing the output of a \link{fit_sdm} call.}
+\item{object}{An \code{sdm} object containing the output of a \link{fit_sdm} call.}
 
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
@@ -19,7 +19,7 @@ obtain predictions.}
 \itemize{
 \item \code{"predictive"} (default): posterior predictive distribution;
 \item \code{"expected"}: theoretical mean of the posterior predictive distribution;
-\item \code{"latent"}: latent density (i.e., disconsidering the observation error);
+\item \code{"latent"}: latent density (i.e., disregarding the observation error);
 }}
 
 \item{seed}{a seed used for the predictions. predictions are obtained
@@ -28,7 +28,7 @@ distribution. Therefore, a \code{seed} is needed to ensure the results'
 reproducibility.}
 
 \item{cores}{number of threads used to compute the predictions. If four
-chains were used in the \code{drm}, then four (or less) threads are
+chains were used in the \code{sdm}, then four (or less) threads are
 recommended.}
 
 \item{...}{params to be passed to \code{predict.sdm}}
@@ -47,6 +47,9 @@ The current version of the code assumes the data where predictions
 are needed is ordered by "patch" and "site" and, in addition, its patches
 MUST be the same as the ones used to obtain the parameters' estimates from
 the the \code{sdm} object.
+}
+\seealso{
+\code{\link[=fit_sdm]{fit_sdm()}}
 }
 \author{
 lcgodoy

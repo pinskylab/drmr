@@ -15,10 +15,10 @@ approximation centered at the mode of the posterior) or "optimize" for
 (penalized) MLEs.}
 
 \item{algo_args}{a \code{list} with arguments for the sampling
-algorithms. For instance, \code{tol_rel_obj} for variational .}
+algorithms. For instance, \code{tol_rel_obj} for variational inference.}
 }
 \value{
-a \code{list} with (explain values)
+A \code{list} containing the default arguments for the specified algorithm.
 }
 \description{
 Returns default for a given algorithm

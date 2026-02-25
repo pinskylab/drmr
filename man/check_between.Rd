@@ -14,7 +14,7 @@ check_between(x, lb, ub)
 \item{ub}{A numeric vector of upper bounds.}
 }
 \value{
-No return value. This function stops execution if any of the
+Returns \code{NULL} invisibly. This function stops execution if any of the
 following conditions are met:
 \itemize{
 \item lb is greater than or equal to ub.

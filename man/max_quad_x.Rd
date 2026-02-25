@@ -17,7 +17,7 @@ quadratic term.}
 \item{offset}{a \code{numeric} representing the "center" of \eqn{x}.}
 }
 \value{
-a \code{numeric} representing the uncentered \eqn{x} that maximizes
+A \code{numeric} value representing the uncentered \eqn{x} that maximizes
 (or minimizes) the linear predictor.
 }
 \description{

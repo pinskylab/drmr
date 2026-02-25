@@ -10,7 +10,7 @@ fix_re(x)
 \item{x}{a \code{character}}
 }
 \value{
-a \code{integer}
+An \code{integer}.
 }
 \description{
 Random effects verbose to code

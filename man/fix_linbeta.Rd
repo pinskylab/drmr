@@ -16,7 +16,7 @@ quadratic term.}
 \item{offset}{a \code{numeric} representing the "center" of \eqn{x}.}
 }
 \value{
-a \code{numeric} representing the regression coefficient of the
+A \code{numeric} value representing the regression coefficient of the
 linear term for the model where \eqn{x} is not centered.
 }
 \description{

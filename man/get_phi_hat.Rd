@@ -18,7 +18,7 @@ distribution assumed for density. The options are: \itemize{ \item
 its usual parametrization; }}
 }
 \value{
-a \code{numeric} scalar representing an estimate for phi
+A \code{numeric} scalar representing an estimate for phi.
 }
 \description{
 Estimate phi

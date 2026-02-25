@@ -28,10 +28,10 @@ make_data(
 \arguments{
 \item{y}{a \code{numeric vector} of species' densities.}
 
-\item{time}{an \code{vector} indicating the time point associated to each
+\item{time}{a \code{vector} indicating the time point associated to each
 element of \code{y}.}
 
-\item{site}{an \code{vector} indicating the sites associated to each element
+\item{site}{a \code{vector} indicating the sites associated to each element
 of \code{y}.}
 
 \item{init_data}{an optional vector (of length n_ages - 1) to initialize the
@@ -54,7 +54,7 @@ of absence at each site/time.}
 \item{n_ages}{an \code{integer} indicating the number of ages for the
 underlying population dynamic model.}
 
-\item{age_selectivity}{an \code{numeric vector} with \code{n_ages} elements,
+\item{age_selectivity}{a \code{numeric vector} with \code{n_ages} elements,
 where each element indicates the selectivity of a respective age. All the
 elements of this vector must lie between 0 and 1.}
 
@@ -73,10 +73,10 @@ while 3 and 4 are mobile.}
 and zero otherwise.}
 
 \item{.toggles}{a \code{list} of toggles for model components. The
-components are: \itemize{ \item \code{rho_mu}: 1 to use explicitly relates
+components are: \itemize{ \item \code{rho_mu}: 1 to explicitly relate
 rho to mu and 0 otherwise.  \item \code{cloglog}: 1 to use the
 complementary log-log and 0 for the logit link function for the absence
-probabilities.  \item \code{movement}: 1 to allow for (adjacent) moviment;
+probabilities.  \item \code{movement}: 1 to allow for (adjacent) movement;
 0 for static.  \item \code{est_surv}: 1 to estimate mortality and 0
 otherwise.  \item \code{est_init}: 1 to estimate initial values for lambda
 and 0 otherwise.  \item \code{minit}: 1 to use mortality to estimate
@@ -110,7 +110,8 @@ by site and time, respectively.}
 should be determined through the data (using \code{\link[=get_phi_hat]{get_phi_hat()}}).}
 }
 \value{
-a \code{list} to be used as the input for a \code{stan} model
+A \code{list} containing the data and settings to be used as input
+for the Stan model.
 }
 \description{
 This function creates the \code{list} used as the input for the \code{stan}

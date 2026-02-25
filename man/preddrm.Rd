@@ -20,15 +20,15 @@
 predict_drm(...)
 }
 \arguments{
-\item{object}{A \code{adrm} (or \code{sdm}) object containing the output from the
-\code{\link[=fit_drm]{fit_drm()}} (or \code{\link[=fit_sdm]{fit_sdm()}}) function.}
+\item{object}{An \code{adrm} object containing the output from the
+\code{\link[=fit_drm]{fit_drm()}} function.}
 
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
 
-\item{past_data}{a \code{data.frame} with the dataset last year used in
-model fitting. Only needed when \code{f_test} is not missing or when
-estimating survival.}
+\item{past_data}{a \code{data.frame} with the dataset from the last year
+used in model fitting. Only needed when \code{f_test} is not missing or
+when estimating survival.}
 
 \item{f_test}{a \code{matrix} informing the instantaneous fishing mortality
 rates at each age (columns) and timepoint (rows).}
@@ -37,10 +37,10 @@ rates at each age (columns) and timepoint (rows).}
 \itemize{
 \item \code{"predictive"} (default): posterior predictive distribution;
 \item \code{"expected"}: theoretical mean of the posterior predictive distribution;
-\item \code{"latent"}: latent density (i.e., disconsidering the observation error);
+\item \code{"latent"}: latent density (i.e., disregarding the observation error);
 }}
 
-\item{seed}{a seed used for the predictions. predictiosn are obtained
+\item{seed}{a seed used for the predictions. predictions are obtained
 through Monte Carlo samples from the posterior predictive
 distribution. Therefore, a \code{seed} is needed to ensure the results'
 reproducibility.}
@@ -64,6 +64,9 @@ The current version of the code assumes the data where predictions
 are needed is ordered by "patch" and "site" and, in addition, its patches
 MUST be the same as the ones used to obtain the parameters' estimates from
 the the \code{drm} object.
+}
+\seealso{
+\code{\link[=fit_drm]{fit_drm()}}
 }
 \author{
 lcgodoy

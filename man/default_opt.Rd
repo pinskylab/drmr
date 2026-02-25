@@ -2,15 +2,15 @@
 % Please edit documentation in R/defaults.R
 \name{default_opt}
 \alias{default_opt}
-\title{Default Laplace arguments}
+\title{Default Optimization arguments}
 \usage{
 default_opt()
 }
 \value{
-a \code{list} with (explain values)
+A \code{list} containing the default arguments for the Optimization algorithm.
 }
 \description{
-Returns default for Laplace
+Returns default for Optimization
 }
 \author{
 lcgodoy

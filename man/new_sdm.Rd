@@ -16,5 +16,5 @@ An object of class \code{sdm}.
 \description{
 Constructs an object of class \code{sdm} from a list, after validating its
 structure. Note that, this function is mostly for internal usage. \code{sdm}
-stands for age-structured dynamic range model.
+stands for species distribution model.
 }

@@ -7,7 +7,7 @@
 default_priors()
 }
 \value{
-a \code{list} with (explain values)
+A \code{list} containing the default hyperparameter values for the priors.
 }
 \description{
 Returns default priors' hyperparameters for the DRM model.
