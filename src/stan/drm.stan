@@ -177,8 +177,7 @@ transformed parameters {
   {
     //--- inputing the AR effects ----
     if (ar_re == 1) {
-      for (n in 1:N)
-        log_rec[n] += z_t[time[n]];
+      log_rec += z_t[time];
     }
     if (ar_re == 2) {
       for (n in 1:N)
