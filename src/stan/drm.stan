@@ -4,12 +4,12 @@ functions {
 }
 data {
   //--- survey data  ---
-  int N; // n_patches * n_time
+  int N; // n_sites * n_time
   int n_ages; // number of ages
-  int n_patches; // number of patches
+  int n_sites; // number of sites
   int n_time; // years for training
   array[N] int<lower = 1, upper = n_time> time;
-  array[N] int<lower = 1, upper = n_patches> patch;
+  array[N] int<lower = 1, upper = n_sites> site;
   vector[N] y;
   //--- for vectorizing zero-inflation ----
   int N_nz;
@@ -37,7 +37,7 @@ data {
   matrix[n_ages, n_time] f;
   array[est_surv ? 0 : 1] real m; // total mortality
   //--- movement related quantities ----
-  matrix[movement ? n_patches: 1, movement ? n_patches : 1] adj_mat;
+  matrix[movement ? n_sites: 1, movement ? n_sites : 1] adj_mat;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
   //--- initial cohort (if not estimated) ----
@@ -46,7 +46,7 @@ data {
   array[sp_re > 0 ? 1 : 0] int<lower = 0> N_edges;  // number of neighbor pairs
   array[sp_re > 0 ? 2 : 1,
         sp_re > 0 ? N_edges[1] : 1]
-  int<lower = 1, upper = n_patches> neighbors;  // columnwise adjacent
+  int<lower = 1, upper = n_sites> neighbors;  // columnwise adjacent
   array[sp_re > 0 ? 1 : 0] real scaling;
   //--- environmental data ----
   //--- * for mortality ----
@@ -81,20 +81,20 @@ data {
 }
 transformed data {
   //--- Movement ----
-  // `identity_mat` is a "patch X patch" identity matrix used to apply the
+  // `identity_mat` is a "site X site" identity matrix used to apply the
   // "reflexive" movement.
-  matrix[movement ? n_patches : 0, movement ? n_patches : 0] identity_mat;
+  matrix[movement ? n_sites : 0, movement ? n_sites : 0] identity_mat;
   if (movement)
-    identity_mat = identity_matrix(n_patches);
+    identity_mat = identity_matrix(n_sites);
   //--- Mortality ----
-  // `fixed_m` is a "time X patch" constant matrix. All of its positions are
+  // `fixed_m` is a "time X site" constant matrix. All of its positions are
   // equal to the fishing mortality `m`. The purpose of this matrix is the make
   // the changes in the code when not estimating `m` minimal.
-  matrix[est_surv ? 0 : n_time, est_surv ? 0 : n_patches] fixed_m;
+  matrix[est_surv ? 0 : n_time, est_surv ? 0 : n_sites] fixed_m;
   if (!est_surv)
-    fixed_m = rep_matrix(- m[1], n_time, n_patches);
+    fixed_m = rep_matrix(- m[1], n_time, n_sites);
   //--- scaling factors ----
-  real s_iid = sqrt(n_patches / (n_patches - 1.0));
+  real s_iid = sqrt(n_sites / (n_sites - 1.0));
 }
 parameters {
   // relationship between mu and rho
@@ -121,12 +121,12 @@ parameters {
   // SD
   array[iid_re > 0 ? 1 : 0] real log_sigma_i;
   // aux latent variable
-  array[iid_re > 0 ? 1 : 0] sum_to_zero_vector[n_patches] z_i;
+  array[iid_re > 0 ? 1 : 0] sum_to_zero_vector[n_sites] z_i;
   //--- * ICAR RE ----
-  array[sp_re > 0 ? 1 : 0] sum_to_zero_vector[n_patches] w_s;
+  array[sp_re > 0 ? 1 : 0] sum_to_zero_vector[n_sites] w_s;
   array[sp_re > 0 ? 1 : 0] real log_sigma_s;
   //--- * Movement parameter ----
-  // logit of the probability of staying in the same patch
+  // logit of the probability of staying in the same site
   array[movement] real<lower = 0, upper = 1> zeta;
 }
 transformed parameters {
@@ -146,11 +146,11 @@ transformed parameters {
   vector[est_surv ? N : 0] mortality;
   if (est_surv)
     mortality = X_m * beta_s[1];
-  // Expected density at specific time/patch combinations
+  // Expected density at specific time/site combinations
   vector[N] mu =
     rep_vector(0.0, N);
-  matrix[n_ages, n_patches] lambda =
-    rep_matrix(0.0, n_ages, n_patches);
+  matrix[n_ages, n_sites] lambda =
+    rep_matrix(0.0, n_ages, n_sites);
   //--- AR process ----
   array[ar_re > 0 ? 1 : 0] real sigma_t;
   vector[ar_re > 0 ? n_time : 0] z_t;
@@ -169,7 +169,7 @@ transformed parameters {
   }
   //--- ICAR RE ----
   array[sp_re > 0 ? 1 : 0] real sigma_s;
-  vector[sp_re > 0 ? n_patches : 0] z_s;
+  vector[sp_re > 0 ? n_sites : 0] z_s;
   if (sp_re > 0) {
     sigma_s[1] = exp(log_sigma_s[1]);
     z_s = sigma_s[1] * inv_sqrt(scaling[1]) * w_s[1];
@@ -184,25 +184,25 @@ transformed parameters {
     }
     //--- inputing IID effects ----
     if (iid_re == 1) {
-        log_rec += z_i[1][patch];
+        log_rec += z_i[1][site];
     }
     if (iid_re == 2) {
-        mortality += z_i[1][patch];
+        mortality += z_i[1][site];
     }
-    // Expected density at specific time/patch combinations by age
-    array[n_ages] matrix[n_time, n_patches] lambda_aux;
+    // Expected density at specific time/site combinations by age
+    array[n_ages] matrix[n_time, n_sites] lambda_aux;
     // filling lambda according to our "simplest model"
     lambda_aux =
-      simplest(n_patches, n_time, n_ages,
+      simplest(n_sites, n_time, n_ages,
                f,
-               est_surv ? to_matrix(mortality, n_time, n_patches) : fixed_m,
+               est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
                est_init ? init_par : init_data,
-               to_matrix(log_rec, n_time, n_patches),
+               to_matrix(log_rec, n_time, n_sites),
                minit);
       //--- Movement ----
-    // probability of staying in the current patch
+    // probability of staying in the current site
     // movement matrix
-    matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+    matrix[movement ? n_sites : 0, movement ? n_sites : 0] mov_mat;
     if (movement) {
       // probability of movement is evenly distributed across neighbors
       real d = (1 - zeta[1]);
@@ -212,11 +212,11 @@ transformed parameters {
       mov_mat += d * adj_mat;
       lambda_aux = apply_movement(lambda_aux, mov_mat, ages_movement);
     }
-    matrix[n_time, n_patches] mu_aux =
-      rep_matrix(0.0, n_time, n_patches);
+    matrix[n_time, n_sites] mu_aux =
+      rep_matrix(0.0, n_time, n_sites);
     //--- filling mu ----
     for (tp in 1 : n_time) {
-      for (p in 1 : n_patches) {
+      for (p in 1 : n_sites) {
         real mu_aux2;
         mu_aux2 = dot_product(to_vector(lambda_aux[1:n_ages, tp, p]),
                               selectivity_at_age);
@@ -227,7 +227,7 @@ transformed parameters {
           lambda[1:n_ages, p] =
             to_vector(lambda_aux[1:n_ages, tp, p]);
         }
-      } // close patches
+      } // close sites
     }
     mu = to_vector(mu_aux);
     if (ar_re == 3) {
@@ -236,15 +236,15 @@ transformed parameters {
     }
     if (iid_re == 3) {
       for (n in 1:N)
-        mu[n] *= exp(z_i[1][patch[n]]);
+        mu[n] *= exp(z_i[1][site[n]]);
     }
     if (sp_re == 3) {
       for (n in 1:N)
-        mu[n] *= exp(z_s[patch[n]]);
+        mu[n] *= exp(z_s[site[n]]);
     }
   }
   //--- quantities used in the likelihood ----
-  // probability of encounter at specific time/patch combinations
+  // probability of encounter at specific time/site combinations
   vector[N] rho;
   // rho now hasa "regression like" type
   if (cloglog) {

@@ -43,12 +43,12 @@ function evaluated at each data point given each sample from the
 posterior.
 }
 \description{
-Considering a new dataset (across the same patches), computes
+Considering a new dataset (across the same sites), computes
 the out-of-sample ELPD based on the DRM passed as \code{drm}.
 }
 \details{
 The current version of the code assumes the data where forecasts
-are needed are ordered by "patch" and "site" and, in addition, the patches
+are needed are ordered by "site" and "site" and, in addition, the sites
 MUST be the same as the ones used to obtain the parameters' estimates from
 the the \code{drm} object.
 }

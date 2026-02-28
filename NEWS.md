@@ -16,6 +16,9 @@
 * A class `pred_drmr` was created for the output of the `predict` and `fitted`
   methods. It facilitates joining those outputs to the observed data.
 
+* We had some functions called patches sites and vice-versa. Now everything is
+  standardized using "site" for patches/sites (I know, it does sound confusing).
+
 # drmr 0.4.0
 
 * `predict` and `fitted` methods now have an argument called `type`, which

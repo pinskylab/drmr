@@ -3,8 +3,8 @@ functions {
 }
 data {
   //--- survey data  ---
-  int N; // n_patches * n_time
-  int n_patches; // number of patches
+  int N; // n_sites * n_time
+  int n_sites; // number of sites
   int n_time; // years for training
   //--- toggles ---
   vector[N] y;

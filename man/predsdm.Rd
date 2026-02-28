@@ -39,12 +39,12 @@ package) containing samples for the posterior predictive distribution for
 predictions.
 }
 \description{
-Considering a new dataset (across the same patches), computes
+Considering a new dataset (across the same sites), computes
 predictions based on the SDM passed as \code{sdm}.
 }
 \details{
 The current version of the code assumes the data where predictions
-are needed is ordered by "patch" and "site" and, in addition, its patches
+are needed is ordered by "site" and "site" and, in addition, its sites
 MUST be the same as the ones used to obtain the parameters' estimates from
 the the \code{sdm} object.
 }

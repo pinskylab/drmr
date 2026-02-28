@@ -3,11 +3,11 @@ functions {
 }
 data {
   //--- survey data  ---
-  int N; // n_patches * n_time
-  int n_patches; // number of patches
+  int N; // n_sites * n_time
+  int n_sites; // number of sites
   int n_time; // years for training
   array[N] int<lower = 1, upper = n_time> time;
-  array[N] int<lower = 1, upper = n_patches> patch;
+  array[N] int<lower = 1, upper = n_sites> site;
   vector[N] y;
   //--- for vectorizing zero-inflation ----
   int N_nz;
@@ -29,7 +29,7 @@ data {
   array[sp_re > 0 ? 1 : 0] int<lower = 0> N_edges;  // number of neighbor pairs
   array[sp_re > 0 ? 2 : 1,
         sp_re > 0 ? N_edges[1] : 1]
-  int<lower = 1, upper = n_patches> neighbors;  // columnwise adjacent
+  int<lower = 1, upper = n_sites> neighbors;  // columnwise adjacent
   array[sp_re > 0 ? 1 : 0] real scaling;
   //--- environmental data ----
   //--- * for counts ----
@@ -59,7 +59,7 @@ data {
 }
 transformed data {
   //--- scaling factors ----
-  real s_iid = sqrt(n_patches / (n_patches - 1.0));
+  real s_iid = sqrt(n_sites / (n_sites - 1.0));
 }
 parameters {
   // relationship between mu and rho
@@ -82,9 +82,9 @@ parameters {
   // SD
   array[iid_re] real log_sigma_i;
   // aux latent variable
-  array[iid_re] sum_to_zero_vector[n_patches] z_i;
+  array[iid_re] sum_to_zero_vector[n_sites] z_i;
   //--- * ICAR RE ----
-  array[sp_re] sum_to_zero_vector[n_patches] w_s;
+  array[sp_re] sum_to_zero_vector[n_sites] w_s;
   array[sp_re] real log_sigma_s;
 }
 transformed parameters {
@@ -112,15 +112,15 @@ transformed parameters {
   }
   //--- ICAR RE ----
   array[sp_re > 0 ? 1 : 0] real sigma_s;
-  vector[sp_re > 0 ? n_patches : 0] z_s;
+  vector[sp_re > 0 ? n_sites : 0] z_s;
   if (sp_re > 0) {
     sigma_s[1] = exp(log_sigma_s[1]);
     z_s = sigma_s[1] * inv_sqrt(scaling[1]) * w_s[1];
   }
   //--- quantities used in the likelihood ----
-  // probability of encounter at specific time/patch combinations
+  // probability of encounter at specific time/site combinations
   vector[N] rho;
-  // Expected density at specific time/patch combinations
+  // Expected density at specific time/site combinations
   vector[N] mu =
     rep_vector(0.0, N);
   // rho now hasa "regression like" type
@@ -131,10 +131,10 @@ transformed parameters {
       lmu += z_t[time];
     }
     if (sp_re) {
-      lmu += z_s[patch];
+      lmu += z_s[site];
     }
     if (iid_re) {
-      lmu += z_i[1][patch];
+      lmu += z_i[1][site];
     }
     if (cloglog) {
       if (rho_mu) {

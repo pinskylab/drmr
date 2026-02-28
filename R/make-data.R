@@ -120,13 +120,17 @@ make_data <- function(y,
   priors <- default_priors() |>
     safe_modify(.priors)
   ## additional quantities that can be inferred from data
-  n_patches <- length(unique(site))
+  n_sites <- length(unique(site))
   n_time <- length(unique(time))
+  site_factor <- factor(site)
+  site_levels <- levels(site_factor)
+  site_stan <- as.integer(site_factor)
+  time_init <- min(time)
   if (reorder) {
     my_ord <- order(site, time)
     y <- y[my_ord]
     site <- site[my_ord]
-    time <- time[my_ord] - min(time) + 1
+    time <- time[my_ord] - time_init + 1
   }
   if (missing(f_mort))
     f_mort <- matrix(0, nrow = n_ages, ncol = n_time)
@@ -138,7 +142,7 @@ make_data <- function(y,
   }
   if (toggles$movement) {
     stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
-              nrow(adj_mat) == n_patches)
+              nrow(adj_mat) == n_sites)
     if (missing(ages_movement)) {
       ages_movement <- rep(1L, n_ages)
     } else if (length(ages_movement) == 1) {
@@ -172,7 +176,7 @@ make_data <- function(y,
     }
   }
   if (missing(x_r)) {
-    x_r <- matrix(1, nrow = n_time * n_patches)
+    x_r <- matrix(1, nrow = n_time * n_sites)
     K_r <- 1
   } else {
     K_r <- ncol(x_r)
@@ -190,7 +194,7 @@ make_data <- function(y,
     }
   }
   if (missing(x_t)) {
-    x_t <- matrix(1, nrow = n_time * n_patches)
+    x_t <- matrix(1, nrow = n_time * n_sites)
     K_t <- 1
   } else {
     K_t <- ncol(x_t)
@@ -219,7 +223,7 @@ make_data <- function(y,
   }
   if (toggles$sp_re > 0) {
     stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
-              nrow(adj_mat) == n_patches)
+              nrow(adj_mat) == n_sites)
     aux_sp <- get_nodes(adj_mat)
     adj2 <- matrix(0, ncol = NCOL(adj_mat), nrow = NROW(adj_mat))
     adj2[adj_mat > 0] <- 1
@@ -237,12 +241,14 @@ make_data <- function(y,
   zeros <- get_zeros(y)
   if (any(is.na(y)))
     y <- ifelse(is.na(y), -99, y)
-  output <- list(N = n_time * n_patches,
+  output <- list(N = n_time * n_sites,
                  n_ages = n_ages,
-                 n_patches = n_patches,
+                 n_sites = n_sites,
                  n_time = n_time,
                  time = time,
-                 patch = site,
+                 time_init = time_init,
+                 site = site_stan,
+                 site_levels = site_levels,
                  init_data = init_data,
                  y = y,
                  f = f_mort,
@@ -286,9 +292,9 @@ make_data <- function(y,
 ##'   rho to mu and 0 otherwise. \item \code{cloglog}: 1 to use the
 ##'   complementary log-log and 0 for the logit link function for the absence
 ##'   probabilities. \item \code{ar_re}: 1 to incorporate an AR(1) process to
-##'   density and 0 otherwise. \item \code{iid_re}: 1 to incorporate a patch
+##'   density and 0 otherwise. \item \code{iid_re}: 1 to incorporate a site
 ##'   specific IID random effect to density and 0 otherwise. \item \code{sp_re}:
-##'   1 to incorporate a patch specific ICAR random effect to density and 0
+##'   1 to incorporate a site specific ICAR random effect to density and 0
 ##'   otherwise.}
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
@@ -354,17 +360,21 @@ make_data_sdm <- function(y,
   priors <- default_priors() |>
     safe_modify(.priors)
   ## additional quantities that can be inferred from data
-  n_patches <- length(unique(site))
+  n_sites <- length(unique(site))
   n_time <- length(unique(time))
+  site_factor <- factor(site)
+  site_levels <- levels(site_factor)
+  site_stan <- as.integer(site_factor)
+  time_init <- min(time)
   if (reorder) {
     my_ord <- order(site, time)
     y <- y[my_ord]
     site <- site[my_ord]
     time <- time[my_ord]
-    time <- time - min(time) + 1
+    time <- time - time_init + 1
   }
   if (missing(x)) {
-    x <- matrix(1, nrow = n_time * n_patches)
+    x <- matrix(1, nrow = n_time * n_sites)
     K_x <- 1
   } else {
     K_x <- ncol(x)
@@ -382,7 +392,7 @@ make_data_sdm <- function(y,
     }
   }
   if (missing(z)) {
-    z <- matrix(1, nrow = n_time * n_patches)
+    z <- matrix(1, nrow = n_time * n_sites)
     K_z <- 1
   } else {
     K_z <- ncol(z)
@@ -401,7 +411,7 @@ make_data_sdm <- function(y,
   }
   if (toggles$sp_re > 0) {
     stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
-              nrow(adj_mat) == n_patches)
+              nrow(adj_mat) == n_sites)
     aux_sp <- get_nodes(adj_mat)
     adj2 <- matrix(0, ncol = NCOL(adj_mat), nrow = NROW(adj_mat))
     adj2[adj_mat > 0] <- 1
@@ -416,11 +426,13 @@ make_data_sdm <- function(y,
   zeros <- get_zeros(y)
   if (any(is.na(y)))
     y <- ifelse(is.na(y), -99, y)
-  output <- list(N = n_time * n_patches,
-                 n_patches = n_patches,
+  output <- list(N = n_time * n_sites,
+                 n_sites = n_sites,
                  n_time = n_time,
                  time = time,
-                 patch = site,
+                 time_init = time_init,
+                 site = site_stan,
+                 site_levels = site_levels,
                  y = y,
                  X = x,
                  K_x = K_x,

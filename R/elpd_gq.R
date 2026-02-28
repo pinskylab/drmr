@@ -1,6 +1,6 @@
 ##' @title (out-of-sample) Expected Log-posterior Density (ELPD) based on
 ##'   \code{adrm} and \code{sdm} objects.
-##' @description Considering a new dataset (across the same patches), computes
+##' @description Considering a new dataset (across the same sites), computes
 ##'   the out-of-sample ELPD based on the DRM passed as \code{drm}.
 ##'
 ##' @param x A \code{list} object containing the output from the [fit_drm()] (or
@@ -21,7 +21,7 @@
 ##' @param ... additional parameters to be passed to \code{elpd}
 ##' 
 ##' @details The current version of the code assumes the data where forecasts
-##'   are needed are ordered by "patch" and "site" and, in addition, the patches
+##'   are needed are ordered by "site" and "site" and, in addition, the sites
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{drm} object.
 ##'
@@ -66,12 +66,12 @@ elpd.adrm <- function(x,
     x$stanfit$draws(variables = pars)
   ##--- list for forecast object ----
   forecast_data <-
-    list(n_patches = x$data$n_patches,
+    list(n_sites = x$data$n_sites,
          n_ages = x$data$n_ages,
          n_time = ntime_for,
          n_time_train = x$data$n_time,
          time = time_for,
-         patch = new_data[[x$cols$site_col]],
+         site = new_data[[x$cols$site_col]],
          rho_mu = x$data$rho_mu,
          ar_re = x$data$ar_re,
          iid_re = x$data$iid_re,
@@ -91,7 +91,7 @@ elpd.adrm <- function(x,
          selectivity_at_age = x$data$selectivity_at_age,
          K_r = x$data$K_r,
          X_r = x_rt)
-  forecast_data$N <- forecast_data$n_patches * forecast_data$n_time
+  forecast_data$N <- forecast_data$n_sites * forecast_data$n_time
   if (length(x$data$K_m) > 0) {
     stopifnot(!missing(past_data))
     x_mpast <-
@@ -139,11 +139,11 @@ elpd.sdm <- function(x,
     x$stanfit$draws(variables = pars)
   ##--- list for forecast object ----
   forecast_data <-
-    list(n_patches = x$data$n_patches,
+    list(n_sites = x$data$n_sites,
          n_time = ntime_for,
          n_time_train = x$data$n_time,
          time = time_for,
-         patch = new_data[[x$cols$site_col]],
+         site = new_data[[x$cols$site_col]],
          rho_mu = x$data$rho_mu,
          ar_re = x$data$ar_re,
          iid_re = x$data$iid_re,
@@ -155,7 +155,7 @@ elpd.sdm <- function(x,
                                  data = new_data),
          X = stats::model.matrix(x[["formulas"]][["formula_dens"]],
                                  data = new_data))
-  forecast_data$N <- forecast_data$n_patches * forecast_data$n_time
+  forecast_data$N <- forecast_data$n_sites * forecast_data$n_time
   forecast_data$K_z <- NCOL(forecast_data$Z)
   forecast_data$K_x <- NCOL(forecast_data$X)
   ## load compiled forecast

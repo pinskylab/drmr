@@ -4,11 +4,11 @@ functions {
 data {
   //--- survey data  ---
   int N;
-  int n_patches; // number of patches
+  int n_sites; // number of sites
   int n_time; // years for forecasts
   int n_time_train; // years for training
   array[N] int time;
-  array[N] int<lower = 1, upper = n_patches> patch;
+  array[N] int<lower = 1, upper = n_sites> site;
   //--- toggles ---
   int<lower = 0, upper = 1> rho_mu;
   int<lower = 0, upper = 1> ar_re;
@@ -39,19 +39,19 @@ parameters {
   array[ar_re] real alpha;
   array[ar_re] real sigma_t;
   //--- IID RE ----
-  array[iid_re ? 1 : 0] vector[n_patches] z_i;
+  array[iid_re ? 1 : 0] vector[n_sites] z_i;
   //--- SP RE ----
-  vector[sp_re ? n_patches : 0] z_s;
+  vector[sp_re ? n_sites : 0] z_s;
 }
 generated quantities {
   //--- projected total density ----
-  vector[n_time * n_patches] y_proj;
+  vector[n_time * n_sites] y_proj;
   //--- mu_proj calculations ----
   {
     //--- projected expected density ----
-    vector[n_time * n_patches] mu_proj;
+    vector[n_time * n_sites] mu_proj;
     //--- projected absence probability ----
-    vector[n_time * n_patches] rho_proj;
+    vector[n_time * n_sites] rho_proj;
     //--- AR term ----
     vector[ar_re ? n_time : 0] z_tp;
     if (ar_re) {
@@ -75,11 +75,11 @@ generated quantities {
     }
     if (sp_re) {
       for (n in 1:N)
-        lmu[n] += z_s[patch[n]];
+        lmu[n] += z_s[site[n]];
     }
     if (iid_re) {
       for (n in 1:N)
-        lmu[n] += z_i[1][patch[n]];
+        lmu[n] += z_i[1][site[n]];
     }
     mu_proj = exp(lmu);
     //--- absence probabilities ----

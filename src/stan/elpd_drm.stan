@@ -7,11 +7,11 @@ data {
   //--- survey data  ---
   int N;
   int n_ages; // number of ages
-  int n_patches; // number of patches
+  int n_sites; // number of sites
   int n_time; // years for forecasts
   int n_time_train; // years for training
   array[N] int time;
-  array[N] int patch;
+  array[N] int site;
   //--- toggles ---
   int<lower = 0, upper = 1> rho_mu;
   int<lower = 0, upper = 3> ar_re;
@@ -31,29 +31,29 @@ data {
   matrix[n_ages, n_time_train] f_past;
   array[est_surv ? 0 : 1] real m; // total mortality
   //--- movement related quantities ----
-  matrix[movement ? n_patches: 1, movement ? n_patches : 1] adj_mat;
+  matrix[movement ? n_sites: 1, movement ? n_sites : 1] adj_mat;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
   //--- environmental data ----
   //--- * for mortality ----
   array[est_surv ? 1 : 0] int<lower = 1> K_m;
   matrix[est_surv ? N : 1, est_surv ? K_m[1] : 1] X_m;
-  matrix[est_surv ? n_patches : 1, est_surv ? K_m[1] : 1] X_m_past;
+  matrix[est_surv ? n_sites : 1, est_surv ? K_m[1] : 1] X_m_past;
   //--- * for recruitment ----
   int<lower = 1> K_r;
   matrix[N, K_r] X_r;
 }
 transformed data {
-  matrix[movement ? n_patches : 0, movement ? n_patches : 0] identity_mat;
+  matrix[movement ? n_sites : 0, movement ? n_sites : 0] identity_mat;
   if (movement)
-    identity_mat = identity_matrix(n_patches);
+    identity_mat = identity_matrix(n_sites);
 }
 parameters {
   //--- "regression" coefficients for absence and recr ----
   vector[K_t] beta_t;
   vector[K_r] beta_r;
   //--- pop dyn parameters ----
-  matrix[n_ages, n_patches] lambda;
+  matrix[n_ages, n_sites] lambda;
   //--- rel between rho and mu ----
   array[rho_mu] real xi;
   //--- additional parameter for different lik functions ----
@@ -68,9 +68,9 @@ parameters {
   array[ar_re > 0 ? 1 : 0] real alpha;
   array[ar_re > 0 ? 1 : 0] real sigma_t;
   //--- IID RE ----
-  array[iid_re > 0 ? 1 : 0] vector[n_patches] z_i;
+  array[iid_re > 0 ? 1 : 0] vector[n_sites] z_i;
   //--- SP RE ----
-  vector[sp_re > 0 ? n_patches : 0] z_s;
+  vector[sp_re > 0 ? n_sites : 0] z_s;
 }
 generated quantities {
   //--- ELPD ----
@@ -97,7 +97,7 @@ generated quantities {
       }
     }
     //--- projected expected density by age ---
-    array[n_ages] matrix[n_time, n_patches] lambda_proj;
+    array[n_ages] matrix[n_time, n_sites] lambda_proj;
     vector[N] log_rec;
     log_rec = X_r * beta_r;
     if (ar_re == 1) {
@@ -106,18 +106,18 @@ generated quantities {
     }
     if (iid_re == 1) {
       for (n in 1:N)
-        log_rec[n] += z_i[1][patch[n]];
+        log_rec[n] += z_i[1][site[n]];
     }
     if (sp_re == 1) {
       for (n in 1:N)
-        log_rec[n] += z_s[patch[n]];
+        log_rec[n] += z_s[site[n]];
     }
-    vector[n_patches] past_m;
-    matrix[n_time, n_patches] current_m;
-    vector[n_time * n_patches] m_aux;
+    vector[n_sites] past_m;
+    matrix[n_time, n_sites] current_m;
+    vector[n_time * n_sites] m_aux;
     if (!est_surv) {
-      current_m = rep_matrix(- m[1], n_time, n_patches);
-      past_m = rep_vector(- m[1], n_patches);
+      current_m = rep_matrix(- m[1], n_time, n_sites);
+      past_m = rep_vector(- m[1], n_sites);
     } else {
       m_aux = X_m * beta_s[1];
       if (ar_re == 2) {
@@ -126,29 +126,29 @@ generated quantities {
       }
       if (iid_re == 2) {
         for (n in 1:N)
-          m_aux[n] += z_i[1][patch[n]];
+          m_aux[n] += z_i[1][site[n]];
       }
       if (sp_re == 2) {
         for (n in 1:N)
-          m_aux[n] += z_s[patch[n]];
+          m_aux[n] += z_s[site[n]];
       }
-      current_m = to_matrix(m_aux, n_time, n_patches);
+      current_m = to_matrix(m_aux, n_time, n_sites);
       past_m = X_m_past * beta_s[1];
     }
     // forecast_simplest is a function in the utils/theoretical_mean.stan file
-    lambda_proj = forecast_simplest(n_patches,
+    lambda_proj = forecast_simplest(n_sites,
                                     n_time,
                                     n_ages,
                                     f,
                                     current_m,
                                     to_matrix(log_rec,
                                               n_time,
-                                              n_patches),
+                                              n_sites),
                                     lambda,
                                     f_past,
                                     past_m);
     if (movement) {
-      matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+      matrix[movement ? n_sites : 0, movement ? n_sites : 0] mov_mat;
       real d = (1 - zeta[1]);
       mov_mat = zeta[1] * identity_mat;
       mov_mat += d * adj_mat;
@@ -156,18 +156,18 @@ generated quantities {
         apply_movement(lambda_proj, mov_mat, ages_movement);
     }
     //--- mu_proj calculations ----
-    matrix[n_time, n_patches] mu_aux =
-      rep_matrix(0.0, n_time, n_patches);
+    matrix[n_time, n_sites] mu_aux =
+      rep_matrix(0.0, n_time, n_sites);
     //--- filling mu ----
     for (tp in 1 : n_time) {
-      for (p in 1 : n_patches) {
+      for (p in 1 : n_sites) {
         real mu_aux2;
         mu_aux2 = dot_product(to_vector(lambda_proj[1:n_ages, tp, p]),
                               selectivity_at_age);
         if (!is_nan(mu_aux2)) {
           mu_aux[tp, p] = mu_aux2;
         }
-      } // close patches
+      } // close sites
     }
     mu_proj = to_vector(mu_aux);
     if (ar_re == 3) {
@@ -176,11 +176,11 @@ generated quantities {
     }
     if (iid_re == 3) {
       for (n in 1:N)
-        mu_proj[n] *= exp(z_i[1][patch[n]]);
+        mu_proj[n] *= exp(z_i[1][site[n]]);
     }
     if (sp_re == 3) {
       for (n in 1:N)
-        mu_proj[n] *= exp(z_s[patch[n]]);
+        mu_proj[n] *= exp(z_s[site[n]]);
     }
   //--- absence probabilities ----
   if (cloglog) {

@@ -66,7 +66,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
 
 ##' @title Predictions based on DRM.
 ##'
-##' @description Considering a new dataset (across the same patches), computes
+##' @description Considering a new dataset (across the same sites), computes
 ##'   predictions based on the DRM passed as \code{drm}.
 ##'
 ##' @param object An \code{adrm} object containing the output from the
@@ -96,7 +96,7 @@ get_fitted_pars <- function(data_list, model = "drm") {
 ##'
 ##'
 ##' @details The current version of the code assumes the data where predictions
-##'   are needed is ordered by "patch" and "site" and, in addition, its patches
+##'   are needed is ordered by "site" and "site" and, in addition, its sites
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{drm} object.
 ##'
@@ -134,6 +134,13 @@ predict.adrm <- function(object,
   if (!missing(f_test)) {
     stopifnot(NROW(f_test) == object$data[["n_ages"]])
   }
+  ## throw an error if predicing on new sites
+  new_sites_factor <- factor(new_data[[object$cols$site_col]], 
+                             levels = object$data$site_levels)
+  if (any(is.na(new_sites_factor))) {
+    stop("new_data contains sites that were not present in the training data.")
+  }
+  new_sites_stan <- as.integer(new_sites_factor)
   x_tt <- stats::model.matrix(object[["formulas"]][["formula_zero"]],
                               data = new_data)
   x_rt <- stats::model.matrix(object[["formulas"]][["formula_rec"]],
@@ -147,12 +154,12 @@ predict.adrm <- function(object,
     object$stanfit$draws(variables = pars)
   ##--- list for predictions gq ----
   pred_data <-
-    list(n_patches = object$data$n_patches,
+    list(n_sites = object$data$n_sites,
          n_ages = object$data$n_ages,
          n_time = ntime_for,
          n_time_train = object$data$n_time,
          time = time_for,
-         patch = new_data[[object$cols$site_col]],
+         site = new_site_stan,
          rho_mu = object$data$rho_mu,
          ar_re = object$data$ar_re,
          iid_re = object$data$iid_re,
@@ -172,7 +179,7 @@ predict.adrm <- function(object,
          selectivity_at_age = object$data$selectivity_at_age,
          K_r = object$data$K_r,
          X_r = x_rt)
-  pred_data$N <- pred_data$n_patches * pred_data$n_time
+  pred_data$N <- pred_data$n_sites * pred_data$n_time
   if (length(object$data$K_m) > 0) {
     stopifnot(!missing(past_data))
     x_mpast <-
@@ -199,8 +206,8 @@ predict.adrm <- function(object,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
-  spt <- data.frame(v1 = pred_data$patch,
-                    v2 = pred_data$time + max(object$data$time))
+  spt <- data.frame(v1 = new_sites_factor[pred_data$site],
+                    v2 = pred_data$time + max(object$data$time) + object$data$time_init - 1)
   colnames(spt) <- rev(unname(unlist(object$cols[-1])))
   output <- list("gq" = gq,
                  "spt" = spt)
@@ -209,7 +216,7 @@ predict.adrm <- function(object,
 
 ##' @title Predictions based on SDM.
 ##'
-##' @description Considering a new dataset (across the same patches), computes
+##' @description Considering a new dataset (across the same sites), computes
 ##'   predictions based on the SDM passed as \code{sdm}.
 ##'
 ##' @param object An \code{sdm} object containing the output of a [fit_sdm] call.
@@ -233,7 +240,7 @@ predict.adrm <- function(object,
 ##'   \code{$generated_quantities}
 ##'
 ##' @details The current version of the code assumes the data where predictions
-##'   are needed is ordered by "patch" and "site" and, in addition, its patches
+##'   are needed is ordered by "site" and "site" and, in addition, its sites
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{sdm} object.
 ##'
@@ -265,16 +272,23 @@ predict.sdm <- function(object,
   ntime_for <- length(unique(new_data[[object$cols$time_col]]))
   time_for <- new_data[[object$cols$time_col]] -
     min(new_data[[object$cols$time_col]]) + 1
+  ## throw an error if predicing on new sites
+  new_sites_factor <- factor(new_data[[object$cols$site_col]], 
+                             levels = object$cols$site_levels)
+  if (any(is.na(new_sites_factor))) {
+    stop("new_data contains sites that were not present in the training data.")
+  }
+  new_sites_stan <- as.integer(new_sites_factor)
   ##--- pars from model fitted ----
   pars <- get_fitted_pars(object$data, "sdm")
   fitted_params <-
     object$stanfit$draws(variables = pars)
   pred_data <-
-    list(n_patches = object$data$n_patches,
+    list(n_sites = object$data$n_sites,
          n_time = ntime_for,
          n_time_train = object$data$n_time,
          time = time_for,
-         patch = new_data[[object$cols$site_col]],
+         site = new_sites_stan,
          rho_mu = object$data$rho_mu,
          ar_re = object$data$ar_re,
          iid_re = object$data$iid_re,
@@ -286,7 +300,7 @@ predict.sdm <- function(object,
                                  data = new_data),
          X = stats::model.matrix(object[["formulas"]][["formula_dens"]],
                                  data = new_data))
-  pred_data$N <- pred_data$n_patches * pred_data$n_time
+  pred_data$N <- pred_data$n_sites * pred_data$n_time
   pred_data$K_z <- NCOL(pred_data$Z)
   pred_data$K_x <- NCOL(pred_data$X)
   ## load compiled predict_sdm
@@ -300,8 +314,8 @@ predict.sdm <- function(object,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
-  spt <- data.frame(v1 = pred_data$patch,
-                    v2 = pred_data$time + max(object$data$time))
+  spt <- data.frame(v1 = new_sites_factor[pred_data$site],
+                    v2 = pred_data$time + max(object$data$time) + object$data$time_init - 1)
   colnames(spt) <- rev(unname(unlist(object$cols[-1])))
   output <- list("gq" = gq,
                  "spt" = spt)

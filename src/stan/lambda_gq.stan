@@ -3,9 +3,9 @@ functions {
 }
 data {
   //--- survey data  ---
-  int N; // n_patches * n_time
+  int N; // n_sites * n_time
   int n_ages; // number of ages
-  int n_patches; // number of patches
+  int n_sites; // number of sites
   int n_time; // years for training
   //--- toggles ---
   int<lower = 0, upper = 1> movement;
@@ -16,7 +16,7 @@ data {
   matrix[n_ages, n_time] f;
   array[est_surv ? 0 : 1] real m; // total mortality
   //--- movement related quantities ----
-  matrix[movement ? n_patches: 1, movement ? n_patches : 1] adj_mat;
+  matrix[movement ? n_sites: 1, movement ? n_sites : 1] adj_mat;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
   //--- initial cohort (if not estimated) ----
@@ -27,12 +27,12 @@ data {
   matrix[est_surv ? N : 1, est_surv ? K_m[1] : 1] X_m;
 }
 transformed data {
-  matrix[est_surv ? 0 : n_time, est_surv ? 0 : n_patches] fixed_m;
+  matrix[est_surv ? 0 : n_time, est_surv ? 0 : n_sites] fixed_m;
   if (!est_surv)
-    fixed_m = rep_matrix(- m[1], n_time, n_patches);
-  matrix[movement ? n_patches : 0, movement ? n_patches : 0] identity_mat;
+    fixed_m = rep_matrix(- m[1], n_time, n_sites);
+  matrix[movement ? n_sites : 0, movement ? n_sites : 0] identity_mat;
   if (movement)
-    identity_mat = identity_matrix(n_patches);
+    identity_mat = identity_matrix(n_sites);
 }
 parameters {
   // coefficients for recruitment (it is a log-linear model)
@@ -47,8 +47,8 @@ parameters {
 transformed parameters {
 }
 generated quantities {
-  // Expected density at specific time/patch combinations
-  array[n_ages] matrix[n_time, n_patches] lambda;
+  // Expected density at specific time/site combinations
+  array[n_ages] matrix[n_time, n_sites] lambda;
   {
     //--- Initialization ----
     array[est_init ? n_ages - 1 : 0] real init_par;
@@ -61,16 +61,16 @@ generated quantities {
 
     // filling lambda according to our "simplest model"
     lambda =
-      simplest(n_patches, n_time, n_ages,
+      simplest(n_sites, n_time, n_ages,
                f,
-               est_surv ? to_matrix(mortality, n_time, n_patches) : fixed_m,
+               est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
                est_init ? init_par : init_data,
-               to_matrix(log_rec, n_time, n_patches),
+               to_matrix(log_rec, n_time, n_sites),
                minit);
   }
   //--- Movement ----
   if (movement) {
-    matrix[movement ? n_patches : 0, movement ? n_patches : 0] mov_mat;
+    matrix[movement ? n_sites : 0, movement ? n_sites : 0] mov_mat;
     real d = (1 - zeta[1]);
     mov_mat = zeta[1] * identity_mat;
     mov_mat += d * adj_mat;

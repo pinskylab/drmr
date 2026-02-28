@@ -99,6 +99,8 @@ fit_drm <- function(.data,
                            x_m = x_m,
                            ...)
   }
+  site_levels <- model_dat$site_levels
+  model_dat$site_levels <- NULL
   model <- instantiate::stan_package_model(
                             name = "drm",
                             package = "drmr"
@@ -142,7 +144,8 @@ fit_drm <- function(.data,
                            "formula_surv" = formula_surv),
          "cols" = list("y_col" = y_col,
                        "time_col" = time_col,
-                       "site_col" = site_col),
+                       "site_col" = site_col,
+                       "site_levels" = site_levels),
          "seed" = seed,
          "call" = cl)
   return(new_adrm(output))
@@ -231,9 +234,12 @@ fit_sdm <- function(.data,
                              z = x_t,
                              x = x_r,
                              ...)
+  site_levels <- model_dat$site_levels
+  model_dat$site_levels <- NULL
   model <- instantiate::stan_package_model(
                             name = "sdm",
-                            package = "drmr"                        )
+                            package = "drmr"
+                        )
   if (init == "cmdstan_default") {
     sdm_init <- NULL
   } else if (init == "prior") {
@@ -271,7 +277,8 @@ fit_sdm <- function(.data,
                            "formula_dens" = formula_dens),
          "cols" = list("y_col" = y_col,
                        "time_col" = time_col,
-                       "site_col" = site_col),
+                       "site_col" = site_col,
+                       "site_levels" = site_levels),
          "seed" = seed,
          "call" = cl)
   return(new_sdm(output))

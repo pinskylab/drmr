@@ -42,9 +42,9 @@ components are: \itemize{\item \code{rho_mu}: 1 to explicitly relate
 rho to mu and 0 otherwise. \item \code{cloglog}: 1 to use the
 complementary log-log and 0 for the logit link function for the absence
 probabilities. \item \code{ar_re}: 1 to incorporate an AR(1) process to
-density and 0 otherwise. \item \code{iid_re}: 1 to incorporate a patch
+density and 0 otherwise. \item \code{iid_re}: 1 to incorporate a site
 specific IID random effect to density and 0 otherwise. \item \code{sp_re}:
-1 to incorporate a patch specific ICAR random effect to density and 0
+1 to incorporate a site specific ICAR random effect to density and 0
 otherwise.}}
 
 \item{.priors}{a \code{list} of priors hyperparameters.}

@@ -97,6 +97,8 @@ summary.drmrmodels <- function(object, probs = c(0.05, 0.5, 0.95), ...) {
   is_adrm <- inherits(object, "adrm")
   model_type <- ifelse(is_adrm, "drm", "sdm")
   params_out <- get_fitted_pars(object$data, model_type)
+  if(object$data$sp_re > 0)
+    params_out <- c(params_out, "sigma_s")
   params_out <- params_out[!grepl("^(lambda|z_)", params_out)]
   method <- tryCatch(object$stanfit$metadata()$method, error = function(e) "nuts")  
   if (method == "optimize") {
