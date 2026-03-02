@@ -1,5 +1,7 @@
 # drmr 0.5.0
 
+* `summary` method for the output of the `ages_edens` output.
+
 * `draws` method added to the package.
 
 * `marg` method to .

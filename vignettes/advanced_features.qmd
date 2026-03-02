@@ -1,12 +1,12 @@
 ---
-title: "Examples"
+title: "Advanced features"
 author: Lucas da Cunha Godoy
 format:
   html:
     html-math-method: mathjax
 bibliography: [notes.bib, zim.bib]
 vignette: >
-  %\VignetteIndexEntry{Examples}
+  %\VignetteIndexEntry{Advanced features}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,36 +15,23 @@ vignette: >
 
 ## TL; DR {.unnumbered}
 
-This document demonstrates the functionalities of the `drmr` R package for
-fitting Dynamic Range and Species Distribution Models (DRMs and SDMs,
+This document demonstrates some of the functionalities of the `drmr` R package
+for fitting Dynamic Range and Species Distribution Models (DRMs and SDMs,
 respectively) using pre-compiled `Stan` models.
 
 
-We'll explore increasingly complex models, showcasing the package's capabilities
-with the help of five additional `R` packages:
+We will show how to:
 
-* `sf`: for spatial data manipulation and visualization
-* `ggplot2`: for creating graphs
-* `bayesplot`: for visualizing MCMC outputs
-* `dplyr`: for data wrangling
-
-## Installing the `drmr` package {#sec-drmr}
-
-The `drmr` package provides pre-compiled `cmdstanr` [@gabry2024cmdstanr] models
-powered by the `instantiate` package [@landau2024instantiate]. These
-pre-compiled models allow us to make inferences about the DRM (and SDM) using
-`cmdstan` algorithms, such as the HMC NUTS Sampler.
+1. Visualize the estimated relationship between demographic processes and the
+   environment
+1. Visualize the estimated age-specific densities
+1. Make projections
 
 
-The package is not on CRAN yet. To install the version hosted on GitHub, run:
-```{r}
-#| eval: false
+## Setup
 
-remotes::install_github("pinskylab/drmr")
-```
-
-Finally, the code below loads the packages necessary to reproduce the examples
-in this document.
+The code below loads the packages necessary to reproduce the examples in this
+document.
 
 ```{r}
 #| label: setup

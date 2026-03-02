@@ -39,12 +39,17 @@ ages_edens <- function(drm,
   lambda_comp <-
     instantiate::stan_package_model(name = "lambda_gq",
                                     package = "drmr")
-  ## computing forecast
   output <- lambda_comp$
     generate_quantities(fitted_params = fitted_params,
                         data = drm$data,
                         parallel_chains = cores)
-  return(output)
+  spt <- data.frame(v1 = drm$cols$site_levels[drm$data$site],
+                    v2 = drm$data$time + drm$data$time_init - 1,
+                    site_id = drm$data$site)
+  colnames(spt)[1:2] <- rev(unname(unlist(drm$cols[2:3])))
+  output <- list("gq" = output,
+                 "spt" = spt)
+  return(new_aesd(output))
 }
 
 ##' @rdname age_dens

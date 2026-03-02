@@ -12,11 +12,18 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-### Installation
+## Installing the `drmr` package
 
-The installation of the development version from GitHub can be done via
+The `drmr` package provides pre-compiled
+[`cmdstanr`](https://mc-stan.org/cmdstanr/) models powered by the
+[`instantiate`](https://github.com/wlandau/instantiate) package . These
+pre-compiled models allow us to make inferences about the DRM (and SDM) using
+`cmdstan` algorithms, such as the HMC NUTS Sampler.
 
-``` r
+
+The package is not on CRAN yet. To install the version hosted on GitHub, run:
+```{r}
+#| eval: false
+
 remotes::install_github("pinskylab/drmr")
-## or devtools::install_github("pinskylab/drmr")
 ```

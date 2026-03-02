@@ -78,7 +78,7 @@ print.drmrmodels <- function(x, ...) {
   }
   cat("\nData:\n")
   cat(sprintf("  Timepoints: %d\n", max(x$data$time)))
-  cat(sprintf("  Patches: %d\n", max(x$data$patch)))
+  cat(sprintf("  Sites: %d\n", length(unique((x$data$site)))))
   if (!is.null(x$data$family)) {
      cat(sprintf("  Non-zero density family: %s\n", x$data$family))
   }
@@ -173,21 +173,18 @@ draws.drmrmodels <- function(x,
   }
   stopifnot(inherits(x$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                   "CmdStanPathfinder", "CmdStanVB")))
-  
   is_adrm <- inherits(x, "adrm")
-  
   if (is.null(variables)) {
     model_type <- ifelse(is_adrm, "drm", "sdm")
     variables <- get_fitted_pars(x$data, model_type)
-    
-    # Maintain your original variable filtering logic
+    if(x$data$sp_re > 0)
+      params_out <- c(params_out, "sigma_s")
     if (is_adrm) {
       variables <- variables[!grepl("^(lambda|z_)", variables)]
     } else {
       variables <- variables[!grepl("^z_", variables)]
     }
   }
-  
   method <- tryCatch(x$stanfit$metadata()$method, error = function(e) "nuts")  
   if (method == "optimize") {
     stop("Draws are not available for `method = 'optimize'`")
@@ -229,5 +226,38 @@ summary.pred_drmr <- function(object,
                               ...) {
   output <- cbind(object$spt,
                   summary(object$gq, probs = probs, ...)[, -1])
+  return(output)
+}
+
+##' Cleaning the variable output from stan for interpretability.
+##'
+##' @param x A string
+##'
+##' @export
+clean_edens <- function(x) {
+  stopifnot(grepl("lambda", x[1]))
+  clean_str <- gsub("lambda\\[|\\]", "", x)
+  split_list <- strsplit(clean_str, ",")
+  return(do.call(rbind, lapply(split_list, as.numeric)))
+}
+
+##' Summary method for \code{aesd} objects
+##'
+##' @param object An object of class \code{aesd}.
+##' @param probs A numeric vector of quantiles to calculate. 
+##'   Defaults to c(0.05, 0.5, 0.95).
+##' @param ... Additional arguments (ignored).
+##'
+##' @export
+summary.aesd <- function(object,
+                         probs = c(.05, .5, .95),
+                         ...) {
+  output <- summary(object$gq, probs = probs, ...)
+  edens_labels <- as.data.frame(clean_edens(output$variable))
+  edens_labels[, 2] <- edens_labels[, 2] + min(object$spt[, 2]) - 1
+  colnames(edens_labels) <- c("age", colnames(object$spt)[2], "site_id")
+  edens_labels <- merge(edens_labels, object$spt,
+                        by = c("site_id", colnames(object$spt)[2]))
+  output <- cbind(edens_labels, output[, -1])
   return(output)
 }

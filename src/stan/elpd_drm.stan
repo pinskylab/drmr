@@ -52,8 +52,6 @@ parameters {
   //--- "regression" coefficients for absence and recr ----
   vector[K_t] beta_t;
   vector[K_r] beta_r;
-  //--- pop dyn parameters ----
-  matrix[n_ages, n_sites] lambda;
   //--- rel between rho and mu ----
   array[rho_mu] real xi;
   //--- additional parameter for different lik functions ----
@@ -71,6 +69,8 @@ parameters {
   array[iid_re > 0 ? 1 : 0] vector[n_sites] z_i;
   //--- SP RE ----
   vector[sp_re > 0 ? n_sites : 0] z_s;
+  //--- pop dyn parameters ----
+  matrix[n_ages, n_sites] lambda;
 }
 generated quantities {
   //--- ELPD ----

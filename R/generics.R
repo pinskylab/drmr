@@ -58,7 +58,6 @@ new_sdm <- function(x = list()) {
 ##' @keywords internal
 validate_pred_drmr <- function(x) {
   stopifnot(inherits(x, "list"))
-  # You can adjust these fields based on what you decide to include in your predict output list
   my_fields <- c("gq", "spt") 
   stopifnot(all(my_fields %in% names(x)))
 }
@@ -76,5 +75,36 @@ validate_pred_drmr <- function(x) {
 new_pred_drmr <- function(x = list()) {
   validate_pred_drmr(x)
   new_class <- c("pred_drmr", class(x))
+  structure(x, class = new_class)
+}
+
+##' Validate a aesd list object
+##'
+##' Checks if an object is a valid `aesd` object by ensuring it is a
+##' \code{list} and contains all required fields.
+##'
+##' @param x An object to validate.
+##'
+##' @return Nothing if validation is successful. Throws an error on failure.
+##' @keywords internal
+validate_aesd <- function(x) {
+  stopifnot(inherits(x, "list"))
+  my_fields <- c("gq", "spt") 
+  stopifnot(all(my_fields %in% names(x)))
+}
+
+##' Create a aesd object
+##'
+##' Constructs an object of class `aesd` from a list, after validating its
+##' structure. Note that this function is mostly for internal usage.
+##'
+##' @param x A `list` that has the required fields for a 'aesd' object.
+##'   Defaults to an empty `list`.
+##'
+##' @return An object of class `aesd`.
+##' @export
+new_aesd <- function(x = list()) {
+  validate_aesd(x)
+  new_class <- c("aesd", class(x))
   structure(x, class = new_class)
 }
