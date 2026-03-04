@@ -136,7 +136,7 @@ predict.adrm <- function(object,
   }
   ## throw an error if predicing on new sites
   new_sites_factor <- factor(new_data[[object$cols$site_col]], 
-                             levels = object$data$site_levels)
+                             levels = object$cols$site_levels)
   if (any(is.na(new_sites_factor))) {
     stop("new_data contains sites that were not present in the training data.")
   }
@@ -159,7 +159,7 @@ predict.adrm <- function(object,
          n_time = ntime_for,
          n_time_train = object$data$n_time,
          time = time_for,
-         site = new_site_stan,
+         site = new_sites_stan,
          rho_mu = object$data$rho_mu,
          ar_re = object$data$ar_re,
          iid_re = object$data$iid_re,
@@ -208,7 +208,7 @@ predict.adrm <- function(object,
                         ...)
   spt <- data.frame(v1 = new_sites_factor[pred_data$site],
                     v2 = pred_data$time + max(object$data$time) + object$data$time_init - 1)
-  colnames(spt) <- rev(unname(unlist(object$cols[-1])))
+  colnames(spt) <- rev(unname(unlist(object$cols[2:3])))
   output <- list("gq" = gq,
                  "spt" = spt)
   return(new_pred_drmr(output))
@@ -316,7 +316,7 @@ predict.sdm <- function(object,
                         ...)
   spt <- data.frame(v1 = new_sites_factor[pred_data$site],
                     v2 = pred_data$time + max(object$data$time) + object$data$time_init - 1)
-  colnames(spt) <- rev(unname(unlist(object$cols[-1])))
+  colnames(spt) <- rev(unname(unlist(object$cols[2:3])))
   output <- list("gq" = gq,
                  "spt" = spt)
   return(new_pred_drmr(output))

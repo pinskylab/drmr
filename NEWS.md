@@ -21,6 +21,8 @@
 * We had some functions called patches sites and vice-versa. Now everything is
   standardized using "site" for patches/sites (I know, it does sound confusing).
 
+* `elpd` functions temporarily unavailable 
+
 # drmr 0.4.0
 
 * `predict` and `fitted` methods now have an argument called `type`, which
