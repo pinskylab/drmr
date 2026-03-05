@@ -147,7 +147,7 @@ dat_test <- dat_test |>
 The models fitted here will explore some of the interesting features available
 in the package. Auxiliary information on age-specific mortality rates and an
 adjacency matrix will be used to leverage the DRMs. The adjacency matrix simply
-indicate which patches share boarders to each other. That information may be
+indicate which patches share boarders with each other. That information may be
 used either for spatial random effects or to establish a movement component in
 the latent underlying population dynamics.
 
@@ -291,11 +291,10 @@ marg(drm_srv, ## model
   plot()
 ```
 
-The figures plot the x-axis (representing the environmental variable) for the
-centered version of the variables. We can further customize the plots to have
-the environmental variable on the original scale and, moreover, visualize
-different credible intervals at once. Below, we show how to achieve that for the
-survival plot:
+These figures display the centered environmental variables on the x-axis. We can
+further customize the plots to have the environmental variable on the original
+scale and, moreover, visualize different credible intervals at once. Below, we
+show how to achieve that for the survival plot:
 
 ```{r}
 #| label: custom_envdem
@@ -321,7 +320,8 @@ multiple_cis <-
 
 ggplot(data = multiple_cis,
        aes(x = c_btemp,
-           group = forcats::fct_rev(as.factor(prob_mass)))) +
+           group = factor(prob_mass,
+                          levels = rev(levels(factor(prob_mass)))))) +
   geom_rug(data = dat_train,
            aes(x = btemp),
            inherit.aes = FALSE,
@@ -329,7 +329,8 @@ ggplot(data = multiple_cis,
            length = unit(0.02, "npc"),
            colour = "grey40") +
   geom_ribbon(aes(ymin = low, ymax = upp,
-                  fill = forcats::fct_rev(as.factor(prob_mass))),
+                  fill = factor(prob_mass,
+                                levels = rev(levels(factor(prob_mass))))),
               colour = NA) +
   geom_line(aes(y = srv), linewidth = 0.6, colour = "white") +
   scale_fill_manual(
@@ -402,7 +403,7 @@ predicted_srv <- predict(drm_srv,
 ```
 
 
-Now we combine the in- and out-of-sample predictions in order to visualize the
+We can now combine the in- and out-of-sample predictions to visualize the
 results. Moreover, we will join the predictions outputs to the original data to
 enhance the visualizations.
 
@@ -429,7 +430,7 @@ ggplot(data = combined_sfl,
 We can objectively compare the predictions as well.
 
 ```{r}
-#| label: bind_and_join
+#| label: rmse
 
 combined_sfl <-
   combined_sfl |>
@@ -452,20 +453,22 @@ performance (in terms of RMSE).
 
 ## Projections under unknown effort
 
-Often, one desires to project the abundance (here measured in terms of density)
-of a species over time. Since we cannot tell before hand what the effort in the
-future will look like, it is desirable to isolate this source of
-variation. `drmr` allows users to achieve that by projecting the _latent
-density_. As a consequence of the model assumptions, the latent density serves
-as a proxy for abundance and is expected to always exceed the observed
-abundance. This fact is grounded on the assumption that what is observed is
-always a subset of the total number of individuals in a given site. Moreover,
-the latent abundance does not take the observation error into account and,
-consequently, tends to be "smoother".
+Often, you may want to project the abundance (measured here as density) of a
+species over time. However, since future sampling effort is unknown, it is
+crucial to isolate this source of variation.
 
 
-One can compute the in- and out-of-sample latent abundances using `drmr` by
-passing an additional argument to the `fitted` and `predict` functions:
+`drmr` can handle this by projecting the latent density. Latent density
+represents the true, unobserved population at a given site. Because our models
+assume that observed data captures only a subset of the total population at a
+given site and time, the latent density acts as a proxy for true abundance and
+will consistently exceed the observed abundance. Furthermore, because it
+isolates the underlying biological process from observation error, the latent
+density trajectory tends to be much "smoother".
+
+
+You can compute the in- and out-of-sample latent abundances by passing the `type
+= "latent"` argument to the `fitted` and `predict` functions:
 ```{r}
 #| label: latent
 
@@ -503,7 +506,7 @@ combined_rl |>
 ```
 
 
-## Visualizing age specific ages
+## Visualizing age specific densities
 
 Our package also allows for estimating the age-specific densities. To compute
 those, one can simply run:
