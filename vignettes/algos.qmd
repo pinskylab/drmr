@@ -1,0 +1,246 @@
+---
+title: "Algorithms"
+author: Lucas da Cunha Godoy
+format:
+  html:
+    html-math-method: mathjax
+bibliography: [notes.bib, zim.bib]
+vignette: >
+  %\VignetteIndexEntry{Algorithms}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+## TL; DR {.unnumbered}
+
+This document demonstrates how to modify the algorithm used for inference in our
+models.
+
+## Setup
+
+The setup and data-processing for this vignette is the same as in the "Advanced
+features" vignette. For further details, see `vignette("advanced-features",
+"drmr")`. Unlike the examples in that vignette, we will not split the data into
+train and test, but rather just look at parameters' estimates obtained through
+different algorithms.
+
+```{r}
+#| label: setup
+
+library(drmr)
+library(sf) ## "mapping"
+library(ggplot2) ## graphs
+library(bayesplot) ## and more graphs
+library(dplyr)
+
+## loads the data
+data(sum_fl)
+
+## computing density
+sum_fl <- sum_fl |>
+  mutate(dens = 100 * y / area_km2,
+         .before = y)
+
+avgs <- c("stemp" = mean(sum_fl$stemp),
+          "btemp" = mean(sum_fl$btemp),
+          "depth" = mean(sum_fl$depth),
+          "n_hauls" = mean(sum_fl$n_hauls),
+          "lat" = mean(sum_fl$lat),
+          "lon" = mean(sum_fl$lon))
+
+min_year <- sum_fl$year |>
+  min()
+
+## centering covariates
+sum_fl <- sum_fl |>
+  mutate(c_stemp = stemp - avgs["stemp"],
+         c_btemp = btemp - avgs["btemp"],
+         c_hauls = n_hauls - avgs["n_hauls"],
+         c_lat   = lat - avgs["lat"],
+         c_lon   = lon - avgs["lon"],
+         time  = year - min_year)
+
+## mortality rates
+fmat <-
+  system.file("fmat.rds", package = "drmr") |>
+  readRDS()
+
+shp_sum_fl <- system.file("maps/sum_fl.shp", package = "drmr") |>
+  st_read()
+
+## constructing adjacency matrix
+adj_mat <- gen_adj(st_buffer(st_geometry(shp_sum_fl),
+                             dist = 2500))
+```
+
+
+> For an extensive list of the variables present in this dataset run: `?sum_fl`.
+
+
+## Fitting a model using different algorithms
+
+
+We will start with the default algorithm (NUTS). By default, it runs 4 chains
+sequentially, with a warmup period od 1000 samples and, subsequently, 1000
+samples per chain. Here, we are running two chains in parallel, with a warmup of
+500 and drawing 500 samples.
+
+```{r}
+#| label: nuts
+
+nuts_args <- list(parallel_chains = 2,
+                  chains = 2,
+                  iter_sampling = 500,
+                  iter_warmup = 500,
+                  show_messages = FALSE,
+                  show_exceptions = FALSE)
+
+drm_nuts <-
+  fit_drm(.data = sum_fl,
+          y_col = "dens", ## response variable: density
+          time_col = "year", ## vector of time points
+          site_col = "patch",
+          family = "gamma",
+          seed = 2026,
+          formula_zero = ~ 1 + c_hauls,
+          formula_rec = ~ 1 + c_stemp + I(c_stemp * c_stemp),
+          formula_surv = ~ 1,
+          f_mort = fmat[, -1],
+          n_ages = NROW(fmat),
+          adj_mat = adj_mat, ## A matrix for movement routine
+          ages_movement = c(0, 0,
+                            rep(1, 12),
+                            0, 0), ## ages allowed to move
+          .toggles = list(ar_re = "rec",
+                          movement = 1,
+                          est_surv = 1,
+                          est_init = 0,
+                          minit = 1),
+          algo_args = nuts_args)
+```
+
+
+Next, we obtain samples from the _variational_ posterior using Stan's Automatic
+Differentiation Variational Inference (ADVI) algorithm (for for details see
+[this link](https://mc-stan.org/docs/cmdstan-guide/variational_config.html)).
+
+
+```{r}
+#| label: advi
+
+advi_args <- list(show_messages = FALSE,
+                  show_exceptions = FALSE,
+                  iter = 10^5, ## maximum number of iterations (optimization)
+                  draws = 1000) ## number of samples from the posterior
+
+drm_advi <-
+  fit_drm(.data = sum_fl,
+          y_col = "dens", ## response variable: density
+          time_col = "year", ## vector of time points
+          site_col = "patch",
+          family = "gamma",
+          seed = 2026,
+          formula_zero = ~ 1 + c_hauls,
+          formula_rec = ~ 1 + c_stemp + I(c_stemp * c_stemp),
+          formula_surv = ~ 1,
+          f_mort = fmat[, -1],
+          n_ages = NROW(fmat),
+          adj_mat = adj_mat, ## A matrix for movement routine
+          ages_movement = c(0, 0,
+                            rep(1, 12),
+                            0, 0), ## ages allowed to move
+          .toggles = list(ar_re = "rec",
+                          movement = 1,
+                          est_surv = 1,
+                          est_init = 0,
+                          minit = 1),
+          algo_args = advi_args,
+          algorithm = "vb") ## vb stands for variational Bayes
+```
+
+
+Another algorithm option is the
+[Pathfinder](https://mc-stan.org/docs/cmdstan-guide/pathfinder_config.html). Pathfinder
+also relies on variational inference. It is usually better than ADVI, especially
+when the posteriors (in the unconstrained space) are not unimodal and
+bell-shaped. We will demonstrate how the inference algorithm can be updated
+using the `update` method:
+
+
+```{r}
+#| label: pathfinder
+
+path_args <- list(show_messages = FALSE,
+                  show_exceptions = FALSE,
+                  max_lbfgs_iters = 10^4)
+
+drm_path <-
+  update(drm_advi,
+         algo_args = path_args,
+         algorithm = "pathfinder")
+```
+
+
+It is also possible to obtain samples from a Laplace approximation of the
+posterior as follows:
+
+```{r}
+#| label: laplace
+
+lapl_args <- list(show_messages = FALSE,
+                  show_exceptions = FALSE)
+
+drm_lapl <-
+  update(drm_path,
+         algo_args = lapl_args,
+         algorithm = "laplace")
+```
+
+
+The code below computes the parameter estimates for each of the methods, and
+then makes a graph to compare them.
+```{r}
+#| label: parest
+
+bind_rows(
+    mutate(summary(drm_nuts)$estimates, algo = "nuts"),
+    mutate(summary(drm_advi)$estimates, algo = "advi"),
+    mutate(summary(drm_path)$estimates, algo = "path"),
+    mutate(summary(drm_lapl)$estimates, algo = "lapl")
+) |>
+  ggplot(data = _,
+         aes(x = q50,
+             y = algo)) +
+  geom_linerange(aes(xmin = q5, xmax = q95)) +
+  geom_point() +
+  facet_wrap(~ variable, scales = "free_x") +
+  theme_bw()
+```
+
+In general, variational inference methods are known for underestimating the
+uncertainty around the parameter estimates. We can also look at the estimated
+relationship between environment and recruitment for each of those methods:
+```{r}
+#| label: envrec
+#| layout-ncol: 2
+#| layout-nrow: 2
+
+marg(drm_nuts, "rec", "c_stemp") |>
+  plot() +
+  labs(title = "nuts")
+
+marg(drm_path, "rec", "c_stemp") |>
+  plot() +
+  labs(title = "path")
+
+marg(drm_advi, "rec", "c_stemp") |>
+  plot() +
+  labs(title = "advi")
+
+marg(drm_lapl, "rec", "c_stemp") |>
+  plot() +
+  labs(title = "lapl")
+```
+
+
+## References

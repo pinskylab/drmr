@@ -245,10 +245,10 @@ drm_rec <-
           algo_args = algo_args)
 ```
 
-By default, the algorithm used to obtain samples from the posterior parameter is
-the NUTS from `Stan`. For other options, see the vignette algorithms
-(`vignette("algos", "drmr")`). Arguments to be passed to the algorithms through
-a named list `algo_args`.
+The default algorithm for posterior sampling is `Stan`'s NUTS. You can control
+its settings by passing a named list to the `algo_args` argument in
+`fit_drm`. Other available algorithms for inference are covered in a deficated
+vignette. For further details, see `vignette("algos", "drmr")`.
 
 
 Now, we also fit an alternative model with only one difference: it assumes the

@@ -1,5 +1,8 @@
 # drmr 0.5.0
 
+* New vignette on "algorithms" detailing the methods that can be used to draw
+  samples from the posterior.
+
 * `summary` method for the output of the `ages_edens` output.
 
 * `draws` method added to the package.
