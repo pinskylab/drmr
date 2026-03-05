@@ -15,7 +15,7 @@ vignette: >
 
 # TODO
 
-1. hold output from the `fit_drm` call
+1. Something is off with the predictions! It has to do with "factors"
 1. `rbind` the fitted and predicted values to make graphs
 1. That's it.
 
@@ -147,8 +147,7 @@ dat_test <- dat_test |>
 ```
 
 
-> For an extensive list of the explanatory variables available on the dataset,
-> run: `?sum_fl`.
+> For an extensive list of the variables present in this dataset run: `?sum_fl`.
 
 
 ## Fitting models
@@ -223,7 +222,12 @@ into account the following:
 ```{r}
 #| label: drm_rec
 
-algo_args <- list(parallel_chains = 4)
+algo_args <- list(parallel_chains = 2,
+                  chains = 2,
+                  iter_sampling = 200,
+                  iter_warmup = 500,
+                  show_messages = FALSE,
+                  show_exceptions = FALSE)
 
 drm_rec <-
   fit_drm(.data = dat_train,
@@ -403,6 +407,31 @@ predicted_srv <- predict(drm_srv,
   summary() |>
   mutate(model = "srv", .before = 1) ## creating a column that identifies the
                                      ## model
+```
+
+
+Now we combine the in- and out-of-sample predictions in order to visualize the
+results. Moreover, we will join the predictions outputs to the original data to
+enhance the visualizations.
+
+```{r}
+#| label: bind_and_join
+
+combined_sfl <-
+  bind_rows(fitted_rec, predicted_rec),
+            fitted_srv, predicted_srv)
+
+
+ggplot(data = filter(combined_sfl,
+                     model == "rec"),
+       aes(x = year)) +
+  geom_ribbon(aes(ymin = q5, ymax = q95),
+              alpha = .5) +
+  geom_line(aes(y = q50)) +
+  facet_wrap(~ patch, scales = "free_y") +
+  theme_bw()
+
+
 ```
 
 
