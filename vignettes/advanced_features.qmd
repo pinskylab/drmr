@@ -11,14 +11,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
----
-
-# TODO
-
-1. Something is off with the predictions! It has to do with "factors"
-1. `rbind` the fitted and predicted values to make graphs
-1. That's it.
-
 ## TL; DR {.unnumbered}
 
 This document demonstrates some of the functionalities of the `drmr` R package
@@ -30,8 +22,8 @@ We will show how to:
 
 1. Visualize the estimated relationship between demographic processes and the
    environment
+1. Visualize and assess out of sample predictions
 1. Visualize the estimated age-specific densities
-1. Assess out of sample predictions
 
 
 ## Setup
@@ -418,21 +410,147 @@ enhance the visualizations.
 #| label: bind_and_join
 
 combined_sfl <-
-  bind_rows(fitted_rec, predicted_rec),
-            fitted_srv, predicted_srv)
+  bind_rows(fitted_rec, predicted_rec,
+            fitted_srv, predicted_srv) |>
+  mutate(patch = as.integer(patch)) |>
+  left_join(sum_fl, by = c("patch", "year"))
 
 
-ggplot(data = filter(combined_sfl,
-                     model == "rec"),
+ggplot(data = combined_sfl,
        aes(x = year)) +
   geom_ribbon(aes(ymin = q5, ymax = q95),
               alpha = .5) +
   geom_line(aes(y = q50)) +
-  facet_wrap(~ patch, scales = "free_y") +
+  geom_point(aes(y = dens), color = 2, pch = 19)+ 
+  facet_grid(model ~ patch, scales = "free_y") +
+  theme_bw()
+```
+
+We can objectively compare the predictions as well.
+
+```{r}
+#| label: bind_and_join
+
+combined_sfl <-
+  combined_sfl |>
+  mutate(type = ifelse(year >= first_year_forecast,
+                       "out-of-sample",
+                       "in-sample"))
+
+combined_sfl |>
+  mutate(mse = dens - q50) |>
+  mutate(mse = mse * mse) |>
+  group_by(type, model) |>
+  summarise(rmse = sqrt(mean(mse))) |>
+  knitr::kable()
+```
+
+As expected, in-sample predictions have lower root mean square error (RMSE) of
+prediction when compared to their out-of-sample counterpart. In both cases, the
+model that relates recruitment to the environment has lead to better predictive
+performance (in terms of RMSE).
+
+## Projections under unknown effort
+
+Often, one desires to project the abundance (here measured in terms of density)
+of a species over time. Since we cannot tell before hand what the effort in the
+future will look like, it is desirable to isolate this source of
+variation. `drmr` allows users to achieve that by projecting the _latent
+density_. As a consequence of the model assumptions, the latent density serves
+as a proxy for abundance and is expected to always exceed the observed
+abundance. This fact is grounded on the assumption that what is observed is
+always a subset of the total number of individuals in a given site. Moreover,
+the latent abundance does not take the observation error into account and,
+consequently, tends to be "smoother".
+
+
+One can compute the in- and out-of-sample latent abundances using `drmr` by
+passing an additional argument to the `fitted` and `predict` functions:
+```{r}
+#| label: latent
+
+fitted_rl <- fitted(drm_rec, type = "latent") |>
+  summary() 
+
+
+predicted_rl <- predict(drm_rec,
+                        new_data = dat_test,
+                        past_data = filter(dat_train,
+                                           year == max(year)),
+                        seed = 2026,
+                        f_test = f_test,
+                        type = "latent") |>
+  summary()
+
+combined_rl <- bind_rows(fitted_rl, predicted_rl)
+```
+
+Now, we can visualize those:
+```{r}
+#| label: viz_latent
+combined_rl |>
+  mutate(patch = as.integer(patch)) |>
+  ## to allow for a comparison with reality
+  left_join(sum_fl, by = c("patch", "year")) |>
+  ggplot(data = _,
+         aes(x = year)) +
+  geom_ribbon(aes(ymin = q5, ymax = q95),
+              alpha = .5) +
+  geom_line(aes(y = q50)) +
+  geom_point(aes(y = dens), color = 2, pch = 19)+ 
+  facet_wrap(. ~ patch, scales = "free_y") +
+  theme_bw()
+```
+
+
+## Visualizing age specific ages
+
+Our package also allows for estimating the age-specific densities. To compute
+those, one can simply run:
+```{r}
+#| label: edens
+
+lambdas <- ages_edens(drm_rec) |>
+  summary() |>
+  mutate(patch = as.integer(patch))
+```
+
+Now, let's visualize the age-specific densities for all patches at a given year:
+```{r}
+#| label: edens_year
+
+lambdas |>
+  filter(year == 2010) |>  
+  ggplot(data = _,
+         aes(x = age)) +
+  geom_segment(aes(xend = age, y = 0, yend = q50),
+               color = "gray50") +
+  geom_errorbar(aes(ymin = q5, ymax = q95)) +
+  geom_point(aes(y = q50)) +
+  facet_wrap(~ patch) +
   theme_bw()
 
+```
+
+The error bars represent the respective 90\% credible intervals. An equivalent
+visualization for a single patch across time can be obtained as follows:
+```{r}
+#| label: edens_patch
+
+lambdas |>
+  filter(patch == 5) |>
+  filter(year %in% seq(1985, 2010, by = 5)) |>
+  ggplot(data = _,
+         aes(x = age)) +
+  geom_segment(aes(xend = age, y = 0, yend = q50),
+               color = "gray50") +
+  geom_errorbar(aes(ymin = q5, ymax = q95)) +
+  geom_point(aes(y = q50)) +
+  facet_wrap(~ year) +
+  theme_bw()
 
 ```
+
 
 
 ## References

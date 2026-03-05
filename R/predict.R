@@ -206,7 +206,7 @@ predict.adrm <- function(object,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
-  spt <- data.frame(v1 = new_sites_factor[pred_data$site],
+  spt <- data.frame(v1 = new_sites_factor,
                     v2 = pred_data$time + max(object$data$time) + object$data$time_init - 1)
   colnames(spt) <- rev(unname(unlist(object$cols[2:3])))
   output <- list("gq" = gq,
@@ -314,7 +314,7 @@ predict.sdm <- function(object,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
-  spt <- data.frame(v1 = new_sites_factor[pred_data$site],
+  spt <- data.frame(v1 = new_sites_factor,
                     v2 = pred_data$time + max(object$data$time) + object$data$time_init - 1)
   colnames(spt) <- rev(unname(unlist(object$cols[2:3])))
   output <- list("gq" = gq,

@@ -12,7 +12,9 @@ inst/stan/**/*.EXE
 *.dll
 
 *.tar.gz
-  
+
+.DS_Store
+
 docs
 
 vignettes/.quarto/
