@@ -2,7 +2,7 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+# drmr <a href="https://pinskylab.github.io/drmr/"><img src="man/figures/logo.png" align="right" height="120" alt="drmr website" /></a>
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -12,8 +12,6 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-
-# drmr
 
 ## **D**ynamic **R**ange **M**odels in **R**
 

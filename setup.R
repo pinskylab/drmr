@@ -39,3 +39,8 @@ if (!file.exists("vignettes/theory.qmd"))
 
 if (!file.exists("vignettes/examples.qmd"))
   usethis::use_vignette(name = "examples.qmd")
+
+usethis::use_logo("../logo-drmr.png")
+pkgdown::build_favicons()
+
+devtools::build_readme()

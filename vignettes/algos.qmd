@@ -187,7 +187,7 @@ posterior as follows:
 ```{r}
 #| label: laplace
 
-lapl_args <- list(show_messages = FALSE,
+lapl_args <- list(show_messages = true,
                   show_exceptions = FALSE)
 
 drm_lapl <-
