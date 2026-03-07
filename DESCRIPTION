@@ -33,6 +33,7 @@ Suggests:
   quarto,
   loo,
   bayesplot
+Remotes: wlandau/instantiate
 Additional_repositories:
   https://mc-stan.org/r-packages/
 SystemRequirements: CmdStan (https://mc-stan.org/users/interfaces/cmdstan)
