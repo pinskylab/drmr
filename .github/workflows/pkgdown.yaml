@@ -23,43 +23,32 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    - uses: quarto-dev/quarto-actions/setup@v2
+    - uses: r-lib/actions/setup-pandoc@v2
+    - uses: r-lib/actions/setup-r@v2
+      with:
+        use-public-rspm: true
 
-      - uses: r-lib/actions/setup-pandoc@v2
+    - uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        extra-packages: any::pkgdown, local::., wlandau/instantiate, mc-stan/cmdstanr
+        needs: website
 
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          use-public-rspm: true
+    - name: Install CmdStan
+      shell: Rscript {0}
+      run: |
+        cmdstanr::check_cmdstan_toolchain(fix = TRUE)
+        cmdstanr::install_cmdstan()
 
-      - name: Install CmdStan
-        shell: Rscript {0}
-        run: |
-          install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
-          cmdstanr::check_cmdstan_toolchain(fix = TRUE)
-          cmdstanr::install_cmdstan()
-          install.packages("remotes")
-          remotes::install_github("wlandau/instantiate")
+    - name: Build site
+      run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+      shell: Rscript {0}
 
-      - name: Install Quarto
-        run: |
-          wget https://github.com/quarto-dev/quarto-cli/releases/latest/download/quarto-linux-amd64.deb
-          sudo dpkg -i quarto-linux-amd64.deb
-  
-      - uses: quarto-dev/quarto-actions/setup@v2
-
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::pkgdown, local::., wlandau/instantiate
-          needs: website
-
-      - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
-        shell: Rscript {0}
-
-      - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
-        with:
-          clean: false
-          branch: gh-pages
-          folder: docs
+    - name: Deploy to GitHub pages 🚀
+      if: github.event_name != 'pull_request'
+      uses: JamesIves/github-pages-deploy-action@v4.5.0
+      with:
+        clean: false
+        branch: gh-pages
+        folder: docs
