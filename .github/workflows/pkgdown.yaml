@@ -38,7 +38,7 @@ jobs:
           cmdstanr::check_cmdstan_toolchain(fix = TRUE)
           cmdstanr::install_cmdstan()
           install.packages("remotes")
-          remotes::install_github("wlandau/instantiate/")
+          remotes::install_github("wlandau/instantiate")
   
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
