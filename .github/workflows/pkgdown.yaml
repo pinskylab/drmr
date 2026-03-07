@@ -32,12 +32,13 @@ jobs:
 
     - uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        extra-packages: any::pkgdown, local::., wlandau/instantiate, mc-stan/cmdstanr
+        extra-packages: any::pkgdown, local::., wlandau/instantiate
         needs: website
 
     - name: Install CmdStan
       shell: Rscript {0}
       run: |
+        install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
         cmdstanr::check_cmdstan_toolchain(fix = TRUE)
         cmdstanr::install_cmdstan()
 
