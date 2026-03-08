@@ -13,6 +13,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="ppt_files/libs/quarto-html/popper.min.js"></script><script src="ppt_files/libs/quarto-html/tippy.umd.min.js"></script><link href="ppt_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="ppt_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Parameters, priors, and toggles">
+<meta property="og:image" content="https://pinskylab.github.io/drmr/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +36,11 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/examples.html">Examples</a></li>
+<li><a class="dropdown-item" href="../articles/advanced-features.html">Advanced features</a></li>
+    <li><a class="dropdown-item" href="../articles/algos.html">Algorithms</a></li>
     <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
     <li><a class="dropdown-item" href="../articles/init.html">Densities' initialization</a></li>
+    <li><a class="dropdown-item" href="../articles/parametrization.html">Parametrization of the density functions</a></li>
     <li><a class="dropdown-item" href="../articles/ppt.html">Parameters, priors, and toggles</a></li>
     <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
   </ul>
@@ -57,8 +60,7 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Parameters, priors, and toggles</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Parameters, priors, and toggles</h1>
 
       <p class="author">Lucas da Cunha Godoy</p>
       <p class="date">2025-06-26</p>
@@ -78,9 +80,9 @@
 <p>The table below details each parameter in the DRM. The “Toggle” column indicates the condition needed to include a parameter in the model. If a parameter is not activated by its toggle, it is excluded from the model, and its prior is not used.</p>
 <table class="table caption-top">
 <colgroup>
+<col style="width: 7%">
 <col style="width: 6%">
-<col style="width: 6%">
-<col style="width: 29%">
+<col style="width: 28%">
 <col style="width: 15%">
 <col style="width: 23%">
 <col style="width: 18%">
@@ -129,9 +131,9 @@
 <tr class="odd">
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ξ</mi><annotation encoding="application/x-tex">\xi</annotation></semantics></math></td>
 <td style="text-align: center;"><code>xi</code></td>
-<td style="text-align: center;">$() = + ()</td>
+<td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>ρ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>⋯</mi><mi>ξ</mi><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{logit}(\rho) = \cdots \xi \log(\mu)</annotation></semantics></math></td>
 <td style="text-align: center;"><code>rho_mu</code></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mrow><mi>l</mi><mi>x</mi><mi>i</mi></mrow></msub><mo>,</mo><msub><mi>s</mi><mrow><mi>l</mi><mi>x</mi><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">- \mathrm{LN}(m_{lxi}, s_{lxi})</annotation></semantics></math></td>
+<td><span class="math inline">${- \rm LN}(m_lxi, s_lxi)$</span></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mrow><mi>l</mi><mi>x</mi><mi>i</mi></mrow></msub><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>s</mi><mrow><mi>l</mi><mi>x</mi><mi>i</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">m_{lxi} = 0, s_{lxi} = 1</annotation></semantics></math></td>
 </tr>
 <tr class="even">
@@ -153,17 +155,17 @@
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>a</mi></msub><mo>=</mo><mn>.5</mn><mo>,</mo><msub><mi>b</mi><mi>a</mi></msub><mo>=</mo><mn>.5</mn></mrow><annotation encoding="application/x-tex">a_a = .5, b_a = .5</annotation></semantics></math></td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">$_t</td>
+<td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\sigma_t</annotation></semantics></math></td>
 <td style="text-align: center;"><code>sigma_t</code></td>
 <td style="text-align: center;">AR(1) conditional SD</td>
 <td style="text-align: center;">
 <code>ar_re</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\neq</annotation></semantics></math><code>"none"</code>
 </td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mrow><mi>l</mi><mi>s</mi><mi>t</mi></mrow></msub><mo>,</mo><msub><mi>s</mi><mrow><mi>l</mi><mi>s</mi><mi>t</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{LN}(m_{lst}, s_{lst})</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>l</mi></msub><mi>s</mi><mi>t</mi><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>s</mi><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{LN}(m_lst, s_lst)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mrow><mi>l</mi><mi>s</mi><mi>t</mi></mrow></msub><mo>=</mo><mi>−</mi><mn>2</mn><mo>,</mo><msub><mi>s</mi><mrow><mi>l</mi><mi>s</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>.25</mn></mrow><annotation encoding="application/x-tex">m_{lst} = -2, s_{lst} = .25</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">$z_t</td>
+<td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>t</mi></msub><annotation encoding="application/x-tex">z_t</annotation></semantics></math></td>
 <td style="text-align: center;"><code>z_t</code></td>
 <td style="text-align: center;">AR(1) random effects</td>
 <td style="text-align: center;">
@@ -173,17 +175,17 @@
 <td style="text-align: center;">N/A</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">$_i</td>
+<td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\sigma_i</annotation></semantics></math></td>
 <td style="text-align: center;"><code>sigma_i</code></td>
 <td style="text-align: center;">Patch level iid random effect SD</td>
 <td style="text-align: center;">
 <code>iid_re</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\neq</annotation></semantics></math><code>"none"</code>
 </td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mrow><mi>l</mi><mi>s</mi><mi>i</mi></mrow></msub><mo>,</mo><msub><mi>s</mi><mrow><mi>l</mi><mi>s</mi><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{LN}(m_{lsi}, s_{lsi})</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>l</mi></msub><mi>s</mi><mi>i</mi><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>s</mi><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{LN}(m_lsi, s_lsi)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mrow><mi>l</mi><mi>s</mi><mi>i</mi></mrow></msub><mo>=</mo><mi>−</mi><mn>2</mn><mo>,</mo><msub><mi>s</mi><mrow><mi>l</mi><mi>s</mi><mi>i</mi></mrow></msub><mo>=</mo><mn>.25</mn></mrow><annotation encoding="application/x-tex">m_{lsi} = -2, s_{lsi} = .25</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">$z_i</td>
+<td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_i</annotation></semantics></math></td>
 <td style="text-align: center;"><code>z_i</code></td>
 <td style="text-align: center;">Patch level iid random effects</td>
 <td style="text-align: center;">
@@ -193,17 +195,17 @@
 <td style="text-align: center;">N/A</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">$_s</td>
+<td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>s</mi></msub><annotation encoding="application/x-tex">\sigma_s</annotation></semantics></math></td>
 <td style="text-align: center;"><code>sigma_s</code></td>
 <td style="text-align: center;">Patch level ICAR random effect SD</td>
 <td style="text-align: center;">
 <code>sp_re</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\neq</annotation></semantics></math><code>"none"</code>
 </td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mrow><mi>l</mi><mi>s</mi><mi>s</mi></mrow></msub><mo>,</mo><msub><mi>s</mi><mrow><mi>l</mi><mi>s</mi><mi>s</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{LN}(m_{lss}, s_{lss})</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">N</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>l</mi></msub><mi>s</mi><mi>s</mi><mo>,</mo><msub><mi>s</mi><mi>l</mi></msub><mi>s</mi><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{LN}(m_lss, s_lss)</annotation></semantics></math></td>
 <td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mrow><mi>l</mi><mi>s</mi><mi>s</mi></mrow></msub><mo>=</mo><mi>−</mi><mn>2</mn><mo>,</mo><msub><mi>s</mi><mrow><mi>l</mi><mi>s</mi><mi>s</mi></mrow></msub><mo>=</mo><mn>.25</mn></mrow><annotation encoding="application/x-tex">m_{lss} = -2, s_{lss} = .25</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">$z_s</td>
+<td style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>s</mi></msub><annotation encoding="application/x-tex">z_s</annotation></semantics></math></td>
 <td style="text-align: center;"><code>z_s</code></td>
 <td style="text-align: center;">Patch level ICAR random effects</td>
 <td style="text-align: center;">
@@ -311,7 +313,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
 </div>
 
     </footer>

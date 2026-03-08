@@ -13,6 +13,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="An R package with pre-compiled cmdstan code for dynamic range models">
 <meta name="description" content="The models available are described in the vignette. The class of models we provide were first discussed in Pagel and Schur (2012) (&lt;doi:10.1111/j.1466-8238.2011.00663.x&gt;).">
 <meta property="og:description" content="The models available are described in the vignette. The class of models we provide were first discussed in Pagel and Schur (2012) (&lt;doi:10.1111/j.1466-8238.2011.00663.x&gt;).">
+<meta property="og:image" content="https://pinskylab.github.io/drmr/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +36,11 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/examples.html">Examples</a></li>
+<li><a class="dropdown-item" href="articles/advanced-features.html">Advanced features</a></li>
+    <li><a class="dropdown-item" href="articles/algos.html">Algorithms</a></li>
     <li><a class="dropdown-item" href="articles/get-started.html">Get Started</a></li>
     <li><a class="dropdown-item" href="articles/init.html">Densities' initialization</a></li>
+    <li><a class="dropdown-item" href="articles/parametrization.html">Parametrization of the density functions</a></li>
     <li><a class="dropdown-item" href="articles/ppt.html">Parameters, priors, and toggles</a></li>
     <li><a class="dropdown-item" href="articles/theory.html">Theoretical Background</a></li>
   </ul>
@@ -57,8 +60,11 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="drmr">drmr<a class="anchor" aria-label="anchor" href="#drmr"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="drmr-">drmr 
+<a class="anchor" aria-label="anchor" href="#drmr-"></a>
+</h1>
+</div>
 <div class="section level2">
 <h2 id="dynamic-range-models-in-r">
 <strong>D</strong>ynamic <strong>R</strong>ange <strong>M</strong>odels in <strong>R</strong>
@@ -124,7 +130,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
 </div>
 
     </footer>

@@ -13,6 +13,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="get-started_files/libs/quarto-html/popper.min.js"></script><script src="get-started_files/libs/quarto-html/tippy.umd.min.js"></script><link href="get-started_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="get-started_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get Started">
+<meta property="og:image" content="https://pinskylab.github.io/drmr/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +36,11 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/examples.html">Examples</a></li>
+<li><a class="dropdown-item" href="../articles/advanced-features.html">Advanced features</a></li>
+    <li><a class="dropdown-item" href="../articles/algos.html">Algorithms</a></li>
     <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
     <li><a class="dropdown-item" href="../articles/init.html">Densities' initialization</a></li>
+    <li><a class="dropdown-item" href="../articles/parametrization.html">Parametrization of the density functions</a></li>
     <li><a class="dropdown-item" href="../articles/ppt.html">Parameters, priors, and toggles</a></li>
     <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
   </ul>
@@ -57,8 +60,7 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Get Started</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Get Started</h1>
 
       <p class="author">Lucas da Cunha Godoy</p>
 
@@ -83,7 +85,7 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span> <span class="co">## graphs</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mc-stan.org/bayesplot/" class="external-link">bayesplot</a></span><span class="op">)</span> <span class="co">## and more graphs</span></span></code></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>This is bayesplot version 1.13.0</code></pre>
+<pre><code>This is bayesplot version 1.15.0</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>- Online documentation and vignettes at mc-stan.org/bayesplot</code></pre>
@@ -203,13 +205,13 @@ Attaching package: 'dplyr'</code></pre>
 10  2010    10     0  10.2</code></pre>
 </div>
 </div>
-<p>Note that, <code>stemp</code> is an explanatory variable denoting the sea surface temperature (SST).</p>
+<p><code>stemp</code> is an explanatory variable denoting the sea surface temperature (SST).</p>
 </section><section class="level2"><h2 id="fitting-diagnosing-a-model">Fitting &amp; diagnosing a model<a class="anchor" aria-label="anchor" href="#fitting-diagnosing-a-model"></a>
 </h2>
 <p>Provided the dataset is properly formatted, a simple model considering the existance of <code>8</code> age groups and a natural mortality rate of <code>0.25</code> can be fit as follows:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mcmc_samples</span> <span class="op">&lt;-</span></span>
+<code class="sourceCode R"><span><span class="va">my_drm</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="../reference/fit_drm.html">fit_drm</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">dat_train</span>,</span>
 <span>          y_col <span class="op">=</span> <span class="st">"dens"</span>,</span>
 <span>          time_col <span class="op">=</span> <span class="st">"year"</span>,</span>
@@ -217,10 +219,8 @@ Attaching package: 'dplyr'</code></pre>
 <span>          n_ages <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>          m <span class="op">=</span> <span class="fl">0.25</span>,</span>
 <span>          seed <span class="op">=</span> <span class="fl">2025</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>Running MCMC with 4 parallel chains...
+<pre><code>Running MCMC with 4 sequential chains...
 
 Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) </code></pre>
 </div>
@@ -228,7 +228,7 @@ Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) </code></pre>
 <pre><code>Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpBXDoDm/model-247b6426e971.stan', line 595, column 4 to column 54)</code></pre>
+<pre><code>Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
@@ -240,13 +240,35 @@ Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) </code></pre>
 <pre><code>Chain 1 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) </code></pre>
+<pre><code>Chain 1 Iteration:  100 / 2000 [  5%]  (Warmup)
+Chain 1 Iteration:  200 / 2000 [ 10%]  (Warmup)
+Chain 1 Iteration:  300 / 2000 [ 15%]  (Warmup)
+Chain 1 Iteration:  400 / 2000 [ 20%]  (Warmup)
+Chain 1 Iteration:  500 / 2000 [ 25%]  (Warmup)
+Chain 1 Iteration:  600 / 2000 [ 30%]  (Warmup)
+Chain 1 Iteration:  700 / 2000 [ 35%]  (Warmup)
+Chain 1 Iteration:  800 / 2000 [ 40%]  (Warmup)
+Chain 1 Iteration:  900 / 2000 [ 45%]  (Warmup)
+Chain 1 Iteration: 1000 / 2000 [ 50%]  (Warmup)
+Chain 1 Iteration: 1001 / 2000 [ 50%]  (Sampling)
+Chain 1 Iteration: 1100 / 2000 [ 55%]  (Sampling)
+Chain 1 Iteration: 1200 / 2000 [ 60%]  (Sampling)
+Chain 1 Iteration: 1300 / 2000 [ 65%]  (Sampling)
+Chain 1 Iteration: 1400 / 2000 [ 70%]  (Sampling)
+Chain 1 Iteration: 1500 / 2000 [ 75%]  (Sampling)
+Chain 1 Iteration: 1600 / 2000 [ 80%]  (Sampling)
+Chain 1 Iteration: 1700 / 2000 [ 85%]  (Sampling)
+Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling)
+Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling)
+Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling)
+Chain 1 finished in 2.5 seconds.
+Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) </code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpBXDoDm/model-247b6426e971.stan', line 595, column 4 to column 54)</code></pre>
+<pre><code>Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
@@ -258,246 +280,259 @@ Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) </code></pre>
 <pre><code>Chain 2 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup)
-Chain 3 Iteration:  100 / 2000 [  5%]  (Warmup) </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpBXDoDm/model-247b6426e971.stan', line 595, column 4 to column 54)</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpBXDoDm/model-247b6426e971.stan', line 595, column 4 to column 54)</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpBXDoDm/model-247b6426e971.stan', line 595, column 4 to column 54)</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpBXDoDm/model-247b6426e971.stan', line 595, column 4 to column 54)</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 3 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup)
-Chain 4 Iteration:  100 / 2000 [  5%]  (Warmup) </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpBXDoDm/model-247b6426e971.stan', line 595, column 4 to column 54)</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpBXDoDm/model-247b6426e971.stan', line 595, column 4 to column 54)</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpBXDoDm/model-247b6426e971.stan', line 595, column 4 to column 54)</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpBXDoDm/model-247b6426e971.stan', line 595, column 4 to column 54)</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Chain 4 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Chain 1 Iteration:  100 / 2000 [  5%]  (Warmup)
-Chain 1 Iteration:  200 / 2000 [ 10%]  (Warmup)
-Chain 2 Iteration:  100 / 2000 [  5%]  (Warmup)
-Chain 3 Iteration:  200 / 2000 [ 10%]  (Warmup)
-Chain 4 Iteration:  200 / 2000 [ 10%]  (Warmup)
-Chain 1 Iteration:  300 / 2000 [ 15%]  (Warmup)
+<pre><code>Chain 2 Iteration:  100 / 2000 [  5%]  (Warmup)
 Chain 2 Iteration:  200 / 2000 [ 10%]  (Warmup)
-Chain 3 Iteration:  300 / 2000 [ 15%]  (Warmup)
-Chain 4 Iteration:  300 / 2000 [ 15%]  (Warmup)
-Chain 1 Iteration:  400 / 2000 [ 20%]  (Warmup)
 Chain 2 Iteration:  300 / 2000 [ 15%]  (Warmup)
-Chain 3 Iteration:  400 / 2000 [ 20%]  (Warmup)
-Chain 4 Iteration:  400 / 2000 [ 20%]  (Warmup)
-Chain 1 Iteration:  500 / 2000 [ 25%]  (Warmup)
 Chain 2 Iteration:  400 / 2000 [ 20%]  (Warmup)
-Chain 3 Iteration:  500 / 2000 [ 25%]  (Warmup)
-Chain 1 Iteration:  600 / 2000 [ 30%]  (Warmup)
-Chain 4 Iteration:  500 / 2000 [ 25%]  (Warmup)
 Chain 2 Iteration:  500 / 2000 [ 25%]  (Warmup)
-Chain 3 Iteration:  600 / 2000 [ 30%]  (Warmup)
-Chain 4 Iteration:  600 / 2000 [ 30%]  (Warmup)
-Chain 1 Iteration:  700 / 2000 [ 35%]  (Warmup)
 Chain 2 Iteration:  600 / 2000 [ 30%]  (Warmup)
-Chain 3 Iteration:  700 / 2000 [ 35%]  (Warmup)
-Chain 4 Iteration:  700 / 2000 [ 35%]  (Warmup)
-Chain 1 Iteration:  800 / 2000 [ 40%]  (Warmup)
 Chain 2 Iteration:  700 / 2000 [ 35%]  (Warmup)
-Chain 3 Iteration:  800 / 2000 [ 40%]  (Warmup)
-Chain 4 Iteration:  800 / 2000 [ 40%]  (Warmup)
-Chain 1 Iteration:  900 / 2000 [ 45%]  (Warmup)
-Chain 4 Iteration:  900 / 2000 [ 45%]  (Warmup)
 Chain 2 Iteration:  800 / 2000 [ 40%]  (Warmup)
-Chain 3 Iteration:  900 / 2000 [ 45%]  (Warmup)
-Chain 1 Iteration: 1000 / 2000 [ 50%]  (Warmup)
-Chain 1 Iteration: 1001 / 2000 [ 50%]  (Sampling)
-Chain 4 Iteration: 1000 / 2000 [ 50%]  (Warmup)
-Chain 4 Iteration: 1001 / 2000 [ 50%]  (Sampling)
 Chain 2 Iteration:  900 / 2000 [ 45%]  (Warmup)
-Chain 3 Iteration: 1000 / 2000 [ 50%]  (Warmup)
-Chain 3 Iteration: 1001 / 2000 [ 50%]  (Sampling)
-Chain 4 Iteration: 1100 / 2000 [ 55%]  (Sampling)
-Chain 1 Iteration: 1100 / 2000 [ 55%]  (Sampling)
 Chain 2 Iteration: 1000 / 2000 [ 50%]  (Warmup)
 Chain 2 Iteration: 1001 / 2000 [ 50%]  (Sampling)
-Chain 3 Iteration: 1100 / 2000 [ 55%]  (Sampling)
 Chain 2 Iteration: 1100 / 2000 [ 55%]  (Sampling)
-Chain 4 Iteration: 1200 / 2000 [ 60%]  (Sampling)
-Chain 1 Iteration: 1200 / 2000 [ 60%]  (Sampling)
-Chain 3 Iteration: 1200 / 2000 [ 60%]  (Sampling)
-Chain 4 Iteration: 1300 / 2000 [ 65%]  (Sampling)
-Chain 1 Iteration: 1300 / 2000 [ 65%]  (Sampling)
 Chain 2 Iteration: 1200 / 2000 [ 60%]  (Sampling)
-Chain 3 Iteration: 1300 / 2000 [ 65%]  (Sampling)
-Chain 4 Iteration: 1400 / 2000 [ 70%]  (Sampling)
 Chain 2 Iteration: 1300 / 2000 [ 65%]  (Sampling)
-Chain 1 Iteration: 1400 / 2000 [ 70%]  (Sampling)
-Chain 3 Iteration: 1400 / 2000 [ 70%]  (Sampling)
-Chain 4 Iteration: 1500 / 2000 [ 75%]  (Sampling)
-Chain 1 Iteration: 1500 / 2000 [ 75%]  (Sampling)
 Chain 2 Iteration: 1400 / 2000 [ 70%]  (Sampling)
-Chain 3 Iteration: 1500 / 2000 [ 75%]  (Sampling)
-Chain 4 Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 2 Iteration: 1500 / 2000 [ 75%]  (Sampling)
-Chain 1 Iteration: 1600 / 2000 [ 80%]  (Sampling)
-Chain 3 Iteration: 1600 / 2000 [ 80%]  (Sampling)
-Chain 4 Iteration: 1700 / 2000 [ 85%]  (Sampling)
-Chain 1 Iteration: 1700 / 2000 [ 85%]  (Sampling)
 Chain 2 Iteration: 1600 / 2000 [ 80%]  (Sampling)
-Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling)
-Chain 3 Iteration: 1700 / 2000 [ 85%]  (Sampling)
 Chain 2 Iteration: 1700 / 2000 [ 85%]  (Sampling)
-Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling)
-Chain 3 Iteration: 1800 / 2000 [ 90%]  (Sampling)
-Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling)
-Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling)
 Chain 2 Iteration: 1800 / 2000 [ 90%]  (Sampling)
-Chain 4 Iteration: 2000 / 2000 [100%]  (Sampling)
-Chain 4 finished in 4.2 seconds.
-Chain 3 Iteration: 1900 / 2000 [ 95%]  (Sampling)
-Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 2 Iteration: 1900 / 2000 [ 95%]  (Sampling)
-Chain 1 finished in 4.4 seconds.
 Chain 2 Iteration: 2000 / 2000 [100%]  (Sampling)
+Chain 2 finished in 2.5 seconds.
+Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 3 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Chain 3 Iteration:  100 / 2000 [  5%]  (Warmup)
+Chain 3 Iteration:  200 / 2000 [ 10%]  (Warmup)
+Chain 3 Iteration:  300 / 2000 [ 15%]  (Warmup)
+Chain 3 Iteration:  400 / 2000 [ 20%]  (Warmup)
+Chain 3 Iteration:  500 / 2000 [ 25%]  (Warmup)
+Chain 3 Iteration:  600 / 2000 [ 30%]  (Warmup)
+Chain 3 Iteration:  700 / 2000 [ 35%]  (Warmup)
+Chain 3 Iteration:  800 / 2000 [ 40%]  (Warmup)
+Chain 3 Iteration:  900 / 2000 [ 45%]  (Warmup)
+Chain 3 Iteration: 1000 / 2000 [ 50%]  (Warmup)
+Chain 3 Iteration: 1001 / 2000 [ 50%]  (Sampling)
+Chain 3 Iteration: 1100 / 2000 [ 55%]  (Sampling)
+Chain 3 Iteration: 1200 / 2000 [ 60%]  (Sampling)
+Chain 3 Iteration: 1300 / 2000 [ 65%]  (Sampling)
+Chain 3 Iteration: 1400 / 2000 [ 70%]  (Sampling)
+Chain 3 Iteration: 1500 / 2000 [ 75%]  (Sampling)
+Chain 3 Iteration: 1600 / 2000 [ 80%]  (Sampling)
+Chain 3 Iteration: 1700 / 2000 [ 85%]  (Sampling)
+Chain 3 Iteration: 1800 / 2000 [ 90%]  (Sampling)
+Chain 3 Iteration: 1900 / 2000 [ 95%]  (Sampling)
 Chain 3 Iteration: 2000 / 2000 [100%]  (Sampling)
-Chain 2 finished in 4.6 seconds.
-Chain 3 finished in 4.5 seconds.
+Chain 3 finished in 2.7 seconds.
+Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Chain 4 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Chain 4 Iteration:  100 / 2000 [  5%]  (Warmup)
+Chain 4 Iteration:  200 / 2000 [ 10%]  (Warmup)
+Chain 4 Iteration:  300 / 2000 [ 15%]  (Warmup)
+Chain 4 Iteration:  400 / 2000 [ 20%]  (Warmup)
+Chain 4 Iteration:  500 / 2000 [ 25%]  (Warmup)
+Chain 4 Iteration:  600 / 2000 [ 30%]  (Warmup)
+Chain 4 Iteration:  700 / 2000 [ 35%]  (Warmup)
+Chain 4 Iteration:  800 / 2000 [ 40%]  (Warmup)
+Chain 4 Iteration:  900 / 2000 [ 45%]  (Warmup)
+Chain 4 Iteration: 1000 / 2000 [ 50%]  (Warmup)
+Chain 4 Iteration: 1001 / 2000 [ 50%]  (Sampling)
+Chain 4 Iteration: 1100 / 2000 [ 55%]  (Sampling)
+Chain 4 Iteration: 1200 / 2000 [ 60%]  (Sampling)
+Chain 4 Iteration: 1300 / 2000 [ 65%]  (Sampling)
+Chain 4 Iteration: 1400 / 2000 [ 70%]  (Sampling)
+Chain 4 Iteration: 1500 / 2000 [ 75%]  (Sampling)
+Chain 4 Iteration: 1600 / 2000 [ 80%]  (Sampling)
+Chain 4 Iteration: 1700 / 2000 [ 85%]  (Sampling)
+Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling)
+Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling)
+Chain 4 Iteration: 2000 / 2000 [100%]  (Sampling)
+Chain 4 finished in 2.9 seconds.
 
 All 4 chains finished successfully.
-Mean chain execution time: 4.4 seconds.
-Total execution time: 4.8 seconds.</code></pre>
+Mean chain execution time: 2.6 seconds.
+Total execution time: 10.9 seconds.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: 7 of 4000 (0.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.</code></pre>
 </div>
 </div>
-<p>The <code>mcmc_samples</code> object is a named list. One of its positions is called <code>stanfit</code>. We can use the <code>stanfit</code> position as if it was the output of a <code>cmdstanr</code> model. For instance, to assess the convergence of the MCMC, one can run:</p>
+<p>The <code>my_drm</code> is an object of class <code>drmmodels</code>. We have specific methods (i.e., specialized functions) for this object. For example, one can get parameter estimates and some convergence diagnostics using the <code>summary</code> method:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb77"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mcmc_samples</span><span class="op">$</span><span class="va">stanfit</span><span class="op">$</span><span class="fu">draws</span><span class="op">(</span>variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"phi"</span>,</span>
-<span>                                         <span class="st">"beta_t"</span>,</span>
-<span>                                         <span class="st">"beta_r"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb78"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">my_drm</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Summary of ADRM Fit
+
+Estimates:
+# A tibble: 4 × 8
+  variable     mean     sd  rhat ess_bulk      q5     q50      q95
+  &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+1 beta_t[1] -0.709  0.156   1.00    1871. -0.979  -0.703  -0.464
+2 beta_r[1] -7.55   0.144   1.00    2398. -7.79   -7.56   -7.31
+3 xi[1]     -0.0223 0.0199  1.00    1420. -0.0629 -0.0166 -0.00160
+4 phi[1]     0.356  0.0303  1.00    2756.  0.308   0.356   0.407  </code></pre>
+</div>
+</div>
+<p>In the output above, the column <code>variable</code> represents distinguish the model parameters (for the details on the model parameters see the <a href="pinskylab.github.io/drmr/theory.html">Theory</a> vignette), while <code>mean</code> and <code>sd</code>, respectively, are the mean and standard deviation of the respective posterior distributions. The <code>rhat</code> and <code>ess_bulk</code> are diagnostic statistics. In general, an <code>rhat &lt; 1.01</code> suggests convergence, but one should also look into traceplots to further assess convergence. The <code>ess_bulk</code> is the effective sample size in the bulk of the posterior. The columns starting with <code>q</code> represent percentiles of the posterior distribution.</p>
+<p>We can use our <code>draws</code> method along with the functions from the <code>bayesplot</code> package to visualize the traceplots and estimated densities of the posterior distributions:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/draws.html">draws</a></span><span class="op">(</span><span class="va">my_drm</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-combos.html" class="external-link">mcmc_combo</a></span><span class="op">(</span>combo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trace"</span>, <span class="st">"dens_overlay"</span><span class="op">)</span>,</span>
 <span>             facet_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>labeller <span class="op">=</span> <span class="va">label_parsed</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="cell">
 <div class="cell-output-display">
 <div>
-<figure><p><img src="get-started_files/figure-html/traceplot-1.png" alt="MCMC diagnostic plots for the DRM, arranged in two columns and three rows. The left column displays trace plots for four parallel MCMC chains, assessing convergence. The right column displays the estimated posterior density plots for each parameter, assessing mixing. Row 1: sigma_obs parameter; Row 2: coef_t parameter; Row 3: coef_r parameter. All parameters show evidence of good chain convergence and mixing." width="672"></p>
+<figure><p><img src="get-started_files/figure-html/mcmc_combo-1.png" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
+</section><section class="level2"><h2 id="updating-the-model">Updating the model<a class="anchor" aria-label="anchor" href="#updating-the-model"></a>
+</h2>
+<p>If we want to update a few arguments of our <code>fit_drm</code> call, we can resort to the <code>update</code> method. For example, suppose we want to make the probability of absence depend on a measure of “effort”. In our case, number of hauls <code>n_hauls</code> can be used as a proxy for effort. In addition, let us establish a non-linear relationship between recruitment and SST (the <code>stemp</code> column in our data). We</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_drm2</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">my_drm</span>,</span>
+<span>         formula_zero <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">n_hauls</span>,</span>
+<span>         formula_rec <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">stemp</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">stemp</span> <span class="op">*</span> <span class="va">stemp</span><span class="op">)</span>, <span class="co">## establising a</span></span>
+<span>                                                       <span class="co">## quadratic relationship</span></span>
+<span>                                                       <span class="co">## between recruitment and stemp</span></span>
+<span>         .toggles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ar_re <span class="op">=</span> <span class="st">"rec"</span><span class="op">)</span>, <span class="co">## adding an autoregressive term to recruitment</span></span>
+<span>         algo_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>parallel_chains <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="co">## the `algo_args` is a list</span></span>
+<span>                                                <span class="co">## that allows us to modify the</span></span>
+<span>                                                <span class="co">## parameters of the MCMC</span></span>
+<span>                                                <span class="co">## algorithm</span></span></code></pre></div>
+</div>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-fredston2025dynamic" class="csl-entry" role="listitem">
-Fredston, Alexa, Daniel Ovando, Lucas da Cunha Godoy, Jude Kong, Brandon Muffley, James T Thorson, and Malin Pinsky. 2025. <span>“Dynamic Range Models Improve the Near-Term Forecast for a Marine Species on the Move.”</span> <em>Ecology Letters</em> 00: (under review). <a href="https://doi.org/10.32942/X24D00" class="external-link">https://doi.org/10.32942/X24D00</a>.
+Fredston, Alexa, Daniel Ovando, Lucas da Cunha Godoy, Jude Kong, Brandon Muffley, James T Thorson, and Malin Pinsky. 2025. <span>“Dynamic Range Models Improve the Near-Term Forecast for a Marine Species on the Move.”</span> <a href="https://doi.org/10.32942/X24D00" class="external-link">https://doi.org/10.32942/X24D00</a>.
 </div>
 </div>
 </section><script id="quarto-html-after-body" type="application/javascript">
@@ -593,7 +628,7 @@ Fredston, Alexa, Daniel Ovando, Lucas da Cunha Godoy, Jude Kong, Brandon Muffley
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
 </div>
 
     </footer>
