@@ -33,6 +33,10 @@ Suggests:
   quarto,
   loo,
   bayesplot
+Config/Needs/website:
+  ggplot2,
+  r-lib/pkgdown,
+  quarto
 Remotes: wlandau/instantiate
 Additional_repositories:
   https://mc-stan.org/r-packages/
