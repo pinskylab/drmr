@@ -33,7 +33,7 @@ jobs:
       with:
         extra-packages: any::pkgdown, local::., wlandau/instantiate
         needs: website
-        intall-quarto: true
+        install-quarto: true
 
     - uses: r-lib/actions/setup-tinytex@v2
         
