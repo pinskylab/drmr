@@ -70,7 +70,8 @@ marg.adrm <- function(object,
                                X_mat = "X_t"),
                    surv = list(form = "formula_surv",
                                param = "beta_s",
-                               ilink = exp,
+                               ## ilink = exp,
+                               ilink = stats::plogis,
                                out = "survival",
                                X_mat = "X_m"))
   if (process == "surv") {
