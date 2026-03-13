@@ -3,7 +3,7 @@
 ##' @description A dataset containing containing the number of fish caught at
 ##'   different sites and timepoints.
 ##'
-##' @details This dataset was also used in Fredston et. al 2026 <DOI:>
+##' @details This dataset was also used in Fredston et. al 2026 <DOI:10.32942/X24D00>
 ##'
 ##' @format A \code{data.frame} with 350 rows and 13 columns:
 ##' \describe{

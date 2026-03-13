@@ -133,8 +133,8 @@ generated quantities {
         for (n in 1:N)
           m_aux[n] += z_s[site[n]];
       }
-      current_m = to_matrix(m_aux, n_time, n_sites);
-      past_m = X_m_past * beta_s[1];
+      current_m = to_matrix(-log1p(exp(-m_aux)), n_time, n_sites);
+      past_m = -log1p(exp(X_m_past * beta_s[1]));
     }
     // forecast_simplest is a function in the utils/theoretical_mean.stan file
     lambda_proj = forecast_simplest(n_sites,

@@ -145,7 +145,7 @@ transformed parameters {
   //--- Mortality ----
   vector[est_surv ? N : 0] mortality;
   if (est_surv)
-    mortality = X_m * beta_s[1];
+    mortality = -log1p(exp(-X_m * beta_s[1]));
   // Expected density at specific time/site combinations
   vector[N] mu =
     rep_vector(0.0, N);

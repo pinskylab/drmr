@@ -131,7 +131,7 @@ Differentiation Variational Inference (ADVI) algorithm (for for details see
 advi_args <- list(show_messages = FALSE,
                   show_exceptions = FALSE,
                   iter = 10^5, ## maximum number of iterations (optimization)
-                  draws = 1000) ## number of samples from the posterior
+                  draws = 4000) ## number of samples from the posterior
 
 drm_advi <-
   fit_drm(.data = sum_fl,

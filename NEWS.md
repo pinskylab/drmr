@@ -1,3 +1,7 @@
+# drmr 0.5.1
+
+* Changing the parametrization for survival (it does help with identifiability)
+
 # drmr 0.5.0
 
 * New vignette on "algorithms" detailing the methods that can be used to draw
