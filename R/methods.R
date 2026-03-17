@@ -108,7 +108,7 @@ summary.drmrmodels <- function(object, probs = c(0.05, 0.5, 0.95), ...) {
                 call = object$call)
   } else {
     summ <- object$stanfit$summary(variables = params_out, 
-                                   "mean", "sd", "rhat", "ess_bulk",
+                                   "mean", "sd",
                                    ~posterior::quantile2(., probs = probs), 
                                    ...)
     out <- list(estimates = summ, method = method, call = object$call, probs = probs)
@@ -116,6 +116,89 @@ summary.drmrmodels <- function(object, probs = c(0.05, 0.5, 0.95), ...) {
   subclass <- ifelse(is_adrm, "summary.adrm", "summary.sdm")
   class(out) <- c(subclass, "summary.drmrmodels", class(out))
   return(out)
+}
+
+##' @title Draws method for \code{adrm} and \code{sdm} objects.
+##' @description Mirrors the behavior of \code{cmdstanr}'s \code{$draws} method
+##'   to retrieve the samples from the posterior distribution of the models'
+##'   parameters.
+##'
+##' @param x An object of class \code{adrm} or \code{sdm}.
+##' @param ... currently ignored.
+##'
+##' @author lcgodoy
+##' @return an object of class \code{"drmrdiag"}
+##' @name mcmc_diag
+##' @export
+mcmc_diag <- function(x, ...) UseMethod("mcmc_diag", x)
+
+##' @rdname mcmc_diag
+##' @export
+mcmc_diag.drmrmodels <- function(object, ...) {
+  # 1. Fail fast: Safely check for MCMC up front
+  if (!inherits(object$stanfit, "CmdStanMCMC")) {
+    stop("The inference algorithm is not MCMC! Diagnostics are only available for MCMC fits.")
+  }
+
+  model_type <- if (inherits(object, "adrm")) "drm" else "sdm"
+  
+  params_out <- get_fitted_pars(object$data, model_type)
+  
+  if (object$data$sp_re > 0) {
+    params_out <- c(params_out, "sigma_s")
+  }
+  
+  params_out <- params_out[!grepl("^(lambda|z_)", params_out)]
+  
+  measures <- posterior::default_convergence_measures()
+  summ <- object$stanfit$summary(variables = params_out, measures, ...)
+  
+  class(summ) <- c("drmrdiag", class(summ))
+  return(summ)
+}
+
+##' @export
+summary.drmrdiag <- function(object, ...) {
+  pars <- object$variable 
+  rhats <- object$rhat
+  ess_bulk <- object$ess_bulk
+  ess_tail <- object$ess_tail
+  issues <- list()
+  rhat_flag <- !is.na(rhats) & rhats > 1.01
+  if (any(rhat_flag)) {
+    issues$rhat <- pars[rhat_flag]
+  }
+  ## rule of thumb
+  if (!is.null(ess_bulk)) {
+    ess_b_flag <- !is.na(ess_bulk) & ess_bulk < 400
+    if (any(ess_b_flag)) {
+      issues$ess_bulk <- pars[ess_b_flag]
+    }
+  }
+  if (!is.null(ess_tail)) {
+    ess_t_flag <- !is.na(ess_tail) & ess_tail < 400
+    if (any(ess_t_flag)) {
+      issues$ess_tail <- pars[ess_t_flag]
+    }
+  }
+  if (length(issues) > 0) {
+    cat("--- MCMC Diagnostic Issues ---\n")
+    if (!is.null(issues$rhat)) {
+      cat("\nParameters with R-hat > 1.01 (possible non-convergence):\n")
+      print(issues$rhat)
+    }
+    if (!is.null(issues$ess_bulk)) {
+      cat("\nParameters with low Bulk ESS (< 400):\n")
+      print(issues$ess_bulk)
+    }
+    if (!is.null(issues$ess_tail)) {
+      cat("\nParameters with low Tail ESS (< 400):\n")
+      print(issues$ess_tail)
+    }
+  } else {
+    cat("No issues detected by the MCMC diagnostics.\n")
+  }
+  invisible(issues)
 }
 
 ##' Print method for summary.spatial_model
@@ -260,4 +343,183 @@ summary.aesd <- function(object,
                         by = c("site_id", colnames(object$spt)[2]))
   output <- cbind(edens_labels, output[, -1])
   return(output)
+}
+
+##' @title Plot Diagnostics for DRM Models
+##' @description Provides trace and density plots for the posterior draws of a
+##'   DRM (or SDM) model.
+##' 
+##' @param x An object of class \code{drmrmodels}. Typically, the output of a
+##'   \code{fit_drm} or \code{fit_sdm} call.
+##' @param variables An optional character vector of parameter names to plot. If
+##'   \code{NULL}, plots all.
+##' @param type A character vector specifying which plots to draw:
+##'   \code{"trace"}, \code{"density"}, or both.
+##' @param ask Logical; if \code{TRUE}, the user is prompted before displaying
+##'   the next plot. If \code{NULL} (the default), it is calculated dynamically
+##'   based on the current graphical layout.
+##' @param ... Additional graphical parameters passed to \code{plot}.
+##' 
+##' @export
+plot.drmrmodels <- function(x, 
+                            variables = NULL, 
+                            type = c("trace", "density"), 
+                            ask = NULL,
+                            ...) {
+  
+  if (!inherits(x, "drmrmodels")) {
+    stop("Use only with 'drmrmodels' objects.")
+  }
+  type <- match.arg(type)
+  post <- draws(x) 
+  if (length(dim(post)) != 3) {
+    stop("Expected draws(x) to return a 3D array: [iterations, chains, parameters].")
+  }
+  
+  n_iter  <- dim(post)[1]
+  n_chain <- dim(post)[2]
+  p_names <- dimnames(post)[[3]]
+  
+  if (!is.null(variables)) {
+    p_names <- intersect(variables, p_names)
+  }
+  if (length(p_names) == 0) stop("No valid parameters to plot.")
+  
+  show_trace <- "trace" %in% type
+  show_dens  <- "density" %in% type
+  
+  total_plots <- length(p_names) * sum(c(show_trace, show_dens))
+  
+  if (is.null(ask)) {
+    ask <- prod(par("mfcol")) < total_plots && dev.interactive()
+  }
+  
+  if (ask) {
+    oask <- devAskNewPage(TRUE)
+    on.exit(devAskNewPage(oask))
+  }
+  chain_cols <- palette()[1:n_chain]
+  for (p in p_names) {
+    p_data <- post[, , p, drop = FALSE] 
+    if (show_trace) {
+      plot(1:n_iter, type = "n", ylim = range(p_data, na.rm = TRUE), 
+           xlab = "Iteration", ylab = "Parameter Value",
+           main = paste("Trace of", p), ...)
+      
+      for (c in 1:n_chain) {
+        lines(1:n_iter, p_data[, c, ], col = chain_cols[c])
+      }
+    }
+    if (show_dens) {
+      dens_list <- lapply(1:n_chain, function(c) density(p_data[, c, ]))
+      x_lim <- range(sapply(dens_list, function(d) d$x))
+      y_lim <- c(0, max(sapply(dens_list, function(d) d$y)))
+      
+      plot(1, type = "n", xlim = x_lim, ylim = y_lim,
+           xlab = "Parameter Value", ylab = "Density",
+           main = paste("Density of", p), ...)
+      
+      for (c in 1:n_chain) {
+        lines(dens_list[[c]], col = chain_cols[c], lwd = 2)
+      }
+    }
+  }
+  
+  invisible()
+}
+
+##' @title Posterior Predictive Checks for DRM Models
+##'
+##' @description Generates posterior predictive check plots comparing observed
+##'   data to simulated data from the posterior predictive distribution.
+##' 
+##' @param x An object of class \code{drmrmodels}.
+##' @param type Character string indicating the type of plot: \code{"density"}
+##'   (default) or \code{"ecdf"}.
+##' @param npost Integer specifying the number of posterior draws to plot.
+##'   Default is 50. Usually, we do not use the total number of draws here
+##'   because the plot tends to get too heavy.
+##' @param transform Character string specifying the scale for plotting. Either
+##'   \code{"none"} (default) or \code{"log1p"}.
+##' @param ... Additional graphical parameters passed to \code{plot}.
+##' 
+##' @name ppc
+##' @export
+ppc <- function(x, ...) UseMethod("ppc", x)
+
+##' @rdname ppc
+##' @export
+ppc.drmrmodels <- function(x, 
+                           type = c("density", "ecdf"),
+                           npost = 50, 
+                           transform = c("none", "log1p"),
+                           ...) {
+  
+  if (!inherits(x, "drmrmodels")) {
+    stop("Use only with 'drmrmodels' objects.")
+  }
+  
+  type <- match.arg(type)
+  transform <- match.arg(transform)
+  
+  ids <- sort(c(x$data$id_nz, x$data$id_z))
+  y <- x$data$y[ids]
+  
+  ft_vals <- fitted(x)
+  y_pp_draws <- ft_vals$gq$draws(variables = sprintf("y_pp[%d]", ids),
+                                 format = "draws_matrix")
+  
+  n_total <- NROW(y_pp_draws)
+  if (npost > n_total) npost <- n_total
+  y_pp_draws <- y_pp_draws[sample(seq_len(n_total), size = npost), , drop = FALSE]
+  
+  if (transform == "log1p") {
+    y_trans <- log1p(y)
+    y_pp_trans <- log1p(y_pp_draws)
+    xlab_text <- sprintf("%s (log1p scale)", x$cols$y_col)
+  } else {
+    y_trans <- y
+    y_pp_trans <- y_pp_draws
+    xlab_text <- sprintf("%s", x$cols$y_col)
+  }
+  
+  if (type == "density") {
+    y_dens <- stats::density(y_trans)
+    ft_dens <- apply(y_pp_trans, 1, stats::density)
+    
+    xlim <- range(c(y_dens$x, sapply(ft_dens, function(d) d$x)))
+    ylim <- c(0, max(c(y_dens$y, sapply(ft_dens, function(d) d$y))))
+    ylb <- "Density"
+    
+  } else {
+    y_dens <- stats::ecdf(y_trans)
+    ft_dens <- apply(y_pp_trans, 1, stats::ecdf)
+    xlim <- range(c(y_trans, y_pp_trans))
+    ylim <- c(0, 1)
+    ylb <- "ECDF"
+  }
+  
+  plot(0, type = "n", xlim = xlim, ylim = ylim,
+       ylab = ylb, xlab = xlab_text,
+       main = "Posterior Predictive Check", ...)
+  
+  draw_col <- grDevices::adjustcolor("steelblue", alpha.f = 0.3)
+  
+  if (type == "density") {
+    lapply(ft_dens, function(d) lines(d, col = draw_col))
+    lines(y_dens, lwd = 2, col = "black")
+    
+  } else {
+    lapply(ft_dens, function(d) lines(d, col = draw_col, do.points = FALSE, verticals = TRUE))
+    lines(y_dens, lwd = 2, col = "black", do.points = FALSE, verticals = TRUE)
+  }
+  
+  legend("topright", 
+         legend = c("Observed", "Post. pred. sample"), 
+         col = c("black", "steelblue"), 
+         lwd = c(2, 1), 
+         bty = "n", 
+         cex = 0.9)
+  
+  invisible()
 }

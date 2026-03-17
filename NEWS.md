@@ -2,6 +2,16 @@
 
 * Changing the parametrization for survival (it does help with identifiability)
 
+* `marg` method renamed to `effects_drm`.
+
+* `plot` function for easily diagnosing MCMC convergence.
+
+* A `mcmc_diag` function is also provided for assessing each parameters
+  convergence. This function accompanies a `summary` method.
+  
+* A new `ppc` function is provided for some simple visual posterior predictive
+  checks.
+
 # drmr 0.5.0
 
 * New vignette on "algorithms" detailing the methods that can be used to draw

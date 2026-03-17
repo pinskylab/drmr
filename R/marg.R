@@ -1,9 +1,9 @@
-##' @title Marginal Relationships with Covariates
-##' @description Evaluates and summarizes the marginal relationships between
+##' @title Effects_Drminal Relationships with Covariates
+##' @description Evaluates and summarizes the effects_drminal relationships between
 ##'   explanatory variables and recruitment, survival, or absence probability
 ##'   from a fitted DRM model.
 ##' 
-##' @details The \code{marg} function computes the predicted relationships
+##' @details The \code{effects_drm} function computes the predicted relationships
 ##'   across a sequence of values for a focal variable (or variables), holding
 ##'   all other non-focal variables in the model matrix at zero.
 ##'   
@@ -35,18 +35,18 @@
 ##' 
 ##' @return A \code{data.frame} with the posterior summaries (or draws) for the
 ##'   specified process. If \code{summary = TRUE}, it also receives the class
-##'   \code{marg_adrm} to enable automated plotting.
+##'   \code{eff_drm} to enable automated plotting.
 ##' 
-##' @name marg
+##' @name effects_drm
 ##' @export
 ##' @author lcgodoy
-marg <- function(object, ...) {
-  UseMethod("marg")
+effects_drm <- function(object, ...) {
+  UseMethod("effects_drm")
 }
 
-##' @rdname marg
+##' @rdname effects_drm
 ##' @export
-marg.adrm <- function(object,
+effects_drm.adrm <- function(object,
                       process = c("rec", "surv", "pabs"),
                       variable, 
                       newdata = NULL,
@@ -108,7 +108,7 @@ marg.adrm <- function(object,
     attr(output, "variable") <- variable
     attr(output, "quant_cols") <- colnames(quants_df)
     attr(output, "prob") <- prob
-    class(output) <- c("marg_adrm", "data.frame")
+    class(output) <- c("eff_drm", "data.frame")
     return(output)
   }
   n_sim <- NROW(est_samples)
@@ -119,11 +119,11 @@ marg.adrm <- function(object,
   return(output)
 }
 
-##' @title Internal ggplot2 Backend for marg_adrm
-##' @description Renders the marginal plot using ggplot2.
+##' @title Internal ggplot2 Backend for eff_drm
+##' @description Renders the effects_drminal plot using ggplot2.
 ##' @keywords internal
 ##' @noRd
-.plotmarg_gg <- function(x,
+.ploteffects_drm_gg <- function(x,
                          rug_data,
                          focal_var,
                          process_name,
@@ -147,11 +147,11 @@ marg.adrm <- function(object,
   return(p)
 }
 
-##' @title Internal Base R Backend for marg_adrm
-##' @description Renders the marginal plot using base R graphics.
+##' @title Internal Base R Backend for eff_drm
+##' @description Renders the effects_drminal plot using base R graphics.
 ##' @keywords internal
 ##' @noRd
-.plotmarg_base <- function(x,
+.ploteffects_drm_base <- function(x,
                            rug_data,
                            focal_var,
                            process_name,
@@ -179,13 +179,13 @@ marg.adrm <- function(object,
   invisible(NULL)
 }
 
-##' @title Plot Marginal Relationships for ADRM Objects
-##' @description Automatically plots the marginal relationship computed by
-##'   \code{marg()}. If \code{ggplot2} is installed, it returns a ggplot object;
+##' @title Plot Effects_Drminal Relationships for ADRM Objects
+##' @description Automatically plots the effects_drminal relationship computed by
+##'   \code{effects_drm()}. If \code{ggplot2} is installed, it returns a ggplot object;
 ##'   otherwise, it falls back to base R graphics.
 ##' 
-##' @param x An object of class \code{marg_adrm}, usually the output of
-##'   \code{marg()}.
+##' @param x An object of class \code{eff_drm}, usually the output of
+##'   \code{effects_drm()}.
 ##' @param rug_data An optional \code{data.frame} containing the original data
 ##'   to add a rug plot to the x-axis.
 ##' @param ... Additional arguments passed to the underlying plotting functions.
@@ -196,7 +196,7 @@ marg.adrm <- function(object,
 ##'   handled manually by the user.
 ##' 
 ##' @export
-plot.marg_adrm <- function(x, rug_data = NULL, ...) {
+plot.eff_drm <- function(x, rug_data = NULL, ...) {
   process_name <- attr(x, "process")
   focal_var <- attr(x, "variable")
   quant_cols <- attr(x, "quant_cols")
@@ -210,8 +210,8 @@ plot.marg_adrm <- function(x, rug_data = NULL, ...) {
   col_est <- quant_cols[2]
   col_upp <- quant_cols[3]
   if (requireNamespace("ggplot2", quietly = TRUE)) {
-    .plotmarg_gg(x, rug_data, focal_var, process_name, col_low, col_est, col_upp, ...)
+    .ploteffects_drm_gg(x, rug_data, focal_var, process_name, col_low, col_est, col_upp, ...)
   } else {
-    .plotmarg_base(x, rug_data, focal_var, process_name, col_low, col_est, col_upp, ...)
+    .ploteffects_drm_base(x, rug_data, focal_var, process_name, col_low, col_est, col_upp, ...)
   }
 }

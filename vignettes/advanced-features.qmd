@@ -278,13 +278,13 @@ second model fitted.
 ```{r}
 #| label: env_dem
 
-marg(drm_rec, ## model
+effects_drm(drm_rec, ## model
      process = "rec", ## demographic process
      variable = "c_stemp", ## environmental variable
      prob = .8) |> ## mass of the creible interval
   plot()
 
-marg(drm_srv, ## model
+effects_drm(drm_srv, ## model
      process = "surv", ## demographic process
      variable = "c_btemp", ## environmental variable
      prob = .8) |> 
@@ -300,7 +300,7 @@ show how to achieve that for the survival plot:
 #| label: custom_envdem
 
 multiple_cis <-
-  marg(drm_srv, process = "surv", variable = "c_btemp",
+  effects_drm(drm_srv, process = "surv", variable = "c_btemp",
        summary = FALSE,
        n_pts = 200) |>
   lapply(c(0.6, 0.8, 0.9, 0.99),

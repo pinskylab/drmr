@@ -225,19 +225,19 @@ relationship between environment and recruitment for each of those methods:
 #| layout-ncol: 2
 #| layout-nrow: 2
 
-marg(drm_nuts, "rec", "c_stemp") |>
+effects_drm(drm_nuts, "rec", "c_stemp") |>
   plot() +
   labs(title = "nuts")
 
-marg(drm_path, "rec", "c_stemp") |>
+effects_drm(drm_path, "rec", "c_stemp") |>
   plot() +
   labs(title = "path")
 
-marg(drm_advi, "rec", "c_stemp") |>
+effects_drm(drm_advi, "rec", "c_stemp") |>
   plot() +
   labs(title = "advi")
 
-marg(drm_lapl, "rec", "c_stemp") |>
+effects_drm(drm_lapl, "rec", "c_stemp") |>
   plot() +
   labs(title = "lapl")
 ```
