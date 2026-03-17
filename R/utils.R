@@ -40,7 +40,6 @@ max_quad_x <- function(beta1, beta2, offset = 0) {
   - .5  * out / beta2
 }
 
-##' Generates an adjacency matrix for "movement"
 ##' @title Generates an adjacency matrix
 ##' @param x an \code{sf} object representing the patches.
 ##' @return An adjacency \code{matrix}.

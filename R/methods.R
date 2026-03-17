@@ -26,7 +26,7 @@ update.adrm <- function(object, ...) {
 ##' @param object An object of class \code{sdm}.
 ##' @param ... Arguments to be updated in the new call.
 ##'
-##' @return An updated \code{adrm} object or the unevaluated call.
+##' @return An updated \code{sdm} object.
 ##' @export
 update.sdm <- function(object, ...) {
   call <- object$call
@@ -201,9 +201,9 @@ summary.drmrdiag <- function(object, ...) {
   invisible(issues)
 }
 
-##' Print method for summary.spatial_model
+##' @title Print method for summary.drmrmodels
 ##'
-##' @param x An object of class \code{summary.spatial_model}.
+##' @param x An object of class \code{summary.drmrmodels}.
 ##' @param ... Additional arguments (ignored).
 ##'
 ##' @export

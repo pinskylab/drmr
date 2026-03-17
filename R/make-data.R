@@ -36,24 +36,24 @@
 ##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
 ##'   and zero otherwise.
 ##' @param .toggles a \code{list} of toggles for model components. The
-##'   components are: \itemize{ \item \code{rho_mu}: 1 to explicitly relate
-##'   rho to mu and 0 otherwise.  \item \code{cloglog}: 1 to use the
-##'   complementary log-log and 0 for the logit link function for the absence
-##'   probabilities.  \item \code{movement}: 1 to allow for (adjacent) movement;
-##'   0 for static.  \item \code{est_surv}: 1 to estimate mortality and 0
-##'   otherwise.  \item \code{est_init}: 1 to estimate initial values for lambda
-##'   and 0 otherwise.  \item \code{minit}: 1 to use mortality to estimate
-##'   initial age classes and 0 otherwise.  \item \code{ar_re}: a
-##'   \code{character}. It assumes one of the following values: "none" - no AR,
-##'   "rec" AR(1) for recruitment, "surv" - AR(1) for survival (only works when
-##'   \code{est_surv} is on), "dens" - AR(1) for density.  \item \code{iid_re}:
-##'   a \code{character}. It assumes one of the following values: "none" - no
-##'   iid re, "rec" iid re for recruitment, "surv" - iir re for survival (only
-##'   works when \code{est_surv} is on), "dens" - iid_re for density.  \item
+##'   components are: \itemize{ \item \code{rho_mu}: 1 to explicitly relate rho
+##'   to mu and 0 otherwise.  \item \code{cloglog}: 1 to use the complementary
+##'   log-log and 0 for the logit link function for the absence probabilities.
+##'   \item \code{movement}: 1 to allow for (adjacent) movement; 0 for static.
+##'   \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
+##'   \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
+##'   \item \code{minit}: 1 to use mortality to estimate initial age classes and
+##'   0 otherwise.  \item \code{ar_re}: a \code{character}. It assumes one of
+##'   the following values: "none" no AR, "rec" AR(1) for recruitment, "surv"
+##'   AR(1) for survival (only works when \code{est_surv} is on), "dens" AR(1)
+##'   for density. \item \code{iid_re}: a \code{character}. It assumes one of
+##'   the following values: "none" no IID random effect, "rec" IID random effect
+##'   for recruitment, "surv" IID random effect for survival (only works when
+##'   \code{est_surv} is on), "dens" IID random effect for density.  \item
 ##'   \code{sp_re}: a \code{character}. It assumes one of the following values:
-##'   "none" - no ICAR re, "rec" ICAR re for recruitment, "surv" - ICAR re for
-##'   survival (only works when \code{est_surv} is on), "dens" - ICAR_re for
-##'   density.}
+##'   "none" no ICAR random effect, "rec" ICAR random effect for recruitment,
+##'   "surv" ICAR random effect for survival (only works when \code{est_surv} is
+##'   on), "dens" ICAR random effect for density.}
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
 ##'   reordered. The default is TRUE and means the data points will be ordered
