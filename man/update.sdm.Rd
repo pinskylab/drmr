@@ -12,7 +12,7 @@
 \item{...}{Arguments to be updated in the new call.}
 }
 \value{
-An updated \code{adrm} object or the unevaluated call.
+An updated \code{sdm} object.
 }
 \description{
 Update and Re-fit a SDM Model

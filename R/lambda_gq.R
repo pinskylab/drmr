@@ -1,15 +1,3 @@
-##' @inherit get_fitted_pars
-fitted_pars_lambda <- function(data_list) {
-  output <- c("log_rec")
-  if (data_list$est_surv == 1)
-    output <- c(output, "beta_s")
-  if (data_list$movement == 1)
-    output <- c(output, "zeta")
-  if (data_list$est_init == 1)
-    output <- c(output, "log_init")
-  return(output)
-}
-
 ##' @title Age-specific expected densities based on DRM.
 ##'
 ##' @param drm A \code{list} object containing the output from the [fit_drm]
@@ -58,4 +46,39 @@ ages_edens <- function(drm,
 lambda_drm <- function(...) {
   lifecycle::deprecate_warn("0.3.1", "lambda_drm()", "ages_edens()")
   ages_edens(...)
+}
+
+##' Extract and Summarize Age-Specific Densities
+##'
+##' Parses the output of \code{lambda_drm} to return a data frame of
+##' age-specific densities, indexed by age, time, and patch.
+##'
+##' @param lambda_obj A \code{CmdStanGQ} object returned by \code{lambda_drm}.
+##' @param ages An optional vector of integers. If provided, the output is filtered
+##'   to include only these specific ages.
+##' @param probs A numeric vector of quantiles to calculate in the summary.
+##'   Defaults to c(0.05, 0.5, 0.95).
+##'
+##' @return A \code{data.frame} containing the summary statistics and parsed indices
+##'   (age, time, patch).
+##' @export
+summarise_adens <- function(lambda_obj, ages = NULL,
+                            probs = c(0.05, 0.5, 0.95)) {
+  summ <- lambda_obj$summary(NULL, "mean", "sd",
+                             ~quantile(., probs = probs))
+  summ <- as.data.frame(summ)
+  summ <- summ[grep("^lambda\\[", summ$variable), ]
+  vars <- summ$variable
+  age  <- as.numeric(sub(".*\\[([0-9]+),.*", "\\1", vars))
+  time <- as.integer(sub(".*,([0-9]+),.*", "\\1", vars))
+  patch <- as.integer(sub(".*,([0-9]+)].*", "\\1", vars))
+  out <- cbind(
+    data.frame(age = age, time = time, patch = patch),
+    summ
+  )
+  if (!is.null(ages)) {
+    out <- out[out$age %in% ages, ]
+  }
+  rownames(out) <- NULL 
+  return(out)
 }

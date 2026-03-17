@@ -38,7 +38,8 @@ distribution assumed for density. The options are: \itemize{ \item
 \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 \code{"loglogistic"}: log-logistic parametrized in terms of its median
 (usual parametrization); \item \code{"lognormal_legacy"}: log-normal with
-its usual parametrization; }}
+its usual parametrization; \item \code{"truncnorm"} a truncated normal
+distribution. }}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero
 inflation component. Defaults to \code{~ 1} (intercept only).}
@@ -52,11 +53,11 @@ component. If \code{NULL} (the default), no survival component is included.}
 \item{seed}{An \code{integer} specifying the random number seed.}
 
 \item{init}{A scalar specifying the initialization method. The default
-("cmdstan_default") lets \code{cmdstan} initialize parameters.
-Other options include: a scalar greater than zero, say \code{x}, which
+("cmdstan_default") lets \code{cmdstan} initialize parameters.  Other
+options include: a scalar greater than zero, say \code{x}, which
 initializes all parameters uniformly between \code{-x} and \code{x};
-\code{0}, which initializes all parameters at \code{0}; or "prior",
-which initializes parameters by sampling from their priors.}
+\code{0}, which initializes all parameters at \code{0}; or "prior", which
+initializes parameters by sampling from their priors.}
 
 \item{algorithm}{a \code{character} specifying the algorithm used for
 inference. Default is \code{nuts} (the default MCMC in Stan). The
@@ -74,11 +75,11 @@ algorithms. For instance, \code{tol_rel_obj} for variational inference.}
 \value{
 An object of class \code{adrm} which is a \code{list} containing the
 MCMC draws, the model data, the linear predictors formulas, and the
-(response, time, site) column names.
-Specifically: \itemize{ \item \code{stanfit}: The MCMC draws from the
-fitted model.  \item \code{data}: The data used to fit the model (as a
-list).  \item \code{formulas}: The formulas used to create design
-matrices.  \item \code{cols}: Important column names.  }
+(response, time, site) column names.  Specifically: \itemize{ \item
+\code{stanfit}: The MCMC draws from the fitted model.  \item \code{data}:
+The data used to fit the model (as a list).  \item \code{formulas}: The
+formulas used to create design matrices.  \item \code{cols}: Important
+column names.  }
 }
 \description{
 Fit the DRM Stan model

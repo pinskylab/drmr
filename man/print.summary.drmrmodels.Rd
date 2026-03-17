@@ -2,15 +2,15 @@
 % Please edit documentation in R/methods.R
 \name{print.summary.drmrmodels}
 \alias{print.summary.drmrmodels}
-\title{Print method for summary.spatial_model}
+\title{Print method for summary.drmrmodels}
 \usage{
 \method{print}{summary.drmrmodels}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{summary.spatial_model}.}
+\item{x}{An object of class \code{summary.drmrmodels}.}
 
 \item{...}{Additional arguments (ignored).}
 }
 \description{
-Print method for summary.spatial_model
+Print method for summary.drmrmodels
 }

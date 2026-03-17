@@ -11,7 +11,7 @@ check_pars(dat, model)
 \code{\link[=make_data]{make_data()}} or \code{\link[=make_data_sdm]{make_data_sdm()}}.}
 
 \item{model}{A \code{character} string specifying the model type. Must be
-either "drm" or "sdm". Defaults to "drm".}
+either "drm" or "sdm".}
 }
 \value{
 This function does not return a value. It stops execution with an

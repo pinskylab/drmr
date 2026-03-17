@@ -1,16 +1,3 @@
-##' @inherit get_fitted_pars
-fitted_pars_ll <- function(data_list) {
-  output <- c("mu", "beta_t")
-  if (data_list$rho_mu == 1)
-    output <- c(output, "lxi")
-  if (data_list$likelihood == 0) {
-    output <- c(output, "sigma_obs")
-  } else {
-    output <- c(output, "phi")
-  }
-  return(output)
-}
-
 ##' @title Computing the log-likelihood function fot `adrm` and `sdm` objets.
 ##' @param x an object of class \code{adrm} or \code{sdm}. These objects are
 ##'   generated as the output of the [fit_drm()] and [fit_sdm()] functions,

@@ -1,67 +1,76 @@
-##' @inherit get_fitted_pars
-fitted_pars_drm <- function(data_list) {
-  output <- c("beta_t", "beta_r",
-              "lambda")
-  if (data_list$rho_mu == 1)
-    output <- c(output, "xi")
-  if (data_list$likelihood == 0) {
-    output <- c(output, "sigma_obs")
-  } else {
-    output <- c(output, "phi")
+##' @title Check if x is between lb and ub
+##'
+##' @param x A numeric vector.
+##' @param lb A numeric vector of lower bounds.
+##' @param ub A numeric vector of upper bounds.
+##'
+##' @return Returns \code{NULL} invisibly. This function stops execution if any of the
+##'  following conditions are met:
+##'  * lb is greater than or equal to ub.
+##'  * The lengths of lb and ub are not equal.
+##'  * The lengths of lb, ub, and x are not equal.
+##'
+check_between <- function(x, lb, ub) {
+  stopifnot(all(lb <= ub))
+  if (length(lb) > 1 | length(ub) > 1) {
+    stopifnot(length(lb) == length(ub) &
+              length(lb) == length(x))
   }
-  if (data_list$movement == 1)
-    output <- c(output, "zeta")
-  if (data_list$est_surv == 1)
-    output <- c(output, "beta_s")
-  if (data_list$ar_re > 0)
-    output <- c(output, "z_t", "alpha", "sigma_t")
-  if (data_list$iid_re > 0)
-    output <- c(output, "z_i", "sigma_i")
-  if (data_list$sp_re > 0)
-    output <- c(output, "z_s")
-  return(output)
 }
 
-##' @inherit get_fitted_pars
-fitted_pars_sdm <- function(data_list) {
-  output <- c("beta_t", "beta_r")
-  if (data_list$rho_mu == 1)
-    output <- c(output, "xi")
-  if (data_list$likelihood == 0) {
-    output <- c(output, "sigma_obs")
-  } else {
-    output <- c(output, "phi")
-  }
-  if (data_list$ar_re == 1)
-    output <- c(output, "z_t", "alpha", "sigma_t")
-  if (data_list$iid_re == 1)
-    output <- c(output, "z_i")
-  if (data_list$sp_re == 1)
-    output <- c(output, "z_s")
-  return(output)
+##' @inherit between
+between_scalar <- function(x, lb, ub) {
+  x >= lb & x <= ub
 }
 
-##' @title Retrieve parameters needed for predictions
+##' @title Check if elements in x are between corresponding elements in lb and
+##'   ub
 ##'
-##' @description This function identifies the parameters necessary for carrying
-##'   out predictions based on the data used to fit a DRM (or SDM).
+##' @inheritParams check_between
 ##'
-##' @param data_list a \code{list} used as input for model fitting. Typically,
-##'   the output from the [make_data] function.
-##' @param model a \code{character} indicating which model predictions are
-##'   sought for. This input admits two possible entries: "drm" (default) or
-##'   "sdm".
-##' @return a \code{character} vector of labels indicating the parameters
-##'   necessary for the predictions.
-##' @author lcgodoy
-get_fitted_pars <- function(data_list, model = "drm") {
-  stopifnot(inherits(data_list, "list"))
-  stopifnot(length(model) == 1)
-  if (model == "drm") {
-    output <- fitted_pars_drm(data_list)
-  } else
-    output <- fitted_pars_sdm(data_list)
-  return(output)
+##' @return A logical vector of the same length as x, indicating whether each
+##'   element of x is between the corresponding elements of lb and ub.
+##'
+##' @examples
+##' between(1:5, 1, 5)
+##' between(1:5, 2, 4)
+##'
+##' @export
+between <- function(x, lb, ub) {
+  check_between(x, lb, ub)
+  if (length(lb) == 1) {
+    sapply(x, between_scalar, lb, ub)
+  } else {
+    mapply(between_scalar, x, lb, ub)
+  }
+}
+
+##' @title Calculate the interval score
+##'
+##' @description This function calculates the interval score for a given set of
+##'   observations, lower and upper bounds, and alpha parameter.
+##'
+##' @details The interval score is a proper scoring rule that measures the
+##'   accuracy of interval predictions. It takes into account both the coverage
+##'   and the width of the prediction interval. A lower score indicates a better
+##'   prediction.
+##'
+##' @param y A numeric vector of observations.
+##' @param l A numeric vector of lower bounds for the prediction intervals.
+##' @param u A numeric vector of upper bounds for the prediction intervals.
+##' @param alpha A numeric value specifying the significance level (e.g., 0.05
+##'   for a 95% interval).
+##'
+##' @return A numeric vector of interval scores.
+##'
+##' @export
+int_score <- function(y, l, u, alpha) {
+  stopifnot(alpha > 0 & alpha < 1)
+  check_between(y, l, u)
+  alpha <- 2 / alpha
+  ind_l <- as.numeric(y < l)
+  ind_u <- as.numeric(y > u)
+  (u - l) + alpha * ((l - y) * ind_l + (y - u) * ind_u)
 }
 
 ##' @title Predictions based on DRM.

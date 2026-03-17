@@ -37,7 +37,8 @@ distribution assumed for density. The options are: \itemize{ \item
 \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 \code{"loglogistic"}: log-logistic parametrized in terms of its median
 (usual parametrization); \item \code{"lognormal_legacy"}: log-normal with
-its usual parametrization; }}
+its usual parametrization; \item \code{"truncnorm"} a truncated normal
+distribution. }}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero
 inflation component. Defaults to \code{~ 1} (intercept only).}
@@ -64,8 +65,8 @@ approximation centered at the mode of the posterior) or "optimize" for
 \item{algo_args}{a \code{list} with arguments for the sampling
 algorithms. For instance, \code{tol_rel_obj} for variational inference.}
 
-\item{...}{Passed on to the \code{\link[=make_data]{make_data()}} function used to build the input
-\code{list} for our \code{cmdstanr} model.}
+\item{...}{Passed on to the \code{\link[=make_data_sdm]{make_data_sdm()}} function used to build the
+input \code{list} for our \code{cmdstanr} model.}
 }
 \value{
 An object of class \code{sdm} which is a \code{list} containing the
