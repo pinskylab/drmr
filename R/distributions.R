@@ -55,7 +55,7 @@ rtt <- function(n, mean = 0, sd = 1,
   ll <- stats::pt(q = min(range - mean) / sd, df = df)
   hh <- stats::pt(q = max(range - mean) / sd, df = df)
   u  <- stats::runif(n, min = ll, max = hh)
-  mu + stats::qt(p = u, df = df) * sd
+  mean + stats::qt(p = u, df = df) * sd
 }
 
 ##' @title Density of a truncated Normal distribution
