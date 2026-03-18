@@ -266,6 +266,37 @@ drm_srv <-
          formula_surv = ~ 1 + c_btemp + I(c_btemp * c_btemp))
 ```
 
+## Model Toggles
+
+The `fit_drm` function is designed to be flexible, allowing different model
+features to be enabled or disabled through a set of toggles (e.g., via the
+`.toggles` argument). Below is a summary of the main toggles available:
+
+*   **`est_surv`**: If activated (`1`), enables the estimation of a regression
+    coefficient for survival ($\beta_s$). Otherwise, this parameter is excluded
+    from the model.
+*   **`rho_mu`**: If activated (`1`), links the probability of absence to the
+    mean density, represented by the parameter $\xi$ where $\mathrm{logit}(\rho)
+    = \dots \xi \log(\mu)$.
+*   **`movement`**: If activated (`1`), includes the probability of individuals
+    remaining in the same patch ($\zeta$) and activates the movement matrix
+    routines.
+*   **`ar_re`**: Determines the process for the AR(1) temporal correlation. If
+    not `"none"`, it enables AR(1) parameters such as temporal correlation
+    ($\alpha$), AR(1) conditional standard deviation ($\sigma_t$), and
+    associated random effects ($z_t$).
+*   **`iid_re`**: If not `"none"`, incorporates patch-level independent and
+    identically distributed (iid) random effects ($z_i$) and their standard
+    deviation ($\sigma_i$).
+*   **`sp_re`**: If not `"none"`, includes patch-level Intrinsic Conditional
+    Autoregressive (ICAR) random effects ($z_s$) and their standard deviation
+    ($\sigma_s$).
+    
+For each of the random effects "toggles", there are three alternatives to
+`"none"`. We can include random effects for recruitment (`"rec"`), survival
+(`"surv"`), or for the response variable itself ("`dens`").
+
+
 ## Environment and demographic processes
 
 We can easily visualize the relationship between the environmental variables and

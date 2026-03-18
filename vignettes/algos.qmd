@@ -14,7 +14,11 @@ vignette: >
 ## TL; DR {.unnumbered}
 
 This document demonstrates how to modify the algorithm used for inference in our
-models.
+models. In general, the default algorithm (the NUTS from `Stan`) represents the
+gold standard, but it is slow. For initial screening (or even cross-validation),
+one can rely on the other algorithms showcased in this vignette. They tend to be
+faster, and produce reliable point estimates but have a weaker performance in
+quantifying the uncertainty around their estimates.
 
 ## Setup
 
