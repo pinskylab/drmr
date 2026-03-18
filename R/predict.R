@@ -261,6 +261,7 @@ predict.adrm <- function(object,
 ##'
 ##' @rdname predsdm
 ##' @seealso [fit_sdm()]
+##' @export
 predict.sdm <- function(object,
                         new_data,
                         type = "predictive",
@@ -268,7 +269,7 @@ predict.sdm <- function(object,
                         cores = 1,
                         ...) {
   stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
-                                  "CmdStanPathfinder", "CmdStanVB")))
+                                       "CmdStanPathfinder", "CmdStanVB")))
   stopifnot(type %in% c("predictive", "expected", "latent"))
   type_prep <- switch(type,
                       predictive = 0,

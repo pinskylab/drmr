@@ -85,6 +85,40 @@ print.drmrmodels <- function(x, ...) {
   invisible(x)
 }
 
+##' @title Internal helper to generate parameter descriptions
+##' @param v A character string representing the parameter name
+##' @param covars A list of covariate names extracted from the model object
+##' @param model A list of covariate names extracted from the model object
+.get_param_description <- function(v, covars,
+                                   model = c("drm", "sdm")) {
+  model <- match.arg(model)
+  base_name <- gsub("\\[.*", "", v)
+  if (grepl("\\[", v)) {
+    idx_str <- gsub(".*\\[(.*)\\].*", "\\1", v)
+    indices <- as.numeric(unlist(strsplit(idx_str, ",")))
+    idx <- indices[length(indices)] 
+  } else {
+    idx <- NA
+  }  
+  switch(base_name,
+         "beta_t"  = sprintf("zero-infl: %s", covars$zero[idx]),
+         "beta_r"  = sprintf("%s: %s",
+                               ifelse(model == "drm", "rec", "dens"),
+                               ifelse(model == "drm",
+                                      covars$rec[idx],
+                                      covars$dens[idx])),
+         "beta_s"  = sprintf("surv: %s", covars$surv[idx]),
+         "alpha"   = "Temporal autocorrelation",
+         "zeta"    = "Prob. of remaining at the current patch",
+         "xi"      = "Relationship between zeros and density",
+         "sigma_s" = "Spatial random effect std. dev.",
+         "sigma_t" = "Temporal random effect std. dev.",
+         "sigma_i" = "IID random effect std. dev.",
+         "phi"     = "Dispersion parameter",
+         v
+  )
+}
+
 ##' Summary method for \code{adrm} and \code{sdm} objects
 ##'
 ##' @param object An object of class \code{drmrmodels}.
@@ -113,6 +147,16 @@ summary.drmrmodels <- function(object, probs = c(0.05, 0.5, 0.95), ...) {
                                    ...)
     out <- list(estimates = summ, method = method, call = object$call, probs = probs)
   }
+  covars <- object$covariates
+  descriptions <- sapply(out$estimates$variable,
+                         .get_param_description,
+                         covars = covars,
+                         model = model_type)
+  out$estimates$description <- unname(descriptions)
+  col_order <- c("variable", "description",
+                 setdiff(names(out$estimates),
+                         c("variable", "description")))
+  out$estimates <- out$estimates[, col_order]
   subclass <- ifelse(is_adrm, "summary.adrm", "summary.sdm")
   class(out) <- c(subclass, "summary.drmrmodels", class(out))
   return(out)

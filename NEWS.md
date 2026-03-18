@@ -12,6 +12,8 @@
 * A new `ppc` function is provided for some simple visual posterior predictive
   checks.
 
+* Adding parameter description to the output of the `summary` method.
+
 # drmr 0.5.0
 
 * New vignette on "algorithms" detailing the methods that can be used to draw

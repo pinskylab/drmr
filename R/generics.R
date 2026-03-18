@@ -9,7 +9,8 @@
 ##' @keywords internal
 validate_drm_m <- function(x) {
   stopifnot(inherits(x, "list"))
-  my_fields <- c("stanfit", "data", "formulas", "cols", "seed")
+  my_fields <- c("stanfit", "data", "formulas", "covariates",
+                 "cols", "seed")
   stopifnot(all(my_fields %in% names(x)))
 }
 
