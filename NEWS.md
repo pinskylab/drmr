@@ -1,4 +1,4 @@
-# drmr 0.5.1
+# drmr 0.6.0
 
 * Changing the parametrization for survival (it does help with identifiability)
 

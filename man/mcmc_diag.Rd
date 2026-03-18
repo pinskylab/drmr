@@ -7,7 +7,7 @@
 \usage{
 mcmc_diag(x, ...)
 
-\method{mcmc_diag}{drmrmodels}(object, ...)
+\method{mcmc_diag}{drmrmodels}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \code{adrm} or \code{sdm}.}

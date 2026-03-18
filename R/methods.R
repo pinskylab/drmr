@@ -134,25 +134,18 @@ mcmc_diag <- function(x, ...) UseMethod("mcmc_diag", x)
 
 ##' @rdname mcmc_diag
 ##' @export
-mcmc_diag.drmrmodels <- function(object, ...) {
-  # 1. Fail fast: Safely check for MCMC up front
-  if (!inherits(object$stanfit, "CmdStanMCMC")) {
+mcmc_diag.drmrmodels <- function(x, ...) {
+  if (!inherits(x$stanfit, "CmdStanMCMC")) {
     stop("The inference algorithm is not MCMC! Diagnostics are only available for MCMC fits.")
   }
-
-  model_type <- if (inherits(object, "adrm")) "drm" else "sdm"
-  
-  params_out <- get_fitted_pars(object$data, model_type)
-  
-  if (object$data$sp_re > 0) {
+  model_type <- ifelse(inherits(x, "adrm"), "drm", "sdm")
+  params_out <- get_fitted_pars(x$data, model_type)
+  if (x$data$sp_re > 0) {
     params_out <- c(params_out, "sigma_s")
   }
-  
   params_out <- params_out[!grepl("^(lambda|z_)", params_out)]
-  
   measures <- posterior::default_convergence_measures()
-  summ <- object$stanfit$summary(variables = params_out, measures, ...)
-  
+  summ <- x$stanfit$summary(variables = params_out, measures, ...)  
   class(summ) <- c("drmrdiag", class(summ))
   return(summ)
 }
@@ -359,6 +352,10 @@ summary.aesd <- function(object,
 ##'   the next plot. If \code{NULL} (the default), it is calculated dynamically
 ##'   based on the current graphical layout.
 ##' @param ... Additional graphical parameters passed to \code{plot}.
+##'
+##' @importFrom grDevices dev.interactive devAskNewPage palette
+##' @importFrom graphics legend lines par
+##' @importFrom stats density fitted
 ##' 
 ##' @export
 plot.drmrmodels <- function(x, 
