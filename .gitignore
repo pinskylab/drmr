@@ -15,6 +15,9 @@ inst/stan/**/*.EXE
 
 .DS_Store
 
+manuscript/
+GEMINI.md
+
 docs
 pkgdown
 
