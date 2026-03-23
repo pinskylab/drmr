@@ -411,7 +411,7 @@ plot.drmrmodels <- function(x,
   if (!inherits(x, "drmrmodels")) {
     stop("Use only with 'drmrmodels' objects.")
   }
-  type <- match.arg(type)
+  type <- match.arg(type, several.ok = TRUE)
   post <- draws(x) 
   if (length(dim(post)) != 3) {
     stop("Expected draws(x) to return a 3D array: [iterations, chains, parameters].")
@@ -422,7 +422,8 @@ plot.drmrmodels <- function(x,
   p_names <- dimnames(post)[[3]]
   
   if (!is.null(variables)) {
-    p_names <- intersect(variables, p_names)
+    regex_pattern <- paste0("^(", paste(variables, collapse = "|"), ")(\\[.*\\])?$")
+    p_names <- grep(regex_pattern, p_names, value = TRUE)
   }
   if (length(p_names) == 0) stop("No valid parameters to plot.")
   
