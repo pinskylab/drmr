@@ -37,7 +37,7 @@ array[] matrix simplest(int n_patches,
   if (minit) {
     for (p in 1:n_patches) {
       for (a in 2:n_ages) {
-        output[a, 1, p] = output[1, 1, p] +
+        output[a, 1, p] = output[a - 1, 1, p] +
           neg_mort[2, p] - f_a_t[a - 1, 2];
       }
     }

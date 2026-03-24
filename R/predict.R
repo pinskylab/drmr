@@ -195,7 +195,7 @@ predict.adrm <- function(object,
       stats::model.matrix(object[["formulas"]][["formula_surv"]],
                           data = past_data)
     x_m <- stats::model.matrix(object[["formulas"]][["formula_surv"]],
-                               data = new_data)
+                               data = new_data[order(new_data[[object$cols$site_col]]), ])
     pred_data$K_m <- array(NCOL(x_m), dim = 1)
     pred_data$X_m <- x_m
     pred_data$X_m_past <- x_mpast

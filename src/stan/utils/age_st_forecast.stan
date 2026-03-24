@@ -14,7 +14,7 @@ array[] matrix forecast_simplest(int n_patches,
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(init, n_ages);
   int past_last_time;
-  past_last_time = cols(f_past[1]);
+  past_last_time = cols(f_past);
   /* output[1] += init; */
   for (i in 1 : n_time) {
     for (p in 1 : n_patches) {

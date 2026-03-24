@@ -1,5 +1,7 @@
 # drmr 0.6.0
 
+* Fixed a bug on the `stan` function for the age-structured population dynamic.
+
 * Changing the parametrization for survival (it does help with identifiability)
 
 * `marg` method renamed to `effects_drm`.
