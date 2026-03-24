@@ -1,4 +1,4 @@
-# drmr 0.6.0
+# drmr 1.0.0
 
 * Fixed a bug on the `stan` function for the age-structured population dynamic.
 
