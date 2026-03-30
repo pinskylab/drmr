@@ -298,7 +298,7 @@ draws.drmrmodels <- function(x,
     model_type <- ifelse(is_adrm, "drm", "sdm")
     variables <- get_fitted_pars(x$data, model_type)
     if(x$data$sp_re > 0)
-      params_out <- c(params_out, "sigma_s")
+      variables <- c(variables, "sigma_s")
     if (is_adrm) {
       variables <- variables[!grepl("^(lambda|z_)", variables)]
     } else {
