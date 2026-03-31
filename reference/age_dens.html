@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,6 @@
     <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
     <li><a class="dropdown-item" href="../articles/init.html">Densities' initialization</a></li>
     <li><a class="dropdown-item" href="../articles/parametrization.html">Parametrization of the density functions</a></li>
-    <li><a class="dropdown-item" href="../articles/ppt.html">Parameters, priors, and toggles</a></li>
     <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -48,7 +47,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ages_edens</span><span class="op">(</span><span class="va">drm</span>, cores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ages_edens</span><span class="op">(</span><span class="va">drm</span>, new_data <span class="op">=</span> <span class="cn">NULL</span>, f_test <span class="op">=</span> <span class="cn">NULL</span>, cores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">lambda_drm</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -60,6 +59,16 @@
 <dl><dt id="arg-drm">drm<a class="anchor" aria-label="anchor" href="#arg-drm"></a></dt>
 <dd><p>A <code>list</code> object containing the output from the <a href="fit_drm.html">fit_drm</a>
 function.</p></dd>
+
+
+<dt id="arg-new-data">new_data<a class="anchor" aria-label="anchor" href="#arg-new-data"></a></dt>
+<dd><p>a <code>data.frame</code> with the dataset at which we wish to
+obtain predictions.</p></dd>
+
+
+<dt id="arg-f-test">f_test<a class="anchor" aria-label="anchor" href="#arg-f-test"></a></dt>
+<dd><p>a <code>matrix</code> informing the instantaneous fishing mortality
+rates at each age (columns) and timepoint (rows).</p></dd>
 
 
 <dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>

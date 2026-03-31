@@ -1,5 +1,28 @@
 # Changelog
 
+## drmr 1.0.0
+
+- `ages_edens` now supports a `new_data` argument which allows for
+  estimating out-of-sample age-specific densities.
+
+- Fixed a bug on the `stan` function for the age-structured population
+  dynamic.
+
+- Changing the parametrization for survival (it does help with
+  identifiability)
+
+- `marg` method renamed to `effects_drm`.
+
+- `plot` function for easily diagnosing MCMC convergence.
+
+- A `mcmc_diag` function is also provided for assessing each parameters
+  convergence. This function accompanies a `summary` method.
+
+- A new `ppc` function is provided for some simple visual posterior
+  predictive checks.
+
+- Adding parameter description to the output of the `summary` method.
+
 ## drmr 0.5.0
 
 - New vignette on “algorithms” detailing the methods that can be used to

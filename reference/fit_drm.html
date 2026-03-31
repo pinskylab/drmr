@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,6 @@
     <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
     <li><a class="dropdown-item" href="../articles/init.html">Densities' initialization</a></li>
     <li><a class="dropdown-item" href="../articles/parametrization.html">Parametrization of the density functions</a></li>
-    <li><a class="dropdown-item" href="../articles/ppt.html">Parameters, priors, and toggles</a></li>
     <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -96,6 +95,8 @@ distribution assumed for density. The options are:</p><ul><li><p><code>"gamma"</
 (usual parametrization);</p></li>
 <li><p><code>"lognormal_legacy"</code>: log-normal with
 its usual parametrization;</p></li>
+<li><p><code>"truncnorm"</code> a truncated normal
+distribution.</p></li>
 </ul></dd>
 
 
@@ -120,11 +121,11 @@ component. If <code>NULL</code> (the default), no survival component is included
 
 <dt id="arg-init">init<a class="anchor" aria-label="anchor" href="#arg-init"></a></dt>
 <dd><p>A scalar specifying the initialization method. The default
-("cmdstan_default") lets <code>cmdstan</code> initialize parameters.
-Other options include: a scalar greater than zero, say <code>x</code>, which
+("cmdstan_default") lets <code>cmdstan</code> initialize parameters.  Other
+options include: a scalar greater than zero, say <code>x</code>, which
 initializes all parameters uniformly between <code>-x</code> and <code>x</code>;
-<code>0</code>, which initializes all parameters at <code>0</code>; or "prior",
-which initializes parameters by sampling from their priors.</p></dd>
+<code>0</code>, which initializes all parameters at <code>0</code>; or "prior", which
+initializes parameters by sampling from their priors.</p></dd>
 
 
 <dt id="arg-algorithm">algorithm<a class="anchor" aria-label="anchor" href="#arg-algorithm"></a></dt>
@@ -150,14 +151,13 @@ algorithms. For instance, <code>tol_rel_obj</code> for variational inference.</p
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>adrm</code> which is a <code>list</code> containing the
 MCMC draws, the model data, the linear predictors formulas, and the
-(response, time, site) column names.
-Specifically:</p><ul><li><p><code>stanfit</code>: The MCMC draws from the
-fitted model.</p></li>
-<li><p><code>data</code>: The data used to fit the model (as a
-list).</p></li>
-<li><p><code>formulas</code>: The formulas used to create design
-matrices.</p></li>
-<li><p><code>cols</code>: Important column names.</p></li>
+(response, time, site) column names.  Specifically:</p><ul><li><p><code>stanfit</code>: The MCMC draws from the fitted model.</p></li>
+<li><p><code>data</code>:
+The data used to fit the model (as a list).</p></li>
+<li><p><code>formulas</code>: The
+formulas used to create design matrices.</p></li>
+<li><p><code>cols</code>: Important
+column names.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -184,28 +184,28 @@ matrices.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp77Yui3/pkg-lib1aba1e483534/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 2, column 0) (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 312, column 2 to line 315, column 67)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 1 </span>
@@ -230,30 +230,30 @@ matrices.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 3.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 3.2 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 2 </span>
@@ -281,25 +281,25 @@ matrices.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 4.3 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp77Yui3/pkg-lib1aba1e483534/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 2, column 0) (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 312, column 2 to line 315, column 67)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp77Yui3/pkg-lib1aba1e483534/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 2, column 0) (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 312, column 2 to line 315, column 67)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp77Yui3/pkg-lib1aba1e483534/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 2, column 0) (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 312, column 2 to line 315, column 67)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 3 </span>
@@ -327,38 +327,38 @@ matrices.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 3 finished in 4.0 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp77Yui3/pkg-lib1aba1e483534/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 2, column 0) (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 312, column 2 to line 315, column 67)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Chain 4 </span>
@@ -383,7 +383,7 @@ matrices.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 4 Iteration: 2000 / 2000 [100%]  (Sampling) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 4 finished in 2.7 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 4 finished in 2.8 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All 4 chains finished successfully.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 3.6 seconds.</span>

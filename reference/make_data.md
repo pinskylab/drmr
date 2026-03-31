@@ -118,19 +118,18 @@ make_data(
     otherwise.
 
   - `ar_re`: a `character`. It assumes one of the following values:
-    "none" - no AR, "rec" AR(1) for recruitment, "surv" - AR(1) for
-    survival (only works when `est_surv` is on), "dens" - AR(1) for
-    density.
+    "none" no AR, "rec" AR(1) for recruitment, "surv" AR(1) for survival
+    (only works when `est_surv` is on), "dens" AR(1) for density.
 
   - `iid_re`: a `character`. It assumes one of the following values:
-    "none" - no iid re, "rec" iid re for recruitment, "surv" - iir re
-    for survival (only works when `est_surv` is on), "dens" - iid_re for
-    density.
+    "none" no IID random effect, "rec" IID random effect for
+    recruitment, "surv" IID random effect for survival (only works when
+    `est_surv` is on), "dens" IID random effect for density.
 
   - `sp_re`: a `character`. It assumes one of the following values:
-    "none" - no ICAR re, "rec" ICAR re for recruitment, "surv" - ICAR re
-    for survival (only works when `est_surv` is on), "dens" - ICAR_re
-    for density.
+    "none" no ICAR random effect, "rec" ICAR random effect for
+    recruitment, "surv" ICAR random effect for survival (only works when
+    `est_surv` is on), "dens" ICAR random effect for density.
 
 - .priors:
 

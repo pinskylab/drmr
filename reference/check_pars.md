@@ -21,7 +21,7 @@ check_pars(dat, model)
 - model:
 
   A `character` string specifying the model type. Must be either "drm"
-  or "sdm". Defaults to "drm".
+  or "sdm".
 
 ## Value
 

@@ -79,10 +79,10 @@ predictive distribution for predictions.
 
 ## Details
 
-The current version of the code assumes the data where predictions are
-needed is ordered by "site" and "site" and, in addition, its sites MUST
-be the same as the ones used to obtain the parameters' estimates from
-the the `drm` object.
+The current version of the code reorders the data where predictions are
+needed is ordered by "site" and "site" and, in addition, the sites MUST
+match ones used to obtain the parameters' estimates from the the `drm`
+object.
 
 ## See also
 

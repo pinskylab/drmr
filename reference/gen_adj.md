@@ -1,6 +1,6 @@
 # Generates an adjacency matrix
 
-Generates an adjacency matrix for "movement"
+Generates an adjacency matrix
 
 ## Usage
 

@@ -71,4 +71,4 @@ A `data.frame` with 350 rows and 13 columns:
 
 ## Details
 
-This dataset was also used in Fredston et. al 2026 <DOI:>
+This dataset was also used in Fredston et. al 2026 <DOI:10.32942/X24D00>

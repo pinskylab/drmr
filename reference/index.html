@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,6 @@
     <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
     <li><a class="dropdown-item" href="../articles/init.html">Densities' initialization</a></li>
     <li><a class="dropdown-item" href="../articles/parametrization.html">Parametrization of the density functions</a></li>
-    <li><a class="dropdown-item" href="../articles/ppt.html">Parameters, priors, and toggles</a></li>
     <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -150,6 +149,13 @@
 
         <dt>
 
+          <code><a href="dot-get_param_description.html">.get_param_description()</a></code>
+
+        </dt>
+        <dd>Internal helper to generate parameter descriptions</dd>
+
+        <dt>
+
           <code><a href="draws.html">draws()</a></code>
 
         </dt>
@@ -175,6 +181,13 @@
 
         </dt>
         <dd>Density of a truncated Student's t distribution</dd>
+
+        <dt>
+
+          <code><a href="effects_drm.html">effects_drm()</a></code>
+
+        </dt>
+        <dd>Effects_Drminal Relationships with Covariates</dd>
 
         <dt>
 
@@ -346,17 +359,17 @@
 
         <dt>
 
-          <code><a href="marg.html">marg()</a></code>
-
-        </dt>
-        <dd>Marginal Relationships with Covariates</dd>
-
-        <dt>
-
           <code><a href="max_quad_x.html">max_quad_x()</a></code>
 
         </dt>
         <dd>Value of a covariate that maximizes the response variable in a quadratic model.</dd>
+
+        <dt>
+
+          <code><a href="mcmc_diag.html">mcmc_diag()</a></code>
+
+        </dt>
+        <dd>Draws method for <code>adrm</code> and <code>sdm</code> objects.</dd>
 
         <dt>
 
@@ -402,10 +415,17 @@
 
         <dt>
 
-          <code><a href="plot.marg_adrm.html">plot(<i>&lt;marg_adrm&gt;</i>)</a></code>
+          <code><a href="plot.drmrmodels.html">plot(<i>&lt;drmrmodels&gt;</i>)</a></code>
 
         </dt>
-        <dd>Plot Marginal Relationships for ADRM Objects</dd>
+        <dd>Plot Diagnostics for DRM Models</dd>
+
+        <dt>
+
+          <code><a href="plot.eff_drm.html">plot(<i>&lt;eff_drm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot Effects_Drminal Relationships for ADRM Objects</dd>
 
         <dt>
 
@@ -420,6 +440,13 @@
 
         </dt>
         <dd>Generate samples from the prior predictive distribution of model parameters</dd>
+
+        <dt>
+
+          <code><a href="ppc.html">ppc()</a></code>
+
+        </dt>
+        <dd>Posterior Predictive Checks for DRM Models</dd>
 
         <dt>
 
@@ -447,7 +474,7 @@
           <code><a href="print.summary.drmrmodels.html">print(<i>&lt;summary.drmrmodels&gt;</i>)</a></code>
 
         </dt>
-        <dd>Print method for summary.spatial_model</dd>
+        <dd>Print method for summary.drmrmodels</dd>
 
         <dt>
 

@@ -23,7 +23,6 @@ prior_inits(dat, chains, model = "drm")
 - chains:
 
   An integer specifying the number of MCMC chains to initialize.
-  Defaults to 4.
 
 - model:
 

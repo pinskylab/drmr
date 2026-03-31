@@ -1,6 +1,6 @@
-# Print method for summary.spatial_model
+# Print method for summary.drmrmodels
 
-Print method for summary.spatial_model
+Print method for summary.drmrmodels
 
 ## Usage
 
@@ -13,7 +13,7 @@ print(x, ...)
 
 - x:
 
-  An object of class `summary.spatial_model`.
+  An object of class `summary.drmrmodels`.
 
 - ...:
 

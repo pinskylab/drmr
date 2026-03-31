@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,6 @@
     <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
     <li><a class="dropdown-item" href="../articles/init.html">Densities' initialization</a></li>
     <li><a class="dropdown-item" href="../articles/parametrization.html">Parametrization of the density functions</a></li>
-    <li><a class="dropdown-item" href="../articles/ppt.html">Parameters, priors, and toggles</a></li>
     <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -41,6 +40,17 @@
       <small>Source: <a href="https://github.com/pinskylab/drmr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.0" id="drmr-100">drmr 1.0.0<a class="anchor" aria-label="anchor" href="#drmr-100"></a></h2>
+<ul><li><p><code>ages_edens</code> now supports a <code>new_data</code> argument which allows for estimating out-of-sample age-specific densities.</p></li>
+<li><p>Fixed a bug on the <code>stan</code> function for the age-structured population dynamic.</p></li>
+<li><p>Changing the parametrization for survival (it does help with identifiability)</p></li>
+<li><p><code>marg</code> method renamed to <code>effects_drm</code>.</p></li>
+<li><p><code>plot</code> function for easily diagnosing MCMC convergence.</p></li>
+<li><p>A <code>mcmc_diag</code> function is also provided for assessing each parameters convergence. This function accompanies a <code>summary</code> method.</p></li>
+<li><p>A new <code>ppc</code> function is provided for some simple visual posterior predictive checks.</p></li>
+<li><p>Adding parameter description to the output of the <code>summary</code> method.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="drmr-050">drmr 0.5.0<a class="anchor" aria-label="anchor" href="#drmr-050"></a></h2>
 <ul><li><p>New vignette on “algorithms” detailing the methods that can be used to draw samples from the posterior.</p></li>

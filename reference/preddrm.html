@@ -9,7 +9,7 @@ predictions based on the DRM passed as drm."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,7 +25,6 @@ predictions based on the DRM passed as drm."><meta property="og:image" content="
     <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
     <li><a class="dropdown-item" href="../articles/init.html">Densities' initialization</a></li>
     <li><a class="dropdown-item" href="../articles/parametrization.html">Parametrization of the density functions</a></li>
-    <li><a class="dropdown-item" href="../articles/ppt.html">Parameters, priors, and toggles</a></li>
     <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -122,10 +121,10 @@ posterior predictive distribution for predictions.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The current version of the code assumes the data where predictions
-are needed is ordered by "site" and "site" and, in addition, its sites
-MUST be the same as the ones used to obtain the parameters' estimates from
-the the <code>drm</code> object.</p>
+    <p>The current version of the code reorders the data where predictions
+are needed is ordered by "site" and "site" and, in addition, the sites
+MUST match ones used to obtain the parameters' estimates from the the
+<code>drm</code> object.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

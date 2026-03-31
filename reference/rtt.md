@@ -5,7 +5,7 @@ Generates random numbers from a truncated Student's t distribution.
 ## Usage
 
 ``` r
-rtt(n, mu = 0, sd = 1, df = 3, range = c(0, Inf))
+rtt(n, mean = 0, sd = 1, df = 3, range = c(0, Inf))
 ```
 
 ## Arguments
@@ -14,7 +14,7 @@ rtt(n, mu = 0, sd = 1, df = 3, range = c(0, Inf))
 
   An `integer` specifying the number of random numbers to generate.
 
-- mu:
+- mean:
 
   A `numeric` scalar representing the mean of the underlying t
   distribution. Defaults to 0.

@@ -5,7 +5,7 @@ Age-specific expected densities based on DRM.
 ## Usage
 
 ``` r
-ages_edens(drm, cores = 1)
+ages_edens(drm, new_data = NULL, f_test = NULL, cores = 1)
 
 lambda_drm(...)
 ```
@@ -17,6 +17,16 @@ lambda_drm(...)
   A `list` object containing the output from the
   [fit_drm](https://pinskylab.github.io/drmr/reference/fit_drm.md)
   function.
+
+- new_data:
+
+  a `data.frame` with the dataset at which we wish to obtain
+  predictions.
+
+- f_test:
+
+  a `matrix` informing the instantaneous fishing mortality rates at each
+  age (columns) and timepoint (rows).
 
 - cores:
 

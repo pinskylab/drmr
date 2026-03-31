@@ -278,6 +278,37 @@ drm_srv <-
          formula_surv = ~ 1 + c_btemp + I(c_btemp * c_btemp))
 ```
 
+## Model Toggles
+
+The `fit_drm` function is designed to be flexible, allowing different
+model features to be enabled or disabled through a set of toggles (e.g.,
+via the `.toggles` argument). Below is a summary of the main toggles
+available:
+
+- **`est_surv`**: If activated (`1`), enables the estimation of a
+  regression coefficient for survival ($\beta_{s}$). Otherwise, this
+  parameter is excluded from the model.
+- **`rho_mu`**: If activated (`1`), links the probability of absence to
+  the mean density, represented by the parameter $\xi$ where
+  ${logit}(\rho) = \ldots\xi{\log}(\mu)$.
+- **`movement`**: If activated (`1`), includes the probability of
+  individuals remaining in the same patch ($\zeta$) and activates the
+  movement matrix routines.
+- **`ar_re`**: Determines the process for the AR(1) temporal
+  correlation. If not `"none"`, it enables AR(1) parameters such as
+  temporal correlation ($\alpha$), AR(1) conditional standard deviation
+  ($\sigma_{t}$), and associated random effects ($z_{t}$).
+- **`iid_re`**: If not `"none"`, incorporates patch-level independent
+  and identically distributed (iid) random effects ($z_{i}$) and their
+  standard deviation ($\sigma_{i}$).
+- **`sp_re`**: If not `"none"`, includes patch-level Intrinsic
+  Conditional Autoregressive (ICAR) random effects ($z_{s}$) and their
+  standard deviation ($\sigma_{s}$).
+
+For each of the random effects “toggles”, there are three alternatives
+to `"none"`. We can include random effects for recruitment (`"rec"`),
+survival (`"surv"`), or for the response variable itself (“`dens`”).
+
 ## Environment and demographic processes
 
 We can easily visualize the relationship between the environmental
@@ -288,7 +319,7 @@ sea surface temperature for the first model we fit, and between survival
 and sea bottom temperature for the second model fitted.
 
 ``` r
-marg(drm_rec, ## model
+effects_drm(drm_rec, ## model
      process = "rec", ## demographic process
      variable = "c_stemp", ## environmental variable
      prob = .8) |> ## mass of the creible interval
@@ -298,7 +329,7 @@ marg(drm_rec, ## model
 ![](advanced-features_files/figure-html/env_dem-1.png)
 
 ``` r
-marg(drm_srv, ## model
+effects_drm(drm_srv, ## model
      process = "surv", ## demographic process
      variable = "c_btemp", ## environmental variable
      prob = .8) |> 
@@ -315,7 +346,7 @@ survival plot:
 
 ``` r
 multiple_cis <-
-  marg(drm_srv, process = "surv", variable = "c_btemp",
+  effects_drm(drm_srv, process = "surv", variable = "c_btemp",
        summary = FALSE,
        n_pts = 200) |>
   lapply(c(0.6, 0.8, 0.9, 0.99),
@@ -393,7 +424,7 @@ fitted_rec <- fitted(drm_rec) |>
 
     Both chains finished successfully.
     Mean chain execution time: 0.0 seconds.
-    Total execution time: 0.3 seconds.
+    Total execution time: 0.2 seconds.
 
 ``` r
                                      ## model
@@ -514,10 +545,10 @@ combined_sfl |>
 
 | type          | model |      rmse |
 |:--------------|:------|----------:|
-| in-sample     | rec   | 0.1298228 |
-| in-sample     | srv   | 0.1389750 |
-| out-of-sample | rec   | 0.2445635 |
-| out-of-sample | srv   | 0.3352433 |
+| in-sample     | rec   | 0.1336298 |
+| in-sample     | srv   | 0.1436815 |
+| out-of-sample | rec   | 0.3331257 |
+| out-of-sample | srv   | 0.3448098 |
 
 As expected, in-sample predictions have lower root mean square error
 (RMSE) of prediction when compared to their out-of-sample counterpart.
@@ -593,7 +624,7 @@ combined_rl |>
               alpha = .5) +
   geom_line(aes(y = q50)) +
   geom_point(aes(y = dens), color = 2, pch = 19)+ 
-  facet_wrap(. ~ patch, scales = "free_y") +
+  facet_grid(. ~ patch, scales = "free_y") +
   theme_bw()
 ```
 
@@ -617,7 +648,7 @@ lambdas <- ages_edens(drm_rec) |>
 
     Both chains finished successfully.
     Mean chain execution time: 0.0 seconds.
-    Total execution time: 0.8 seconds.
+    Total execution time: 0.6 seconds.
 
 Now, let’s visualize the age-specific densities for all patches at a
 given year:
@@ -644,7 +675,7 @@ as follows:
 ``` r
 lambdas |>
   filter(patch == 5) |>
-  filter(year %in% seq(1985, 2010, by = 5)) |>
+  filter(year %in% seq(1985, 2020, by = 5)) |>
   ggplot(data = _,
          aes(x = age)) +
   geom_segment(aes(xend = age, y = 0, yend = q50),
@@ -659,7 +690,6 @@ lambdas |>
 
 ## References
 
-Fredston, Alexa, Daniel Ovando, Lucas da Cunha Godoy, Jude Kong, Brandon
-Muffley, James T Thorson, and Malin Pinsky. 2025. “Dynamic Range Models
-Improve the Near-Term Forecast for a Marine Species on the Move.”
-<https://doi.org/10.32942/X24D00>.
+Fredston, Alexa, Daniel Ovando, Lucas da Cunha Godoy, et al. 2025.
+*Dynamic Range Models Improve the Near-Term Forecast for a Marine
+Species on the Move*. Vol. 00. <https://doi.org/10.32942/X24D00>.

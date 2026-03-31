@@ -21,4 +21,4 @@ update(object, ...)
 
 ## Value
 
-An updated `adrm` object or the unevaluated call.
+An updated `sdm` object.

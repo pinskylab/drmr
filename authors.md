@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/pinskylab/drmr/blob/main/DESCRIPTION)
 
 da Cunha Godoy L (2026). *drmr: An R package with pre-compiled cmdstan
-code for dynamic range models*. R package version 0.5.0,
+code for dynamic range models*. R package version 1.0.0,
 <https://pinskylab.github.io/drmr/>.
 
     @Manual{,
       title = {drmr: An R package with pre-compiled cmdstan code for dynamic range models},
       author = {Lucas {da Cunha Godoy}},
       year = {2026},
-      note = {R package version 0.5.0},
+      note = {R package version 1.0.0},
       url = {https://pinskylab.github.io/drmr/},
     }

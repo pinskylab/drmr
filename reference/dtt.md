@@ -5,7 +5,7 @@ Calculates the density of a truncated Student's t distribution.
 ## Usage
 
 ``` r
-dtt(x, mu = 0, sd = 1, df = 3, range = c(0, Inf), log = FALSE)
+dtt(x, mean = 0, sd = 1, df = 3, range = c(0, Inf), log = FALSE)
 ```
 
 ## Arguments
@@ -14,7 +14,7 @@ dtt(x, mu = 0, sd = 1, df = 3, range = c(0, Inf), log = FALSE)
 
   A `numeric vector` at which to evaluate the density.
 
-- mu:
+- mean:
 
   A `numeric` scalar representing the mean of the underlying t
   distribution. Defaults to 0.

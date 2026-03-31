@@ -165,7 +165,7 @@ my_drm <-
 
     Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 
-    Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)
+    Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
 
     Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 
@@ -199,7 +199,7 @@ my_drm <-
 
     Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 
-    Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)
+    Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
 
     Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 
@@ -233,7 +233,7 @@ my_drm <-
 
     Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 
-    Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)
+    Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
 
     Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 
@@ -243,7 +243,7 @@ my_drm <-
 
     Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 
-    Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)
+    Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
 
     Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 
@@ -253,7 +253,7 @@ my_drm <-
 
     Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 
-    Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)
+    Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
 
     Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 
@@ -263,7 +263,7 @@ my_drm <-
 
     Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 
-    Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)
+    Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
 
     Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 
@@ -292,12 +292,12 @@ my_drm <-
     Chain 3 Iteration: 1800 / 2000 [ 90%]  (Sampling)
     Chain 3 Iteration: 1900 / 2000 [ 95%]  (Sampling)
     Chain 3 Iteration: 2000 / 2000 [100%]  (Sampling)
-    Chain 3 finished in 2.7 seconds.
+    Chain 3 finished in 2.6 seconds.
     Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) 
 
     Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 
-    Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)
+    Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
 
     Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 
@@ -307,7 +307,7 @@ my_drm <-
 
     Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 
-    Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)
+    Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
 
     Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 
@@ -317,7 +317,7 @@ my_drm <-
 
     Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 
-    Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)
+    Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
 
     Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 
@@ -327,7 +327,7 @@ my_drm <-
 
     Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 
-    Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 309, column 4 to column 54)
+    Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
 
     Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 
@@ -356,11 +356,11 @@ my_drm <-
     Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling)
     Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling)
     Chain 4 Iteration: 2000 / 2000 [100%]  (Sampling)
-    Chain 4 finished in 2.9 seconds.
+    Chain 4 finished in 2.8 seconds.
 
     All 4 chains finished successfully.
     Mean chain execution time: 2.6 seconds.
-    Total execution time: 10.9 seconds.
+    Total execution time: 10.8 seconds.
 
     Warning: 7 of 4000 (0.0%) transitions ended with a divergence.
     See https://mc-stan.org/misc/warnings for details.
@@ -377,13 +377,13 @@ summary(my_drm)
     Summary of ADRM Fit
 
     Estimates:
-    # A tibble: 4 × 8
-      variable     mean     sd  rhat ess_bulk      q5     q50      q95
-      <chr>       <dbl>  <dbl> <dbl>    <dbl>   <dbl>   <dbl>    <dbl>
-    1 beta_t[1] -0.709  0.156   1.00    1871. -0.979  -0.703  -0.464
-    2 beta_r[1] -7.55   0.144   1.00    2398. -7.79   -7.56   -7.31
-    3 xi[1]     -0.0223 0.0199  1.00    1420. -0.0629 -0.0166 -0.00160
-    4 phi[1]     0.356  0.0303  1.00    2756.  0.308   0.356   0.407  
+    # A tibble: 4 × 7
+      variable  description                     mean     sd      q5     q50      q95
+      <chr>     <chr>                          <dbl>  <dbl>   <dbl>   <dbl>    <dbl>
+    1 beta_t[1] zero-infl: (Intercept)       -0.709  0.156  -0.979  -0.703  -0.464
+    2 beta_r[1] rec: (Intercept)             -7.55   0.144  -7.79   -7.56   -7.31
+    3 xi[1]     Relationship between zeros … -0.0223 0.0199 -0.0629 -0.0166 -0.00160
+    4 phi[1]    Dispersion parameter          0.356  0.0303  0.308   0.356   0.407  
 
 In the output above, the column `variable` represents distinguish the
 model parameters (for the details on the model parameters see the
@@ -431,7 +431,6 @@ my_drm2 <-
                                                 ## algorithm
 ```
 
-Fredston, Alexa, Daniel Ovando, Lucas da Cunha Godoy, Jude Kong, Brandon
-Muffley, James T Thorson, and Malin Pinsky. 2025. “Dynamic Range Models
-Improve the Near-Term Forecast for a Marine Species on the Move.”
-<https://doi.org/10.32942/X24D00>.
+Fredston, Alexa, Daniel Ovando, Lucas da Cunha Godoy, et al. 2025.
+*Dynamic Range Models Improve the Near-Term Forecast for a Marine
+Species on the Move*. Vol. 00. <https://doi.org/10.32942/X24D00>.

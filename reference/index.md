@@ -46,6 +46,9 @@
 - [`default_vb()`](https://pinskylab.github.io/drmr/reference/default_vb.md)
   : Default VB arguments
 
+- [`.get_param_description()`](https://pinskylab.github.io/drmr/reference/dot-get_param_description.md)
+  : Internal helper to generate parameter descriptions
+
 - [`draws()`](https://pinskylab.github.io/drmr/reference/draws.md) :
 
   Draws method for `adrm` and `sdm` objects.
@@ -59,6 +62,9 @@
 
 - [`dtt()`](https://pinskylab.github.io/drmr/reference/dtt.md) : Density
   of a truncated Student's t distribution
+
+- [`effects_drm()`](https://pinskylab.github.io/drmr/reference/effects_drm.md)
+  : Effects_Drminal Relationships with Covariates
 
 - [`elpd()`](https://pinskylab.github.io/drmr/reference/elpd.md) :
 
@@ -138,12 +144,14 @@
 - [`make_surv()`](https://pinskylab.github.io/drmr/reference/make_surv.md)
   : Generate the "survival" terms
 
-- [`marg()`](https://pinskylab.github.io/drmr/reference/marg.md) :
-  Marginal Relationships with Covariates
-
 - [`max_quad_x()`](https://pinskylab.github.io/drmr/reference/max_quad_x.md)
   : Value of a covariate that maximizes the response variable in a
   quadratic model.
+
+- [`mcmc_diag()`](https://pinskylab.github.io/drmr/reference/mcmc_diag.md)
+  :
+
+  Draws method for `adrm` and `sdm` objects.
 
 - [`model_sim()`](https://pinskylab.github.io/drmr/reference/model_sim.md)
   : Generate a random sample from a model's predictive distribution
@@ -164,8 +172,11 @@
 - [`pars_transform()`](https://pinskylab.github.io/drmr/reference/pars_transform.md)
   : Transform parameters to a meaningful and interpretable scale.
 
-- [`plot(`*`<marg_adrm>`*`)`](https://pinskylab.github.io/drmr/reference/plot.marg_adrm.md)
-  : Plot Marginal Relationships for ADRM Objects
+- [`plot(`*`<drmrmodels>`*`)`](https://pinskylab.github.io/drmr/reference/plot.drmrmodels.md)
+  : Plot Diagnostics for DRM Models
+
+- [`plot(`*`<eff_drm>`*`)`](https://pinskylab.github.io/drmr/reference/plot.eff_drm.md)
+  : Plot Effects_Drminal Relationships for ADRM Objects
 
 - [`pop_dyn()`](https://pinskylab.github.io/drmr/reference/pop_dyn.md) :
   Simulate population dynamics
@@ -173,6 +184,9 @@
 - [`pp_sim()`](https://pinskylab.github.io/drmr/reference/pp_sim.md) :
   Generate samples from the prior predictive distribution of model
   parameters
+
+- [`ppc()`](https://pinskylab.github.io/drmr/reference/ppc.md) :
+  Posterior Predictive Checks for DRM Models
 
 - [`predict(`*`<adrm>`*`)`](https://pinskylab.github.io/drmr/reference/preddrm.md)
   [`predict_drm()`](https://pinskylab.github.io/drmr/reference/preddrm.md)
@@ -188,7 +202,7 @@
   Print method for `adrm` and `sdm` objects
 
 - [`print(`*`<summary.drmrmodels>`*`)`](https://pinskylab.github.io/drmr/reference/print.summary.drmrmodels.md)
-  : Print method for summary.spatial_model
+  : Print method for summary.drmrmodels
 
 - [`prior_inits()`](https://pinskylab.github.io/drmr/reference/prior_inits.md)
   : Generate initial values for MCMC from the prior

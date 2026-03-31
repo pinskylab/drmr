@@ -2,6 +2,27 @@
 
 ------------------------------------------------------------------------
 
+## TL; DR
+
+The table below details each parameter in the DRM along with their code
+representation and meaning.
+
+|  Parameter   |   Code    |                Meaning                 |
+|:------------:|:---------:|:--------------------------------------:|
+| $\beta_{t}$  | `beta_t`  |    Reg. coef. for proba. of absence    |
+| $\beta_{r}$  | `beta_r`  |       Reg. coef. for recruitment       |
+|    $\phi$    |   `phi`   |          Dispersion parameter          |
+| $\beta_{s}$  | `beta_s`  |        Reg. coef. for survival         |
+|    $\xi$     |   `xi`    | ${logit}(\rho) = \cdots\xi{\log}(\mu)$ |
+|   $\zeta$    |  `zeta`   |  Prob. of remaining in the same patch  |
+|   $\alpha$   |  `alpha`  |       AR(1) temporal correlation       |
+| $\sigma_{t}$ | `sigma_t` |          AR(1) conditional SD          |
+|   $z_{t}$    |   `z_t`   |          AR(1) random effects          |
+| $\sigma_{i}$ | `sigma_i` |    Patch level iid random effect SD    |
+|   $z_{i}$    |   `z_i`   |     Patch level iid random effects     |
+| $\sigma_{s}$ | `sigma_s` |   Patch level ICAR random effect SD    |
+|   $z_{s}$    |   `z_s`   |    Patch level ICAR random effects     |
+
 ## Notation
 
 Before diving into coding, let us establish some common notation so we
@@ -13,12 +34,11 @@ may fail to detect individuals at low densities. Since densities are
 continuous non-negative quantities, we cannot use discrete probability
 distributions (e.g., Poisson or Binomial) to model this type of
 phenomena. However, standard continuous probability distributions assign
-a zero probability to specific values (that is,
-${Pr}\left( Y_{t,i} = c \right) = 0$, for any constant $c$ and
-continuous probability distribution). To address this, we use
-zero-augmented (Hurdle/Delta) models, which explicitly account for the
-excess zeros by combining a discrete and a continuous probability
-distribution through two components:
+a zero probability to specific values (that is, ${Pr}(Y_{t,i} = c) = 0$,
+for any constant $c$ and continuous probability distribution). To
+address this, we use zero-augmented (Hurdle/Delta) models, which
+explicitly account for the excess zeros by combining a discrete and a
+continuous probability distribution through two components:
 
 1.  **A probability of observing a zero (or probability of absence)**:
     This accounts for the “true” absence or non-detection of the
@@ -32,25 +52,24 @@ Formally, let $Y_{t,i}$ be a random variable representing the density
 patch/site $i$. We denote realizations (i.e., what we observe) of
 $Y_{t,i}$ by $y_{t,i}$. We define a *zero-augmented* probability density
 function (pdf) as follows:
-$$f\left( y_{t,i} \mid \mu_{t,i},\phi,\rho_{t,i} \right) = \begin{cases}
+$$f(y_{t,i} \mid \mu_{t,i},\phi,\rho_{t,i}) = \begin{cases}
 {\rho_{t,i},} & {{\mspace{6mu}\text{if}\mspace{6mu}}y_{t,i} = 0,} \\
-{\left( 1 - \rho_{t,i} \right)g\left( y_{t,i} \mid \mu_{t,i},\phi \right),} & {{\mspace{6mu}\text{if}\mspace{6mu}}y_{t,i} > 0,}
+{(1 - \rho_{t,i})g(y_{t,i} \mid \mu_{t,i},\phi),} & {{\mspace{6mu}\text{if}\mspace{6mu}}y_{t,i} > 0,}
 \end{cases}\qquad(1)$$ where
 
-- $\rho_{t,i} = {Pr}\left( Y_{t,i} = 0 \right)$ is the probability of
-  observing a zero density.
+- $\rho_{t,i} = {Pr}(Y_{t,i} = 0)$ is the probability of observing a
+  zero density.
 
-- $g\left( \cdot \mid \mu_{t,i},\phi \right)$ is the pdf of a continuous
-  probability distribution with expected value (or theoretical mean)
-  $\mu_{t,i}$ and additional parameter $\phi$. This distribution
-  represents the densities of the species when they are present.
+- $g(\cdot \mid \mu_{t,i},\phi)$ is the pdf of a continuous probability
+  distribution with expected value (or theoretical mean) $\mu_{t,i}$ and
+  additional parameter $\phi$. This distribution represents the
+  densities of the species when they are present.
 
 In [Equation 1](#eq-za_dens), we can choose different probability
-distributions to specify the pdf
-$g\left( \cdot \mid \mu_{t,i},\phi \right)$. Popular choices include the
-Log-Normal, Log-Logistic, and Gamma distributions, which can be
-parametrized in terms of their mean facilitating modeling ([Ye et al.
-2021](#ref-ye2021comparisons)).
+distributions to specify the pdf $g(\cdot \mid \mu_{t,i},\phi)$. Popular
+choices include the Log-Normal, Log-Logistic, and Gamma distributions,
+which can be parametrized in terms of their mean facilitating modeling
+([Ye et al. 2021](#ref-ye2021comparisons)).
 
 ## Species Distribution Models
 
@@ -78,8 +97,8 @@ through the introduction of suitable link functions, $h_{1}$ and
 $h_{2}$, we relate the linear predictors (and consequently environmental
 factors) to the probability of absence $\rho_{t,i}$ and mean density
 $\mu_{t,i}$ as follows: $$\begin{aligned}
-{h_{1}\left( \rho_{t,i} \right)} & {= \eta_{t,i}^{(1)}} \\
-{h_{2}\left( \mu_{t,i} \right)} & {= \eta_{t,i}^{(2)}.}
+{h_{1}(\rho_{t,i})} & {= \eta_{t,i}^{(1)}} \\
+{h_{2}(\mu_{t,i})} & {= \eta_{t,i}^{(2)}.}
 \end{aligned}\qquad(3)$$
 
 The link functions will ensure that the estimated absence probabilities
@@ -117,11 +136,10 @@ Define $Y_{a,t,i}$ as a random variable representing the *unobserved*
 density (individuals per unit of area) for individuals of age $a$, where
 $a \in \{ 1,\ldots,A\}$. Similarly, we denote the expected density (or
 theoretical mean for a given age, time, and patch) as:
-$$\lambda_{a,t,i} = {\mathbb{E}}\left\lbrack Y_{a,t,i} \right\rbrack.$$
-We do not observe $Y_{a,i,t}$ and assume the previously defined
-(overall) density, which we actually observe, to be the sum of the
-densities across all age groups. In other words,
-$Y_{t,i} = \sum_{a}Y_{a,t,i}$. Consequently,
+$$\lambda_{a,t,i} = {\mathbb{E}}\lbrack Y_{a,t,i}\rbrack.$$ We do not
+observe $Y_{a,i,t}$ and assume the previously defined (overall) density,
+which we actually observe, to be the sum of the densities across all age
+groups. In other words, $Y_{t,i} = \sum_{a}Y_{a,t,i}$. Consequently,
 $$\mu_{t,i} = \sum\limits_{a}\lambda_{a,t,i}.\qquad(4)$$
 
 Biological processes and additional assumptions are encoded through the
@@ -132,12 +150,12 @@ are: recruitment, survival, and movement. They are described below.
 
 We begin by defining the expected density for recruits (fish at age
 $a = 1$) at time $t$ and patch $i$ as:
-$${\mathbb{E}}\left\lbrack Y_{1,i,t} \right\rbrack = \lambda_{1,i,t} = \exp\{\psi\},\qquad(5)$$
+$${\mathbb{E}}\lbrack Y_{1,i,t}\rbrack = \lambda_{1,i,t} = {\exp}\{\psi\},\qquad(5)$$
 
-where $\exp\{\psi\}$ represents the overall mean recruitment per unit of
-area. The assumption in [Equation 5](#eq-recruits) is quite restrictive.
-To make the model more realistic, we can replace the constant $\psi$
-with
+where ${\exp}\{\psi\}$ represents the overall mean recruitment per unit
+of area. The assumption in [Equation 5](#eq-recruits) is quite
+restrictive. To make the model more realistic, we can replace the
+constant $\psi$ with
 
 $$\psi_{t,i} = {\mathbf{β}}_{r}\mathbf{x}_{t,i}^{(r)} + z_{t,i}^{(r)},\qquad(6)$$
 
@@ -170,12 +188,12 @@ In the proposed model, the expected density at age $a$, time $t$, and
 patch $i$ evolves over time according to survival rates denoted
 $s_{a,t,i}$. Formally, we have
 
-$${\mathbb{E}}\left\lbrack Y_{a,t,i} \right\rbrack = \lambda_{a,t,i} = \lambda_{a - 1,t - 1,i}s_{a - 1,t - 1},$$
+$${\mathbb{E}}\lbrack Y_{a,t,i}\rbrack = \lambda_{a,t,i} = \lambda_{a - 1,t - 1,i}s_{a - 1,t - 1},$$
 
 As with recruitment, the survival rates may vary by patch/site $i$ and
 time $t$:
 
-$$s_{a,t,i} = \exp\{{\mathbf{β}}_{m}^{\top}\mathbf{x}_{t,i}^{(m)}\},\qquad(8)$$
+$$s_{a,t,i} = {\exp}\{{\mathbf{β}}_{m}^{\top}\mathbf{x}_{t,i}^{(m)}\},\qquad(8)$$
 
 where $\mathbf{x}_{t,i}^{(m)}$ represents environmental drivers
 potentially different from those affecting recruitment, and
@@ -191,7 +209,7 @@ reasonable, if not logical, to assume that the survival rates for an
 age-group with a higher fishing mortality is lower. In that case,
 Equation~ may be updated to:
 
-$$s_{a,t,i} = \exp\{{\mathbf{β}}_{m}^{\top}\mathbf{x}_{t,i}^{(m)} - f_{a,t}\},$$
+$$s_{a,t,i} = {\exp}\{{\mathbf{β}}_{m}^{\top}\mathbf{x}_{t,i}^{(m)} - f_{a,t}\},$$
 
 where~$f_{a,t}$ is the instantaneous rate of fishing mortality for the
 age-group~$a$ at time~$t$.
@@ -259,12 +277,11 @@ an animal of a given length given it encounters the gear is denoted
 *selectivity at length*. On the other hand, *selectivity at age* is the
 probability of capturing a fish of a certain age, provided it
 “encountered the gear”. We represent selectivity at age by the vector
-$\mathbf{v} = \left\lbrack v_{1},\ldots,v_{A} \right\rbrack^{\top}$,
-where $A$ is the total number of age groups. Each element $v_{a}$ of
-this vector is a value between 0 and 1, inclusive, representing the
-selectivity for age group $a$. Our package does not estimate
-$\mathbf{v}$ and, unless provided by the user, assumes the selectivity
-is 1 for every age group.
+$\mathbf{v} = \lbrack v_{1},\ldots,v_{A}\rbrack^{\top}$, where $A$ is
+the total number of age groups. Each element $v_{a}$ of this vector is a
+value between 0 and 1, inclusive, representing the selectivity for age
+group $a$. Our package does not estimate $\mathbf{v}$ and, unless
+provided by the user, assumes the selectivity is 1 for every age group.
 
 When a vector $\mathbf{v}$ is provided, our model assumes:
 
@@ -307,15 +324,21 @@ parameters on this prior are $0.5$ and $0.5$. Lastly, we the same Beta
 prior on $\zeta$. The priors and default hyperparameters are highlighted
 in the table below:
 
-| Parameter prior                                                              | Default hyperparameters                |
-|------------------------------------------------------------------------------|----------------------------------------|
-| $\phi \sim {Gamma}\left( a_{\phi},b_{\phi} \right)$                          | $a_{\phi} = 2,\; b_{\phi} = 1$         |
-| $\beta_{rk}\overset{\perp}{\sim}\mathcal{N}\left( m_{rk},s_{rk}^{2} \right)$ | $m_{rk} = 0,\; s_{rk} = 1$             |
-| $\beta_{tk}\overset{\perp}{\sim}\mathcal{N}\left( m_{tk},s_{tk}^{2} \right)$ | $m_{tk} = 0,\; s_{tk} = 1$             |
-| $\beta_{sk}\overset{\perp}{\sim}\mathcal{N}\left( m_{sk},s_{sk}^{2} \right)$ | $m_{sk} = 0,\; s_{sk} = 1$             |
-| $\zeta \sim {Beta}\left( a_{\zeta},b_{\zeta} \right)$                        | $a_{\zeta} = 0.5,\; b_{\zeta} = 0.5$   |
-| $\alpha \sim {Beta}\left( a_{\alpha},b_{\alpha} \right)$                     | $a_{\alpha} = 0.5,\; b_{\alpha} = 0.5$ |
-| $\log(\tau) \sim \mathcal{N}\left( m_{\tau},s_{\tau}^{2} \right)$            | $m_{\tau} = -2,\; s_{\tau} = 0.25$     |
+|  Parameter   |   Code    | Priors                           |   Default hyperparameters    |
+|:------------:|:---------:|----------------------------------|:----------------------------:|
+| $\beta_{t}$  | `beta_t`  | $N(m_{t},s_{t})$                 |    $m_{t} = 0,s_{t} = 1$     |
+| $\beta_{r}$  | `beta_r`  | $N(m_{r},s_{r})$                 |    $m_{r} = 0,s_{r} = 1$     |
+|    $\phi$    |   `phi`   | ${Gamma}(a_{p},b_{p})$           |    $a_{p} = 2,b_{p} = 1$     |
+| $\beta_{s}$  | `beta_s`  | $N(m_{s},s_{s})$                 |    $m_{s} = 0,s_{s} = 1$     |
+|    $\xi$     |   `xi`    | \${- \rm LN}(m_lxi, s_lxi)\$     |  $m_{lxi} = 0,s_{lxi} = 1$   |
+|   $\zeta$    |  `zeta`   | ${Beta}(a_{z},b_{z})$            |   $a_{z} = .5,b_{z} = .5$    |
+|   $\alpha$   |  `alpha`  | ${Beta}(a_{a},b_{a})$            |   $a_{a} = .5,b_{a} = .5$    |
+| $\sigma_{t}$ | `sigma_t` | ${LN}(m_{l}st,s_{l}st)$          | $m_{lst} = -2,s_{lst} = .25$ |
+|   $z_{t}$    |   `z_t`   | $z_{t} \sim AR(1)$               |             N/A              |
+| $\sigma_{i}$ | `sigma_i` | ${LN}(m_{l}si,s_{l}si)$          | $m_{lsi} = -2,s_{lsi} = .25$ |
+|   $z_{i}$    |   `z_i`   | $z_{i} \sim N(0,\sigma_{i}^{2})$ |             N/A              |
+| $\sigma_{s}$ | `sigma_s` | ${LN}(m_{l}ss,s_{l}ss)$          | $m_{lss} = -2,s_{lss} = .25$ |
+|   $z_{s}$    |   `z_s`   | $z_{s} \sim N(0,\sigma_{i}^{2})$ |             N/A              |
 
 Denote by $\mathbf{θ}$ a set containing all the parameters associated
 with the model we have chosen. The posterior distribution of
@@ -352,7 +375,7 @@ otherwise stated) of the marginal MCMC samples.
 ### Model comparison
 
 The assessment of goodness-of-fit GoF is carried out using the
-leave-one-out information criterion \[Vehtari, Gelman, and Gabry
+leave-one-out information criterion \[Vehtari et al.
 ([2017](#ref-vehtari2017practical)); LOOIC\]. Lower LOOIC values
 indicate a better fit.
 
@@ -367,21 +390,21 @@ Assuming environmental at these time points are also available, we can
 generate predictions accounting for uncertainty using the posterior
 predictive distribution of $\mathbf{Y}^{*}$:
 
-$$p\left( \mathbf{y}^{*} \mid \mathbf{y} \right) = \int p\left( \mathbf{y}^{*} \mid \mathbf{z}^{*},{\mathbf{θ}} \right)p\left( \mathbf{z}^{*} \mid \mathbf{z},{\mathbf{θ}} \right)\pi({\mathbf{θ}} \mid \mathbf{y})d{\mathbf{θ}},\qquad(12)$$
+$$p(\mathbf{y}^{*} \mid \mathbf{y}) = \int p(\mathbf{y}^{*} \mid \mathbf{z}^{*},{\mathbf{θ}})p(\mathbf{z}^{*} \mid \mathbf{z},{\mathbf{θ}})\pi({\mathbf{θ}} \mid \mathbf{y})d{\mathbf{θ}},\qquad(12)$$
 
 where
 
-$\mathbf{z}^{*} = {\left( z_{T + 1} \right),\ldots,z_{T + k}))}^{\top}$
-is a realization of the AR(1) process at the new time points, and
+$\mathbf{z}^{*} = {(z_{T + 1}),\ldots,z_{T + k}))}^{\top}$ is a
+realization of the AR(1) process at the new time points, and
 $\mathbf{θ}$ represents the model parameters. Moreover, the pdf
-$p\left( \mathbf{y}^{*} \mid \mathbf{z}^{*},{\mathbf{θ}} \right)$ can be
-obtained as in [Section 3](#sec-drm) or [Section 2](#sec-sdm).
+$p(\mathbf{y}^{*} \mid \mathbf{z}^{*},{\mathbf{θ}})$ can be obtained as
+in [Section 3](#sec-drm) or [Section 2](#sec-sdm).
 
 ## Pontential issues with estimation & Closed formulas for special cases
 
 Define
 
-$$s_{a,t,i} = \exp\{ m_{i,t} - f_{a,t}\},$$
+$$s_{a,t,i} = {\exp}\{ m_{i,t} - f_{a,t}\},$$
 
 as the environment dependent survival for age $a$ at time $t$ and site
 $i$.
@@ -390,21 +413,21 @@ Then, in the scenario without movement, the expected density for age $a$
 at time $t$ and site $i$ can be written as:
 
 $$\begin{aligned}
-\lambda_{a,t,i} & {= \exp\{\psi_{t,i} + z_{t}^{(r)}\prod\limits_{k = 1}^{a - 1}s_{k,t,i}\}} \\
- & {= \exp\{\psi_{t,i} + z_{t}^{(r)}\}\exp\left\{ (a - 1)m_{t,i} - \sum\limits_{k = 1}^{a - 1}f_{a,t} \right\}.}
+\lambda_{a,t,i} & {= {\exp}\{\psi_{t,i} + z_{t}^{(r)}\prod\limits_{k = 1}^{a - 1}s_{k,t,i}\}} \\
+ & {= {\exp}\{\psi_{t,i} + z_{t}^{(r)}\}{\exp}\left\{ (a - 1)m_{t,i} - \sum\limits_{k = 1}^{a - 1}f_{a,t} \right\}.}
 \end{aligned}$$
 
 Therefore, a closed form for the expected density $\mu_{i,t}$ is:
 $$\begin{aligned}
 \mu_{t,i} & {= \sum\limits_{a = 1}^{A}\lambda_{a,t,i}} \\
- & {= \exp\{\psi_{t,i} + z_{t}^{(r)}\}\left( 1 + \sum\limits_{a = 2}^{A}\exp\left\{ (a - 1)m_{t,i} - \sum\limits_{k = 1}^{a - 1}f_{k,t} \right\} \right).}
+ & {= {\exp}\{\psi_{t,i} + z_{t}^{(r)}\}\left( 1 + \sum\limits_{a = 2}^{A}\exp\left\{ (a - 1)m_{t,i} - \sum\limits_{k = 1}^{a - 1}f_{k,t} \right\} \right).}
 \end{aligned}$$
 
 Or, with selectivity,
 
 $$\begin{aligned}
 \mu_{t,i} & {= \sum\limits_{a = 1}^{A}v_{a}\lambda_{a,t,i}} \\
- & {= \exp\{\psi_{t,i} + z_{t}^{(r)}\}\left( v_{1} + \sum\limits_{a = 2}^{A}v_{a}\exp\left\{ (a - 1)m_{t,i} - \sum\limits_{k = 1}^{a - 1}f_{k,t} \right\} \right).}
+ & {= {\exp}\{\psi_{t,i} + z_{t}^{(r)}\}\left( v_{1} + \sum\limits_{a = 2}^{A}v_{a}\exp\left\{ (a - 1)m_{t,i} - \sum\limits_{k = 1}^{a - 1}f_{k,t} \right\} \right).}
 \end{aligned}$$
 
 ## References
@@ -429,7 +452,7 @@ MCMC (with Discussion).” *Bayesian Analysis* 16 (2): 667–718.
 
 Ye, Tairan, Victor H Lachos, Xiaojing Wang, and Dipak K Dey. 2021.
 “Comparisons of Zero-Augmented Continuous Regression Models from a
-Bayesian Perspective.” *Statistics in Medicine* 40 (5): 1073–1100.
+Bayesian Perspective.” *Statistics in Medicine* 40 (5): 1073–100.
 
 ------------------------------------------------------------------------
 

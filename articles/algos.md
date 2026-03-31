@@ -3,7 +3,12 @@
 ## TL; DR
 
 This document demonstrates how to modify the algorithm used for
-inference in our models.
+inference in our models. In general, the default algorithm (the NUTS
+from `Stan`) represents the gold standard, but it is slow. For initial
+screening (or even cross-validation), one can rely on the other
+algorithms showcased in this vignette. They tend to be faster, and
+produce reliable point estimates but have a weaker performance in
+quantifying the uncertainty around their estimates.
 
 ## Setup
 
@@ -147,7 +152,7 @@ drm_nuts <-
           algo_args = nuts_args)
 ```
 
-    Warning: 10 of 1000 (1.0%) transitions ended with a divergence.
+    Warning: 1 of 1000 (0.0%) transitions ended with a divergence.
     See https://mc-stan.org/misc/warnings for details.
 
 Next, we obtain samples from the *variational* posterior using Stan’s
@@ -159,7 +164,7 @@ link](https://mc-stan.org/docs/cmdstan-guide/variational_config.html)).
 advi_args <- list(show_messages = FALSE,
                   show_exceptions = FALSE,
                   iter = 10^5, ## maximum number of iterations (optimization)
-                  draws = 1000) ## number of samples from the posterior
+                  draws = 4000) ## number of samples from the posterior
 
 drm_advi <-
   fit_drm(.data = sum_fl,
@@ -208,7 +213,7 @@ drm_path <-
 
     Only 3 of the 4 pathfinders succeeded.
 
-    Pareto k value (2.4) is greater than 0.7. Importance resampling was not able to improve the approximation, which may indicate that the approximation itself is poor.
+    Pareto k value (2) is greater than 0.7. Importance resampling was not able to improve the approximation, which may indicate that the approximation itself is poor.
 
 It is also possible to obtain samples from a Laplace approximation of
 the posterior as follows:
@@ -232,32 +237,32 @@ drm_lapl <-
     Rejecting initial value:
       Log probability evaluates to log(0), i.e. negative infinity.
       Stan can't start sampling from this initial value.
-    Initial log joint probability = -48954.1
+    Initial log joint probability = -41305.8
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-    Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is inf, but must be positive finite! (in '/tmp/Rtmp77Yui3/pkg-lib1aba1e483534/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from
-    '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 2, column 0) (in '/tmp/RtmpJsUOE8/model-27b4495e770c.stan', line 312, column 2 to line 315, column 67)
+    Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is inf, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from
+    '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)
     Error evaluating model log probability: Non-finite gradient.
-          99       66.5623     0.0139267       89.6602      0.2505      0.2505      137
+          99       63.1399     0.0384463       27.1111      0.2853      0.2853      137
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         199       81.4715     0.0802359       75.8498           1           1      258
+         199       79.2643    0.00182743       12.9102      0.5695      0.5695      283
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         299       86.1945    0.00343466       30.3285           1           1      391
+         299       81.6229     0.0254943       8.15253       1.395      0.1395      398
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         399       87.7316    0.00281463       6.25863      0.5164      0.5164      509
+         399        82.725     0.0330018       3.68405           1           1      524
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         499       88.1937     0.0015151       10.4457      0.1523      0.1523      630
+         499       83.1288    0.00405507       20.9462      0.9193      0.9193      644
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         599       88.5664     0.0153683       11.3606           1           1      743
+         599       83.4274    0.00830204       7.15666           1           1      771
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         699       88.6292    0.00261836       3.29099      0.5845      0.5845      874
+         699       83.4563    0.00924625       1.28662           1           1      898
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         799        88.643    0.00122253       1.31178           1           1     1004
+         799       83.4863    0.00703205      0.672952           1           1     1017
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         899       88.6458    0.00122597       1.60837           1           1     1127
+         899       83.4936    0.00042654      0.290122      0.4865     0.04865     1146
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         999       88.6474   0.000144826      0.102757      0.4141      0.4141     1239
+         999       83.4947    0.00144258      0.217513       2.555      0.2555     1279
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-        1033       88.6475   0.000180893     0.0356464           1           1     1277
+        1047        83.495   0.000179283     0.0613661      0.9495      0.9495     1340
     Optimization terminated normally:
       Convergence detected: relative gradient magnitude is below tolerance
     Finished in  0.8 seconds.
@@ -289,16 +294,16 @@ estimated relationship between environment and recruitment for each of
 those methods:
 
 ``` r
-marg(drm_nuts, "rec", "c_stemp") |>
+effects_drm(drm_nuts, "rec", "c_stemp") |>
   plot() +
   labs(title = "nuts")
-marg(drm_path, "rec", "c_stemp") |>
+effects_drm(drm_path, "rec", "c_stemp") |>
   plot() +
   labs(title = "path")
-marg(drm_advi, "rec", "c_stemp") |>
+effects_drm(drm_advi, "rec", "c_stemp") |>
   plot() +
   labs(title = "advi")
-marg(drm_lapl, "rec", "c_stemp") |>
+effects_drm(drm_lapl, "rec", "c_stemp") |>
   plot() +
   labs(title = "lapl")
 ```
