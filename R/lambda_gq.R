@@ -97,9 +97,9 @@ ages_edens <- function(drm,
     spt_proj <- data.frame(v1 = new_sites_factor,
                            v2 = time_for + max(drm$data$time) + drm$data$time_init - 1,
                            site_id = new_sites_stan,
-                           time = time_for)
+                           time = time_for) |>
+      unique()
     colnames(spt_proj)[1:2] <- rev(unname(unlist(drm$cols[2:3])))
-    spt_proj <- unique(spt_proj)
   }
   
   output <- list("gq" = output,

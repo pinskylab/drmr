@@ -387,18 +387,18 @@ summary.aesd <- function(object,
   
   labels <- clean_edens(output$variable)
   
-  # Process training lambda
+  ## Process training lambda
   train_idx <- labels$type == "train"
   train_out <- NULL
   if (any(train_idx)) {
     train_labels <- labels[train_idx, -1] # remove type column
-    # Map to site names and actual years
+    ## Map to site names and actual years
     train_labels <- merge(train_labels, object$spt,
                           by = c("site_id", "time"))
     train_out <- cbind(train_labels, output[train_idx, -1])
   }
   
-  # Process projected lambda
+  ## Process projected lambda
   proj_idx <- labels$type == "proj"
   proj_out <- NULL
   if (any(proj_idx)) {
@@ -408,9 +408,9 @@ summary.aesd <- function(object,
     proj_out <- cbind(proj_labels, output[proj_idx, -1])
   }
   
-  # Combine
+  ## Combine
   output <- rbind(train_out, proj_out)
-  # Reorder to original site/time/age logic if possible
+  ## Reorder to original site/time/age logic if possible
   output <- output[order(output$site_id,
                          output[[colnames(object$spt)[2]]],
                          output$age), ]
