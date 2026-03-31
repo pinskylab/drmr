@@ -60,10 +60,10 @@ Considering a new dataset (across the same sites), computes
 predictions based on the DRM passed as \code{drm}.
 }
 \details{
-The current version of the code assumes the data where predictions
-are needed is ordered by "site" and "site" and, in addition, its sites
-MUST be the same as the ones used to obtain the parameters' estimates from
-the the \code{drm} object.
+The current version of the code reorders the data where predictions
+are needed is ordered by "site" and "site" and, in addition, the sites
+MUST match ones used to obtain the parameters' estimates from the the
+\code{drm} object.
 }
 \seealso{
 \code{\link[=fit_drm]{fit_drm()}}
