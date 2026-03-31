@@ -17,6 +17,7 @@ inst/stan/**/*.EXE
 
 manuscript/
 GEMINI.md
+error.md
 
 docs
 pkgdown

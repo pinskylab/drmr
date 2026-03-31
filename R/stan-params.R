@@ -67,6 +67,16 @@ fitted_pars_sdm <- function(data_list) {
 ##' @inherit get_fitted_pars
 fitted_pars_lambda <- function(data_list) {
   output <- c("log_rec")
+  if (data_list$proj == 1)
+    output <- c(output, "beta_r")
+  if (data_list$ar_re > 0)
+    output <- c(output, "z_t")
+  if (data_list$proj == 1 && data_list$ar_re > 0)
+    output <- c(output, "alpha", "sigma_t")
+  if (data_list$iid_re > 0)
+    output <- c(output, "z_i")
+  if (data_list$sp_re > 0)
+    output <- c(output, "z_s")
   if (data_list$est_surv == 1)
     output <- c(output, "beta_s")
   if (data_list$movement == 1)

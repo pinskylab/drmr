@@ -1,5 +1,8 @@
 # drmr 1.0.0
 
+* `ages_edens` now supports a `new_data` argument which allows for estimating
+  out-of-sample age-specific densities.
+
 * Fixed a bug on the `stan` function for the age-structured population dynamic.
 
 * Changing the parametrization for survival (it does help with identifiability)

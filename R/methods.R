@@ -355,10 +355,20 @@ summary.pred_drmr <- function(object,
 ##'
 ##' @export
 clean_edens <- function(x) {
-  stopifnot(grepl("lambda", x[1]))
-  clean_str <- gsub("lambda\\[|\\]", "", x)
-  split_list <- strsplit(clean_str, ",")
-  return(do.call(rbind, lapply(split_list, as.numeric)))
+  stopifnot(any(grepl("lambda", x)))
+  type <- ifelse(grepl("lambda_proj", x), "proj", "train")
+  idx_str <- gsub(".*\\[(.*)\\].*", "\\1", x)
+  split_list <- strsplit(idx_str, ",")
+  indices <- do.call(rbind, lapply(split_list, as.numeric))
+  output <-
+    data.frame(type = type,
+               age = indices[, 1],
+               time = indices[, 2],
+               site_id = indices[, 3])
+  ## max_obs <- max(output$time[output$type == "train"])
+  ## output$time <- ifelse(output$type == "train", output$time,
+  ##                       output$time + max_obs)
+  return(output)
 }
 
 ##' Summary method for \code{aesd} objects
@@ -373,12 +383,38 @@ summary.aesd <- function(object,
                          probs = c(.05, .5, .95),
                          ...) {
   output <- summary(object$gq, probs = probs, ...)
-  edens_labels <- as.data.frame(clean_edens(output$variable))
-  edens_labels[, 2] <- edens_labels[, 2] + min(object$spt[, 2]) - 1
-  colnames(edens_labels) <- c("age", colnames(object$spt)[2], "site_id")
-  edens_labels <- merge(edens_labels, object$spt,
-                        by = c("site_id", colnames(object$spt)[2]))
-  output <- cbind(edens_labels, output[, -1])
+  output <- output[grepl("^lambda", output$variable), ]
+  
+  labels <- clean_edens(output$variable)
+  
+  # Process training lambda
+  train_idx <- labels$type == "train"
+  train_out <- NULL
+  if (any(train_idx)) {
+    train_labels <- labels[train_idx, -1] # remove type column
+    # Map to site names and actual years
+    train_labels <- merge(train_labels, object$spt,
+                          by = c("site_id", "time"))
+    train_out <- cbind(train_labels, output[train_idx, -1])
+  }
+  
+  # Process projected lambda
+  proj_idx <- labels$type == "proj"
+  proj_out <- NULL
+  if (any(proj_idx)) {
+    proj_labels <- labels[proj_idx, -1]
+    proj_labels <- merge(proj_labels, object$spt_proj,
+                          by = c("site_id", "time"))
+    proj_out <- cbind(proj_labels, output[proj_idx, -1])
+  }
+  
+  # Combine
+  output <- rbind(train_out, proj_out)
+  # Reorder to original site/time/age logic if possible
+  output <- output[order(output$site_id,
+                         output[[colnames(object$spt)[2]]],
+                         output$age), ]
+  rownames(output) <- NULL
   return(output)
 }
 

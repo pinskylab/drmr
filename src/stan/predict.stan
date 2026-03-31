@@ -42,7 +42,7 @@ data {
   matrix[est_surv ? n_sites : 1, est_surv ? K_m[1] : 1] X_m_past;
   //--- * for recruitment ----
   int<lower = 1> K_r;
-  matrix[N, K_r] X_r;
+  matrix[N, K_r] X_r; 
 }
 transformed data {
   matrix[movement ? n_sites : 0, movement ? n_sites : 0] identity_mat;

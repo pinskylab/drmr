@@ -506,7 +506,6 @@ You can compute the in- and out-of-sample latent abundances by passing the `type
 fitted_rl <- fitted(drm_rec, type = "latent") |>
   summary() 
 
-
 predicted_rl <- predict(drm_rec,
                         new_data = dat_test,
                         past_data = filter(dat_train,
@@ -532,7 +531,7 @@ combined_rl |>
               alpha = .5) +
   geom_line(aes(y = q50)) +
   geom_point(aes(y = dens), color = 2, pch = 19)+ 
-  facet_wrap(. ~ patch, scales = "free_y") +
+  facet_grid(. ~ patch, scales = "free_y") +
   theme_bw()
 ```
 
@@ -573,7 +572,7 @@ visualization for a single patch across time can be obtained as follows:
 
 lambdas |>
   filter(patch == 5) |>
-  filter(year %in% seq(1985, 2010, by = 5)) |>
+  filter(year %in% seq(1985, 2020, by = 5)) |>
   ggplot(data = _,
          aes(x = age)) +
   geom_segment(aes(xend = age, y = 0, yend = q50),

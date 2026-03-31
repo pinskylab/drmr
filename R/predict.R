@@ -104,10 +104,10 @@ int_score <- function(y, l, u, alpha) {
 ##'   \code{$generated_quantities}
 ##'
 ##'
-##' @details The current version of the code assumes the data where predictions
-##'   are needed is ordered by "site" and "site" and, in addition, its sites
-##'   MUST be the same as the ones used to obtain the parameters' estimates from
-##'   the the \code{drm} object.
+##' @details The current version of the code reorders the data where predictions
+##'   are needed is ordered by "site" and "site" and, in addition, the sites
+##'   MUST match ones used to obtain the parameters' estimates from the the
+##'   \code{drm} object.
 ##'
 ##' @author lcgodoy
 ##'
@@ -195,7 +195,7 @@ predict.adrm <- function(object,
       stats::model.matrix(object[["formulas"]][["formula_surv"]],
                           data = past_data)
     x_m <- stats::model.matrix(object[["formulas"]][["formula_surv"]],
-                               data = new_data[order(new_data[[object$cols$site_col]]), ])
+                               data = new_data)
     pred_data$K_m <- array(NCOL(x_m), dim = 1)
     pred_data$X_m <- x_m
     pred_data$X_m_past <- x_mpast
