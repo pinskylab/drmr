@@ -90,7 +90,7 @@ apply_movement <- function(lambda, M, mov_age) {
     if (mov_age[a]) {
       for (time in 1:dimensions[2]) {
         output[a, time, 1:dimensions[3]] <-
-          tcrossprod(lambda[a, time, 1:dimensions[3]], M)
+          lambda[a, time, 1:dimensions[3]] %*% M
       }
     }
   }
@@ -160,21 +160,41 @@ pop_dyn <- function(n_patches,
   }
   neg_mort <- make_surv(n_patches, n_time,
                         x_sv, surv_pars)
-  for (p in 1:n_patches) {
-    for (i in 2:n_time) {
-      output[2:n_ages, i, p] <- output[1:(n_ages - 1), i - 1, p] +
-        neg_mort[i - 1, p] - f_a_t[1:(n_ages - 1), i - 1]
-    }
-  }
+                        
   if (movement) {
     stopifnot(!is.null(adj_mat))
     stopifnot(!is.null(mov_age))
+    
+    # Standardize adj_mat
+    rs <- rowSums(adj_mat)
+    adj_mat_std <- adj_mat
+    idx <- rs > 0
+    adj_mat_std[idx, ] <- adj_mat[idx, ] / rs[idx]
+    
     zeta <- pars[["zeta"]]
     mov_mat <- zeta * diag(1, ncol = n_patches, nrow = n_patches) +
-      (1 - zeta) * adj_mat
+      (1 - zeta) * adj_mat_std
+      
     output <- exp(output)
-    output <- apply_movement(output, mov_mat, mov_age)
+    for (i in 2:n_time) {
+      # Survival and then Movement
+      for (a in 2:n_ages) {
+        surv <- exp(neg_mort[i - 1, ] - f_a_t[a - 1, i - 1])
+        lambda_surv <- output[a - 1, i - 1, ] * surv
+        if (mov_age[a]) {
+          output[a, i, ] <- lambda_surv %*% mov_mat
+        } else {
+          output[a, i, ] <- lambda_surv
+        }
+      }
+    }
   } else {
+    for (p in 1:n_patches) {
+      for (i in 2:n_time) {
+        output[2:n_ages, i, p] <- output[1:(n_ages - 1), i - 1, p] +
+          neg_mort[i - 1, p] - f_a_t[1:(n_ages - 1), i - 1]
+      }
+    }
     output <- exp(output)
   }
   return(output)

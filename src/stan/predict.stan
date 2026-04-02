@@ -46,8 +46,18 @@ data {
 }
 transformed data {
   matrix[movement ? n_sites : 0, movement ? n_sites : 0] identity_mat;
-  if (movement)
+  matrix[movement ? n_sites : 0, movement ? n_sites : 0] adj_mat_std;
+  if (movement) {
     identity_mat = identity_matrix(n_sites);
+    for (i in 1:n_sites) {
+      real row_s = sum(adj_mat[i]);
+      if (row_s > 0) {
+        adj_mat_std[i] = adj_mat[i] / row_s;
+      } else {
+        adj_mat_std[i] = adj_mat[i];
+      }
+    }
+  }
 }
 parameters {
   //--- "regression" coefficients for absence and recr ----
@@ -136,26 +146,38 @@ generated quantities {
       current_m = to_matrix(-log1p(exp(-m_aux)), n_time, n_sites);
       past_m = -log1p(exp(X_m_past * beta_s[1]));
     }
-    // forecast_simplest is a function in the utils/theoretical_mean.stan file
-    lambda_proj = forecast_simplest(n_sites,
-                                    n_time,
-                                    n_ages,
-                                    f,
-                                    current_m,
-                                    to_matrix(log_rec,
-                                              n_time,
-                                              n_sites),
-                                    lambda,
-                                    f_past,
-                                    past_m);
     if (movement) {
       //--- movement matrix ---
-      matrix[movement ? n_sites : 0, movement ? n_sites : 0] mov_mat;
+      matrix[n_sites, n_sites] mov_mat;
       real d = (1 - zeta[1]);
       mov_mat = zeta[1] * identity_mat;
-      mov_mat += d * adj_mat;
+      mov_mat += d * adj_mat_std;
       lambda_proj =
-        apply_movement(lambda_proj, mov_mat, ages_movement);
+        forecast_simplest_movement(n_sites,
+                                   n_time,
+                                   n_ages,
+                                   f,
+                                   current_m,
+                                   to_matrix(log_rec,
+                                             n_time,
+                                             n_sites),
+                                   lambda,
+                                   f_past,
+                                   past_m,
+                                   mov_mat,
+                                   ages_movement);
+    } else {
+      lambda_proj = forecast_simplest(n_sites,
+                                      n_time,
+                                      n_ages,
+                                      f,
+                                      current_m,
+                                      to_matrix(log_rec,
+                                                n_time,
+                                                n_sites),
+                                      lambda,
+                                      f_past,
+                                      past_m);
     }
     //--- mu_proj calculations ----
     matrix[n_time, n_sites] mu_aux =

@@ -84,8 +84,18 @@ transformed data {
   // `identity_mat` is a "site X site" identity matrix used to apply the
   // "reflexive" movement.
   matrix[movement ? n_sites : 0, movement ? n_sites : 0] identity_mat;
-  if (movement)
+  matrix[movement ? n_sites : 0, movement ? n_sites : 0] adj_mat_std;
+  if (movement) {
     identity_mat = identity_matrix(n_sites);
+    for (i in 1:n_sites) {
+      real row_s = sum(adj_mat[i]);
+      if (row_s > 0) {
+        adj_mat_std[i] = adj_mat[i] / row_s;
+      } else {
+        adj_mat_std[i] = adj_mat[i];
+      }
+    }
+  }
   //--- Mortality ----
   // `fixed_m` is a "time X site" constant matrix. All of its positions are
   // equal to the fishing mortality `m`. The purpose of this matrix is the make
@@ -189,28 +199,36 @@ transformed parameters {
     if (iid_re == 2) {
         mortality += z_i[1][site];
     }
-    // Expected density at specific time/site combinations by age
+    // expected density at specific time/site combinations by age
     array[n_ages] matrix[n_time, n_sites] lambda_aux;
-    // filling lambda according to our "simplest model"
-    lambda_aux =
-      simplest(n_sites, n_time, n_ages,
-               f,
-               est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
-               est_init ? init_par : init_data,
-               to_matrix(log_rec, n_time, n_sites),
-               minit);
-      //--- Movement ----
-    // probability of staying in the current site
-    // movement matrix
-    matrix[movement ? n_sites : 0, movement ? n_sites : 0] mov_mat;
     if (movement) {
+      // probability of staying in the current site
+      // movement matrix
+      matrix[n_sites, n_sites] mov_mat;
       // probability of movement is evenly distributed across neighbors
       real d = (1 - zeta[1]);
       mov_mat = zeta[1] * identity_mat;
       // It is super important that the adj_mat is setup correctly. Note that,
       // this matrix is "row standardized". That is, its rows add up to 1.
-      mov_mat += d * adj_mat;
-      lambda_aux = apply_movement(lambda_aux, mov_mat, ages_movement);
+      mov_mat += d * adj_mat_std;
+      lambda_aux =
+        simplest_movement(n_sites, n_time, n_ages,
+                          f,
+                          est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
+                          est_init ? init_par : init_data,
+                          to_matrix(log_rec, n_time, n_sites),
+                          minit,
+                          mov_mat,
+                          ages_movement);
+    } else {
+      // filling lambda according to our "simplest model"
+      lambda_aux =
+        simplest(n_sites, n_time, n_ages,
+                 f,
+                 est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
+                 est_init ? init_par : init_data,
+                 to_matrix(log_rec, n_time, n_sites),
+                 minit);
     }
     matrix[n_time, n_sites] mu_aux =
       rep_matrix(0.0, n_time, n_sites);
@@ -227,7 +245,7 @@ transformed parameters {
           lambda[1:n_ages, p] =
             to_vector(lambda_aux[1:n_ages, tp, p]);
         }
-      } // close sites
+      } 
     }
     mu = to_vector(mu_aux);
     if (ar_re == 3) {
@@ -265,7 +283,6 @@ transformed parameters {
     }
   }
 }
-// close transformed parameters block
 model {
   //--- initialization parameters ----
   if (est_init)

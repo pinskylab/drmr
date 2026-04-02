@@ -225,9 +225,7 @@ make_data <- function(y,
     stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
               nrow(adj_mat) == n_sites)
     aux_sp <- get_nodes(adj_mat)
-    adj2 <- matrix(0, ncol = NCOL(adj_mat), nrow = NROW(adj_mat))
-    adj2[adj_mat > 0] <- 1
-    scaling <- array(get_scaling(adj2), dim = 1)
+    scaling <- array(get_scaling(adj_mat), dim = 1)
     N_edges <- array(as.integer(aux_sp$N_edges), dim = 1)
     neighbors <- aux_sp$neighbors
     if (!toggles$movement) {

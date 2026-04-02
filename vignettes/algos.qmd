@@ -131,6 +131,9 @@ Differentiation Variational Inference (ADVI) algorithm (for for details see
 
 ```{r}
 #| label: advi
+#| eval: false
+
+## in our tests, this algorithm has been the least stable so far.
 
 advi_args <- list(show_messages = FALSE,
                   show_exceptions = FALSE,
@@ -208,7 +211,7 @@ then makes a graph to compare them.
 
 bind_rows(
     mutate(summary(drm_nuts)$estimates, algo = "nuts"),
-    mutate(summary(drm_advi)$estimates, algo = "advi"),
+    ## mutate(summary(drm_advi)$estimates, algo = "advi"),
     mutate(summary(drm_path)$estimates, algo = "path"),
     mutate(summary(drm_lapl)$estimates, algo = "lapl")
 ) |>
@@ -226,8 +229,8 @@ uncertainty around the parameter estimates. We can also look at the estimated
 relationship between environment and recruitment for each of those methods:
 ```{r}
 #| label: envrec
-#| layout-ncol: 2
-#| layout-nrow: 2
+#| layout-ncol: 3
+#| layout-nrow: 1
 
 effects_drm(drm_nuts, "rec", "c_stemp") |>
   plot() +
@@ -237,9 +240,9 @@ effects_drm(drm_path, "rec", "c_stemp") |>
   plot() +
   labs(title = "path")
 
-effects_drm(drm_advi, "rec", "c_stemp") |>
-  plot() +
-  labs(title = "advi")
+## effects_drm(drm_advi, "rec", "c_stemp") |>
+##   plot() +
+##   labs(title = "advi")
 
 effects_drm(drm_lapl, "rec", "c_stemp") |>
   plot() +

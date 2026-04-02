@@ -1,3 +1,21 @@
+/**
+ * @title Forecast theoretical mean according to the simplest model possible
+ *
+ * @description
+ * 
+ * @param n_patches number of patches
+ * @param n_time number of years of training data
+ * @param n_ages number of age classes
+ * @param f_a_t fishing mortality at age "a" and time "t"
+ * @param neg_mort minus natural mortality (instantaneous) rate
+ * @param init initialization (currently with recruitment)
+ * @param lambda_past a n_ages by n_patches matrix containing the expected
+ * density at the last training year.
+ * @param f_past a n_ages by n_time_train matrix
+ * @param neg_mort_past a n_patches vector
+ * 
+ * @return an array of numbers by age, year and patch
+ */
 array[] matrix forecast_simplest(int n_patches,
                                  int n_time,
                                  int n_ages,
@@ -30,4 +48,67 @@ array[] matrix forecast_simplest(int n_patches,
     }
   }
   return exp(output);
+}
+
+/**
+ * @title Forecast theoretical mean according to the simplest model possible with movement
+ *
+ * @description Mechanistic version
+ * 
+ * @param n_patches number of patches
+ * @param n_time number of years of training data
+ * @param n_ages number of age classes
+ * @param f_a_t fishing mortality at age "a" and time "t"
+ * @param neg_mort minus natural mortality (instantaneous) rate
+ * @param recruitment a n_time by n_patches matrix;
+ * @param lambda_past a n_ages by n_patches matrix containing the expected
+ * density at the last training year.
+ * @param f_past a n_ages by n_time_train matrix
+ * @param neg_mort_past a n_patches vector
+ * @param M movement matrix
+ * @param mov_age ages at which movement starts
+ * 
+ * @return an array of numbers by age, year and patch
+ */
+array[] matrix forecast_simplest_movement(int n_patches,
+                                          int n_time,
+                                          int n_ages,
+                                          matrix f_a_t,
+                                          matrix neg_mort,
+                                          matrix recruitment,
+                                          matrix lambda_past,
+                                          matrix f_past,
+                                          vector neg_mort_past,
+                                          matrix M,
+                                          array[] int mov_age) {
+  // initializing output with zeros
+  array[n_ages] matrix[n_time, n_patches] output
+    = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
+  int past_last_time = cols(f_past);
+  
+  for (i in 1 : n_time) {
+    // Recruitment
+    output[1, i] = exp(recruitment[i]);
+    
+    for (a in 2 : n_ages) {
+      row_vector[n_patches] lambda_prev;
+      row_vector[n_patches] surv;
+      if (i == 1) {
+        lambda_prev = lambda_past[a - 1];
+        surv = exp(to_row_vector(neg_mort_past) - f_past[a - 1, past_last_time]);
+      } else {
+        lambda_prev = output[a - 1, i - 1];
+        surv = exp(neg_mort[i - 1] - f_a_t[a - 1, i - 1]);
+      }
+      
+      row_vector[n_patches] lambda_surv = lambda_prev .* surv;
+      
+      if (mov_age[a]) {
+        output[a, i] = lambda_surv * M';
+      } else {
+        output[a, i] = lambda_surv;
+      }
+    }
+  }
+  return output;
 }

@@ -46,8 +46,18 @@ transformed data {
   if (!est_surv)
     fixed_m = rep_matrix(- m[1], n_time, n_sites);
   matrix[movement ? n_sites : 0, movement ? n_sites : 0] identity_mat;
-  if (movement)
+  matrix[movement ? n_sites : 0, movement ? n_sites : 0] adj_mat_std;
+  if (movement) {
     identity_mat = identity_matrix(n_sites);
+    for (i in 1:n_sites) {
+      real row_s = sum(adj_mat[i]);
+      if (row_s > 0) {
+        adj_mat_std[i] = adj_mat[i] / row_s;
+      } else {
+        adj_mat_std[i] = adj_mat[i];
+      }
+    }
+  }
   array[proj] int N_proj;
   if (proj)
     N_proj[1] = n_proj[1] * n_sites;
@@ -100,14 +110,32 @@ generated quantities {
     } else {
       mortality = fixed_m;
     }
+    
     // filling lambda according to our "simplest model"
-    lambda =
-      simplest(n_sites, n_time, n_ages,
-               f,
-               mortality,
-               est_init ? init_par : init_data,
-               to_matrix(log_rec, n_time, n_sites),
-               minit);
+    if (movement) {
+      matrix[n_sites, n_sites] mov_mat;
+      real d = (1 - zeta[1]);
+      mov_mat = zeta[1] * identity_mat;
+      mov_mat += d * adj_mat_std;
+      lambda =
+        simplest_movement(n_sites, n_time, n_ages,
+                          f,
+                          mortality,
+                          est_init ? init_par : init_data,
+                          to_matrix(log_rec, n_time, n_sites),
+                          minit,
+                          mov_mat,
+                          ages_movement);
+    } else {
+      lambda =
+        simplest(n_sites, n_time, n_ages,
+                 f,
+                 mortality,
+                 est_init ? init_par : init_data,
+                 to_matrix(log_rec, n_time, n_sites),
+                 minit);
+    }
+    
     if (proj) {
       vector[ar_re > 0 ? n_proj[1] : 0] z_tp;
       if (ar_re > 0) {
@@ -164,29 +192,38 @@ generated quantities {
       for (a in 1:n_ages) {
         lambda_last[a] = lambda[a, n_time]; 
       }
-      lambda_proj = forecast_simplest(n_sites,
-                                      n_proj[1],
-                                      n_ages,
-                                      f_proj,
-                                      current_m,
-                                      to_matrix(log_rec_proj,
-                                                n_proj[1],
-                                                n_sites),
-                                      lambda_last,
-                                      f,
-                                      past_m);
+      
+      if (movement) {
+        matrix[n_sites, n_sites] mov_mat;
+        real d = (1 - zeta[1]);
+        mov_mat = zeta[1] * identity_mat;
+        mov_mat += d * adj_mat_std;
+        lambda_proj = forecast_simplest_movement(n_sites,
+                                                 n_proj[1],
+                                                 n_ages,
+                                                 f_proj,
+                                                 current_m,
+                                                 to_matrix(log_rec_proj,
+                                                           n_proj[1],
+                                                           n_sites),
+                                                 lambda_last,
+                                                 f,
+                                                 past_m,
+                                                 mov_mat,
+                                                 ages_movement);
+      } else {
+        lambda_proj = forecast_simplest(n_sites,
+                                        n_proj[1],
+                                        n_ages,
+                                        f_proj,
+                                        current_m,
+                                        to_matrix(log_rec_proj,
+                                                  n_proj[1],
+                                                  n_sites),
+                                        lambda_last,
+                                        f,
+                                        past_m);
+      }
     }
-  }
-  //--- Movement ----
-  if (movement) {
-    matrix[movement ? n_sites : 0, movement ? n_sites : 0] mov_mat;
-    real d = (1 - zeta[1]);
-    mov_mat = zeta[1] * identity_mat;
-    mov_mat += d * adj_mat;
-    lambda =
-      apply_movement(lambda, mov_mat, ages_movement);
-    if (proj)
-      lambda_proj =
-        apply_movement(lambda_proj, mov_mat, ages_movement);
   }
 }

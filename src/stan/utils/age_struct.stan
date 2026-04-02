@@ -57,6 +57,97 @@ array[] matrix simplest(int n_patches,
   }
   return exp(output);
 }
+
+/**
+ * @title Applying movement
+ *
+ * @description
+ * 
+ * @param lambda array of number of individuals per age, time, and patch
+ * @param M movement matrix
+ * @param mov_age ages at which movement starts (this can be generalized)
+ * 
+ * @return an array of numbers by age, year and patch
+ */
+array[] matrix apply_movement(array[] matrix lambda, matrix M,
+                              array[] int mov_age) {
+  int n_ages = size(lambda);
+  array[n_ages] matrix[rows(lambda[1]), cols(lambda[1])] output = lambda;
+  for (a in 1:n_ages) {
+    if (mov_age[a]) {
+      output[a] = lambda[a] * M';
+    }
+  }
+  return output;
+}
+
+/**
+ * @title Generate theoretical mean according to the simplest model possible with movement
+ *
+ * @description This version includes mechanistic movement.
+ * 
+ * @param n_patches number of patches
+ * @param n_time number of years of training data
+ * @param n_ages number of age classes
+ * @param f_a_t fishing mortality at age "a" and time "t"
+ * @param neg_mort minus natural mortality (instantaneous) rate
+ * @param init a n_ages - 1 array.
+ * @param recruitment a n_time by n_patches matrix;
+ * @param minit 1 if mortality is stable at the beginning
+ * @param M movement matrix
+ * @param mov_age ages at which movement starts
+ * 
+ * @return an array of numbers by age, year and patch
+ */
+array[] matrix simplest_movement(int n_patches,
+                                 int n_time,
+                                 int n_ages,
+                                 matrix f_a_t,
+                                 matrix neg_mort,
+                                 array[] real init,
+                                 matrix recruitment,
+                                 int minit,
+                                 matrix M,
+                                 array[] int mov_age) {
+  array[n_ages] matrix[n_time, n_patches] output
+    = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
+    
+  // Time t=1
+  output[1, 1] = exp(recruitment[1]);
+  if (minit) {
+    for (p in 1:n_patches) {
+      for (a in 2:n_ages) {
+        output[a, 1, p] = output[a - 1, 1, p] *
+          exp(neg_mort[2, p] - f_a_t[a - 1, 2]);
+      }
+    }
+  } else {
+    for (a in 1 : (n_ages - 1)) {
+      output[a + 1, 1] = rep_row_vector(exp(init[a]), n_patches);
+    }
+  }
+  
+  for (i in 2 : n_time) {
+    // Recruitment at time i
+    output[1, i] = exp(recruitment[i]);
+    
+    // Survival and Movement from time i-1 to i
+    for (a in 2 : n_ages) {
+      // Survival first (at each patch)
+      row_vector[n_patches] surv = exp(neg_mort[i - 1] - f_a_t[a - 1, i - 1]);
+      row_vector[n_patches] lambda_surv = output[a - 1, i - 1] .* surv;
+      
+      if (mov_age[a]) {
+        // Mechanistic movement: survivors move
+        output[a, i] = lambda_surv * M';
+      } else {
+        output[a, i] = lambda_surv;
+      }
+    }
+  }
+  return output;
+}
+
 /**
  * @title Generate theoretical mean according to a Ricker model
  *
@@ -106,52 +197,3 @@ array[] matrix simplest(int n_patches,
 //   }
 //   return exp(output);
 // }
-
-/**
- * @title Adding process error
- *
- * @description
- * 
- * @param lrec log recruitment for each site
- * @param z "process error"
- * 
- * @return an array of numbers by age, year and patch
- */
-matrix add_pe(vector lrec, vector z) {
-  array[3] int dimensions;
-  int nt = num_elements(z);
-  int np = num_elements(lrec) %/% nt; // %/% is integer division!
-  matrix[nt, np] output = to_matrix(lrec, nt, np);
-  for (p in 1:np) {
-    output[, p] += z;
-  }
-  return output;
-}
-
-/**
- * @title Applying movement
- *
- * @description
- * 
- * @param lambda array of number of individuals per age, time, and patch
- * @param M movement matrix
- * @param mov_age ages at which movement starts (this can be generalized)
- * 
- * @return an array of numbers by age, year and patch
- */
-array[] matrix apply_movement(array[] matrix lambda, matrix M,
-                              array[] int mov_age) {
-  array[3] int dimensions;
-  dimensions = dims(lambda);
-  array[dimensions[1]] matrix[dimensions[2], dimensions[3]] output;
-  output = lambda;
-  for (a in 1:dimensions[1]) {
-    if (mov_age[a]) {
-      for (time in 1:dimensions[2]) {
-        output[a, time, 1:dimensions[3]] =
-          lambda[a, time, 1:dimensions[3]] * M';
-      }
-    }
-  }
-  return output;
-}
