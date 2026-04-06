@@ -4,9 +4,8 @@
   smoothing the densities, and movement was not influencing the population
   dynamics.
 
-- Minor bug on the movement routine was corrected. The previous version was only
-  smoothing the densities, and movement was not influencing the population
-  dynamics.
+- Speeding up movement through `Stan`'s [sparse matrix
+  operations](https://mc-stan.org/docs/functions-reference/sparse_matrix_operations.html).
 
 # drmr 1.0.0
 
