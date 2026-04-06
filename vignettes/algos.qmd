@@ -141,28 +141,9 @@ advi_args <- list(show_messages = FALSE,
                   draws = 4000) ## number of samples from the posterior
 
 drm_advi <-
-  fit_drm(.data = sum_fl,
-          y_col = "dens", ## response variable: density
-          time_col = "year", ## vector of time points
-          site_col = "patch",
-          family = "gamma",
-          seed = 2026,
-          formula_zero = ~ 1 + c_hauls,
-          formula_rec = ~ 1 + c_stemp + I(c_stemp * c_stemp),
-          formula_surv = ~ 1,
-          f_mort = fmat[, -1],
-          n_ages = NROW(fmat),
-          adj_mat = adj_mat, ## A matrix for movement routine
-          ages_movement = c(0, 0,
-                            rep(1, 12),
-                            0, 0), ## ages allowed to move
-          .toggles = list(ar_re = "rec",
-                          movement = 1,
-                          est_surv = 1,
-                          est_init = 0,
-                          minit = 1),
-          algo_args = advi_args,
-          algorithm = "vb") ## vb stands for variational Bayes
+  update(drm_nuts,
+         algo_args = advi_args,
+         algorithm = "vb") ## vb stands for variational Bayes
 ```
 
 
@@ -182,7 +163,7 @@ path_args <- list(show_messages = FALSE,
                   max_lbfgs_iters = 10^4)
 
 drm_path <-
-  update(drm_advi,
+  update(drm_nuts,
          algo_args = path_args,
          algorithm = "pathfinder")
 ```
@@ -198,7 +179,7 @@ lapl_args <- list(show_messages = FALSE,
                   show_exceptions = FALSE)
 
 drm_lapl <-
-  update(drm_path,
+  update(drm_nuts,
          algo_args = lapl_args,
          algorithm = "laplace")
 ```

@@ -33,6 +33,7 @@ document.
 
 ```{r}
 #| label: setup
+#| results: hide
 
 library(drmr)
 library(sf) ## "mapping"
@@ -399,13 +400,13 @@ the `fitted` and `summary` methods to achieve that goal.
 
 fitted_rec <- fitted(drm_rec) |>
   summary() |>
-  mutate(model = "rec", .before = 1) ## creating a column that identifies the ##
-                                     ## model
+  ## creating a column that identifies the model
+  mutate(model = "rec", .before = 1) 
 
 fitted_srv <- fitted(drm_srv) |>
   summary() |>
-  mutate(model = "srv", .before = 1) ## creating a column that identifies the
-                                     ## model
+  ## creating a column that identifies the model
+  mutate(model = "srv", .before = 1) 
 ```
 
 The out-of-sample predictions are obtained just as easily:
@@ -419,8 +420,8 @@ predicted_rec <- predict(drm_rec,
                          seed = 2026,
                          f_test = f_test) |>
   summary() |>
-  mutate(model = "rec", .before = 1) ## creating a column that identifies the ##
-                                     ## model
+   ## creating a column that identifies the model 
+  mutate(model = "rec", .before = 1)
 
 predicted_srv <- predict(drm_srv,
                          new_data = dat_test,
@@ -429,8 +430,8 @@ predicted_srv <- predict(drm_srv,
                          seed = 2026,
                          f_test = f_test) |>
   summary() |>
-  mutate(model = "srv", .before = 1) ## creating a column that identifies the
-                                     ## model
+  ## creating a column that identifies the model
+  mutate(model = "srv", .before = 1) 
 ```
 
 
