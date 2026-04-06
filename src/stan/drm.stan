@@ -38,6 +38,7 @@ data {
   array[est_surv ? 0 : 1] real m; // total mortality
   //--- movement related quantities ----
   matrix[movement ? n_sites: 1, movement ? n_sites : 1] adj_mat;
+  int<lower = 0> n_edges_adj;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
   //--- initial cohort (if not estimated) ----
@@ -81,12 +82,11 @@ data {
 }
 transformed data {
   //--- Movement ----
-  // `identity_mat` is a "site X site" identity matrix used to apply the
-  // "reflexive" movement.
-  matrix[movement ? n_sites : 0, movement ? n_sites : 0] identity_mat;
+  vector[movement ? n_edges_adj : 0] w_adj;
+  array[movement ? n_edges_adj : 0] int v_adj;
+  array[movement ? n_sites + 1 : 0] int u_adj;
   matrix[movement ? n_sites : 0, movement ? n_sites : 0] adj_mat_std;
   if (movement) {
-    identity_mat = identity_matrix(n_sites);
     for (i in 1:n_sites) {
       real row_s = sum(adj_mat[i]);
       if (row_s > 0) {
@@ -95,6 +95,9 @@ transformed data {
         adj_mat_std[i] = adj_mat[i];
       }
     }
+    w_adj = csr_extract_w(adj_mat_std);
+    v_adj = csr_extract_v(adj_mat_std);
+    u_adj = csr_extract_u(adj_mat_std);
   }
   //--- Mortality ----
   // `fixed_m` is a "time X site" constant matrix. All of its positions are
@@ -203,14 +206,6 @@ transformed parameters {
     array[n_ages] matrix[n_time, n_sites] lambda_aux;
     if (movement) {
       // probability of staying in the current site
-      // movement matrix
-      matrix[n_sites, n_sites] mov_mat;
-      // probability of movement is evenly distributed across neighbors
-      real d = (1 - zeta[1]);
-      mov_mat = zeta[1] * identity_mat;
-      // It is super important that the adj_mat is setup correctly. Note that,
-      // this matrix is "row standardized". That is, its rows add up to 1.
-      mov_mat += d * adj_mat_std;
       lambda_aux =
         simplest_movement(n_sites, n_time, n_ages,
                           f,
@@ -218,7 +213,7 @@ transformed parameters {
                           est_init ? init_par : init_data,
                           to_matrix(log_rec, n_time, n_sites),
                           minit,
-                          mov_mat,
+                          zeta[1], w_adj, v_adj, u_adj,
                           ages_movement);
     } else {
       // filling lambda according to our "simplest model"

@@ -261,6 +261,7 @@ make_data <- function(y,
                  neighbors = neighbors,
                  N_edges = N_edges,
                  adj_mat = adj_mat,
+                 n_edges_adj = sum(adj_mat != 0),
                  ages_movement = ages_movement,
                  selectivity_at_age = selectivity_at_age) |>
     c(zeros,

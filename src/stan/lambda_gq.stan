@@ -24,6 +24,7 @@ data {
   array[est_surv ? 0 : 1] real m; // total mortality
   //--- movement related quantities ----
   matrix[movement ? n_sites: 1, movement ? n_sites : 1] adj_mat;
+  int<lower = 0> n_edges_adj;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
   //--- initial cohort (if not estimated) ----
@@ -45,10 +46,11 @@ transformed data {
   matrix[est_surv ? 0 : n_time, est_surv ? 0 : n_sites] fixed_m;
   if (!est_surv)
     fixed_m = rep_matrix(- m[1], n_time, n_sites);
-  matrix[movement ? n_sites : 0, movement ? n_sites : 0] identity_mat;
+  vector[movement ? n_edges_adj : 0] w_adj;
+  array[movement ? n_edges_adj : 0] int v_adj;
+  array[movement ? n_sites + 1 : 0] int u_adj;
   matrix[movement ? n_sites : 0, movement ? n_sites : 0] adj_mat_std;
   if (movement) {
-    identity_mat = identity_matrix(n_sites);
     for (i in 1:n_sites) {
       real row_s = sum(adj_mat[i]);
       if (row_s > 0) {
@@ -57,6 +59,9 @@ transformed data {
         adj_mat_std[i] = adj_mat[i];
       }
     }
+    w_adj = csr_extract_w(adj_mat_std);
+    v_adj = csr_extract_v(adj_mat_std);
+    u_adj = csr_extract_u(adj_mat_std);
   }
   array[proj] int N_proj;
   if (proj)
@@ -113,10 +118,6 @@ generated quantities {
     
     // filling lambda according to our "simplest model"
     if (movement) {
-      matrix[n_sites, n_sites] mov_mat;
-      real d = (1 - zeta[1]);
-      mov_mat = zeta[1] * identity_mat;
-      mov_mat += d * adj_mat_std;
       lambda =
         simplest_movement(n_sites, n_time, n_ages,
                           f,
@@ -124,7 +125,7 @@ generated quantities {
                           est_init ? init_par : init_data,
                           to_matrix(log_rec, n_time, n_sites),
                           minit,
-                          mov_mat,
+                          zeta[1], w_adj, v_adj, u_adj,
                           ages_movement);
     } else {
       lambda =
@@ -194,10 +195,6 @@ generated quantities {
       }
       
       if (movement) {
-        matrix[n_sites, n_sites] mov_mat;
-        real d = (1 - zeta[1]);
-        mov_mat = zeta[1] * identity_mat;
-        mov_mat += d * adj_mat_std;
         lambda_proj = forecast_simplest_movement(n_sites,
                                                  n_proj[1],
                                                  n_ages,
@@ -209,7 +206,7 @@ generated quantities {
                                                  lambda_last,
                                                  f,
                                                  past_m,
-                                                 mov_mat,
+                                                 zeta[1], w_adj, v_adj, u_adj,
                                                  ages_movement);
       } else {
         lambda_proj = forecast_simplest(n_sites,

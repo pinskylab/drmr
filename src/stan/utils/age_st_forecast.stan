@@ -65,7 +65,10 @@ array[] matrix forecast_simplest(int n_patches,
  * density at the last training year.
  * @param f_past a n_ages by n_time_train matrix
  * @param neg_mort_past a n_patches vector
- * @param M movement matrix
+ * @param zeta probability of staying in the current site
+ * @param w_adj sparse CSR vector of non-zero entries of adjacency matrix
+ * @param v_adj sparse CSR array of column indices
+ * @param u_adj sparse CSR array of row starting indices
  * @param mov_age ages at which movement starts
  * 
  * @return an array of numbers by age, year and patch
@@ -79,7 +82,10 @@ array[] matrix forecast_simplest_movement(int n_patches,
                                           matrix lambda_past,
                                           matrix f_past,
                                           vector neg_mort_past,
-                                          matrix M,
+                                          real zeta,
+                                          vector w_adj,
+                                          array[] int v_adj,
+                                          array[] int u_adj,
                                           array[] int mov_age) {
   // initializing output with zeros
   array[n_ages] matrix[n_time, n_patches] output
@@ -104,7 +110,8 @@ array[] matrix forecast_simplest_movement(int n_patches,
       row_vector[n_patches] lambda_surv = lambda_prev .* surv;
       
       if (mov_age[a]) {
-        output[a, i] = lambda_surv * M';
+        vector[n_patches] adj_x = csr_matrix_times_vector(n_patches, n_patches, w_adj, v_adj, u_adj, lambda_surv');
+        output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
       } else {
         output[a, i] = lambda_surv;
       }

@@ -4,6 +4,10 @@
   smoothing the densities, and movement was not influencing the population
   dynamics.
 
+- Minor bug on the movement routine was corrected. The previous version was only
+  smoothing the densities, and movement was not influencing the population
+  dynamics.
+
 # drmr 1.0.0
 
 * `ages_edens` now supports a `new_data` argument which allows for estimating

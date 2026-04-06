@@ -94,7 +94,10 @@ array[] matrix apply_movement(array[] matrix lambda, matrix M,
  * @param init a n_ages - 1 array.
  * @param recruitment a n_time by n_patches matrix;
  * @param minit 1 if mortality is stable at the beginning
- * @param M movement matrix
+ * @param zeta probability of staying in the current site
+ * @param w_adj sparse CSR vector of non-zero entries of adjacency matrix
+ * @param v_adj sparse CSR array of column indices
+ * @param u_adj sparse CSR array of row starting indices
  * @param mov_age ages at which movement starts
  * 
  * @return an array of numbers by age, year and patch
@@ -107,7 +110,10 @@ array[] matrix simplest_movement(int n_patches,
                                  array[] real init,
                                  matrix recruitment,
                                  int minit,
-                                 matrix M,
+                                 real zeta,
+                                 vector w_adj,
+                                 array[] int v_adj,
+                                 array[] int u_adj,
                                  array[] int mov_age) {
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
@@ -139,7 +145,8 @@ array[] matrix simplest_movement(int n_patches,
       
       if (mov_age[a]) {
         // Mechanistic movement: survivors move
-        output[a, i] = lambda_surv * M';
+        vector[n_patches] adj_x = csr_matrix_times_vector(n_patches, n_patches, w_adj, v_adj, u_adj, lambda_surv');
+        output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
       } else {
         output[a, i] = lambda_surv;
       }
