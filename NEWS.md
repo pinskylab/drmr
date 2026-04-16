@@ -1,3 +1,7 @@
+# drmr 1.0.2
+
+- Minor bug in the `log_lik` function was corrected.
+
 # drmr 1.0.1
 
 - Minor bug on the movement routine was corrected. The previous version was only

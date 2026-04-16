@@ -39,7 +39,6 @@ generated quantities {
     if (rho_mu)
       xi = - exp(lxi);
     vector[N] rho;
-    // rho now hasa "regression like" type
     if (cloglog) {
       if (rho_mu) {
         rho =
@@ -58,13 +57,17 @@ generated quantities {
       }
     }
     for (n in 1:N) {
-      int is_zero = 0;
-      if (y[n] == 0) {
-        is_zero += 1;
+      if (y[n] <= 0) {
+        log_lik[n] = ptziloglik_lpdf(0 |
+                                     likelihood, 1,
+                                     mu[n], rho[n],
+                                     likelihood == 0 ? sigma_obs[1] : phi[1]);
+      } else {
+        log_lik[n] = ptziloglik_lpdf(y[n] |
+                                     likelihood, 0,
+                                     mu[n], rho[n],
+                                     likelihood == 0 ? sigma_obs[1] : phi[1]);
       }
-      log_lik[n] = ptziloglik_lpdf(y[n] | likelihood, is_zero,
-                                   mu[n], rho[n],
-                                   likelihood == 0 ? sigma_obs[1] : phi[1]);
     }
   }
 }
