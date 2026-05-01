@@ -37,7 +37,7 @@ data {
   //--- fish population data ----
   matrix[n_ages, n_time] f;
   array[est_surv ? 0 : 1] real m; // total mortality
-  vector[n_ages] mat;
+  vector[n_ages] amat;
   vector[n_ages] weight;
   //--- movement related quantities ----
   matrix[movement ? n_sites: 1, movement ? n_sites : 1] adj_mat;
@@ -82,8 +82,8 @@ data {
   vector[est_surv ? K_m[1] : 0] pr_beta_s_sd;
   vector[K_r] pr_beta_r_mu;
   vector[K_r] pr_beta_r_sd;
-  real pr_beta_mu;
-  real pr_beta_sd;
+  real pr_kappa_mu;
+  real pr_kappa_sd;
 }
 transformed data {
   //--- Movement ----
@@ -123,7 +123,7 @@ parameters {
   // coefficients for recruitment (it is a log-linear model)
   vector[K_r] beta_r;
   // parameter associated with "density dependence"
-  array[rec_dd < 2 ? 1 : 0] real<lower = 0> beta;
+  array[rec_dd < 2 ? 1 : 0] real<lower = 0> kappa;
   // parameter associated with "encounter probability"
   vector[K_t] beta_t;
   // coefficients for mortality/survival (it is a log-linear model)
@@ -219,8 +219,8 @@ transformed parameters {
                               est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
                               est_init ? init_par : init_data,
                               to_matrix(log_rec, n_time, n_sites),
-                              mat, weight,
-                              beta[1], rec_dd,
+                              amat, weight,
+                              kappa[1], rec_dd,
                               zeta[1], w_adj, v_adj, u_adj,
                               ages_movement);
       } else {
@@ -230,8 +230,8 @@ transformed parameters {
                      est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
                      est_init ? init_par : init_data,
                      to_matrix(log_rec, n_time, n_sites),
-                     mat, weight,
-                     beta[1], rec_dd);
+                     amat, weight,
+                     kappa[1], rec_dd);
       }
     } else {
       if (movement) {
@@ -338,8 +338,8 @@ model {
   }
   //--- Density-dependence ----
   if (rec_dd < 2) {
-    target += normal_lpdf(beta[1] | pr_beta_mu, pr_beta_sd) -
-      1.0 * normal_lccdf(0 | pr_beta_mu, pr_beta_sd);
+    target += normal_lpdf(kappa[1] | pr_kappa_mu, pr_kappa_sd) -
+      1.0 * normal_lccdf(0 | pr_kappa_mu, pr_kappa_sd);
   }
   //--- Mortality ----
   if (est_surv)

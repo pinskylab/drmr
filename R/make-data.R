@@ -35,7 +35,7 @@
 ##' @param adj_mat an adjacency \code{matrix} of dimensions \code{sites}
 ##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
 ##'   and zero otherwise.
-##' @param mat a \code{numeric vector} of length \code{n_ages} specifying the
+##' @param amat a \code{numeric vector} of length \code{n_ages} specifying the
 ##'   maturity-at-age.
 ##' @param weight a \code{numeric vector} of length \code{n_ages} specifying the
 ##'   weight-at-age.
@@ -89,7 +89,7 @@ make_data <- function(y,
                       age_selectivity,
                       ages_movement,
                       adj_mat = matrix(0, ncol = 1, nrow = 1),
-                      mat = NULL,
+                      amat = NULL,
                       weight = NULL,
                       .toggles,
                       .priors,
@@ -147,8 +147,8 @@ make_data <- function(y,
     stopifnot(length(age_selectivity) == n_ages)
     selectivity_at_age <- age_selectivity
   }
-  if (is.null(mat))
-    mat <- rep(1, n_ages)
+  if (is.null(amat))
+    amat <- rep(1, n_ages)
   if (is.null(weight))
     weight <- rep(1, n_ages)
   if (toggles$movement) {
@@ -275,7 +275,7 @@ make_data <- function(y,
                  n_edges_adj = sum(adj_mat != 0),
                  ages_movement = ages_movement,
                  selectivity_at_age = selectivity_at_age,
-                 mat = mat,
+                 amat = amat,
                  weight = weight) |>
     c(zeros,
       toggles,

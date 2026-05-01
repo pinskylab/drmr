@@ -37,7 +37,7 @@ data {
   int<lower = 0> n_edges_adj;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
-  vector[n_ages] mat;
+  vector[n_ages] amat;
   vector[n_ages] weight;
   //--- environmental data ----
   //--- * for mortality ----
@@ -81,7 +81,7 @@ parameters {
   //--- movement ----
   array[movement] real zeta;
   //--- density-dependence ---
-  array[rec_dd < 2 ? 1 : 0] real beta;
+  array[rec_dd < 2 ? 1 : 0] real kappa;
   //--- reg for mortality ---
   array[est_surv] vector[est_surv ? K_m[1] : 0] beta_s;
   //--- parameters from AR process ----
@@ -171,8 +171,8 @@ generated quantities {
                                        lambda,
                                        f_past,
                                        past_m,
-                                       mat, weight,
-                                       beta[1], rec_dd,
+                                       amat, weight,
+                                       kappa[1], rec_dd,
                                        zeta[1], w_adj, v_adj, u_adj,
                                        ages_movement);
       } else {
@@ -205,8 +205,8 @@ generated quantities {
                               lambda,
                               f_past,
                               past_m,
-                              mat, weight,
-                              beta[1], rec_dd);
+                              amat, weight,
+                              kappa[1], rec_dd);
       } else {
         lambda_proj = forecast_simplest(n_sites,
                                         n_time,

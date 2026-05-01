@@ -28,7 +28,7 @@ data {
   int<lower = 0> n_edges_adj;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
-  vector[n_ages] mat;
+  vector[n_ages] amat;
   vector[n_ages] weight;
   //--- initial cohort (if not estimated) ----
   array[est_init ? 0 : n_ages - 1] real init_data;
@@ -84,7 +84,7 @@ parameters {
   //--- * movement ----
   array[movement] real<lower = 0, upper = 1> zeta;
   //--- * density-dependence ----
-  array[rec_dd < 2 ? 1 : 0] real beta;
+  array[rec_dd < 2 ? 1 : 0] real kappa;
   //--- * initialization parameter ----
   array[est_init ? n_ages - 1 : 0] real log_init;
 }
@@ -130,8 +130,8 @@ generated quantities {
                               mortality,
                               est_init ? init_par : init_data,
                               to_matrix(log_rec, n_time, n_sites),
-                              mat, weight,
-                              beta[1], rec_dd,
+                              amat, weight,
+                              kappa[1], rec_dd,
                               zeta[1], w_adj, v_adj, u_adj,
                               ages_movement);
       } else {
@@ -141,8 +141,8 @@ generated quantities {
                      mortality,
                      est_init ? init_par : init_data,
                      to_matrix(log_rec, n_time, n_sites),
-                     mat, weight,
-                     beta[1], rec_dd);
+                     amat, weight,
+                     kappa[1], rec_dd);
       }
     } else {
       if (movement) {
@@ -236,8 +236,8 @@ generated quantities {
                                                    lambda_last,
                                                    f,
                                                    past_m,
-                                                   mat, weight,
-                                                   beta[1], rec_dd,
+                                                   amat, weight,
+                                                   kappa[1], rec_dd,
                                                    zeta[1], w_adj, v_adj, u_adj,
                                                    ages_movement);
         } else {
@@ -268,8 +268,8 @@ generated quantities {
                                           lambda_last,
                                           f,
                                           past_m,
-                                          mat, weight,
-                                          beta[1], rec_dd);
+                                          amat, weight,
+                                          kappa[1], rec_dd);
         } else {
           lambda_proj = forecast_simplest(n_sites,
                                           n_proj[1],

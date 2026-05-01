@@ -18,7 +18,7 @@ make_data(
   age_selectivity,
   ages_movement,
   adj_mat = matrix(0, ncol = 1, nrow = 1),
-  mat = NULL,
+  amat = NULL,
   weight = NULL,
   .toggles,
   .priors,
@@ -74,7 +74,7 @@ while 3 and 4 are mobile.}
 \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
 and zero otherwise.}
 
-\item{mat}{a \code{numeric vector} of length \code{n_ages} specifying the
+\item{amat}{a \code{numeric vector} of length \code{n_ages} specifying the
 maturity-at-age.}
 
 \item{weight}{a \code{numeric vector} of length \code{n_ages} specifying the

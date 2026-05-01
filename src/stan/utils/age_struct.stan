@@ -171,7 +171,7 @@ array[] matrix simplest_movement(int n_patches,
  * @param recruitment_env log-productivity (alpha) matrix [n_time, n_patches]
  * @param mat maturity-at-age vector [n_ages]
  * @param weight weight-at-age vector [n_ages]
- * @param beta density-dependence coefficient
+ * @param kappa density-dependence coefficient
  * @param rec_type 0 for Ricker, 1 for Beverton-Holt
  * 
  * @return an array of numbers by age, year and patch
@@ -185,7 +185,7 @@ array[] matrix pop_rec_dd(int n_patches,
                           matrix recruitment_env,
                           vector mat,
                           vector weight,
-                          real beta,
+                          real kappa,
                           int rec_type) {
   // Initializing output with zeros
   array[n_ages] matrix[n_time, n_patches] output
@@ -213,11 +213,11 @@ array[] matrix pop_rec_dd(int n_patches,
       if (ssb_prev > 1e-10) {
         real log_S = log(ssb_prev);
         if (rec_type == 0) {
-          // Ricker: R = alpha * S * exp(-beta * S)
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_prev);
+          // Ricker: R = alpha * S * exp(-kappa * S)
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - kappa * ssb_prev);
         } else {
-          // Beverton-Holt: R = (alpha * S) / (1 + beta * S)
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log1p(beta * ssb_prev));
+          // Beverton-Holt: R = (alpha * S) / (1 + kappa * S)
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(kappa + ssb_prev));
         }
       } else {
         output[1, i, p] = 0.0;
@@ -248,7 +248,7 @@ array[] matrix pop_rec_dd(int n_patches,
  * @param recruitment_env log-productivity (alpha) matrix [n_time, n_patches]
  * @param mat maturity-at-age vector [n_ages]
  * @param weight weight-at-age vector [n_ages]
- * @param beta density-dependence coefficient
+ * @param kappa density-dependence coefficient
  * @param rec_type 0 for Ricker, 1 for Beverton-Holt
  * @param zeta probability of staying in the current site
  * @param w_adj sparse CSR vector of non-zero entries of adjacency matrix
@@ -267,7 +267,7 @@ array[] matrix pop_rec_dd_movement(int n_patches,
                                    matrix recruitment_env,
                                    vector mat,
                                    vector weight,
-                                   real beta,
+                                   real kappa,
                                    int rec_type,
                                    real zeta,
                                    vector w_adj,
@@ -294,9 +294,9 @@ array[] matrix pop_rec_dd_movement(int n_patches,
       if (ssb_prev[p] > 1e-10) {
         real log_S = log(ssb_prev[p]);
         if (rec_type == 0) {
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_prev[p]);
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - kappa * ssb_prev[p]);
         } else {
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log1p(beta * ssb_prev[p]));
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(kappa + ssb_prev[p]));
         }
       } else {
         output[1, i, p] = 0.0;
