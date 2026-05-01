@@ -109,7 +109,7 @@ array[] matrix forecast_pop_rec_dd(int n_patches,
         if (rec_type == 0) {
           output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_prev[p]);
         } else {
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log1p(beta * ssb_prev[p]));
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(beta + ssb_prev[p]));
         }
       } else {
         output[1, i, p] = 0.0;
@@ -197,7 +197,7 @@ array[] matrix forecast_pop_rec_dd_movement(int n_patches,
         if (rec_type == 0) {
           output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_prev[p]);
         } else {
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log1p(beta * ssb_prev[p]));
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(beta + ssb_prev[p]));
         }
       } else {
         output[1, i, p] = 0.0;
@@ -289,7 +289,9 @@ array[] matrix forecast_simplest_movement(int n_patches,
       row_vector[n_patches] lambda_surv = lambda_prev .* surv;
       
       if (mov_age[a]) {
-        vector[n_patches] adj_x = csr_matrix_times_vector(n_patches, n_patches, w_adj, v_adj, u_adj, lambda_surv');
+        vector[n_patches] adj_x =
+          csr_matrix_times_vector(n_patches, n_patches, w_adj,
+                                  v_adj, u_adj, lambda_surv');
         output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
       } else {
         output[a, i] = lambda_surv;
