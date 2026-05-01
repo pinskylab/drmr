@@ -219,7 +219,9 @@ array[] matrix forecast_pop_rec_dd_movement(int n_patches,
       row_vector[n_patches] lambda_surv = lambda_prev .* surv;
       
       if (mov_age[a]) {
-        vector[n_patches] adj_x = csr_matrix_times_vector(n_patches, n_patches, w_adj, v_adj, u_adj, lambda_surv');
+        vector[n_patches] adj_x =
+          csr_matrix_times_vector(n_patches, n_patches, w_adj,
+                                  v_adj, u_adj, lambda_surv');
         output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
       } else {
         output[a, i] = lambda_surv;
