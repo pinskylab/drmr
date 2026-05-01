@@ -38,7 +38,7 @@ array[] matrix simplest(int n_patches,
     for (p in 1:n_patches) {
       for (a in 2:n_ages) {
         output[a, 1, p] = output[a - 1, 1, p] +
-          neg_mort[2, p] - f_a_t[a - 1, 2];
+          neg_mort[1, p] - f_a_t[a - 1, 1];
       }
     }
   } else {
@@ -124,7 +124,7 @@ array[] matrix simplest_movement(int n_patches,
     for (p in 1:n_patches) {
       for (a in 2:n_ages) {
         output[a, 1, p] = output[a - 1, 1, p] *
-          exp(neg_mort[2, p] - f_a_t[a - 1, 2]);
+          exp(neg_mort[1, p] - f_a_t[a - 1, 1]);
       }
     }
   } else {
@@ -145,7 +145,9 @@ array[] matrix simplest_movement(int n_patches,
       
       if (mov_age[a]) {
         // Mechanistic movement: survivors move
-        vector[n_patches] adj_x = csr_matrix_times_vector(n_patches, n_patches, w_adj, v_adj, u_adj, lambda_surv');
+        vector[n_patches] adj_x =
+          csr_matrix_times_vector(n_patches, n_patches, w_adj,
+                                  v_adj, u_adj, lambda_surv');
         output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
       } else {
         output[a, i] = lambda_surv;

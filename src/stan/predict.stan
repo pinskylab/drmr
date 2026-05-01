@@ -149,7 +149,7 @@ generated quantities {
           m_aux[n] += z_s[site[n]];
       }
       current_m = to_matrix(-log1p(exp(-m_aux)), n_time, n_sites);
-      past_m = -log1p(exp(X_m_past * beta_s[1]));
+      past_m = -log1p(exp(-X_m_past * beta_s[1]));
     }
     if (movement) {
       //--- movement matrix ---

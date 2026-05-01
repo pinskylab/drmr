@@ -1,6 +1,11 @@
-# drmr 1.0.2
+# drmr 1.1.0
+
+- inclusion of density dependence!
 
 - Minor bug in the `log_lik` function was corrected.
+
+- bug in the prediction function fixed.
+
 
 # drmr 1.0.1
 
