@@ -51,6 +51,185 @@ array[] matrix forecast_simplest(int n_patches,
 }
 
 /**
+ * @title Forecast theoretical mean according to a density-dependent recruitment model
+ *
+ * @description Mechanistic version with endogenous recruitment.
+ * 
+ * @param n_patches number of patches
+ * @param n_time number of years to forecast
+ * @param n_ages number of age classes
+ * @param f_a_t fishing mortality at age "a" and time "t"
+ * @param neg_mort minus natural mortality (instantaneous) rate
+ * @param recruitment_env log-productivity (alpha) matrix [n_time, n_patches]
+ * @param lambda_past a n_ages by n_patches matrix containing the expected
+ * density at the last training year.
+ * @param f_past a n_ages by n_time_train matrix
+ * @param neg_mort_past a n_patches vector
+ * @param mat maturity-at-age vector [n_ages]
+ * @param weight weight-at-age vector [n_ages]
+ * @param beta density-dependence coefficient
+ * @param rec_type 0 for Ricker, 1 for Beverton-Holt
+ * 
+ * @return an array of numbers by age, year and patch
+ */
+array[] matrix forecast_pop_rec_dd(int n_patches,
+                                   int n_time,
+                                   int n_ages,
+                                   matrix f_a_t,
+                                   matrix neg_mort,
+                                   matrix recruitment_env,
+                                   matrix lambda_past,
+                                   matrix f_past,
+                                   vector neg_mort_past,
+                                   vector mat,
+                                   vector weight,
+                                   real beta,
+                                   int rec_type) {
+  // initializing output with zeros
+  array[n_ages] matrix[n_time, n_patches] output
+    = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
+  int past_last_time = cols(f_past);
+
+  for (i in 1 : n_time) {
+    // 1. Endogenous Recruitment (happens locally in each patch)
+    row_vector[n_patches] ssb_prev = rep_row_vector(0.0, n_patches);
+    if (i == 1) {
+      for (a in 1 : n_ages) {
+        ssb_prev += lambda_past[a] .* (mat[a] * weight[a]);
+      }
+    } else {
+      for (a in 1 : n_ages) {
+        ssb_prev += output[a, i - 1] .* (mat[a] * weight[a]);
+      }
+    }
+    
+    for (p in 1 : n_patches) {
+      if (ssb_prev[p] > 1e-10) {
+        real log_S = log(ssb_prev[p]);
+        if (rec_type == 0) {
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_prev[p]);
+        } else {
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log1p(beta * ssb_prev[p]));
+        }
+      } else {
+        output[1, i, p] = 0.0;
+      }
+    }
+
+    // 2. Survival transition
+    for (a in 2 : n_ages) {
+      if (i == 1) {
+        output[a, i] = lambda_past[a - 1] .* exp(to_row_vector(neg_mort_past) - f_past[a - 1, past_last_time]);
+      } else {
+        output[a, i] = output[a - 1, i - 1] .* exp(neg_mort[i - 1] - f_a_t[a - 1, i - 1]);
+      }
+    }
+  }
+  return output;
+}
+
+/**
+ * @title Forecast theoretical mean according to a density-dependent recruitment model with movement
+ *
+ * @description Mechanistic version with endogenous recruitment and movement.
+ * 
+ * @param n_patches number of patches
+ * @param n_time number of years to forecast
+ * @param n_ages number of age classes
+ * @param f_a_t fishing mortality at age "a" and time "t"
+ * @param neg_mort minus natural mortality (instantaneous) rate
+ * @param recruitment_env log-productivity (alpha) matrix [n_time, n_patches]
+ * @param lambda_past a n_ages by n_patches matrix containing the expected
+ * density at the last training year.
+ * @param f_past a n_ages by n_time_train matrix
+ * @param neg_mort_past a n_patches vector
+ * @param mat maturity-at-age vector [n_ages]
+ * @param weight weight-at-age vector [n_ages]
+ * @param beta density-dependence coefficient
+ * @param rec_type 0 for Ricker, 1 for Beverton-Holt
+ * @param zeta probability of staying in the current site
+ * @param w_adj sparse CSR vector of non-zero entries of adjacency matrix
+ * @param v_adj sparse CSR array of column indices
+ * @param u_adj sparse CSR array of row starting indices
+ * @param mov_age ages at which movement starts
+ * 
+ * @return an array of numbers by age, year and patch
+ */
+array[] matrix forecast_pop_rec_dd_movement(int n_patches,
+                                            int n_time,
+                                            int n_ages,
+                                            matrix f_a_t,
+                                            matrix neg_mort,
+                                            matrix recruitment_env,
+                                            matrix lambda_past,
+                                            matrix f_past,
+                                            vector neg_mort_past,
+                                            vector mat,
+                                            vector weight,
+                                            real beta,
+                                            int rec_type,
+                                            real zeta,
+                                            vector w_adj,
+                                            array[] int v_adj,
+                                            array[] int u_adj,
+                                            array[] int mov_age) {
+  // initializing output with zeros
+  array[n_ages] matrix[n_time, n_patches] output
+    = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
+  int past_last_time = cols(f_past);
+  
+  for (i in 1 : n_time) {
+    // 1. Endogenous Recruitment (happens locally in each patch)
+    row_vector[n_patches] ssb_prev = rep_row_vector(0.0, n_patches);
+    if (i == 1) {
+      for (a in 1 : n_ages) {
+        ssb_prev += lambda_past[a] .* (mat[a] * weight[a]);
+      }
+    } else {
+      for (a in 1 : n_ages) {
+        ssb_prev += output[a, i - 1] .* (mat[a] * weight[a]);
+      }
+    }
+    
+    for (p in 1 : n_patches) {
+      if (ssb_prev[p] > 1e-10) {
+        real log_S = log(ssb_prev[p]);
+        if (rec_type == 0) {
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_prev[p]);
+        } else {
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log1p(beta * ssb_prev[p]));
+        }
+      } else {
+        output[1, i, p] = 0.0;
+      }
+    }
+    
+    // 2. Survival and Movement (transition from i-1 to i)
+    for (a in 2 : n_ages) {
+      row_vector[n_patches] lambda_prev;
+      row_vector[n_patches] surv;
+      if (i == 1) {
+        lambda_prev = lambda_past[a - 1];
+        surv = exp(to_row_vector(neg_mort_past) - f_past[a - 1, past_last_time]);
+      } else {
+        lambda_prev = output[a - 1, i - 1];
+        surv = exp(neg_mort[i - 1] - f_a_t[a - 1, i - 1]);
+      }
+      
+      row_vector[n_patches] lambda_surv = lambda_prev .* surv;
+      
+      if (mov_age[a]) {
+        vector[n_patches] adj_x = csr_matrix_times_vector(n_patches, n_patches, w_adj, v_adj, u_adj, lambda_surv');
+        output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
+      } else {
+        output[a, i] = lambda_surv;
+      }
+    }
+  }
+  return output;
+}
+
+/**
  * @title Forecast theoretical mean according to the simplest model possible with movement
  *
  * @description Mechanistic version

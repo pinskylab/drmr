@@ -27,15 +27,18 @@ data {
   int<lower = 0, upper = 1> minit;    // estimate "initial cohort" assuming
                                       // mortality is stable at the beginning of
                                       // the time series
+  int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic. 4 = truncated normal)
   //--- suitability (for rho) ----
   int<lower = 1> K_t;
   matrix[N, K_t] X_t;
-  //--- fish mortality data ----
+  //--- fish population data ----
   matrix[n_ages, n_time] f;
   array[est_surv ? 0 : 1] real m; // total mortality
+  vector[n_ages] mat;
+  vector[n_ages] weight;
   //--- movement related quantities ----
   matrix[movement ? n_sites: 1, movement ? n_sites : 1] adj_mat;
   int<lower = 0> n_edges_adj;
@@ -79,6 +82,8 @@ data {
   vector[est_surv ? K_m[1] : 0] pr_beta_s_sd;
   vector[K_r] pr_beta_r_mu;
   vector[K_r] pr_beta_r_sd;
+  real pr_beta_mu;
+  real pr_beta_sd;
 }
 transformed data {
   //--- Movement ----
@@ -117,6 +122,8 @@ parameters {
   array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
   // coefficients for recruitment (it is a log-linear model)
   vector[K_r] beta_r;
+  // parameter associated with "density dependence"
+  array[rec_dd < 2 ? 1 : 0] real<lower = 0> beta;
   // parameter associated with "encounter probability"
   vector[K_t] beta_t;
   // coefficients for mortality/survival (it is a log-linear model)
@@ -204,26 +211,50 @@ transformed parameters {
     }
     // expected density at specific time/site combinations by age
     array[n_ages] matrix[n_time, n_sites] lambda_aux;
-    if (movement) {
-      // probability of staying in the current site
-      lambda_aux =
-        simplest_movement(n_sites, n_time, n_ages,
-                          f,
-                          est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
-                          est_init ? init_par : init_data,
-                          to_matrix(log_rec, n_time, n_sites),
-                          minit,
-                          zeta[1], w_adj, v_adj, u_adj,
-                          ages_movement);
+    if (rec_dd < 2) {
+      if (movement) {
+        lambda_aux =
+          pop_rec_dd_movement(n_sites, n_time, n_ages,
+                              f,
+                              est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
+                              est_init ? init_par : init_data,
+                              to_matrix(log_rec, n_time, n_sites),
+                              mat, weight,
+                              beta[1], rec_dd,
+                              zeta[1], w_adj, v_adj, u_adj,
+                              ages_movement);
+      } else {
+        lambda_aux =
+          pop_rec_dd(n_sites, n_time, n_ages,
+                     f,
+                     est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
+                     est_init ? init_par : init_data,
+                     to_matrix(log_rec, n_time, n_sites),
+                     mat, weight,
+                     beta[1], rec_dd);
+      }
     } else {
-      // filling lambda according to our "simplest model"
-      lambda_aux =
-        simplest(n_sites, n_time, n_ages,
-                 f,
-                 est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
-                 est_init ? init_par : init_data,
-                 to_matrix(log_rec, n_time, n_sites),
-                 minit);
+      if (movement) {
+        // probability of staying in the current site
+        lambda_aux =
+          simplest_movement(n_sites, n_time, n_ages,
+                            f,
+                            est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
+                            est_init ? init_par : init_data,
+                            to_matrix(log_rec, n_time, n_sites),
+                            minit,
+                            zeta[1], w_adj, v_adj, u_adj,
+                            ages_movement);
+      } else {
+        // filling lambda according to our "simplest model"
+        lambda_aux =
+          simplest(n_sites, n_time, n_ages,
+                   f,
+                   est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
+                   est_init ? init_par : init_data,
+                   to_matrix(log_rec, n_time, n_sites),
+                   minit);
+      }
     }
     matrix[n_time, n_sites] mu_aux =
       rep_matrix(0.0, n_time, n_sites);
@@ -304,6 +335,11 @@ model {
   //--- Movement ----
   if (movement) {
     target += beta_lpdf(zeta | pr_zeta_a, pr_zeta_b);
+  }
+  //--- Density-dependence ----
+  if (rec_dd < 2) {
+    target += normal_lpdf(beta[1] | pr_beta_mu, pr_beta_sd) -
+      1.0 * normal_lccdf(0 | pr_beta_mu, pr_beta_sd);
   }
   //--- Mortality ----
   if (est_surv)

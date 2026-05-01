@@ -15,6 +15,7 @@ data {
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> est_init; // estimate "initial cohort"
   int<lower = 0, upper = 1> minit;
+  int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
   int<lower = 0, upper = 3> ar_re;
   int<lower = 0, upper = 3> iid_re;
   int<lower = 0, upper = 3> sp_re;
@@ -27,6 +28,8 @@ data {
   int<lower = 0> n_edges_adj;
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
+  vector[n_ages] mat;
+  vector[n_ages] weight;
   //--- initial cohort (if not estimated) ----
   array[est_init ? 0 : n_ages - 1] real init_data;
   //--- environmental data ----
@@ -80,6 +83,8 @@ parameters {
   array[est_surv] vector[est_surv ? K_m[1] : 0] beta_s;
   //--- * movement ----
   array[movement] real<lower = 0, upper = 1> zeta;
+  //--- * density-dependence ----
+  array[rec_dd < 2 ? 1 : 0] real beta;
   //--- * initialization parameter ----
   array[est_init ? n_ages - 1 : 0] real log_init;
 }
@@ -117,24 +122,48 @@ generated quantities {
     }
     
     // filling lambda according to our "simplest model"
-    if (movement) {
-      lambda =
-        simplest_movement(n_sites, n_time, n_ages,
-                          f,
-                          mortality,
-                          est_init ? init_par : init_data,
-                          to_matrix(log_rec, n_time, n_sites),
-                          minit,
-                          zeta[1], w_adj, v_adj, u_adj,
-                          ages_movement);
+    if (rec_dd < 2) {
+      if (movement) {
+        lambda =
+          pop_rec_dd_movement(n_sites, n_time, n_ages,
+                              f,
+                              mortality,
+                              est_init ? init_par : init_data,
+                              to_matrix(log_rec, n_time, n_sites),
+                              mat, weight,
+                              beta[1], rec_dd,
+                              zeta[1], w_adj, v_adj, u_adj,
+                              ages_movement);
+      } else {
+        lambda =
+          pop_rec_dd(n_sites, n_time, n_ages,
+                     f,
+                     mortality,
+                     est_init ? init_par : init_data,
+                     to_matrix(log_rec, n_time, n_sites),
+                     mat, weight,
+                     beta[1], rec_dd);
+      }
     } else {
-      lambda =
-        simplest(n_sites, n_time, n_ages,
-                 f,
-                 mortality,
-                 est_init ? init_par : init_data,
-                 to_matrix(log_rec, n_time, n_sites),
-                 minit);
+      if (movement) {
+        lambda =
+          simplest_movement(n_sites, n_time, n_ages,
+                            f,
+                            mortality,
+                            est_init ? init_par : init_data,
+                            to_matrix(log_rec, n_time, n_sites),
+                            minit,
+                            zeta[1], w_adj, v_adj, u_adj,
+                            ages_movement);
+      } else {
+        lambda =
+          simplest(n_sites, n_time, n_ages,
+                   f,
+                   mortality,
+                   est_init ? init_par : init_data,
+                   to_matrix(log_rec, n_time, n_sites),
+                   minit);
+      }
     }
     
     if (proj) {
@@ -195,31 +224,65 @@ generated quantities {
       }
       
       if (movement) {
-        lambda_proj = forecast_simplest_movement(n_sites,
-                                                 n_proj[1],
-                                                 n_ages,
-                                                 f_proj,
-                                                 current_m,
-                                                 to_matrix(log_rec_proj,
-                                                           n_proj[1],
-                                                           n_sites),
-                                                 lambda_last,
-                                                 f,
-                                                 past_m,
-                                                 zeta[1], w_adj, v_adj, u_adj,
-                                                 ages_movement);
+        if (rec_dd < 2) {
+          lambda_proj = forecast_pop_rec_dd_movement(n_sites,
+                                                   n_proj[1],
+                                                   n_ages,
+                                                   f_proj,
+                                                   current_m,
+                                                   to_matrix(log_rec_proj,
+                                                             n_proj[1],
+                                                             n_sites),
+                                                   lambda_last,
+                                                   f,
+                                                   past_m,
+                                                   mat, weight,
+                                                   beta[1], rec_dd,
+                                                   zeta[1], w_adj, v_adj, u_adj,
+                                                   ages_movement);
+        } else {
+          lambda_proj = forecast_simplest_movement(n_sites,
+                                                   n_proj[1],
+                                                   n_ages,
+                                                   f_proj,
+                                                   current_m,
+                                                   to_matrix(log_rec_proj,
+                                                             n_proj[1],
+                                                             n_sites),
+                                                   lambda_last,
+                                                   f,
+                                                   past_m,
+                                                   zeta[1], w_adj, v_adj, u_adj,
+                                                   ages_movement);
+        }
       } else {
-        lambda_proj = forecast_simplest(n_sites,
-                                        n_proj[1],
-                                        n_ages,
-                                        f_proj,
-                                        current_m,
-                                        to_matrix(log_rec_proj,
-                                                  n_proj[1],
-                                                  n_sites),
-                                        lambda_last,
-                                        f,
-                                        past_m);
+        if (rec_dd < 2) {
+          lambda_proj = forecast_pop_rec_dd(n_sites,
+                                          n_proj[1],
+                                          n_ages,
+                                          f_proj,
+                                          current_m,
+                                          to_matrix(log_rec_proj,
+                                                    n_proj[1],
+                                                    n_sites),
+                                          lambda_last,
+                                          f,
+                                          past_m,
+                                          mat, weight,
+                                          beta[1], rec_dd);
+        } else {
+          lambda_proj = forecast_simplest(n_sites,
+                                          n_proj[1],
+                                          n_ages,
+                                          f_proj,
+                                          current_m,
+                                          to_matrix(log_rec_proj,
+                                                    n_proj[1],
+                                                    n_sites),
+                                          lambda_last,
+                                          f,
+                                          past_m);
+        }
       }
     }
   }

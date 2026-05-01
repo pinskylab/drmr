@@ -18,6 +18,8 @@ make_data(
   age_selectivity,
   ages_movement,
   adj_mat = matrix(0, ncol = 1, nrow = 1),
+  mat = NULL,
+  weight = NULL,
   .toggles,
   .priors,
   family = "gamma",
@@ -72,6 +74,12 @@ while 3 and 4 are mobile.}
 \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
 and zero otherwise.}
 
+\item{mat}{a \code{numeric vector} of length \code{n_ages} specifying the
+maturity-at-age.}
+
+\item{weight}{a \code{numeric vector} of length \code{n_ages} specifying the
+weight-at-age.}
+
 \item{.toggles}{a \code{list} of toggles for model components. The
 components are: \itemize{ \item \code{rho_mu}: 1 to explicitly relate rho
 to mu and 0 otherwise.  \item \code{cloglog}: 1 to use the complementary
@@ -80,7 +88,8 @@ log-log and 0 for the logit link function for the absence probabilities.
 \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
 \item \code{minit}: 1 to use mortality to estimate initial age classes and
-0 otherwise.  \item \code{ar_re}: a \code{character}. It assumes one of
+0 otherwise. \item \code{rec_dd}: 0 for Ricker, 1 for Beverton-Holt, and 2
+(default) for no density dependence. \item \code{ar_re}: a \code{character}. It assumes one of
 the following values: "none" no AR, "rec" AR(1) for recruitment, "surv"
 AR(1) for survival (only works when \code{est_surv} is on), "dens" AR(1)
 for density. \item \code{iid_re}: a \code{character}. It assumes one of

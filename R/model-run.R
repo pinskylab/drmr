@@ -38,6 +38,7 @@
 ##'   (penalized) MLEs.
 ##' @param algo_args a \code{list} with arguments for the sampling
 ##'   algorithms. For instance, \code{tol_rel_obj} for variational inference.
+##'   weight-at-age.
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return An object of class \code{adrm} which is a \code{list} containing the
@@ -87,6 +88,8 @@ fit_drm <- function(.data,
                            family = family,
                            x_t = x_t,
                            x_r = x_r,
+                           mat = mat,
+                           weight = weight,
                            ...)
   } else {
     x_m <- stats::model.matrix.lm(formula_surv, data = .data,
@@ -98,6 +101,8 @@ fit_drm <- function(.data,
                            x_t = x_t,
                            x_r = x_r,
                            x_m = x_m,
+                           mat = mat,
+                           weight = weight,
                            ...)
   }
   site_levels <- model_dat$site_levels

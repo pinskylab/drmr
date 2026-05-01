@@ -15,7 +15,8 @@ approximation centered at the mode of the posterior) or "optimize" for
 (penalized) MLEs.}
 
 \item{algo_args}{a \code{list} with arguments for the sampling
-algorithms. For instance, \code{tol_rel_obj} for variational inference.}
+algorithms. For instance, \code{tol_rel_obj} for variational inference.
+weight-at-age.}
 }
 \value{
 A \code{list} containing the default arguments for the specified algorithm.

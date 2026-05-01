@@ -158,51 +158,166 @@ array[] matrix simplest_movement(int n_patches,
 }
 
 /**
- * @title Generate theoretical mean according to a Ricker model
+ * @title Generate theoretical mean according to a density-dependent recruitment model
  *
- * @description
+ * @description Mechanistic version with endogenous recruitment (Ricker or Beverton-Holt).
  * 
  * @param n_patches number of patches
- * @param n_time number of years of training data
+ * @param n_time number of years of data
  * @param n_ages number of age classes
  * @param f_a_t fishing mortality at age "a" and time "t"
  * @param neg_mort minus natural mortality (instantaneous) rate
- * @param init a n_ages - 1 array.
- * @param rep_age a n_ages array specifying ages that contribute to
- * recruitment.
- * @param g_r growth rate.
- * recruitment.
+ * @param init initialization for ages 2 to n_ages at time t=1
+ * @param recruitment_env log-productivity (alpha) matrix [n_time, n_patches]
+ * @param mat maturity-at-age vector [n_ages]
+ * @param weight weight-at-age vector [n_ages]
+ * @param beta density-dependence coefficient
+ * @param rec_type 0 for Ricker, 1 for Beverton-Holt
  * 
  * @return an array of numbers by age, year and patch
  */
-// array[] matrix popricker(int n_patches,
-//                          int n_time,
-//                          int n_ages,
-//                          // Mortality parameter
-//                          matrix f_a_t,
-//                          matrix neg_mort,
-//                          // initialization
-//                          array[] real init,
-//                          array[] int rep_age,
-//                          matrix g_r) {
-//   // initializing output with zeros
-//   array[n_ages] matrix[n_time, n_patches] output
-//     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
-//   for (p in 1:n_patches) {
-//     for (i in 1:n_time) {
-//       output[1, i, p] = recruitment[i, p];
-//     }
-//   }
-//   for (a in 1 : (n_ages - 1)) {
-//     output[a, 1 : a, ] = rep_matrix(to_vector(init[1 : a]), n_patches);
-//   }
-//   for (i in 2 : n_time) {
-//     for (p in 1 : n_patches) {
-//       for (a in 2 : n_ages) {
-//         output[a, i, p] = output[a - 1, i - 1, p] +
-//           neg_mort[i - 1, p] - f_a_t[a - 1, i - 1];
-//       }
-//     }
-//   }
-//   return exp(output);
-// }
+array[] matrix pop_rec_dd(int n_patches,
+                          int n_time,
+                          int n_ages,
+                          matrix f_a_t,
+                          matrix neg_mort,
+                          array[] real init,
+                          matrix recruitment_env,
+                          vector mat,
+                          vector weight,
+                          real beta,
+                          int rec_type) {
+  // Initializing output with zeros
+  array[n_ages] matrix[n_time, n_patches] output
+    = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
+    
+  // Time t=1
+  // Recruitment at t=1 is purely environmental (no previous stock known)
+  output[1, 1] = exp(recruitment_env[1]);
+  
+  // Initialization of other ages at t=1
+  for (a in 1 : (n_ages - 1)) {
+    output[a + 1, 1] = rep_row_vector(exp(init[a]), n_patches);
+  }
+  
+  for (i in 2 : n_time) {
+    for (p in 1 : n_patches) {
+      // 1. Calculate Spawning Stock Biomass (SSB) at time i-1
+      real ssb_prev = 0;
+      for (a in 1 : n_ages) {
+        ssb_prev += output[a, i - 1, p] * mat[a] * weight[a];
+      }
+      
+      // 2. Density-dependent Recruitment
+      // recruitment_env[i, p] is log(alpha)
+      if (ssb_prev > 1e-10) {
+        real log_S = log(ssb_prev);
+        if (rec_type == 0) {
+          // Ricker: R = alpha * S * exp(-beta * S)
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_prev);
+        } else {
+          // Beverton-Holt: R = (alpha * S) / (1 + beta * S)
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log1p(beta * ssb_prev));
+        }
+      } else {
+        output[1, i, p] = 0.0;
+      }
+      
+      // 3. Survival transition
+      for (a in 2 : n_ages) {
+        output[a, i, p] = output[a - 1, i - 1, p] *
+          exp(neg_mort[i - 1, p] - f_a_t[a - 1, i - 1]);
+      }
+    }
+  }
+  
+  return output;
+}
+
+/**
+ * @title Generate theoretical mean according to a density-dependent recruitment model with movement
+ *
+ * @description Mechanistic version with endogenous recruitment and movement.
+ * 
+ * @param n_patches number of patches
+ * @param n_time number of years of data
+ * @param n_ages number of age classes
+ * @param f_a_t fishing mortality at age "a" and time "t"
+ * @param neg_mort minus natural mortality (instantaneous) rate
+ * @param init initialization for ages 2 to n_ages at time t=1
+ * @param recruitment_env log-productivity (alpha) matrix [n_time, n_patches]
+ * @param mat maturity-at-age vector [n_ages]
+ * @param weight weight-at-age vector [n_ages]
+ * @param beta density-dependence coefficient
+ * @param rec_type 0 for Ricker, 1 for Beverton-Holt
+ * @param zeta probability of staying in the current site
+ * @param w_adj sparse CSR vector of non-zero entries of adjacency matrix
+ * @param v_adj sparse CSR array of column indices
+ * @param u_adj sparse CSR array of row starting indices
+ * @param mov_age ages at which movement starts
+ * 
+ * @return an array of numbers by age, year and patch
+ */
+array[] matrix pop_rec_dd_movement(int n_patches,
+                                   int n_time,
+                                   int n_ages,
+                                   matrix f_a_t,
+                                   matrix neg_mort,
+                                   array[] real init,
+                                   matrix recruitment_env,
+                                   vector mat,
+                                   vector weight,
+                                   real beta,
+                                   int rec_type,
+                                   real zeta,
+                                   vector w_adj,
+                                   array[] int v_adj,
+                                   array[] int u_adj,
+                                   array[] int mov_age) {
+  array[n_ages] matrix[n_time, n_patches] output
+    = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
+    
+  // Time t=1
+  output[1, 1] = exp(recruitment_env[1]);
+  for (a in 1 : (n_ages - 1)) {
+    output[a + 1, 1] = rep_row_vector(exp(init[a]), n_patches);
+  }
+  
+  for (i in 2 : n_time) {
+    // 1. Endogenous Recruitment (happens locally in each patch)
+    row_vector[n_patches] ssb_prev = rep_row_vector(0.0, n_patches);
+    for (a in 1 : n_ages) {
+      ssb_prev += output[a, i - 1] .* (mat[a] * weight[a]);
+    }
+    
+    for (p in 1 : n_patches) {
+      if (ssb_prev[p] > 1e-10) {
+        real log_S = log(ssb_prev[p]);
+        if (rec_type == 0) {
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_prev[p]);
+        } else {
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log1p(beta * ssb_prev[p]));
+        }
+      } else {
+        output[1, i, p] = 0.0;
+      }
+    }
+    
+    // 2. Survival and Movement (transition from i-1 to i)
+    for (a in 2 : n_ages) {
+      row_vector[n_patches] surv = exp(neg_mort[i - 1] - f_a_t[a - 1, i - 1]);
+      row_vector[n_patches] lambda_surv = output[a - 1, i - 1] .* surv;
+      
+      if (mov_age[a]) {
+        vector[n_patches] adj_x =
+          csr_matrix_times_vector(n_patches, n_patches, w_adj,
+                                  v_adj, u_adj, lambda_surv');
+        output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
+      } else {
+        output[a, i] = lambda_surv;
+      }
+    }
+  }
+  
+  return output;
+}

@@ -35,6 +35,10 @@
 ##' @param adj_mat an adjacency \code{matrix} of dimensions \code{sites}
 ##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
 ##'   and zero otherwise.
+##' @param mat a \code{numeric vector} of length \code{n_ages} specifying the
+##'   maturity-at-age.
+##' @param weight a \code{numeric vector} of length \code{n_ages} specifying the
+##'   weight-at-age.
 ##' @param .toggles a \code{list} of toggles for model components. The
 ##'   components are: \itemize{ \item \code{rho_mu}: 1 to explicitly relate rho
 ##'   to mu and 0 otherwise.  \item \code{cloglog}: 1 to use the complementary
@@ -43,7 +47,8 @@
 ##'   \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 ##'   \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
 ##'   \item \code{minit}: 1 to use mortality to estimate initial age classes and
-##'   0 otherwise.  \item \code{ar_re}: a \code{character}. It assumes one of
+##'   0 otherwise. \item \code{rec_dd}: 0 for Ricker, 1 for Beverton-Holt, and 2
+##'   (default) for no density dependence. \item \code{ar_re}: a \code{character}. It assumes one of
 ##'   the following values: "none" no AR, "rec" AR(1) for recruitment, "surv"
 ##'   AR(1) for survival (only works when \code{est_surv} is on), "dens" AR(1)
 ##'   for density. \item \code{iid_re}: a \code{character}. It assumes one of
@@ -84,6 +89,8 @@ make_data <- function(y,
                       age_selectivity,
                       ages_movement,
                       adj_mat = matrix(0, ncol = 1, nrow = 1),
+                      mat = NULL,
+                      weight = NULL,
                       .toggles,
                       .priors,
                       family = "gamma",
@@ -140,6 +147,10 @@ make_data <- function(y,
     stopifnot(length(age_selectivity) == n_ages)
     selectivity_at_age <- age_selectivity
   }
+  if (is.null(mat))
+    mat <- rep(1, n_ages)
+  if (is.null(weight))
+    weight <- rep(1, n_ages)
   if (toggles$movement) {
     stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
               nrow(adj_mat) == n_sites)
@@ -263,7 +274,9 @@ make_data <- function(y,
                  adj_mat = adj_mat,
                  n_edges_adj = sum(adj_mat != 0),
                  ages_movement = ages_movement,
-                 selectivity_at_age = selectivity_at_age) |>
+                 selectivity_at_age = selectivity_at_age,
+                 mat = mat,
+                 weight = weight) |>
     c(zeros,
       toggles,
       priors)

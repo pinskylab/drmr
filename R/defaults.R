@@ -26,7 +26,9 @@ default_priors <- function() {
        pr_beta_s_mu = numeric(0),
        pr_beta_s_sd = numeric(0),
        pr_beta_r_mu = 0,
-       pr_beta_r_sd = 1)
+       pr_beta_r_sd = 1,
+       pr_beta_mu = -2,
+       pr_beta_sd = 1)
 }
 
 ##' Returns default toggles for the DRM model.
@@ -44,7 +46,8 @@ default_toggles <- function() {
        minit = 0,
        ar_re = 0,
        iid_re = 0,
-       sp_re = 0)
+       sp_re = 0,
+       rec_dd = 2)
 }
 
 ##' Returns default for NUTS
