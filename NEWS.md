@@ -1,5 +1,8 @@
 # drmr 1.1.0
 
+- Density dependence also support SSB for the whole region (as opposed to local
+  SSB).
+
 - added support for density dependence.
 
 - Minor bug in the `log_lik` function was corrected.
