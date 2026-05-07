@@ -186,30 +186,27 @@ array[] matrix pop_rec_dd(int n_patches,
                           vector mat,
                           vector weight,
                           real kappa,
-                          int rec_type) {
-  // Initializing output with zeros
+                          int rec_type,
+                          int acc_dd) {
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
-    
-  // Time t=1
-  // Recruitment at t=1 is purely environmental (no previous stock known)
   output[1, 1] = exp(recruitment_env[1]);
-  
-  // Initialization of other ages at t=1
   for (a in 1 : (n_ages - 1)) {
     output[a + 1, 1] = rep_row_vector(exp(init[a]), n_patches);
-  }
-  
+  }  
   for (i in 2 : n_time) {
-    for (p in 1 : n_patches) {
-      // 1. Calculate Spawning Stock Biomass (SSB) at time i-1
-      real ssb_prev = 0;
+    real ssb_prev = 0;
+    if (acc_dd) {
       for (a in 1 : n_ages) {
-        ssb_prev += output[a, i - 1, p] * mat[a] * weight[a];
+        ssb_prev += sum(output[a, i - 1] .* (mat[a] * weight[a]));
       }
-      
-      // 2. Density-dependent Recruitment
-      // recruitment_env[i, p] is log(alpha)
+    }
+    for (p in 1 : n_patches) {
+      if (!acc_dd) {
+        for (a in 1 : n_ages) {
+          ssb_prev += output[a, i - 1, p] * mat[a] * weight[a];
+        }
+      }
       if (ssb_prev > 1e-10) {
         real log_S = log(ssb_prev);
         if (rec_type == 0) {
@@ -222,8 +219,6 @@ array[] matrix pop_rec_dd(int n_patches,
       } else {
         output[1, i, p] = 0.0;
       }
-      
-      // 3. Survival transition
       for (a in 2 : n_ages) {
         output[a, i, p] = output[a - 1, i - 1, p] *
           exp(neg_mort[i - 1, p] - f_a_t[a - 1, i - 1]);
@@ -273,7 +268,8 @@ array[] matrix pop_rec_dd_movement(int n_patches,
                                    vector w_adj,
                                    array[] int v_adj,
                                    array[] int u_adj,
-                                   array[] int mov_age) {
+                                   array[] int mov_age,
+                                   int acc_dd) {
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
     
@@ -291,12 +287,14 @@ array[] matrix pop_rec_dd_movement(int n_patches,
     }
     
     for (p in 1 : n_patches) {
-      if (ssb_prev[p] > 1e-10) {
-        real log_S = log(ssb_prev[p]);
+      real ssb_aux;
+      ssb_aux = acc_dd ? sum(ssb_prev) : ssb_prev[p];
+      if (ssb_aux > 1e-10) {
+        real log_S = log(ssb_aux);
         if (rec_type == 0) {
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - kappa * ssb_prev[p]);
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - kappa * ssb_aux);
         } else {
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(kappa + ssb_prev[p]));
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(kappa + ssb_aux));
         }
       } else {
         output[1, i, p] = 0.0;

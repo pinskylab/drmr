@@ -28,6 +28,7 @@ data {
                                       // mortality is stable at the beginning of
                                       // the time series
   int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
+  int<lower = 0, upper = 1> acc_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic. 4 = truncated normal)
@@ -222,7 +223,8 @@ transformed parameters {
                               amat, weight,
                               kappa[1], rec_dd,
                               zeta[1], w_adj, v_adj, u_adj,
-                              ages_movement);
+                              ages_movement,
+                              acc_dd);
       } else {
         lambda_aux =
           pop_rec_dd(n_sites, n_time, n_ages,
@@ -231,7 +233,8 @@ transformed parameters {
                      est_init ? init_par : init_data,
                      to_matrix(log_rec, n_time, n_sites),
                      amat, weight,
-                     kappa[1], rec_dd);
+                     kappa[1], rec_dd,
+                     acc_dd);
       }
     } else {
       if (movement) {

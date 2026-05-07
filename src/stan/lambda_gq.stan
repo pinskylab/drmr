@@ -16,6 +16,7 @@ data {
   int<lower = 0, upper = 1> est_init; // estimate "initial cohort"
   int<lower = 0, upper = 1> minit;
   int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
+  int<lower = 0, upper = 1> acc_dd;
   int<lower = 0, upper = 3> ar_re;
   int<lower = 0, upper = 3> iid_re;
   int<lower = 0, upper = 3> sp_re;
@@ -133,7 +134,8 @@ generated quantities {
                               amat, weight,
                               kappa[1], rec_dd,
                               zeta[1], w_adj, v_adj, u_adj,
-                              ages_movement);
+                              ages_movement,
+                              acc_dd);
       } else {
         lambda =
           pop_rec_dd(n_sites, n_time, n_ages,
@@ -142,7 +144,8 @@ generated quantities {
                      est_init ? init_par : init_data,
                      to_matrix(log_rec, n_time, n_sites),
                      amat, weight,
-                     kappa[1], rec_dd);
+                     kappa[1], rec_dd,
+                     acc_dd);
       }
     } else {
       if (movement) {
@@ -226,20 +229,21 @@ generated quantities {
       if (movement) {
         if (rec_dd < 2) {
           lambda_proj = forecast_pop_rec_dd_movement(n_sites,
-                                                   n_proj[1],
-                                                   n_ages,
-                                                   f_proj,
-                                                   current_m,
-                                                   to_matrix(log_rec_proj,
+                                                     n_proj[1],
+                                                     n_ages,
+                                                     f_proj,
+                                                     current_m,
+                                                     to_matrix(log_rec_proj,
                                                              n_proj[1],
                                                              n_sites),
-                                                   lambda_last,
-                                                   f,
-                                                   past_m,
-                                                   amat, weight,
-                                                   kappa[1], rec_dd,
-                                                   zeta[1], w_adj, v_adj, u_adj,
-                                                   ages_movement);
+                                                     lambda_last,
+                                                     f,
+                                                     past_m,
+                                                     amat, weight,
+                                                     kappa[1], rec_dd,
+                                                     zeta[1], w_adj, v_adj, u_adj,
+                                                     ages_movement,
+                                                     acc_dd);
         } else {
           lambda_proj = forecast_simplest_movement(n_sites,
                                                    n_proj[1],
@@ -258,18 +262,19 @@ generated quantities {
       } else {
         if (rec_dd < 2) {
           lambda_proj = forecast_pop_rec_dd(n_sites,
-                                          n_proj[1],
-                                          n_ages,
-                                          f_proj,
-                                          current_m,
-                                          to_matrix(log_rec_proj,
+                                            n_proj[1],
+                                            n_ages,
+                                            f_proj,
+                                            current_m,
+                                            to_matrix(log_rec_proj,
                                                     n_proj[1],
                                                     n_sites),
-                                          lambda_last,
-                                          f,
-                                          past_m,
-                                          amat, weight,
-                                          kappa[1], rec_dd);
+                                            lambda_last,
+                                            f,
+                                            past_m,
+                                            amat, weight,
+                                            kappa[1], rec_dd,
+                                            acc_dd);
         } else {
           lambda_proj = forecast_simplest(n_sites,
                                           n_proj[1],

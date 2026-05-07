@@ -20,6 +20,7 @@ data {
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
+  int<lower = 0, upper = 1> acc_dd;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = loglogistic, 4 = truncated
@@ -174,7 +175,8 @@ generated quantities {
                                        amat, weight,
                                        kappa[1], rec_dd,
                                        zeta[1], w_adj, v_adj, u_adj,
-                                       ages_movement);
+                                       ages_movement,
+                                       acc_dd);
       } else {
         lambda_proj =
           forecast_simplest_movement(n_sites,
@@ -206,7 +208,8 @@ generated quantities {
                               f_past,
                               past_m,
                               amat, weight,
-                              kappa[1], rec_dd);
+                              kappa[1], rec_dd,
+                              acc_dd);
       } else {
         lambda_proj = forecast_simplest(n_sites,
                                         n_time,

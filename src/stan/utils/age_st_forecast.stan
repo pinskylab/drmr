@@ -84,7 +84,8 @@ array[] matrix forecast_pop_rec_dd(int n_patches,
                                    vector mat,
                                    vector weight,
                                    real beta,
-                                   int rec_type) {
+                                   int rec_type,
+                                   int acc_dd) {
   // initializing output with zeros
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
@@ -104,12 +105,14 @@ array[] matrix forecast_pop_rec_dd(int n_patches,
     }
     
     for (p in 1 : n_patches) {
-      if (ssb_prev[p] > 1e-10) {
-        real log_S = log(ssb_prev[p]);
+      real ssb_aux;
+      ssb_aux = acc_dd ? sum(ssb_prev) : ssb_prev[p];
+      if (ssb_aux > 1e-10) {
+        real log_S = log(ssb_aux);
         if (rec_type == 0) {
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_prev[p]);
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_aux);
         } else {
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(beta + ssb_prev[p]));
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(beta + ssb_aux));
         }
       } else {
         output[1, i, p] = 0.0;
@@ -172,7 +175,8 @@ array[] matrix forecast_pop_rec_dd_movement(int n_patches,
                                             vector w_adj,
                                             array[] int v_adj,
                                             array[] int u_adj,
-                                            array[] int mov_age) {
+                                            array[] int mov_age,
+                                            int acc_dd) {
   // initializing output with zeros
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
@@ -192,12 +196,14 @@ array[] matrix forecast_pop_rec_dd_movement(int n_patches,
     }
     
     for (p in 1 : n_patches) {
-      if (ssb_prev[p] > 1e-10) {
-        real log_S = log(ssb_prev[p]);
+      real ssb_aux;
+      ssb_aux = acc_dd ? sum(ssb_prev) : ssb_prev[p];
+      if (ssb_aux > 1e-10) {
+        real log_S = log(ssb_aux);
         if (rec_type == 0) {
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_prev[p]);
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - beta * ssb_aux);
         } else {
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(beta + ssb_prev[p]));
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(beta + ssb_aux));
         }
       } else {
         output[1, i, p] = 0.0;

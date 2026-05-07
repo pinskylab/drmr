@@ -47,7 +47,8 @@ default_toggles <- function() {
        ar_re = 0,
        iid_re = 0,
        sp_re = 0,
-       rec_dd = 2)
+       rec_dd = 2,
+       acc_dd = 0)
 }
 
 ##' Returns default for NUTS
