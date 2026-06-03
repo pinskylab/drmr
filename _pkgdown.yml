@@ -2,3 +2,23 @@ url: https://pinskylab.github.io/drmr/
 template:
   bootstrap: 5
 
+navbar:
+  title: ~
+  type: default
+  left:
+    - text: Get started
+      href: articles/get-started.html
+    - text: Articles
+      menu:
+      - text: Theoretical background
+        href: articles/theory.html
+      - text: Model parameters
+        href: articles/parametrization.html
+      - text: Algorithms for inference
+        href: articles/algos.html
+      - text: Advanced features
+        href: articles/advanced-features.html
+    - text: Functions
+      href: reference/index.html
+    - text: Changelog
+      href: news/index.html
