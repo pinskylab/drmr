@@ -8,6 +8,14 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
+> **Warning:** If working on a MacOS (or Linux) machine, one should
+> install `data.table` and `cmdstanr` from source in order to use the
+> package. Otherwise, one get `segmentation fault` errors that are hard
+> to debug (and also not a `drmr`, but rather a `cmdstanr` issue).
+> Moreover, we recommend installing
+> [`instantiate`](https://github.com/wlandau/instantiate/) from GitHub
+> instead of CRAN.
+
 `drmr` (pronounced *drummer*) is an `R` package for fitting dynamic
 range models to spatiotemporal data on species abundance. Dynamic range
 models are spatial population models in which demographic rates (e.g.,
