@@ -10,8 +10,14 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 > **Warning:** If working on a MacOS (or Linux) machine, one should
 > install `data.table` and `cmdstanr` from source in order to use the
-> package. Otherwise, one get `segmentation fault` errors that are hard
-> to debug (and also not a `drmr`, but rather a `cmdstanr` issue).
+> package. Otherwise, one get `segmentation fault` errors which are hard
+> to debug (and also not a `drmr`, but rather a `cmdstanr` issue). To
+> install a package from source, one should use:
+
+``` r
+install.packages("<package>", type = "source")
+```
+
 > Moreover, we recommend installing
 > [`instantiate`](https://github.com/wlandau/instantiate/) from GitHub
 > instead of CRAN.
