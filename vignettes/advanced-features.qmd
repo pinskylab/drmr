@@ -311,15 +311,15 @@ second model fitted.
 #| label: env_dem
 
 effects_drm(drm_rec, ## model
-     process = "rec", ## demographic process
-     variable = "c_stemp", ## environmental variable
-     prob = .8) |> ## mass of the creible interval
+            process = "rec", ## demographic process
+            variable = "c_stemp", ## environmental variable
+            prob = .8) |> ## mass of the creible interval
   plot()
 
 effects_drm(drm_srv, ## model
-     process = "surv", ## demographic process
-     variable = "c_btemp", ## environmental variable
-     prob = .8) |> 
+            process = "surv", ## demographic process
+            variable = "c_btemp", ## environmental variable
+            prob = .8) |> 
   plot()
 ```
 
