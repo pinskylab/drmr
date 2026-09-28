@@ -2,6 +2,15 @@ url: https://pinskylab.github.io/drmr/
 template:
   bootstrap: 5
 
+articles:
+- title: Articles
+  contents:
+  - get-started
+  - algos
+  - init
+  - parametrization
+  - advanced-features
+
 navbar:
   title: ~
   type: default
@@ -10,12 +19,12 @@ navbar:
       href: articles/get-started.html
     - text: Articles
       menu:
-      - text: Theoretical background
-        href: articles/theory.html
-      - text: Model parameters
-        href: articles/parametrization.html
       - text: Algorithms for inference
         href: articles/algos.html
+      - text: Initializing densities
+        href: articles/init.html
+      - text: Model parameters
+        href: articles/parametrization.html
       - text: Advanced features
         href: articles/advanced-features.html
     - text: Functions

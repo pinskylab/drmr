@@ -53,7 +53,7 @@ remotes::install_github("pinskylab/drmr")
 ### Vignettes
 
 * [Get started](https://pinskylab.github.io/drmr/articles/get-started.html)
-* [Theoretical background](https://pinskylab.github.io/drmr/articles/theory.html)
+* [Theoretical background](https://ecoevorxiv.org/repository/view/12564/)
 * [Algorithms](https://pinskylab.github.io/drmr/articles/algos.html)
 * [Initializing densities](https://pinskylab.github.io/drmr/articles/init.html)
 * [Parameterization of the density functions](https://pinskylab.github.io/drmr/articles/parametrization.html)
