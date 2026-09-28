@@ -92,8 +92,8 @@ if (instantiate::stan_cmdstan_exists()) {
 \seealso{
 \code{\link[=make_data_sdm]{make_data_sdm()}}
 
-Other models: 
-\code{\link{fit_drm}()}
+Other models:
+\code{\link[=fit_drm]{fit_drm()}}
 }
 \author{
 lcgodoy

@@ -19,5 +19,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Lucas da Cunha Godoy \email{lcgodoy@duck.com} (\href{https://orcid.org/0000-0003-4265-972X}{ORCID})
 
+Authors:
+\itemize{
+  \item Lucas da Cunha Godoy \email{lcgodoy@duck.com} (\href{https://orcid.org/0000-0003-4265-972X}{ORCID})
+}
+
 }
 \concept{help}

@@ -36,7 +36,7 @@ For details on the method used, see:
 \url{https://stats.stackexchange.com/questions/567944/how-can-i-sample-from-a-shifted-and-scaled-student-t-distribution-with-a-specifi}
 }
 \seealso{
-\code{\link[stats:TDist]{stats::rt()}}, \code{\link[stats:TDist]{stats::qt()}}
+\code{\link[stats:rt]{stats::rt()}}, \code{\link[stats:qt]{stats::qt()}}
 }
 \author{
 lcgodoy
