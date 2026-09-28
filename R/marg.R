@@ -215,3 +215,243 @@ plot.eff_drm <- function(x, rug_data = NULL, ...) {
     .ploteffects_drm_base(x, rug_data, focal_var, process_name, col_low, col_est, col_upp, ...)
   }
 }
+##' @title Stock-Recruitment Curves for DD Models
+##' @description Computes expected recruitment across a grid of Spawning Stock Biomass (density)
+##'   values, optionally conditioned on environmental regimes.
+##' 
+##' @param object An object of class \code{adrm}, typically the output of
+##'   \code{fit_drm()}.
+##' @param density_grid A numeric vector of density values to evaluate. If \code{NULL}, a default 
+##'   sequence is generated from 0 to the maximum observed response.
+##' @param newdata An optional \code{data.frame} of environmental covariates. Each row 
+##'   represents a distinct environmental regime.
+##' @param n_pts Integer. Number of points for the default \code{density_grid} when it is
+##'   not provided. Defaults to 100.
+##' @param summary Logical. If \code{TRUE}, returns posterior quantiles. If \code{FALSE},
+##'   returns the raw posterior draws.
+##' @param prob Numeric. Credible interval probability mass. Defaults to 0.95.
+##' @param ... Additional arguments.
+##' 
+##' @return A \code{data.frame} of class \code{dd_curve} (if \code{summary = TRUE}) 
+##'   containing the Stock-Recruitment evaluations.
+##' 
+##' @name dd_curves
+##' @export
+##' @author lcgodoy
+dd_curves <- function(object, ...) {
+  UseMethod("dd_curves")
+}
+
+##' @rdname dd_curves
+##' @export
+dd_curves.adrm <- function(object, 
+                           density_grid = NULL, 
+                           newdata = NULL, 
+                           n_pts = 100, 
+                           summary = TRUE, 
+                           prob = 0.95, ...) {
+  stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
+                                       "CmdStanPathfinder", "CmdStanVB")))
+  
+  rec_dd_val <- object$data$rec_dd
+  if (rec_dd_val == 2) {
+    stop("Density dependence must be enabled ('ricker' or 'bh') to plot SR curves.")
+  }
+  
+  my_formula <- object$formulas$formula_rec
+  all_vars <- all.vars(stats::delete.response(stats::terms(my_formula)))
+  
+  if (is.null(newdata)) {
+    if (length(all_vars) == 0) {
+      newdata <- data.frame(.dummy = 1)
+    } else {
+      newdata <- as.data.frame(matrix(0, nrow = 1, ncol = length(all_vars)))
+      colnames(newdata) <- all_vars
+    }
+  } else {
+    if (nrow(newdata) > 5) {
+      warning("newdata has more than 5 rows. The resulting plot may be cluttered.")
+    }
+    for (v in all_vars) {
+      if (!v %in% names(newdata)) newdata[[v]] <- 0
+    }
+  }
+  
+  if (is.null(density_grid)) {
+    max_y <- max(object$data$y, na.rm = TRUE)
+    if (max_y <= 0) max_y <- 100 # fallback
+    density_grid <- seq(0, max_y, length.out = n_pts)
+  }
+  
+  new_x <- stats::model.matrix(my_formula, newdata)
+  beta_r_draws <- draws(object, variables = "beta_r", format = "matrix")
+  kappa_draws <- draws(object, variables = "kappa", format = "matrix")
+  
+  # log-productivity (alpha)
+  lin_pred <- tcrossprod(beta_r_draws, new_x)
+  alpha_draws <- exp(lin_pred)
+  
+  n_draws <- nrow(alpha_draws)
+  n_regimes <- nrow(newdata)
+  n_ssb <- length(density_grid)
+  
+  if (summary) {
+    alpha_prob <- (1 - prob) / 2
+    probs <- c(alpha_prob, 0.5, 1 - alpha_prob)
+    
+    out_list <- vector("list", n_regimes * n_ssb)
+    counter <- 1
+    
+    for (i in seq_len(n_regimes)) {
+      alpha_i <- alpha_draws[, i]
+      for (s in density_grid) {
+        if (rec_dd_val == 0) {
+          # Ricker
+          r_draws <- alpha_i * s * exp(-kappa_draws[, 1] * s)
+        } else {
+          # Beverton-Holt
+          r_draws <- (alpha_i * s) / (kappa_draws[, 1] + s)
+        }
+        
+        quants <- posterior::quantile2(r_draws, probs = probs)
+        row_data <- cbind(newdata[i, , drop = FALSE], density = s)
+        row_data <- cbind(row_data, as.data.frame(t(quants)))
+        row_data$.regime <- i
+        
+        out_list[[counter]] <- row_data
+        counter <- counter + 1
+      }
+    }
+    
+    output <- do.call(rbind, out_list)
+    attr(output, "quant_cols") <- names(posterior::quantile2(1:10, probs = probs))
+    attr(output, "model_type") <- ifelse(rec_dd_val == 0, "Ricker", "Beverton-Holt")
+    attr(output, "prob") <- prob
+    # Remove dummy column if it exists
+    if (".dummy" %in% names(output)) output$.dummy <- NULL
+    
+    class(output) <- c("dd_curve", "data.frame")
+    return(output)
+  } else {
+    # If summary is FALSE, return raw draws
+    out_list <- vector("list", n_regimes * n_ssb)
+    counter <- 1
+    for (i in seq_len(n_regimes)) {
+      alpha_i <- alpha_draws[, i]
+      for (s in density_grid) {
+        if (rec_dd_val == 0) {
+          r_draws <- alpha_i * s * exp(-kappa_draws[, 1] * s)
+        } else {
+          r_draws <- (alpha_i * s) / (kappa_draws[, 1] + s)
+        }
+        
+        row_data <- newdata[rep(i, n_draws), , drop = FALSE]
+        row_data$density <- s
+        row_data$recruitment <- r_draws
+        row_data$.draw <- seq_len(n_draws)
+        row_data$.regime <- i
+        
+        out_list[[counter]] <- row_data
+        counter <- counter + 1
+      }
+    }
+    output <- do.call(rbind, out_list)
+    if (".dummy" %in% names(output)) output$.dummy <- NULL
+    return(output)
+  }
+}
+
+##' @title Internal ggplot2 Backend for dd_curves
+##' @keywords internal
+##' @noRd
+.plotdd_curves_gg <- function(x, col_low, col_est, col_upp, ...) {
+  # determine grouping variables (everything except density, the quantiles, and .regime)
+  skip_cols <- c("density", col_low, col_est, col_upp, ".regime")
+  group_vars <- setdiff(names(x), skip_cols)
+  
+  if (length(group_vars) > 0) {
+    # Create a single interaction string for coloring/grouping
+    x$.group <- apply(x[, group_vars, drop = FALSE], 1, function(row) paste(row, collapse = "-"))
+    p <- ggplot2::ggplot(x, ggplot2::aes(x = density, y = .data[[col_est]], color = .group, fill = .group)) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = .data[[col_low]], ymax = .data[[col_upp]]), alpha = 0.2, color = "transparent") +
+      ggplot2::geom_line(linewidth = 1) +
+      ggplot2::labs(y = "Expected Recruitment", color = "Regime", fill = "Regime")
+  } else {
+    p <- ggplot2::ggplot(x, ggplot2::aes(x = density, y = .data[[col_est]])) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = .data[[col_low]], ymax = .data[[col_upp]]), alpha = 0.2, fill = "black", color = "transparent") +
+      ggplot2::geom_line(linewidth = 1) +
+      ggplot2::labs(y = "Expected Recruitment")
+  }
+  
+  model_type <- attr(x, "model_type")
+  return(p)
+}
+
+##' @title Internal Base R Backend for dd_curves
+##' @keywords internal
+##' @noRd
+.plotdd_curves_base <- function(x, col_low, col_est, col_upp, ...) {
+  regimes <- unique(x$.regime)
+  n_regimes <- length(regimes)
+  
+  y_max <- max(x[[col_upp]], na.rm = TRUE)
+  x_max <- max(x$density, na.rm = TRUE)
+  
+  plot(1, 1, type = "n", xlim = c(0, x_max), ylim = c(0, y_max),
+       xlab = "Density", ylab = "Expected Recruitment", 
+       ...)
+  
+  cols <- grDevices::rainbow(n_regimes)
+  
+  for (i in seq_along(regimes)) {
+    sub_x <- x[x$.regime == regimes[i], ]
+    x_vals <- sub_x$density
+    y_est <- sub_x[[col_est]]
+    y_low <- sub_x[[col_low]]
+    y_upp <- sub_x[[col_upp]]
+    
+    col_fill <- grDevices::adjustcolor(cols[i], alpha.f = 0.2)
+    graphics::polygon(x = c(x_vals, rev(x_vals)), 
+                      y = c(y_low, rev(y_upp)), 
+                      col = col_fill, border = NA)
+    graphics::lines(x_vals, y_est, col = cols[i], lwd = 2)
+  }
+  
+  if (n_regimes > 1) {
+    skip_cols <- c("density", col_low, col_est, col_upp, ".regime")
+    group_vars <- setdiff(names(x), skip_cols)
+    if (length(group_vars) > 0) {
+      leg_labels <- sapply(regimes, function(r) {
+        sub_x <- x[x$.regime == r, ][1, group_vars, drop = FALSE]
+        paste(sub_x, collapse = "-")
+      })
+      graphics::legend("topleft", legend = leg_labels, col = cols, lwd = 2, bty = "n")
+    }
+  }
+  invisible(NULL)
+}
+
+##' @title Plot Stock-Recruitment Curves for ADRM Objects
+##' @description Automatically plots the stock-recruitment curves computed by
+##'   \code{dd_curves()}. Uses ggplot2 if available, otherwise base R graphics.
+##' 
+##' @param x An object of class \code{dd_curve}, usually the output of
+##'   \code{dd_curves()}.
+##' @param ... Additional arguments passed to the underlying plotting functions.
+##' 
+##' @export
+plot.dd_curve <- function(x, ...) {
+  quant_cols <- attr(x, "quant_cols")
+  if (length(quant_cols) < 3) {
+    stop("Plotting requires at least 3 probabilities (lower, median, upper).")
+  }
+  col_low <- quant_cols[1]
+  col_est <- quant_cols[2]
+  col_upp <- quant_cols[3]
+  
+  if (requireNamespace("ggplot2", quietly = TRUE)) {
+    .plotdd_curves_gg(x, col_low, col_est, col_upp, ...)
+  } else {
+    .plotdd_curves_base(x, col_low, col_est, col_upp, ...)
+  }
+}
