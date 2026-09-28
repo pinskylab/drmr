@@ -21,7 +21,7 @@ default_algo(algorithm = "nuts", algo_args = list())
 - algo_args:
 
   a `list` with arguments for the sampling algorithms. For instance,
-  `tol_rel_obj` for variational inference.
+  `tol_rel_obj` for variational inference. weight-at-age.
 
 ## Value
 

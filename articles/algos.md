@@ -20,6 +20,7 @@ train and test, but rather just look at parameters’ estimates obtained
 through different algorithms.
 
 ``` r
+
 library(drmr)
 library(sf) ## "mapping"
 ```
@@ -27,11 +28,12 @@ library(sf) ## "mapping"
     Linking to GEOS 3.12.1, GDAL 3.8.4, PROJ 9.4.0; sf_use_s2() is TRUE
 
 ``` r
+
 library(ggplot2) ## graphs
 library(bayesplot) ## and more graphs
 ```
 
-    This is bayesplot version 1.15.0
+    This is bayesplot version 1.16.0
 
     - Online documentation and vignettes at mc-stan.org/bayesplot
 
@@ -42,8 +44,10 @@ library(bayesplot) ## and more graphs
        * See ?bayesplot_theme_set for details on theme setting
 
 ``` r
+
 library(dplyr)
 ```
+
 
     Attaching package: 'dplyr'
 
@@ -60,6 +64,7 @@ library(dplyr)
         intersect, setdiff, setequal, union
 
 ``` r
+
 ## loads the data
 data(sum_fl)
 
@@ -105,6 +110,7 @@ shp_sum_fl <- system.file("maps/sum_fl.shp", package = "drmr") |>
     Geodetic CRS:  WGS 84
 
 ``` r
+
 ## constructing adjacency matrix
 adj_mat <- gen_adj(st_buffer(st_geometry(shp_sum_fl),
                              dist = 2500))
@@ -121,6 +127,7 @@ subsequently, 1000 samples per chain. Here, we are running two chains in
 parallel, with a warmup of 500 and drawing 500 samples.
 
 ``` r
+
 nuts_args <- list(parallel_chains = 2,
                   chains = 2,
                   iter_sampling = 500,
@@ -152,7 +159,7 @@ drm_nuts <-
           algo_args = nuts_args)
 ```
 
-    Warning: 1 of 1000 (0.0%) transitions ended with a divergence.
+    Warning: 2 of 1000 (0.0%) transitions ended with a divergence.
     See https://mc-stan.org/misc/warnings for details.
 
 Next, we obtain samples from the *variational* posterior using Stan’s
@@ -161,34 +168,18 @@ for details see [this
 link](https://mc-stan.org/docs/cmdstan-guide/variational_config.html)).
 
 ``` r
+
+## in our tests, this algorithm has been the least stable so far.
+
 advi_args <- list(show_messages = FALSE,
                   show_exceptions = FALSE,
                   iter = 10^5, ## maximum number of iterations (optimization)
                   draws = 4000) ## number of samples from the posterior
 
 drm_advi <-
-  fit_drm(.data = sum_fl,
-          y_col = "dens", ## response variable: density
-          time_col = "year", ## vector of time points
-          site_col = "patch",
-          family = "gamma",
-          seed = 2026,
-          formula_zero = ~ 1 + c_hauls,
-          formula_rec = ~ 1 + c_stemp + I(c_stemp * c_stemp),
-          formula_surv = ~ 1,
-          f_mort = fmat[, -1],
-          n_ages = NROW(fmat),
-          adj_mat = adj_mat, ## A matrix for movement routine
-          ages_movement = c(0, 0,
-                            rep(1, 12),
-                            0, 0), ## ages allowed to move
-          .toggles = list(ar_re = "rec",
-                          movement = 1,
-                          est_surv = 1,
-                          est_init = 0,
-                          minit = 1),
-          algo_args = advi_args,
-          algorithm = "vb") ## vb stands for variational Bayes
+  update(drm_nuts,
+         algo_args = advi_args,
+         algorithm = "vb") ## vb stands for variational Bayes
 ```
 
 Another algorithm option is the
@@ -199,31 +190,27 @@ are not unimodal and bell-shaped. We will demonstrate how the inference
 algorithm can be updated using the `update` method:
 
 ``` r
+
 path_args <- list(show_messages = FALSE,
                   show_exceptions = FALSE,
                   max_lbfgs_iters = 10^4)
 
 drm_path <-
-  update(drm_advi,
+  update(drm_nuts,
          algo_args = path_args,
          algorithm = "pathfinder")
 ```
-
-    Optimization terminated with error: Line search failed to achieve a sufficient decrease, no more progress can be made Stan will still attempt pathfinder but may fail or produce incorrect results.
-
-    Only 3 of the 4 pathfinders succeeded.
-
-    Pareto k value (2) is greater than 0.7. Importance resampling was not able to improve the approximation, which may indicate that the approximation itself is poor.
 
 It is also possible to obtain samples from a Laplace approximation of
 the posterior as follows:
 
 ``` r
+
 lapl_args <- list(show_messages = FALSE,
                   show_exceptions = FALSE)
 
 drm_lapl <-
-  update(drm_path,
+  update(drm_nuts,
          algo_args = lapl_args,
          algorithm = "laplace")
 ```
@@ -237,43 +224,46 @@ drm_lapl <-
     Rejecting initial value:
       Log probability evaluates to log(0), i.e. negative infinity.
       Stan can't start sampling from this initial value.
-    Initial log joint probability = -41305.8
+    Initial log joint probability = -57554.4
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-    Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is inf, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from
-    '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)
+    Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpOmMiLa/pkg-lib1a4170683f5f/drmr/bin/stan/utils/lpdfs.stanfunctions', line 97, column 4, included from
+    '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 2, column 0) (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 363, column 2 to line 366, column 67)
+    Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpOmMiLa/pkg-lib1a4170683f5f/drmr/bin/stan/utils/lpdfs.stanfunctions', line 97, column 4, included from
+    '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 2, column 0) (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 363, column 2 to line 366, column 67)
     Error evaluating model log probability: Non-finite gradient.
-          99       63.1399     0.0384463       27.1111      0.2853      0.2853      137
+    Error evaluating model log probability: Non-finite gradient.
+    Error evaluating model log probability: Non-finite gradient.
+          99       46.6639     0.0479171       43.2853           1           1      130
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         199       79.2643    0.00182743       12.9102      0.5695      0.5695      283
+         199       61.6008     0.0301142       7.29015           1           1      255
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         299       81.6229     0.0254943       8.15253       1.395      0.1395      398
+         299        63.065     0.0212004       14.0507           1           1      376
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         399        82.725     0.0330018       3.68405           1           1      524
+         399       64.2728      0.022789       18.6164           1           1      504
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         499       83.1288    0.00405507       20.9462      0.9193      0.9193      644
+         499       64.4237    0.00170634       3.21613           1           1      623
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         599       83.4274    0.00830204       7.15666           1           1      771
+         599       64.4604     0.0135798        2.8787      0.3004           1      743
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         699       83.4563    0.00924625       1.28662           1           1      898
+         699       64.4731    7.2782e-05       1.23404        0.24        0.24      867
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         799       83.4863    0.00703205      0.672952           1           1     1017
+         799       64.4764   0.000123441      0.187555           1           1      988
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         899       83.4936    0.00042654      0.290122      0.4865     0.04865     1146
+         899       64.4771   3.91112e-05      0.118811           1           1     1103
         Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-         999       83.4947    0.00144258      0.217513       2.555      0.2555     1279
-        Iter      log prob        ||dx||      ||grad||       alpha      alpha0  # evals  Notes
-        1047        83.495   0.000179283     0.0613661      0.9495      0.9495     1340
+         912       64.4771   2.00926e-05      0.040848           1           1     1119
     Optimization terminated normally:
       Convergence detected: relative gradient magnitude is below tolerance
-    Finished in  0.8 seconds.
+    Finished in  0.9 seconds.
 
 The code below computes the parameter estimates for each of the methods,
 and then makes a graph to compare them.
 
 ``` r
+
 bind_rows(
     mutate(summary(drm_nuts)$estimates, algo = "nuts"),
-    mutate(summary(drm_advi)$estimates, algo = "advi"),
+    ## mutate(summary(drm_advi)$estimates, algo = "advi"),
     mutate(summary(drm_path)$estimates, algo = "path"),
     mutate(summary(drm_lapl)$estimates, algo = "lapl")
 ) |>
@@ -294,15 +284,17 @@ estimated relationship between environment and recruitment for each of
 those methods:
 
 ``` r
+
 effects_drm(drm_nuts, "rec", "c_stemp") |>
   plot() +
   labs(title = "nuts")
 effects_drm(drm_path, "rec", "c_stemp") |>
   plot() +
   labs(title = "path")
-effects_drm(drm_advi, "rec", "c_stemp") |>
-  plot() +
-  labs(title = "advi")
+## effects_drm(drm_advi, "rec", "c_stemp") |>
+##   plot() +
+##   labs(title = "advi")
+
 effects_drm(drm_lapl, "rec", "c_stemp") |>
   plot() +
   labs(title = "lapl")
@@ -313,7 +305,5 @@ effects_drm(drm_lapl, "rec", "c_stemp") |>
 ![](algos_files/figure-html/envrec-2.png)
 
 ![](algos_files/figure-html/envrec-3.png)
-
-![](algos_files/figure-html/envrec-4.png)
 
 ## References

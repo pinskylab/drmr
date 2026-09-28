@@ -14,3 +14,8 @@ Useful links:
 
 **Maintainer**: Lucas da Cunha Godoy <lcgodoy@duck.com>
 ([ORCID](https://orcid.org/0000-0003-4265-972X))
+
+Authors:
+
+- Lucas da Cunha Godoy <lcgodoy@duck.com>
+  ([ORCID](https://orcid.org/0000-0003-4265-972X))

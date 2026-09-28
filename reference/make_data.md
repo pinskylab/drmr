@@ -19,6 +19,8 @@ make_data(
   age_selectivity,
   ages_movement,
   adj_mat = matrix(0, ncol = 1, nrow = 1),
+  amat = NULL,
+  weight = NULL,
   .toggles,
   .priors,
   family = "gamma",
@@ -99,6 +101,14 @@ make_data(
   an adjacency `matrix` of dimensions `sites` \\\times\\ `sites`. Its
   elements are 1 if two sites are neighbors and zero otherwise.
 
+- amat:
+
+  a `numeric vector` of length `n_ages` specifying the maturity-at-age.
+
+- weight:
+
+  a `numeric vector` of length `n_ages` specifying the weight-at-age.
+
 - .toggles:
 
   a `list` of toggles for model components. The components are:
@@ -116,6 +126,13 @@ make_data(
 
   - `minit`: 1 to use mortality to estimate initial age classes and 0
     otherwise.
+
+  - `rec_dd`: 0 for Ricker, 1 for Beverton-Holt, and 2 (default) for no
+    density dependence.
+
+  - `acc_dd`: 0 for recruitment to depend on the SSB of the patch
+    (default), and 1 for recruitment to depend on the "global" (i.e.,
+    the whole study region) SSB.
 
   - `ar_re`: a `character`. It assumes one of the following values:
     "none" no AR, "rec" AR(1) for recruitment, "surv" AR(1) for survival

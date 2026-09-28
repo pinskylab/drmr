@@ -98,7 +98,7 @@ fit_drm(
 - algo_args:
 
   a `list` with arguments for the sampling algorithms. For instance,
-  `tol_rel_obj` for variational inference.
+  `tol_rel_obj` for variational inference. weight-at-age.
 
 - ...:
 
@@ -146,28 +146,28 @@ if (instantiate::stan_cmdstan_exists()) {
 #> 
 #> Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) 
 #> Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 1 
 #> Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 1 
 #> Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 1 
 #> Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 1 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from
-#> Chain 1 '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)
+#> Chain 1 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpOmMiLa/pkg-lib1a4170683f5f/drmr/bin/stan/utils/lpdfs.stanfunctions', line 97, column 4, included from
+#> Chain 1 '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 2, column 0) (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 363, column 2 to line 366, column 67)
 #> Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 1 
 #> Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 1 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 1 
@@ -192,30 +192,30 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Chain 1 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
 #> Chain 1 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
 #> Chain 1 Iteration: 2000 / 2000 [100%]  (Sampling) 
-#> Chain 1 finished in 3.2 seconds.
+#> Chain 1 finished in 4.5 seconds.
 #> Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) 
 #> Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 2 
 #> Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 2 
 #> Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 2 
 #> Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 2 
 #> Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 2 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 2 
@@ -240,28 +240,28 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Chain 2 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
 #> Chain 2 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
 #> Chain 2 Iteration: 2000 / 2000 [100%]  (Sampling) 
-#> Chain 2 finished in 4.3 seconds.
+#> Chain 2 finished in 3.9 seconds.
 #> Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) 
 #> Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from
-#> Chain 3 '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)
+#> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpOmMiLa/pkg-lib1a4170683f5f/drmr/bin/stan/utils/lpdfs.stanfunctions', line 97, column 4, included from
+#> Chain 3 '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 2, column 0) (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 363, column 2 to line 366, column 67)
 #> Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 3 
 #> Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from
-#> Chain 3 '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)
+#> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpOmMiLa/pkg-lib1a4170683f5f/drmr/bin/stan/utils/lpdfs.stanfunctions', line 97, column 4, included from
+#> Chain 3 '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 2, column 0) (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 363, column 2 to line 366, column 67)
 #> Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 3 
 #> Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 3 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 3 
 #> Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from
-#> Chain 3 '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)
+#> Chain 3 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpOmMiLa/pkg-lib1a4170683f5f/drmr/bin/stan/utils/lpdfs.stanfunctions', line 97, column 4, included from
+#> Chain 3 '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 2, column 0) (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 363, column 2 to line 366, column 67)
 #> Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 3 
@@ -286,41 +286,41 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Chain 3 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
 #> Chain 3 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
 #> Chain 3 Iteration: 2000 / 2000 [100%]  (Sampling) 
-#> Chain 3 finished in 4.0 seconds.
+#> Chain 3 finished in 4.1 seconds.
 #> Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) 
 #> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 4 
 #> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 4 
 #> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 4 
 #> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 4 
 #> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 4 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/Rtmp7kQpBr/pkg-lib1be17e389576/drmr/bin/stan/utils/lpdfs.stan', line 97, column 4, included from
-#> Chain 4 '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 2, column 0) (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 312, column 2 to line 315, column 67)
+#> Chain 4 Exception: Exception: gamma_lpdf: Inverse scale parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpOmMiLa/pkg-lib1a4170683f5f/drmr/bin/stan/utils/lpdfs.stanfunctions', line 97, column 4, included from
+#> Chain 4 '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 2, column 0) (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 363, column 2 to line 366, column 67)
 #> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 4 
 #> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 4 
 #> Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/Rtmp8LMTQe/model-2afb13976e39.stan', line 309, column 4 to column 54)
+#> Chain 4 Exception: gamma_lpdf: Random variable is 0, but must be positive finite! (in '/tmp/RtmptcMIhf/model-274c2a88beed.stan', line 360, column 4 to column 54)
 #> Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 #> Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 #> Chain 4 
@@ -345,27 +345,27 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Chain 4 Iteration: 1800 / 2000 [ 90%]  (Sampling) 
 #> Chain 4 Iteration: 1900 / 2000 [ 95%]  (Sampling) 
 #> Chain 4 Iteration: 2000 / 2000 [100%]  (Sampling) 
-#> Chain 4 finished in 2.8 seconds.
+#> Chain 4 finished in 3.3 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 3.6 seconds.
-#> Total execution time: 14.6 seconds.
+#> Mean chain execution time: 3.9 seconds.
+#> Total execution time: 16.1 seconds.
 #> 
-#> Warning: 137 of 4000 (3.0%) transitions ended with a divergence.
+#> Warning: 41 of 4000 (1.0%) transitions ended with a divergence.
 #> See https://mc-stan.org/misc/warnings for details.
 #> # A tibble: 1,076 × 10
 #>    variable        mean    median     sd    mad       q5      q95  rhat ess_bulk
 #>    <chr>          <dbl>     <dbl>  <dbl>  <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-#>  1 lp__       -1363.     -1.36e+3 1.46   1.27   -1.37e+3 -1.36e+3  1.01     602.
-#>  2 lxi[1]        -2.64   -2.31e+0 1.33   1.15   -5.31e+0 -1.14e+0  1.01     209.
-#>  3 phi[1]         0.721   7.18e-1 0.0554 0.0546  6.32e-1  8.15e-1  1.01    1155.
-#>  4 beta_r[1]      3.38    3.38e+0 0.0770 0.0777  3.26e+0  3.51e+0  1.01     753.
-#>  5 beta_t[1]     -0.180  -2.63e-1 0.400  0.415  -6.96e-1  5.89e-1  1.02     194.
-#>  6 xi[1]         -0.124  -9.94e-2 0.102  0.109  -3.20e-1 -4.93e-3  1.01     209.
-#>  7 log_rec[1]     3.38    3.38e+0 0.0770 0.0777  3.26e+0  3.51e+0  1.01     753.
-#>  8 log_rec[2]     3.38    3.38e+0 0.0770 0.0777  3.26e+0  3.51e+0  1.01     753.
-#>  9 log_rec[3]     3.38    3.38e+0 0.0770 0.0777  3.26e+0  3.51e+0  1.01     753.
-#> 10 log_rec[4]     3.38    3.38e+0 0.0770 0.0777  3.26e+0  3.51e+0  1.01     753.
+#>  1 lp__       -1363.    -1363.    1.44   1.21   -1.37e+3 -1.36e+3  1.00     967.
+#>  2 lxi[1]        -2.56     -2.26  1.28   1.11   -5.10e+0 -1.06e+0  1.02     252.
+#>  3 phi[1]         0.722     0.721 0.0579 0.0579  6.30e-1  8.22e-1  1.01    1337.
+#>  4 beta_r[1]      3.39      3.38  0.0756 0.0759  3.26e+0  3.51e+0  1.00    1430.
+#>  5 beta_t[1]     -0.150    -0.252 0.433  0.418  -6.81e-1  6.94e-1  1.02     254.
+#>  6 xi[1]         -0.132    -0.105 0.110  0.109  -3.47e-1 -6.11e-3  1.02     252.
+#>  7 log_rec[1]     3.39      3.38  0.0756 0.0759  3.26e+0  3.51e+0  1.00    1430.
+#>  8 log_rec[2]     3.39      3.38  0.0756 0.0759  3.26e+0  3.51e+0  1.00    1430.
+#>  9 log_rec[3]     3.39      3.38  0.0756 0.0759  3.26e+0  3.51e+0  1.00    1430.
+#> 10 log_rec[4]     3.39      3.38  0.0756 0.0759  3.26e+0  3.51e+0  1.00    1430.
 #> # ℹ 1,066 more rows
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```

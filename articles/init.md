@@ -1,9 +1,10 @@
 # Densities’ initialization
 
 All model configurations require the initialization of the age-specific
-densities at the first year ($\lambda_{a,1,i}$). This initialization
-applies to all age classes greater than one ($a > 1$), as the density of
-the first age-class is always determined by the estimated recruitment.
+densities at the first year ($`\lambda_{a, 1, i}`$). This initialization
+applies to all age classes greater than one ($`a > 1`$), as the density
+of the first age-class is always determined by the estimated
+recruitment.
 
 The `drmr` package provides three methods for setting these initial
 values, each controlled by a specific parameter or toggle in the

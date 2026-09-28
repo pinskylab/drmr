@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Advanced features • drmr</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="advanced-features_files/libs/quarto-html/popper.min.js"></script><script src="advanced-features_files/libs/quarto-html/tippy.umd.min.js"></script><link href="advanced-features_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="advanced-features_files/libs/quarto-html/light-border.css" rel="stylesheet">
@@ -19,11 +19,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="default" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,18 +32,17 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/get-started.html">Get started</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/advanced-features.html">Advanced features</a></li>
-    <li><a class="dropdown-item" href="../articles/algos.html">Algorithms</a></li>
-    <li><a class="dropdown-item" href="../articles/get-started.html">Get Started</a></li>
-    <li><a class="dropdown-item" href="../articles/init.html">Densities' initialization</a></li>
-    <li><a class="dropdown-item" href="../articles/parametrization.html">Parametrization of the density functions</a></li>
-    <li><a class="dropdown-item" href="../articles/theory.html">Theoretical Background</a></li>
+<li><a class="dropdown-item" href="../articles/algos.html">Algorithms for inference</a></li>
+    <li><a class="dropdown-item" href="../articles/init.html">Initializing densities</a></li>
+    <li><a class="dropdown-item" href="../articles/parametrization.html">Model parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/advanced-features.html">Advanced features</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Functions</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -95,7 +94,7 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span> <span class="co">## graphs</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mc-stan.org/bayesplot/" class="external-link">bayesplot</a></span><span class="op">)</span> <span class="co">## and more graphs</span></span></code></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>This is bayesplot version 1.15.0</code></pre>
+<pre><code>This is bayesplot version 1.16.0</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>- Online documentation and vignettes at mc-stan.org/bayesplot</code></pre>
@@ -314,9 +313,9 @@ Geodetic CRS:  WGS 84</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/effects_drm.html">effects_drm</a></span><span class="op">(</span><span class="va">drm_rec</span>, <span class="co">## model</span></span>
-<span>     process <span class="op">=</span> <span class="st">"rec"</span>, <span class="co">## demographic process</span></span>
-<span>     variable <span class="op">=</span> <span class="st">"c_stemp"</span>, <span class="co">## environmental variable</span></span>
-<span>     prob <span class="op">=</span> <span class="fl">.8</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co">## mass of the creible interval</span></span>
+<span>            process <span class="op">=</span> <span class="st">"rec"</span>, <span class="co">## demographic process</span></span>
+<span>            variable <span class="op">=</span> <span class="st">"c_stemp"</span>, <span class="co">## environmental variable</span></span>
+<span>            prob <span class="op">=</span> <span class="fl">.8</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co">## mass of the creible interval</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
@@ -326,9 +325,9 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/effects_drm.html">effects_drm</a></span><span class="op">(</span><span class="va">drm_srv</span>, <span class="co">## model</span></span>
-<span>     process <span class="op">=</span> <span class="st">"surv"</span>, <span class="co">## demographic process</span></span>
-<span>     variable <span class="op">=</span> <span class="st">"c_btemp"</span>, <span class="co">## environmental variable</span></span>
-<span>     prob <span class="op">=</span> <span class="fl">.8</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>            process <span class="op">=</span> <span class="st">"surv"</span>, <span class="co">## demographic process</span></span>
+<span>            variable <span class="op">=</span> <span class="st">"c_btemp"</span>, <span class="co">## environmental variable</span></span>
+<span>            prob <span class="op">=</span> <span class="fl">.8</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
@@ -406,39 +405,41 @@ Geodetic CRS:  WGS 84</code></pre>
 <div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fitted_rec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">drm_rec</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"rec"</span>, .before <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co">## creating a column that identifies the ##</span></span></code></pre></div>
+<span>  <span class="co">## creating a column that identifies the model</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"rec"</span>, .before <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> </span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+Chain 1  Elapsed Time: 0.02 seconds (Generated Quantities)
 Chain 1 finished in 0.0 seconds.
+Chain 2  Elapsed Time: 0.02 seconds (Generated Quantities)
 Chain 2 finished in 0.0 seconds.
 
 Both chains finished successfully.
 Mean chain execution time: 0.0 seconds.
-Total execution time: 0.2 seconds.</code></pre>
+Total execution time: 0.3 seconds.</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>                                     <span class="co">## model</span></span>
-<span></span>
-<span><span class="va">fitted_srv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">drm_srv</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">fitted_srv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">drm_srv</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"srv"</span>, .before <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co">## creating a column that identifies the</span></span></code></pre></div>
+<span>  <span class="co">## creating a column that identifies the model</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"srv"</span>, .before <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> </span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+Chain 1  Elapsed Time: 0.02 seconds (Generated Quantities)
 Chain 1 finished in 0.0 seconds.
+Chain 2  Elapsed Time: 0.02 seconds (Generated Quantities)
 Chain 2 finished in 0.0 seconds.
 
 Both chains finished successfully.
 Mean chain execution time: 0.0 seconds.
 Total execution time: 0.2 seconds.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>                                     <span class="co">## model</span></span></code></pre></div>
 </div>
 <p>The out-of-sample predictions are obtained just as easily:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">predicted_rec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">drm_rec</span>,</span>
 <span>                         new_data <span class="op">=</span> <span class="va">dat_test</span>,</span>
 <span>                         past_data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">dat_train</span>,</span>
@@ -446,44 +447,46 @@ Total execution time: 0.2 seconds.</code></pre>
 <span>                         seed <span class="op">=</span> <span class="fl">2026</span>,</span>
 <span>                         f_test <span class="op">=</span> <span class="va">f_test</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"rec"</span>, .before <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co">## creating a column that identifies the ##</span></span></code></pre></div>
+<span>   <span class="co">## creating a column that identifies the model </span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"rec"</span>, .before <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+Chain 1  Elapsed Time: 0.016 seconds (Generated Quantities)
 Chain 1 finished in 0.0 seconds.
+Chain 2  Elapsed Time: 0.016 seconds (Generated Quantities)
 Chain 2 finished in 0.0 seconds.
 
 Both chains finished successfully.
 Mean chain execution time: 0.0 seconds.
 Total execution time: 0.2 seconds.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>                                     <span class="co">## model</span></span>
-<span></span>
-<span><span class="va">predicted_srv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">drm_srv</span>,</span>
+<div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">predicted_srv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">drm_srv</span>,</span>
 <span>                         new_data <span class="op">=</span> <span class="va">dat_test</span>,</span>
 <span>                         past_data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">dat_train</span>,</span>
 <span>                                            <span class="va">year</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                         seed <span class="op">=</span> <span class="fl">2026</span>,</span>
 <span>                         f_test <span class="op">=</span> <span class="va">f_test</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"srv"</span>, .before <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co">## creating a column that identifies the</span></span></code></pre></div>
+<span>  <span class="co">## creating a column that identifies the model</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"srv"</span>, .before <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> </span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+Chain 1  Elapsed Time: 0.016 seconds (Generated Quantities)
 Chain 1 finished in 0.0 seconds.
+Chain 2  Elapsed Time: 0.016 seconds (Generated Quantities)
 Chain 2 finished in 0.0 seconds.
 
 Both chains finished successfully.
 Mean chain execution time: 0.0 seconds.
 Total execution time: 0.2 seconds.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>                                     <span class="co">## model</span></span></code></pre></div>
 </div>
 <p>We can now combine the in- and out-of-sample predictions to visualize the results. Moreover, we will join the predictions outputs to the original data to enhance the visualizations.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">combined_sfl</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">fitted_rec</span>, <span class="va">predicted_rec</span>,</span>
 <span>            <span class="va">fitted_srv</span>, <span class="va">predicted_srv</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -508,7 +511,7 @@ Total execution time: 0.2 seconds.</code></pre>
 </div>
 <p>We can objectively compare the predictions as well.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">combined_sfl</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">combined_sfl</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">year</span> <span class="op">&gt;=</span> <span class="va">first_year_forecast</span>,</span>
@@ -540,22 +543,22 @@ Total execution time: 0.2 seconds.</code></pre>
 <tr class="odd">
 <td style="text-align: left;">in-sample</td>
 <td style="text-align: left;">rec</td>
-<td style="text-align: right;">0.1336298</td>
+<td style="text-align: right;">0.1361440</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">in-sample</td>
 <td style="text-align: left;">srv</td>
-<td style="text-align: right;">0.1436815</td>
+<td style="text-align: right;">0.1449350</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">out-of-sample</td>
 <td style="text-align: left;">rec</td>
-<td style="text-align: right;">0.3331257</td>
+<td style="text-align: right;">0.3026013</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">out-of-sample</td>
 <td style="text-align: left;">srv</td>
-<td style="text-align: right;">0.3448098</td>
+<td style="text-align: right;">0.2862900</td>
 </tr>
 </tbody>
 </table>
@@ -568,20 +571,22 @@ Total execution time: 0.2 seconds.</code></pre>
 <p><code>drmr</code> can handle this by projecting the latent density. Latent density represents the true, unobserved population at a given site. Because our models assume that observed data captures only a subset of the total population at a given site and time, the latent density acts as a proxy for true abundance and will consistently exceed the observed abundance. Furthermore, because it isolates the underlying biological process from observation error, the latent density trajectory tends to be much “smoother”.</p>
 <p>You can compute the in- and out-of-sample latent abundances by passing the <code>type = "latent"</code> argument to the <code>fitted</code> and <code>predict</code> functions:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fitted_rl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">drm_rec</span>, type <span class="op">=</span> <span class="st">"latent"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span> </span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+Chain 1  Elapsed Time: 0.016 seconds (Generated Quantities)
 Chain 1 finished in 0.0 seconds.
+Chain 2  Elapsed Time: 0.016 seconds (Generated Quantities)
 Chain 2 finished in 0.0 seconds.
 
 Both chains finished successfully.
 Mean chain execution time: 0.0 seconds.
 Total execution time: 0.2 seconds.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">predicted_rl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">drm_rec</span>,</span>
 <span>                        new_data <span class="op">=</span> <span class="va">dat_test</span>,</span>
 <span>                        past_data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">dat_train</span>,</span>
@@ -593,19 +598,21 @@ Total execution time: 0.2 seconds.</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+Chain 1  Elapsed Time: 0.016 seconds (Generated Quantities)
 Chain 1 finished in 0.0 seconds.
+Chain 2  Elapsed Time: 0.015 seconds (Generated Quantities)
 Chain 2 finished in 0.0 seconds.
 
 Both chains finished successfully.
 Mean chain execution time: 0.0 seconds.
 Total execution time: 0.2 seconds.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">combined_rl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">fitted_rl</span>, <span class="va">predicted_rl</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Now, we can visualize those:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">combined_rl</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>patch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">patch</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co">## to allow for a comparison with reality</span></span>
@@ -629,24 +636,26 @@ Total execution time: 0.2 seconds.</code></pre>
 </h2>
 <p>Our package also allows for estimating the age-specific densities. To compute those, one can simply run:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lambdas</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/age_dens.html">ages_edens</a></span><span class="op">(</span><span class="va">drm_rec</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>patch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">patch</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+Chain 1  Elapsed Time: 0.317 seconds (Generated Quantities)
 Chain 1 finished in 0.0 seconds.
+Chain 2  Elapsed Time: 0.318 seconds (Generated Quantities)
 Chain 2 finished in 0.0 seconds.
 
 Both chains finished successfully.
 Mean chain execution time: 0.0 seconds.
-Total execution time: 0.6 seconds.</code></pre>
+Total execution time: 0.8 seconds.</code></pre>
 </div>
 </div>
 <p>Now, let’s visualize the age-specific densities for all patches at a given year:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lambdas</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2010</span><span class="op">)</span> <span class="op">|&gt;</span>  </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span>,</span>
@@ -666,7 +675,7 @@ Total execution time: 0.6 seconds.</code></pre>
 </div>
 <p>The error bars represent the respective 90% credible intervals. An equivalent visualization for a single patch across time can be obtained as follows:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lambdas</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">patch</span> <span class="op">==</span> <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1985</span>, <span class="fl">2020</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -785,7 +794,7 @@ Fredston, Alexa, Daniel Ovando, Lucas da Cunha Godoy, et al. 2025. <em>Dynamic R
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.9000.</p>
 </div>
 
     </footer>

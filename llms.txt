@@ -1,17 +1,53 @@
 # drmr
 
+> **Warning:** If working on a MacOS (or Linux) machine, one should
+> install `data.table` and `cmdstanr` from source in order to use the
+> package. Otherwise, one get `segmentation fault` errors which are hard
+> to debug (and also not a `drmr`, but rather a `cmdstanr` issue). To
+> install a package from source, one should use:
+
+``` r
+
+install.packages("<package>", type = "source")
+```
+
+> Moreover, we recommend installing
+> [`instantiate`](https://github.com/wlandau/instantiate/) from GitHub
+> instead of CRAN.
+
 `drmr` (pronounced *drummer*) is an `R` package for fitting dynamic
-range models. Inference is carried out in a Bayesian framework via
-Markov Chain Monte Carlo (MCMC) samples available in `Stan`.
+range models to spatiotemporal data on species abundance. Dynamic range
+models are spatial population models in which demographic rates (e.g.,
+reproduction or mortality) are influenced by the environment. Inference
+is carried out in a Bayesian framework via Markov Chain Monte Carlo
+(MCMC) samples available in `Stan`.
+
+For details, please see Vignettes linked below and [da Cunha Godoy et
+al. 2026](https://ecoevorxiv.org/repository/view/12564/).
 
 ### Installation
 
 The installation of the development version from GitHub can be done via
 
 ``` r
+
 remotes::install_github("pinskylab/drmr")
 ## or devtools::install_github("pinskylab/drmr")
 ```
+
+### Vignettes
+
+- [Get
+  started](https://pinskylab.github.io/drmr/articles/get-started.html)
+- [Theoretical
+  background](https://ecoevorxiv.org/repository/view/12564/)
+- [Algorithms](https://pinskylab.github.io/drmr/articles/algos.html)
+- [Initializing
+  densities](https://pinskylab.github.io/drmr/articles/init.html)
+- [Parameterization of the density
+  functions](https://pinskylab.github.io/drmr/articles/parametrization.html)
+- [Advanced
+  features](https://pinskylab.github.io/drmr/articles/advanced-features.html)
 
 # Package index
 
@@ -36,6 +72,9 @@ remotes::install_github("pinskylab/drmr")
 
 - [`clean_edens()`](https://pinskylab.github.io/drmr/reference/clean_edens.md)
   : Cleaning the variable output from stan for interpretability.
+
+- [`dd_curves()`](https://pinskylab.github.io/drmr/reference/dd_curves.md)
+  : Stock-Recruitment Curves for DD Models
 
 - [`default_algo()`](https://pinskylab.github.io/drmr/reference/default_algo.md)
   : Default arguments for inference algorithm
@@ -109,6 +148,9 @@ remotes::install_github("pinskylab/drmr")
 
 - [`fitted_pars_sdm()`](https://pinskylab.github.io/drmr/reference/fitted_pars_sdm.md)
   : Retrieve parameters needed for predictions
+
+- [`fix_dd()`](https://pinskylab.github.io/drmr/reference/fix_dd.md) :
+  Density dependence verbose to code
 
 - [`fix_linbeta()`](https://pinskylab.github.io/drmr/reference/fix_linbeta.md)
   : Regression coefficient for non-centered variable
@@ -186,6 +228,9 @@ remotes::install_github("pinskylab/drmr")
 
 - [`pars_transform()`](https://pinskylab.github.io/drmr/reference/pars_transform.md)
   : Transform parameters to a meaningful and interpretable scale.
+
+- [`plot(`*`<dd_curve>`*`)`](https://pinskylab.github.io/drmr/reference/plot.dd_curve.md)
+  : Plot Stock-Recruitment Curves for ADRM Objects
 
 - [`plot(`*`<drmrmodels>`*`)`](https://pinskylab.github.io/drmr/reference/plot.drmrmodels.md)
   : Plot Diagnostics for DRM Models
@@ -277,16 +322,14 @@ remotes::install_github("pinskylab/drmr")
 
 # Articles
 
-### All vignettes
+### Articles
 
-- [Advanced
-  features](https://pinskylab.github.io/drmr/articles/advanced-features.md):
-- [Algorithms](https://pinskylab.github.io/drmr/articles/algos.md):
 - [Get
   Started](https://pinskylab.github.io/drmr/articles/get-started.md):
+- [Algorithms](https://pinskylab.github.io/drmr/articles/algos.md):
 - [Densities'
   initialization](https://pinskylab.github.io/drmr/articles/init.md):
 - [Parametrization of the density
   functions](https://pinskylab.github.io/drmr/articles/parametrization.md):
-- [Theoretical
-  Background](https://pinskylab.github.io/drmr/articles/theory.md):
+- [Advanced
+  features](https://pinskylab.github.io/drmr/articles/advanced-features.md):

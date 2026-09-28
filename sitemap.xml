@@ -7,7 +7,6 @@
 <url><loc>https://pinskylab.github.io/drmr/articles/index.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/articles/init.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/articles/parametrization.html</loc></url>
-<url><loc>https://pinskylab.github.io/drmr/articles/theory.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/authors.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/index.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/news/index.html</loc></url>
@@ -18,6 +17,7 @@
 <url><loc>https://pinskylab.github.io/drmr/reference/check_between.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/check_pars.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/clean_edens.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/dd_curves.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/default_algo.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/default_laplace.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/default_nuts.html</loc></url>
@@ -41,6 +41,7 @@
 <url><loc>https://pinskylab.github.io/drmr/reference/fitted_pars_lambda.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/fitted_pars_ll.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/fitted_pars_sdm.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/fix_dd.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/fix_linbeta.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/fix_re.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/gen_adj.html</loc></url>
@@ -65,6 +66,7 @@
 <url><loc>https://pinskylab.github.io/drmr/reference/new_pred_drmr.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/new_sdm.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/pars_transform.html</loc></url>
+<url><loc>https://pinskylab.github.io/drmr/reference/plot.dd_curve.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/plot.drmrmodels.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/plot.eff_drm.html</loc></url>
 <url><loc>https://pinskylab.github.io/drmr/reference/pop_dyn.html</loc></url>

@@ -19,6 +19,7 @@ The code below loads the packages necessary to reproduce the examples in
 this document.
 
 ``` r
+
 library(drmr)
 library(sf) ## "mapping"
 ```
@@ -26,11 +27,12 @@ library(sf) ## "mapping"
     Linking to GEOS 3.12.1, GDAL 3.8.4, PROJ 9.4.0; sf_use_s2() is TRUE
 
 ``` r
+
 library(ggplot2) ## graphs
 library(bayesplot) ## and more graphs
 ```
 
-    This is bayesplot version 1.15.0
+    This is bayesplot version 1.16.0
 
     - Online documentation and vignettes at mc-stan.org/bayesplot
 
@@ -41,8 +43,10 @@ library(bayesplot) ## and more graphs
        * See ?bayesplot_theme_set for details on theme setting
 
 ``` r
+
 library(dplyr)
 ```
+
 
     Attaching package: 'dplyr'
 
@@ -65,6 +69,7 @@ dataset, which resembles the data analyzed in Fredston et al.
 ([2025](#ref-fredston2025dynamic)). We load it by running:
 
 ``` r
+
 ## loads the data
 data(sum_fl)
 
@@ -85,6 +90,7 @@ Finally, we split the data, reserving the last five years for evaluating
 predictions:
 
 ``` r
+
 ## 5 years-ahead predictions
 first_year_forecast <- max(sum_fl$year) - 4
 
@@ -120,6 +126,7 @@ In that spirit, we center and scale some of our potential explanatory
 variables as follows:
 
 ``` r
+
 avgs <- c("stemp" = mean(dat_train$stemp),
           "btemp" = mean(dat_train$btemp),
           "depth" = mean(dat_train$depth),
@@ -169,6 +176,7 @@ of age-groups observed for the species. To load that matrix in our `R`
 session, we run:
 
 ``` r
+
 fmat <-
   system.file("fmat.rds", package = "drmr") |>
   readRDS()
@@ -182,6 +190,7 @@ Now, we load a shapefile associated with the patches used in the dataset
 to construct the adjacency matrix:
 
 ``` r
+
 ## loading map
 shp_sum_fl <- system.file("maps/sum_fl.shp", package = "drmr") |>
   st_read()
@@ -196,6 +205,7 @@ shp_sum_fl <- system.file("maps/sum_fl.shp", package = "drmr") |>
     Geodetic CRS:  WGS 84
 
 ``` r
+
 ## constructing adjacency matrix
 adj_mat <- gen_adj(st_buffer(st_geometry(shp_sum_fl),
                              dist = 2500))
@@ -228,6 +238,7 @@ below takes into account the following:
     [`vignette("init", "drmr")`](https://pinskylab.github.io/drmr/articles/init.md).
 
 ``` r
+
 algo_args <- list(parallel_chains = 2,
                   chains = 2,
                   iter_sampling = 200,
@@ -272,6 +283,7 @@ will do it using the `update` method. In that case, all the other
 arguments passed to `fit_drm` are kept the same as in the last call.
 
 ``` r
+
 drm_srv <-
   update(drm_rec,
          formula_rec = ~ 1,
@@ -286,24 +298,25 @@ via the `.toggles` argument). Below is a summary of the main toggles
 available:
 
 - **`est_surv`**: If activated (`1`), enables the estimation of a
-  regression coefficient for survival ($\beta_{s}$). Otherwise, this
+  regression coefficient for survival ($`\beta_s`$). Otherwise, this
   parameter is excluded from the model.
 - **`rho_mu`**: If activated (`1`), links the probability of absence to
-  the mean density, represented by the parameter $\xi$ where
-  ${logit}(\rho) = \ldots\xi{\log}(\mu)$.
+  the mean density, represented by the parameter $`\xi`$ where
+  $`\mathrm{logit}(\rho)
+  = \dots \xi \log(\mu)`$.
 - **`movement`**: If activated (`1`), includes the probability of
-  individuals remaining in the same patch ($\zeta$) and activates the
+  individuals remaining in the same patch ($`\zeta`$) and activates the
   movement matrix routines.
 - **`ar_re`**: Determines the process for the AR(1) temporal
   correlation. If not `"none"`, it enables AR(1) parameters such as
-  temporal correlation ($\alpha$), AR(1) conditional standard deviation
-  ($\sigma_{t}$), and associated random effects ($z_{t}$).
+  temporal correlation ($`\alpha`$), AR(1) conditional standard
+  deviation ($`\sigma_t`$), and associated random effects ($`z_t`$).
 - **`iid_re`**: If not `"none"`, incorporates patch-level independent
-  and identically distributed (iid) random effects ($z_{i}$) and their
-  standard deviation ($\sigma_{i}$).
+  and identically distributed (iid) random effects ($`z_i`$) and their
+  standard deviation ($`\sigma_i`$).
 - **`sp_re`**: If not `"none"`, includes patch-level Intrinsic
-  Conditional Autoregressive (ICAR) random effects ($z_{s}$) and their
-  standard deviation ($\sigma_{s}$).
+  Conditional Autoregressive (ICAR) random effects ($`z_s`$) and their
+  standard deviation ($`\sigma_s`$).
 
 For each of the random effects “toggles”, there are three alternatives
 to `"none"`. We can include random effects for recruitment (`"rec"`),
@@ -319,20 +332,22 @@ sea surface temperature for the first model we fit, and between survival
 and sea bottom temperature for the second model fitted.
 
 ``` r
+
 effects_drm(drm_rec, ## model
-     process = "rec", ## demographic process
-     variable = "c_stemp", ## environmental variable
-     prob = .8) |> ## mass of the creible interval
+            process = "rec", ## demographic process
+            variable = "c_stemp", ## environmental variable
+            prob = .8) |> ## mass of the creible interval
   plot()
 ```
 
 ![](advanced-features_files/figure-html/env_dem-1.png)
 
 ``` r
+
 effects_drm(drm_srv, ## model
-     process = "surv", ## demographic process
-     variable = "c_btemp", ## environmental variable
-     prob = .8) |> 
+            process = "surv", ## demographic process
+            variable = "c_btemp", ## environmental variable
+            prob = .8) |> 
   plot()
 ```
 
@@ -345,6 +360,7 @@ credible intervals at once. Below, we show how to achieve that for the
 survival plot:
 
 ``` r
+
 multiple_cis <-
   effects_drm(drm_srv, process = "surv", variable = "c_btemp",
        summary = FALSE,
@@ -412,44 +428,47 @@ below shows how to use the `fitted` and `summary` methods to achieve
 that goal.
 
 ``` r
+
 fitted_rec <- fitted(drm_rec) |>
   summary() |>
-  mutate(model = "rec", .before = 1) ## creating a column that identifies the ##
+  ## creating a column that identifies the model
+  mutate(model = "rec", .before = 1) 
 ```
 
     Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+    Chain 1  Elapsed Time: 0.02 seconds (Generated Quantities)
     Chain 1 finished in 0.0 seconds.
+    Chain 2  Elapsed Time: 0.02 seconds (Generated Quantities)
     Chain 2 finished in 0.0 seconds.
 
     Both chains finished successfully.
     Mean chain execution time: 0.0 seconds.
-    Total execution time: 0.2 seconds.
+    Total execution time: 0.3 seconds.
 
 ``` r
-                                     ## model
 
 fitted_srv <- fitted(drm_srv) |>
   summary() |>
-  mutate(model = "srv", .before = 1) ## creating a column that identifies the
+  ## creating a column that identifies the model
+  mutate(model = "srv", .before = 1) 
 ```
 
     Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+    Chain 1  Elapsed Time: 0.02 seconds (Generated Quantities)
     Chain 1 finished in 0.0 seconds.
+    Chain 2  Elapsed Time: 0.02 seconds (Generated Quantities)
     Chain 2 finished in 0.0 seconds.
 
     Both chains finished successfully.
     Mean chain execution time: 0.0 seconds.
     Total execution time: 0.2 seconds.
-
-``` r
-                                     ## model
-```
 
 The out-of-sample predictions are obtained just as easily:
 
 ``` r
+
 predicted_rec <- predict(drm_rec,
                          new_data = dat_test,
                          past_data = filter(dat_train,
@@ -457,12 +476,15 @@ predicted_rec <- predict(drm_rec,
                          seed = 2026,
                          f_test = f_test) |>
   summary() |>
-  mutate(model = "rec", .before = 1) ## creating a column that identifies the ##
+   ## creating a column that identifies the model 
+  mutate(model = "rec", .before = 1)
 ```
 
     Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+    Chain 1  Elapsed Time: 0.016 seconds (Generated Quantities)
     Chain 1 finished in 0.0 seconds.
+    Chain 2  Elapsed Time: 0.016 seconds (Generated Quantities)
     Chain 2 finished in 0.0 seconds.
 
     Both chains finished successfully.
@@ -470,7 +492,6 @@ predicted_rec <- predict(drm_rec,
     Total execution time: 0.2 seconds.
 
 ``` r
-                                     ## model
 
 predicted_srv <- predict(drm_srv,
                          new_data = dat_test,
@@ -479,27 +500,27 @@ predicted_srv <- predict(drm_srv,
                          seed = 2026,
                          f_test = f_test) |>
   summary() |>
-  mutate(model = "srv", .before = 1) ## creating a column that identifies the
+  ## creating a column that identifies the model
+  mutate(model = "srv", .before = 1) 
 ```
 
     Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+    Chain 1  Elapsed Time: 0.016 seconds (Generated Quantities)
     Chain 1 finished in 0.0 seconds.
+    Chain 2  Elapsed Time: 0.016 seconds (Generated Quantities)
     Chain 2 finished in 0.0 seconds.
 
     Both chains finished successfully.
     Mean chain execution time: 0.0 seconds.
     Total execution time: 0.2 seconds.
 
-``` r
-                                     ## model
-```
-
 We can now combine the in- and out-of-sample predictions to visualize
 the results. Moreover, we will join the predictions outputs to the
 original data to enhance the visualizations.
 
 ``` r
+
 combined_sfl <-
   bind_rows(fitted_rec, predicted_rec,
             fitted_srv, predicted_srv) |>
@@ -522,6 +543,7 @@ ggplot(data = combined_sfl,
 We can objectively compare the predictions as well.
 
 ``` r
+
 combined_sfl <-
   combined_sfl |>
   mutate(type = ifelse(year >= first_year_forecast,
@@ -545,10 +567,10 @@ combined_sfl |>
 
 | type          | model |      rmse |
 |:--------------|:------|----------:|
-| in-sample     | rec   | 0.1336298 |
-| in-sample     | srv   | 0.1436815 |
-| out-of-sample | rec   | 0.3331257 |
-| out-of-sample | srv   | 0.3448098 |
+| in-sample     | rec   | 0.1361440 |
+| in-sample     | srv   | 0.1449350 |
+| out-of-sample | rec   | 0.3026013 |
+| out-of-sample | srv   | 0.2862900 |
 
 As expected, in-sample predictions have lower root mean square error
 (RMSE) of prediction when compared to their out-of-sample counterpart.
@@ -574,13 +596,16 @@ You can compute the in- and out-of-sample latent abundances by passing
 the `type = "latent"` argument to the `fitted` and `predict` functions:
 
 ``` r
+
 fitted_rl <- fitted(drm_rec, type = "latent") |>
   summary() 
 ```
 
     Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+    Chain 1  Elapsed Time: 0.016 seconds (Generated Quantities)
     Chain 1 finished in 0.0 seconds.
+    Chain 2  Elapsed Time: 0.016 seconds (Generated Quantities)
     Chain 2 finished in 0.0 seconds.
 
     Both chains finished successfully.
@@ -588,6 +613,7 @@ fitted_rl <- fitted(drm_rec, type = "latent") |>
     Total execution time: 0.2 seconds.
 
 ``` r
+
 predicted_rl <- predict(drm_rec,
                         new_data = dat_test,
                         past_data = filter(dat_train,
@@ -600,7 +626,9 @@ predicted_rl <- predict(drm_rec,
 
     Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+    Chain 1  Elapsed Time: 0.016 seconds (Generated Quantities)
     Chain 1 finished in 0.0 seconds.
+    Chain 2  Elapsed Time: 0.015 seconds (Generated Quantities)
     Chain 2 finished in 0.0 seconds.
 
     Both chains finished successfully.
@@ -608,12 +636,14 @@ predicted_rl <- predict(drm_rec,
     Total execution time: 0.2 seconds.
 
 ``` r
+
 combined_rl <- bind_rows(fitted_rl, predicted_rl)
 ```
 
 Now, we can visualize those:
 
 ``` r
+
 combined_rl |>
   mutate(patch = as.integer(patch)) |>
   ## to allow for a comparison with reality
@@ -636,6 +666,7 @@ Our package also allows for estimating the age-specific densities. To
 compute those, one can simply run:
 
 ``` r
+
 lambdas <- ages_edens(drm_rec) |>
   summary() |>
   mutate(patch = as.integer(patch))
@@ -643,17 +674,20 @@ lambdas <- ages_edens(drm_rec) |>
 
     Running standalone generated quantities after 2 MCMC chains, 1 chain at a time ...
 
+    Chain 1  Elapsed Time: 0.317 seconds (Generated Quantities)
     Chain 1 finished in 0.0 seconds.
+    Chain 2  Elapsed Time: 0.318 seconds (Generated Quantities)
     Chain 2 finished in 0.0 seconds.
 
     Both chains finished successfully.
     Mean chain execution time: 0.0 seconds.
-    Total execution time: 0.6 seconds.
+    Total execution time: 0.8 seconds.
 
 Now, let’s visualize the age-specific densities for all patches at a
 given year:
 
 ``` r
+
 lambdas |>
   filter(year == 2010) |>  
   ggplot(data = _,
@@ -673,6 +707,7 @@ equivalent visualization for a single patch across time can be obtained
 as follows:
 
 ``` r
+
 lambdas |>
   filter(patch == 5) |>
   filter(year %in% seq(1985, 2020, by = 5)) |>

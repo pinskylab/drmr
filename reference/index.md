@@ -22,6 +22,9 @@
 - [`clean_edens()`](https://pinskylab.github.io/drmr/reference/clean_edens.md)
   : Cleaning the variable output from stan for interpretability.
 
+- [`dd_curves()`](https://pinskylab.github.io/drmr/reference/dd_curves.md)
+  : Stock-Recruitment Curves for DD Models
+
 - [`default_algo()`](https://pinskylab.github.io/drmr/reference/default_algo.md)
   : Default arguments for inference algorithm
 
@@ -94,6 +97,9 @@
 
 - [`fitted_pars_sdm()`](https://pinskylab.github.io/drmr/reference/fitted_pars_sdm.md)
   : Retrieve parameters needed for predictions
+
+- [`fix_dd()`](https://pinskylab.github.io/drmr/reference/fix_dd.md) :
+  Density dependence verbose to code
 
 - [`fix_linbeta()`](https://pinskylab.github.io/drmr/reference/fix_linbeta.md)
   : Regression coefficient for non-centered variable
@@ -171,6 +177,9 @@
 
 - [`pars_transform()`](https://pinskylab.github.io/drmr/reference/pars_transform.md)
   : Transform parameters to a meaningful and interpretable scale.
+
+- [`plot(`*`<dd_curve>`*`)`](https://pinskylab.github.io/drmr/reference/plot.dd_curve.md)
+  : Plot Stock-Recruitment Curves for ADRM Objects
 
 - [`plot(`*`<drmrmodels>`*`)`](https://pinskylab.github.io/drmr/reference/plot.drmrmodels.md)
   : Plot Diagnostics for DRM Models

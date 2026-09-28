@@ -1,15 +1,13 @@
 # Articles
 
-### All vignettes
+### Articles
 
-- [Advanced
-  features](https://pinskylab.github.io/drmr/articles/advanced-features.md):
-- [Algorithms](https://pinskylab.github.io/drmr/articles/algos.md):
 - [Get
   Started](https://pinskylab.github.io/drmr/articles/get-started.md):
+- [Algorithms](https://pinskylab.github.io/drmr/articles/algos.md):
 - [Densities'
   initialization](https://pinskylab.github.io/drmr/articles/init.md):
 - [Parametrization of the density
   functions](https://pinskylab.github.io/drmr/articles/parametrization.md):
-- [Theoretical
-  Background](https://pinskylab.github.io/drmr/articles/theory.md):
+- [Advanced
+  features](https://pinskylab.github.io/drmr/articles/advanced-features.md):

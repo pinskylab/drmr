@@ -1,5 +1,25 @@
 # Changelog
 
+## drmr 1.1.0
+
+- Density dependence also support SSB for the whole region (as opposed
+  to local SSB).
+
+- added support for density dependence.
+
+- Minor bug in the `log_lik` function was corrected.
+
+- bug in the prediction function fixed.
+
+## drmr 1.0.1
+
+- Minor bug on the movement routine was corrected. The previous version
+  was only smoothing the densities, and movement was not influencing the
+  population dynamics.
+
+- Speeding up movement through `Stan`’s [sparse matrix
+  operations](https://mc-stan.org/docs/functions-reference/sparse_matrix_operations.html).
+
 ## drmr 1.0.0
 
 - `ages_edens` now supports a `new_data` argument which allows for
@@ -276,7 +296,7 @@
 - Trying to avoid overflow by making calculations on the log-scale
   whenever it’s possible.
 
-- Constraining `alpha` to $(0,1)$.
+- Constraining `alpha` to $`(0, 1)`$.
 
 - Prior on `phi` now is Gamma.
 
@@ -318,8 +338,8 @@
 
 ## drmr 0.0.23
 
-- The prior for $\alpha$ has been modified. In particular, instead of a
-  pcp prior, now we put a Beta prior on $(\alpha + 1)/2$. The
+- The prior for $`\alpha`$ has been modified. In particular, instead of
+  a pcp prior, now we put a Beta prior on $`(\alpha + 1) / 2`$. The
   hyperparameters of this Beta distribution are `pr_alpha_a` and
   `pr_alpha_b`, respectively.
 
@@ -343,7 +363,7 @@
   simpler.
 
 - `pr_phi_a` and `pr_phi_b` become `pr_phi_mu` and `pr_phi_sd`. The
-  prior for $\log(\phi)$ is a Student’s t with 3 degrees of freedom,
+  prior for $`\log(\phi)`$ is a Student’s t with 3 degrees of freedom,
   mean `pr_phi_mu` and SD `pr_phi_sd`.
 
 - Selectivity in `make_data` was fixed, thanks to Mark. Before, it was

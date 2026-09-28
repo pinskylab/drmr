@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>An R package with pre-compiled cmdstan code for dynamic range models • drmr</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="An R package with pre-compiled cmdstan code for dynamic range models">
 <meta name="description" content="The models available are described in the vignette. The class of models we provide were first discussed in Pagel and Schur (2012) (&lt;doi:10.1111/j.1466-8238.2011.00663.x&gt;).">
@@ -19,11 +19,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="default" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">drmr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,18 +32,17 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="articles/get-started.html">Get started</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/advanced-features.html">Advanced features</a></li>
-    <li><a class="dropdown-item" href="articles/algos.html">Algorithms</a></li>
-    <li><a class="dropdown-item" href="articles/get-started.html">Get Started</a></li>
-    <li><a class="dropdown-item" href="articles/init.html">Densities' initialization</a></li>
-    <li><a class="dropdown-item" href="articles/parametrization.html">Parametrization of the density functions</a></li>
-    <li><a class="dropdown-item" href="articles/theory.html">Theoretical Background</a></li>
+<li><a class="dropdown-item" href="articles/algos.html">Algorithms for inference</a></li>
+    <li><a class="dropdown-item" href="articles/init.html">Initializing densities</a></li>
+    <li><a class="dropdown-item" href="articles/parametrization.html">Model parameters</a></li>
+    <li><a class="dropdown-item" href="articles/advanced-features.html">Advanced features</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html">Functions</a></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -66,14 +65,35 @@
 </div>
 <!-- badges: start -->
 
-<p><code>drmr</code> (pronounced <em>drummer</em>) is an <code>R</code> package for fitting dynamic range models. Inference is carried out in a Bayesian framework via Markov Chain Monte Carlo (MCMC) samples available in <code>Stan</code>.</p>
+<blockquote>
+<p><strong>Warning:</strong> If working on a MacOS (or Linux) machine, one should install <code>data.table</code> and <code>cmdstanr</code> from source in order to use the package. Otherwise, one get <code>segmentation fault</code> errors which are hard to debug (and also not a <code>drmr</code>, but rather a <code>cmdstanr</code> issue). To install a package from source, one should use:</p>
+</blockquote>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"&lt;package&gt;"</span>, type <span class="op">=</span> <span class="st">"source"</span><span class="op">)</span></span></code></pre></div>
+<blockquote>
+<p>Moreover, we recommend installing <a href="https://github.com/wlandau/instantiate/" class="external-link"><code>instantiate</code></a> from GitHub instead of CRAN.</p>
+</blockquote>
+<p><code>drmr</code> (pronounced <em>drummer</em>) is an <code>R</code> package for fitting dynamic range models to spatiotemporal data on species abundance. Dynamic range models are spatial population models in which demographic rates (e.g., reproduction or mortality) are influenced by the environment. Inference is carried out in a Bayesian framework via Markov Chain Monte Carlo (MCMC) samples available in <code>Stan</code>.</p>
+<p>For details, please see Vignettes linked below and <a href="https://ecoevorxiv.org/repository/view/12564/" class="external-link">da Cunha Godoy et al. 2026</a>.</p>
 <div class="section level3">
 <h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>
 <p>The installation of the development version from GitHub can be done via</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"pinskylab/drmr"</span><span class="op">)</span></span>
 <span><span class="co">## or devtools::install_github("pinskylab/drmr")</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
+</h3>
+<ul>
+<li><a href="https://pinskylab.github.io/drmr/articles/get-started.html">Get started</a></li>
+<li><a href="https://ecoevorxiv.org/repository/view/12564/" class="external-link">Theoretical background</a></li>
+<li><a href="https://pinskylab.github.io/drmr/articles/algos.html">Algorithms</a></li>
+<li><a href="https://pinskylab.github.io/drmr/articles/init.html">Initializing densities</a></li>
+<li><a href="https://pinskylab.github.io/drmr/articles/parametrization.html">Parameterization of the density functions</a></li>
+<li><a href="https://pinskylab.github.io/drmr/articles/advanced-features.html">Advanced features</a></li>
+</ul>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -124,7 +144,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.9000.</p>
 </div>
 
     </footer>
