@@ -1,5 +1,5 @@
 functions {
-#include utils/lpdfs.stan
+#include utils/lpdfs.stanfunctions
 }
 data {
   //--- survey data  ---

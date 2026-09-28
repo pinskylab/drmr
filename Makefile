@@ -4,7 +4,7 @@
 
 PKG_NAME=$(shell grep -i ^package DESCRIPTION | cut -d : -d \  -f 2)
 
-.PHONY: render_md build_site build install clean docs check check_cran
+.PHONY: render_md build_site build build_no_vignettes install install_no_vignettes clean docs check check_cran
 
 default: build
 
@@ -31,9 +31,16 @@ preview_site:
 build:
 	R CMD BUILD .
 
+build_no_vignettes:
+	R CMD BUILD --no-build-vignettes .
+
 # install:
 # 	R CMD INSTALL .
 install: docs build
+	R CMD INSTALL $(PKG_NAME)_*.tar.gz
+	@rm $(PKG_NAME)_*.tar.gz
+
+install_no_vignettes: docs build_no_vignettes
 	R CMD INSTALL $(PKG_NAME)_*.tar.gz
 	@rm $(PKG_NAME)_*.tar.gz
 

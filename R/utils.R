@@ -23,6 +23,10 @@ safe_modify <- function(original, replacements) {
       replacements[["sp_re"]] <-
         fix_re(replacements[["sp_re"]])
     }
+    if ("rec_dd" %in% names(replacements)) {
+      replacements[["rec_dd"]] <-
+        fix_dd(replacements[["rec_dd"]])
+    }
     out <- utils::modifyList(original, replacements)
   } else {
     out <- original
@@ -41,6 +45,19 @@ fix_re <- function(x) {
            rec  = 1,
            surv = 2,
            dens = 3)
+  } else x
+}
+
+##' @title Density dependence verbose to code
+##' @param x a \code{character}
+##' @return An \code{integer}.
+##' @author lcgodoy
+fix_dd <- function(x) {
+  if (!x %in% c(0:3)) {
+    switch(x,
+           ricker = 0,
+           bh     = 1,
+           none   = 2)
   } else x
 }
 

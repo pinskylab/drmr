@@ -16,8 +16,9 @@ inst/stan/**/*.EXE
 .DS_Store
 
 manuscript/
-GEMINI.md
 error.md
+GEMINI.md
+CLAUDE.md
 
 docs
 pkgdown

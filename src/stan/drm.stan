@@ -1,6 +1,6 @@
 functions {
-#include utils/lpdfs.stan
-#include utils/age_struct.stan
+#include utils/lpdfs.stanfunctions
+#include utils/age_struct.stanfunctions
 }
 data {
   //--- survey data  ---

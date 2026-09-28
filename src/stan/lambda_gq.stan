@@ -1,6 +1,6 @@
 functions {
-#include utils/age_struct.stan
-#include utils/age_st_forecast.stan
+#include utils/age_struct.stanfunctions
+#include utils/age_st_forecast.stanfunctions
 }
 data {
   //--- survey data  ---
