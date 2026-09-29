@@ -94,6 +94,10 @@ elpd.adrm <- function(x,
   forecast_data$N <- forecast_data$n_sites * forecast_data$n_time
   if (length(x$data$K_m) > 0) {
     stopifnot(!missing(past_data))
+    ## rows must follow the sites' ordering (site-level random effects)
+    past_data <-
+      past_data[order(factor(past_data[[x$cols$site_col]],
+                             levels = x$cols$site_levels)), ]
     x_mpast <-
       stats::model.matrix(x[["formulas"]][["formula_surv"]],
                           data = past_data)

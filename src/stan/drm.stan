@@ -165,9 +165,9 @@ transformed parameters {
   vector[N] log_rec;
   log_rec = X_r * beta_r;
   //--- Mortality ----
+  // log-survival. It is computed below, after the random effects (which enter
+  // on the logit scale) are added to the linear predictor.
   vector[est_surv ? N : 0] mortality;
-  if (est_surv)
-    mortality = -log1p(exp(-X_m * beta_s[1]));
   // Expected density at specific time/site combinations
   vector[N] mu =
     rep_vector(0.0, N);
@@ -197,20 +197,33 @@ transformed parameters {
     z_s = sigma_s[1] * inv_sqrt(scaling[1]) * w_s[1];
   }
   {
+    // linear predictor for survival (logit scale)
+    vector[est_surv ? N : 0] lp_surv;
+    if (est_surv)
+      lp_surv = X_m * beta_s[1];
     //--- inputing the AR effects ----
     if (ar_re == 1) {
       log_rec += z_t[time];
     }
     if (ar_re == 2) {
-      mortality += z_t[time];
+      lp_surv += z_t[time];
     }
     //--- inputing IID effects ----
     if (iid_re == 1) {
         log_rec += z_i[1][site];
     }
     if (iid_re == 2) {
-        mortality += z_i[1][site];
+        lp_surv += z_i[1][site];
     }
+    //--- inputing ICAR effects ----
+    if (sp_re == 1) {
+      log_rec += z_s[site];
+    }
+    if (sp_re == 2) {
+      lp_surv += z_s[site];
+    }
+    if (est_surv)
+      mortality = -log1p(exp(-lp_surv));
     // expected density at specific time/site combinations by age
     array[n_ages] matrix[n_time, n_sites] lambda_aux;
     if (rec_dd < 2) {

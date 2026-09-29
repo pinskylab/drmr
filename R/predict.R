@@ -196,6 +196,10 @@ predict.adrm <- function(object,
   pred_data$N <- pred_data$n_sites * pred_data$n_time
   if (length(object$data$K_m) > 0) {
     stopifnot(!missing(past_data))
+    ## rows must follow the sites' ordering (site-level random effects)
+    past_data <-
+      past_data[order(factor(past_data[[object$cols$site_col]],
+                             levels = object$cols$site_levels)), ]
     x_mpast <-
       stats::model.matrix(object[["formulas"]][["formula_surv"]],
                           data = past_data)

@@ -155,7 +155,15 @@ generated quantities {
           m_aux[n] += z_s[site[n]];
       }
       current_m = to_matrix(-log1p(exp(-m_aux)), n_time, n_sites);
-      past_m = -log1p(exp(-X_m_past * beta_s[1]));
+      // log-survival at the last year of training
+      vector[n_sites] m_aux_past = X_m_past * beta_s[1];
+      if (ar_re == 2)
+        m_aux_past += z_t[n_time_train];
+      if (iid_re == 2)
+        m_aux_past += z_i[1];
+      if (sp_re == 2)
+        m_aux_past += z_s;
+      past_m = -log1p(exp(-m_aux_past));
     }
     if (movement) {
       //--- movement matrix ---

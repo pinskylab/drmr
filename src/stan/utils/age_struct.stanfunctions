@@ -195,26 +195,24 @@ array[] matrix pop_rec_dd(int n_patches,
     output[a + 1, 1] = rep_row_vector(exp(init[a]), n_patches);
   }  
   for (i in 2 : n_time) {
-    real ssb_prev = 0;
-    if (acc_dd) {
-      for (a in 1 : n_ages) {
-        ssb_prev += sum(output[a, i - 1] .* (mat[a] * weight[a]));
-      }
+    // SSB at each patch
+    row_vector[n_patches] ssb_prev = rep_row_vector(0.0, n_patches);
+    for (a in 1 : n_ages) {
+      ssb_prev += output[a, i - 1] * (mat[a] * weight[a]);
     }
+    real ssb_tot = sum(ssb_prev);
     for (p in 1 : n_patches) {
-      if (!acc_dd) {
-        for (a in 1 : n_ages) {
-          ssb_prev += output[a, i - 1, p] * mat[a] * weight[a];
-        }
-      }
-      if (ssb_prev > 1e-10) {
-        real log_S = log(ssb_prev);
+      real ssb_aux = acc_dd ? ssb_tot : ssb_prev[p];
+      if (ssb_aux > 1e-10) {
+        real log_S = log(ssb_aux);
         if (rec_type == 0) {
           // Ricker: R = alpha * S * exp(-kappa * S)
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - kappa * ssb_prev);
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S -
+                                kappa * ssb_aux);
         } else {
-          // Beverton-Holt: R = (alpha * S) / (1 + kappa * S)
-          output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(kappa + ssb_prev));
+          // Beverton-Holt: R = (alpha * S) / (kappa + S)
+          output[1, i, p] = exp(recruitment_env[i, p] + log_S -
+                                log(kappa + ssb_aux));
         }
       } else {
         output[1, i, p] = 0.0;
@@ -292,8 +290,10 @@ array[] matrix pop_rec_dd_movement(int n_patches,
       if (ssb_aux > 1e-10) {
         real log_S = log(ssb_aux);
         if (rec_type == 0) {
+          // Ricker: R = alpha * S * exp(-kappa * S)
           output[1, i, p] = exp(recruitment_env[i, p] + log_S - kappa * ssb_aux);
         } else {
+          // Beverton-Holt: R = (alpha * S) / (kappa + S)
           output[1, i, p] = exp(recruitment_env[i, p] + log_S - log(kappa + ssb_aux));
         }
       } else {
