@@ -51,3 +51,4 @@ Language: en-US
 License: GPL (>= 3)
 URL: https://pinskylab.github.io/drmr/
 Config/roxygen2/version: 8.1.0
+RoxygenNote: 7.3.3

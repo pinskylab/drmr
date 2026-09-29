@@ -47,21 +47,21 @@
 ##'   \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 ##'   \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
 ##'   \item \code{minit}: 1 to use mortality to estimate initial age classes and
-##'   0 otherwise. \item \code{rec_dd}: 0 for Ricker, 1 for Beverton-Holt, and 2
-##'   (default) for no density dependence. \item \code{acc_dd}: 0 for
-##'   recruitment to depend on the SSB of the patch (default), and 1 for
-##'   recruitment to depend on the "global" (i.e., the whole study region)
-##'   SSB. \item \code{ar_re}: a \code{character}. It assumes one of the
-##'   following values: "none" no AR, "rec" AR(1) for recruitment, "surv" AR(1)
-##'   for survival (only works when \code{est_surv} is on), "dens" AR(1) for
-##'   density. \item \code{iid_re}: a \code{character}. It assumes one of the
-##'   following values: "none" no IID random effect, "rec" IID random effect for
-##'   recruitment, "surv" IID random effect for survival (only works when
-##'   \code{est_surv} is on), "dens" IID random effect for density.  \item
-##'   \code{sp_re}: a \code{character}. It assumes one of the following values:
-##'   "none" no ICAR random effect, "rec" ICAR random effect for recruitment,
-##'   "surv" ICAR random effect for survival (only works when \code{est_surv} is
-##'   on), "dens" ICAR random effect for density.}
+##'   0 otherwise. \item \code{rec_dd}: "ricker" for Ricker, "bh" for
+##'   Beverton-Holt, and "none" (default) for no density dependence. \item
+##'   \code{acc_dd}: 0 for recruitment to depend on the SSB of the patch
+##'   (default), and 1 for recruitment to depend on the "global" (i.e., the
+##'   whole study region) SSB. \item \code{ar_re}: a \code{character}. It
+##'   assumes one of the following values: "none" no AR, "rec" AR(1) for
+##'   recruitment, "surv" AR(1) for survival (only works when \code{est_surv} is
+##'   on), "dens" AR(1) for density. \item \code{iid_re}: a \code{character}. It
+##'   assumes one of the following values: "none" no IID random effect, "rec"
+##'   IID random effect for recruitment, "surv" IID random effect for survival
+##'   (only works when \code{est_surv} is on), "dens" IID random effect for
+##'   density.  \item \code{sp_re}: a \code{character}. It assumes one of the
+##'   following values: "none" no ICAR random effect, "rec" ICAR random effect
+##'   for recruitment, "surv" ICAR random effect for survival (only works when
+##'   \code{est_surv} is on), "dens" ICAR random effect for density.}
 ##' @param .priors a \code{list} of priors hyperparameters.
 ##' @param reorder a \code{boolean} telling whether the data needs to be
 ##'   reordered. The default is TRUE and means the data points will be ordered
