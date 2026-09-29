@@ -67,9 +67,11 @@ prior_sample <- function(dat, model = "drm") {
                                    range = c(0, Inf)),
                                dim = 1)))
   } else {
+    ## the log-logistic requires phi > 1
     out <-
       c(out,
-        list(phi = array(stats::rgamma(1,
+        list(phi = array((dat$likelihood == 3) +
+                         stats::rgamma(1,
                                        shape = dat$pr_phi_a,
                                        rate = dat$pr_phi_b),
                          dim = 1)))

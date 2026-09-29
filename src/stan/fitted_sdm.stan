@@ -59,7 +59,9 @@ generated quantities {
       }
     } else if (type == 1) {
       for (n in 1:N) {
-        y_pp[n] = mu[n] * (1 - rho[n]);
+        y_pp[n] = (1 - rho[n]) *
+          cond_mean(mu[n], likelihood == 0 ? sigma_obs[1] : phi[1],
+                    likelihood);
       }
     } else if (type == 2) {
       for (n in 1:N) {

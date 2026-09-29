@@ -21,7 +21,7 @@ data {
   int<lower = 0, upper = 1> sp_re;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
-                                        // Gamma, 3 = log-Logistic)
+                                        // Gamma, 3 = log-Logistic, 4 = truncated normal)
   //--- suitability (for rho) ----
   int<lower = 1> K_z;
   matrix[N, K_z] Z;
@@ -66,7 +66,8 @@ parameters {
   array[rho_mu] real lxi;
   // parameter associated to the likelihood 
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
-  array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
+  // (log-logistic requires phi > 1 for its mean to be finite)
+  array[likelihood > 0 ? 1 : 0] real<lower = (likelihood == 3 ? 1 : 0)> phi;
   // coefficients for recruitment (it is a log-linear model)
   vector[K_x] beta_r;
   // parameter associated with "encounter probability"
@@ -188,6 +189,9 @@ model {
   } else {
     // change these parameters (PC prior for exponential?)
     target += gamma_lpdf(phi[1] | pr_phi_a, pr_phi_b);
+    if (likelihood == 3) {
+      target += - gamma_lccdf(1 | pr_phi_a, pr_phi_b);
+    }
   }
   // only evaluate density if there are length comps to evaluate
   target += ziloglik_lpdf(y | likelihood, N_nz, N,

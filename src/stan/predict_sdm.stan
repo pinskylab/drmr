@@ -109,7 +109,9 @@ generated quantities {
       }
     } else if (type == 1) {
       for (n in 1:N) {
-        y_proj[n] = mu_proj[n] * (1 - rho_proj[n]);
+        y_proj[n] = (1 - rho_proj[n]) *
+          cond_mean(mu_proj[n], likelihood == 0 ? sigma_obs[1] : phi[1],
+                    likelihood);
       }
     } else if (type == 2) {
       for (n in 1:N) {

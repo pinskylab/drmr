@@ -71,7 +71,8 @@
 ##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
 ##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 ##'   \code{"loglogistic"}: log-logistic parametrized in terms of its median
-##'   (usual parametrization); \item \code{"lognormal_legacy"}: log-normal with
+##'   (usual parametrization), with shape \code{phi} > 1 so its mean is finite;
+##'   \item \code{"lognormal_legacy"}: log-normal with
 ##'   its usual parametrization; }
 ##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
 ##'   should be determined through the data (using [get_phi_hat()]).
@@ -320,7 +321,8 @@ make_data <- function(y,
 ##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
 ##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 ##'   \code{"loglogistic"}: log-logistic parametrized in terms of its median
-##'   (usual parametrization); \item \code{"lognormal_legacy"}: log-normal with
+##'   (usual parametrization), with shape \code{phi} > 1 so its mean is finite;
+##'   \item \code{"lognormal_legacy"}: log-normal with
 ##'   its usual parametrization; }
 ##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
 ##'   should be determined through the data (using [get_phi_hat()]).

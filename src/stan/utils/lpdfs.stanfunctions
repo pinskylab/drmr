@@ -20,18 +20,20 @@ real gamma_mu_lpdf(real x, real mu, real phi) {
  *
  * Reference: https://doi.org/10.1111/jtsa.12242
  * 
+ * Equivalent to lognormal(log(mu) - phi, sqrt(2 * phi)).
+ *
  * @param x non-negative random variable
  * @param mu theoretical mean of X
- * @param phi weird parameter parameter.
- * 
+ * @param phi half the variance of log(X).
+ *
  * @return a log-pdf
  */
 real ln_mu_lpdf(real x, real mu, real phi) {
   real out = 0.0;
   real aux;
   aux = log(x) - log(mu) + phi;
-  out += 0.5 * log(pi()) + 0.5 * log(phi) + log(x);
-  out += square(aux) / phi;
+  out += 0.5 * log(4 * pi() * phi) + log(x);
+  out += square(aux) / (4 * phi);
   return - out;
 }
 
@@ -98,8 +100,8 @@ real ziloglik_lpdf(vector y,
   } else if (likelihood == 3) {
     out += loglogistic_lpdf(y[id_nz] | mu[id_nz], phi);
   } else {
-    out += normal_lpdf(y | mu, phi) -
-      normal_lccdf(rep_vector(0.0, N) | mu, phi);
+    out += normal_lpdf(y[id_nz] | mu[id_nz], phi) -
+      normal_lccdf(rep_vector(0.0, N_nz) | mu[id_nz], phi);
   }
   return out;
 }
@@ -126,7 +128,6 @@ real ptziloglik_lpdf(real y,
       gamma_beta = phi / mu;
       out += gamma_lpdf(y | phi, gamma_beta);
     } else if (likelihood == 3) {
-      real gamma_beta;
       out += loglogistic_lpdf(y | mu, phi);
     } else {
       out += normal_lpdf(y | mu, phi) -
@@ -158,10 +159,34 @@ real drmsdm_rng(real mu,
     } else if (likelihood == 3) {
       out *= loglogistic_rng(mu, phi);
     } else {
-      array[2] real aux_tn = rep_array(0.0, 2);
-      aux_tn[2] = normal_rng(mu, phi);
-      out *= max(aux_tn);
+      // inverse-cdf draw from a normal truncated to (0, Inf)
+      out *= mu - phi * inv_Phi(uniform_rng(0, Phi(mu / phi)));
     }
   }
   return out;
+}
+
+/**
+ * Mean of the non-zero part of the density, E[Y | Y > 0].
+ *
+ * For the log-normal and gamma likelihoods, mu is already the mean. For the
+ * log-logistic, mu is the median and phi (> 1) the shape. For the truncated
+ * normal, mu and phi are the location and scale before truncation.
+ *
+ * @param mu location parameter, as passed to the likelihood
+ * @param phi additional likelihood parameter (sigma_obs when likelihood == 0)
+ * @param likelihood likelihood code
+ *
+ * @return E[Y | Y > 0]
+ */
+real cond_mean(real mu, real phi, data int likelihood) {
+  if (likelihood == 3) {
+    real aux = pi() / phi;
+    return mu * aux / sin(aux);
+  } else if (likelihood == 4) {
+    real z = mu / phi;
+    return mu + phi * exp(std_normal_lpdf(z) - std_normal_lcdf(z));
+  } else {
+    return mu;
+  }
 }

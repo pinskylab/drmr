@@ -120,7 +120,8 @@ parameters {
   array[rho_mu] real lxi;
   // parameter associated to the likelihood 
   array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
-  array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
+  // (log-logistic requires phi > 1 for its mean to be finite)
+  array[likelihood > 0 ? 1 : 0] real<lower = (likelihood == 3 ? 1 : 0)> phi;
   // coefficients for recruitment (it is a log-linear model)
   vector[K_r] beta_r;
   // parameter associated with "density dependence"
@@ -356,8 +357,10 @@ model {
     target += normal_lpdf(sigma_obs[1] | pr_sigma_obs_mu, pr_sigma_obs_sd) -
       1.0 * normal_lccdf(0 | pr_sigma_obs_mu, pr_sigma_obs_sd);
   } else {
-    // change these parameters (PC prior for exponential?)
     target += gamma_lpdf(phi[1] | pr_phi_a, pr_phi_b);
+    if (likelihood == 3) {
+      target += - gamma_lccdf(1 | pr_phi_a, pr_phi_b);
+    }
   }
   // only evaluate density if there are length comps to evaluate
   target += ziloglik_lpdf(y | likelihood, N_nz, N,

@@ -1,3 +1,8 @@
+# drmr 1.1.1
+
+- Fixing some bugs in the parametrization of the loglogistic and
+  truncated-Normal logliks.
+
 # drmr 1.1.0
 
 - Density dependence also support SSB for the whole region (as opposed to local
