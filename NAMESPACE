@@ -7,6 +7,7 @@ S3method(elpd,adrm)
 S3method(elpd,sdm)
 S3method(fitted,adrm)
 S3method(fitted,sdm)
+S3method(get_adults,adrm)
 S3method(log_lik,adrm)
 S3method(log_lik,sdm)
 S3method(mcmc_diag,drmrmodels)
@@ -45,6 +46,7 @@ export(fit_drm)
 export(fit_sdm)
 export(fix_linbeta)
 export(gen_adj)
+export(get_adults)
 export(int_score)
 export(lambda_drm)
 export(log_lik)
@@ -62,13 +64,19 @@ export(predict_sdm)
 export(prior_inits)
 export(prior_sample)
 export(summarise_adens)
-importFrom(grDevices,dev.interactive)
-importFrom(grDevices,devAskNewPage)
-importFrom(grDevices,palette)
-importFrom(graphics,legend)
-importFrom(graphics,lines)
-importFrom(graphics,par)
+importFrom(grDevices,
+  dev.interactive,
+  devAskNewPage,
+  palette
+)
+importFrom(graphics,
+  legend,
+  lines,
+  par
+)
 importFrom(instantiate,stan_package_model)
 importFrom(rlang,.data)
-importFrom(stats,density)
-importFrom(stats,fitted)
+importFrom(stats,
+  density,
+  fitted
+)
