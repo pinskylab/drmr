@@ -71,8 +71,8 @@ data {
   real pr_lsigma_i_sd;
   real pr_lsigma_s_mu; 
   real pr_lsigma_s_sd;
-  real pr_alpha_a; 
-  real pr_alpha_b;
+  real pr_alpha_mu; 
+  real pr_alpha_sd;
   real pr_zeta_a; 
   real pr_zeta_b;
   real pr_lmxi_mu;
@@ -136,7 +136,7 @@ parameters {
   // conditional SD
   array[ar_re > 0 ? 1 : 0] real log_sigma_t;
   // autocorrelation
-  array[ar_re > 0 ? 1 : 0] real<lower = 0, upper = 1> alpha;
+  array[ar_re > 0 ? 1 : 0] real atanh_alpha;
   // aux latent variable
   array[ar_re > 0 ? 1 : 0] vector[n_time] w_t;
   //--- * IID RE ----
@@ -165,8 +165,6 @@ transformed parameters {
   vector[N] log_rec;
   log_rec = X_r * beta_r;
   //--- Mortality ----
-  // log-survival. It is computed below, after the random effects (which enter
-  // on the logit scale) are added to the linear predictor.
   vector[est_surv ? N : 0] mortality;
   // Expected density at specific time/site combinations
   vector[N] mu =
@@ -175,8 +173,10 @@ transformed parameters {
     rep_matrix(0.0, n_ages, n_sites);
   //--- AR process ----
   array[ar_re > 0 ? 1 : 0] real sigma_t;
+  array[ar_re > 0 ? 1 : 0] real alpha;
   vector[ar_re > 0 ? n_time : 0] z_t;
   if (ar_re > 0) {
+    alpha[1] = tanh(atanh_alpha[1]);
     sigma_t[1] = exp(log_sigma_t[1]);
     z_t[1] = sigma_t[1] * w_t[1][1];
     for (tp in 2:n_time) {
@@ -337,7 +337,7 @@ model {
   if (ar_re > 0) {
     target += std_normal_lpdf(w_t[1]);
     target += normal_lpdf(log_sigma_t[1] | pr_lsigma_t_mu, pr_lsigma_t_sd);
-    target += beta_lpdf(alpha[1] | pr_alpha_a, pr_alpha_b); 
+    target += normal_lpdf(atanh_alpha[1] | pr_alpha_mu, pr_alpha_sd);
   }
   //--- IID RE ----
   if (iid_re > 0) {

@@ -48,8 +48,8 @@ data {
   real pr_lsigma_i_sd;
   real pr_lsigma_s_mu; 
   real pr_lsigma_s_sd;
-  real pr_alpha_a; 
-  real pr_alpha_b;
+  real pr_alpha_mu; 
+  real pr_alpha_sd;
   real pr_lmxi_mu;
   real pr_lmxi_sd;
   vector[K_z] pr_beta_t_mu;
@@ -76,7 +76,7 @@ parameters {
   // conditional SD
   array[ar_re] real log_sigma_t;
   // autocorrelation
-  array[ar_re] real<lower = 0, upper = 1> alpha;
+  array[ar_re] real atanh_alpha;
   // aux latent variable
   vector[ar_re ? n_time : 0] w_t;
   //--- * IID RE ----
@@ -95,9 +95,11 @@ transformed parameters {
     xi = - exp(lxi);
   //--- AR process ----
   array[ar_re] real sigma_t;
+  array[ar_re > 0 ? 1 : 0] real alpha;
   vector[ar_re ? n_time : 0] z_t;
   {
     if (ar_re) {
+      alpha[1] = tanh(atanh_alpha[1]);
       sigma_t[1] = exp(log_sigma_t[1]);
       z_t[1] = sigma_t[1] * w_t[1];
       for (tp in 2:n_time) {
@@ -166,7 +168,7 @@ model {
   if (ar_re) {
     target += std_normal_lpdf(w_t);
     target += normal_lpdf(log_sigma_t[1] | pr_lsigma_t_mu, pr_lsigma_t_sd);
-    target += beta_lpdf(alpha[1] | pr_alpha_a, pr_alpha_b); 
+    target += normal_lpdf(atanh_alpha[1] | pr_alpha_mu, pr_alpha_sd);
   }
   //--- IID RE ----
   if (iid_re) {

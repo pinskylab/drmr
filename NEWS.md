@@ -1,5 +1,7 @@
 # drmr 1.1.1
 
+- Using hyperbolic tangent for the temporal autocorrelation parameter.
+
 - Fixing some bugs in the parametrization of the loglogistic and
   truncated-Normal logliks.
 
