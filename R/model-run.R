@@ -2,7 +2,8 @@
 ##' @export
 ##' @family models
 ##' @description Fit the DRM Stan model
-##' @param .data A \code{data frame} containing the data for the model.
+##' @param .data A \code{data frame} containing the data for the model. The
+##'   function sorts the rows by site and then by time.
 ##' @param y_col A \code{character} specifying the name of the column in `.data`
 ##'   that contains the response variable.
 ##' @param time_col A \code{character} specifying the name of the column in
@@ -161,7 +162,8 @@ fit_drm <- function(.data,
 ##' @export
 ##' @family models
 ##' @description Fit the SDM Stan model
-##' @param .data A \code{data frame} containing the data for the model.
+##' @param .data A \code{data frame} containing the data for the model. The
+##'   function sorts the rows by site and then by time.
 ##' @param y_col A \code{character} specifying the name of the column in `.data`
 ##'   that contains the response variable.
 ##' @param time_col A \code{character} specifying the name of the column in

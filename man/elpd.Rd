@@ -51,6 +51,13 @@ The current version of the code assumes the data where forecasts
 are needed are ordered by "site" and "site" and, in addition, the sites
 MUST be the same as the ones used to obtain the parameters' estimates from
 the the \code{drm} object.
+
+The function builds the design matrices again from \code{new_data}.
+Terms that depend on the data, such as \code{scale()} or \code{poly()},
+take their values from \code{new_data}, not from the training data. To
+standardize a covariate, use the mean and standard deviation from the
+training data. A factor must have the same levels as in the training
+data.
 }
 \author{
 lcgodoy

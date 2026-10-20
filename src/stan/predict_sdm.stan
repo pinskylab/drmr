@@ -7,7 +7,7 @@ data {
   int n_sites; // number of sites
   int n_time; // years for forecasts
   int n_time_train; // years for training
-  array[N] int time;
+  array[N] int<lower = 1, upper = n_time> time;
   array[N] int<lower = 1, upper = n_sites> site;
   //--- toggles ---
   int<lower = 0, upper = 1> rho_mu;
@@ -45,13 +45,13 @@ parameters {
 }
 generated quantities {
   //--- projected total density ----
-  vector[n_time * n_sites] y_proj;
+  vector[N] y_proj;
   //--- mu_proj calculations ----
   {
     //--- projected expected density ----
-    vector[n_time * n_sites] mu_proj;
+    vector[N] mu_proj;
     //--- projected absence probability ----
-    vector[n_time * n_sites] rho_proj;
+    vector[N] rho_proj;
     //--- AR term ----
     vector[ar_re ? n_time : 0] z_tp;
     if (ar_re) {

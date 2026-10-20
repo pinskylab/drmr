@@ -25,6 +25,13 @@
 ##'   MUST be the same as the ones used to obtain the parameters' estimates from
 ##'   the the \code{drm} object.
 ##'
+##'   The function builds the design matrices again from \code{new_data}.
+##'   Terms that depend on the data, such as \code{scale()} or \code{poly()},
+##'   take their values from \code{new_data}, not from the training data. To
+##'   standardize a covariate, use the mean and standard deviation from the
+##'   training data. A factor must have the same levels as in the training
+##'   data.
+##'
 ##' @author lcgodoy
 
 ##' @return an object of class \code{"CmdStanGQ"} containing the ELPD
@@ -121,6 +128,7 @@ elpd.adrm <- function(x,
                         data = forecast_data,
                         seed = seed,
                         parallel_chains = cores)
+  check_gq(output)
   return(output)
 }
 
@@ -172,5 +180,6 @@ elpd.sdm <- function(x,
                         data = forecast_data,
                         seed = seed,
                         parallel_chains = cores)
+  check_gq(output)
   return(output)
 }

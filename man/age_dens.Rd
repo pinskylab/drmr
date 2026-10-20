@@ -32,6 +32,14 @@ posterior predictive distribution for forecasting.
 \description{
 Age-specific expected densities based on DRM.
 }
+\details{
+The function builds the design matrices again from
+\code{new_data}. Terms that depend on the data, such as \code{scale()} or
+\code{poly()}, take their values from \code{new_data}, not from the
+training data. To standardize a covariate, use the mean and standard
+deviation from the training data. A factor must have the same levels as
+in the training data.
+}
 \author{
 lcgodoy
 }

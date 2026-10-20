@@ -2,6 +2,7 @@
 ##' model.
 ##'
 ##' @title Make data for DRM stan models
+##' @details The function sorts the data by site and then by time.
 ##' @param y a \code{numeric vector} of species' densities.
 ##' @param time a \code{vector} indicating the time point associated to each
 ##'   element of \code{y}.
@@ -63,9 +64,6 @@
 ##'   for recruitment, "surv" ICAR random effect for survival (only works when
 ##'   \code{est_surv} is on), "dens" ICAR random effect for density.}
 ##' @param .priors a \code{list} of priors hyperparameters.
-##' @param reorder a \code{boolean} telling whether the data needs to be
-##'   reordered. The default is TRUE and means the data points will be ordered
-##'   by site and time, respectively.
 ##' @param family a \code{character} specifying the family of the probability
 ##'   distribution assumed for density. The options are: \itemize{ \item
 ##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
@@ -98,7 +96,6 @@ make_data <- function(y,
                       .toggles,
                       .priors,
                       family = "gamma",
-                      reorder = TRUE,
                       phi_hat = FALSE) {
   ## getting the default toggles and using user options
   stopifnot(all(!is.na(c(time))))
@@ -137,12 +134,11 @@ make_data <- function(y,
   site_levels <- levels(site_factor)
   site_stan <- as.integer(site_factor)
   time_init <- min(time)
-  if (reorder) {
-    my_ord <- order(site, time)
-    y <- y[my_ord]
-    site <- site[my_ord]
-    time <- time[my_ord] - time_init + 1
-  }
+  my_ord <- order(site, time)
+  y <- y[my_ord]
+  site <- site[my_ord]
+  site_stan <- site_stan[my_ord]
+  time <- time[my_ord] - time_init + 1
   if (missing(f_mort))
     f_mort <- matrix(0, nrow = n_ages, ncol = n_time)
   if (missing(age_selectivity)) {
@@ -176,8 +172,7 @@ make_data <- function(y,
   } else {
     stopifnot(ncol(x_m) >= 1)
     m <- numeric(0)
-    if (reorder)
-      x_m <- x_m[my_ord, , drop = FALSE]
+    x_m <- x_m[my_ord, , drop = FALSE]
     K_m <- array(NCOL(x_m), dim = 1)
     if (length(priors$pr_beta_s_mu) < K_m)
       priors$pr_beta_s_mu <- rep(0, K_m)
@@ -195,8 +190,7 @@ make_data <- function(y,
     K_r <- 1
   } else {
     K_r <- ncol(x_r)
-    if (reorder)
-      x_r <- x_r[my_ord, , drop = FALSE]
+    x_r <- x_r[my_ord, , drop = FALSE]
     if (length(priors$pr_beta_r_mu) < K_r)
       priors$pr_beta_r_mu <- rep(0, K_r)
     if (length(priors$pr_beta_r_sd) < K_r)
@@ -213,8 +207,7 @@ make_data <- function(y,
     K_t <- 1
   } else {
     K_t <- ncol(x_t)
-    if (reorder)
-      x_t <- x_t[my_ord, , drop = FALSE]
+    x_t <- x_t[my_ord, , drop = FALSE]
     if (length(priors$pr_beta_t_mu) < K_t)
       priors$pr_beta_t_mu <- rep(0, K_t)
     if (length(priors$pr_beta_t_sd) < K_t)
@@ -291,6 +284,7 @@ make_data <- function(y,
 ##' model.
 ##'
 ##' @title Make data for SDM stan models
+##' @details The function sorts the data by site and then by time.
 ##' @param y a \code{numeric vector} of species' densities.
 ##' @param time a \code{vector} indicating the time point associated to each
 ##'   element of \code{y}.
@@ -313,9 +307,6 @@ make_data <- function(y,
 ##'   1 to incorporate a site specific ICAR random effect to density and 0
 ##'   otherwise.}
 ##' @param .priors a \code{list} of priors hyperparameters.
-##' @param reorder a \code{boolean} telling whether the data needs to be
-##'   reordered. The default is TRUE and means the data points will be ordered
-##'   by site and time, respectively.
 ##' @param family a \code{character} specifying the family of the probability
 ##'   distribution assumed for density. The options are: \itemize{ \item
 ##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
@@ -339,7 +330,6 @@ make_data_sdm <- function(y,
                           .toggles,
                           .priors,
                           family = "gamma",
-                          reorder = TRUE,
                           phi_hat = FALSE) {
   ## getting the default toggles and using user options
   stopifnot(all(!is.na(c(time))))
@@ -383,20 +373,18 @@ make_data_sdm <- function(y,
   site_levels <- levels(site_factor)
   site_stan <- as.integer(site_factor)
   time_init <- min(time)
-  if (reorder) {
-    my_ord <- order(site, time)
-    y <- y[my_ord]
-    site <- site[my_ord]
-    time <- time[my_ord]
-    time <- time - time_init + 1
-  }
+  my_ord <- order(site, time)
+  y <- y[my_ord]
+  site <- site[my_ord]
+  site_stan <- site_stan[my_ord]
+  time <- time[my_ord]
+  time <- time - time_init + 1
   if (missing(x)) {
     x <- matrix(1, nrow = n_time * n_sites)
     K_x <- 1
   } else {
     K_x <- ncol(x)
-    if (reorder)
-      x <- x[my_ord, , drop = FALSE]
+    x <- x[my_ord, , drop = FALSE]
     if (length(priors$pr_beta_r_mu) < K_x)
       priors$pr_beta_r_mu <- rep(0, K_x)
     if (length(priors$pr_beta_r_sd) < K_x)
@@ -413,8 +401,7 @@ make_data_sdm <- function(y,
     K_z <- 1
   } else {
     K_z <- ncol(z)
-    if (reorder)
-      z <- z[my_ord, , drop = FALSE]
+    z <- z[my_ord, , drop = FALSE]
     if (length(priors$pr_beta_t_mu) < K_z)
       priors$pr_beta_t_mu <- rep(0, K_z)
     if (length(priors$pr_beta_t_sd) < K_z)

@@ -9,6 +9,13 @@
 ##' @param cores number of threads used for the forecast. If four chains were
 ##'   used in the \code{drm}, then four (or less) threads are recommended.
 ##'
+##' @details The function builds the design matrices again from
+##'   \code{new_data}. Terms that depend on the data, such as \code{scale()} or
+##'   \code{poly()}, take their values from \code{new_data}, not from the
+##'   training data. To standardize a covariate, use the mean and standard
+##'   deviation from the training data. A factor must have the same levels as
+##'   in the training data.
+##'
 ##' @author lcgodoy
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
@@ -85,6 +92,7 @@ ages_edens <- function(drm,
     generate_quantities(fitted_params = fitted_params,
                         data = gq_data,
                         parallel_chains = cores)
+  check_gq(output)
   spt <- data.frame(v1 = drm$cols$site_levels[drm$data$site],
                     v2 = drm$data$time + drm$data$time_init - 1,
                     site_id = drm$data$site,

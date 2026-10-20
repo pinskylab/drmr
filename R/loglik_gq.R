@@ -33,6 +33,7 @@ log_lik.adrm <- function(x,
     generate_quantities(fitted_params = fitted_params,
                         data = x$data,
                         parallel_chains = cores)
+  check_gq(output)
   return(output)
 }
 
@@ -56,5 +57,6 @@ log_lik.sdm <- function(x,
     generate_quantities(fitted_params = fitted_params,
                         data = x$data,
                         parallel_chains = cores)
+  check_gq(output)
   return(output)
 }

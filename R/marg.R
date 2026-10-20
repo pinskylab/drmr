@@ -10,7 +10,14 @@
 ##'   When \code{summary = TRUE}, the function calculates an equal-tailed
 ##'   credible interval and the median using \code{\link[posterior]{quantile2}},
 ##'   which is highly optimized for posterior draws.
-##' 
+##'
+##'   The function builds the design matrix again from \code{newdata}. Terms
+##'   that depend on the data, such as \code{scale()} or \code{poly()}, take
+##'   their values from \code{newdata}, not from the training data. To
+##'   standardize a covariate, use the mean and standard deviation from the
+##'   training data. A factor must have the same levels as in the training
+##'   data.
+##'
 ##' @param object An object of class \code{adrm}, typically the output of
 ##'   \code{fit_drm()}.
 ##' @param process A character string indicating the process to evaluate:
@@ -234,7 +241,14 @@ plot.eff_drm <- function(x, rug_data = NULL, ...) {
 ##' 
 ##' @return A \code{data.frame} of class \code{dd_curve} (if \code{summary = TRUE}) 
 ##'   containing the Stock-Recruitment evaluations.
-##' 
+##'
+##' @details The function builds the design matrix again from \code{newdata}.
+##'   Terms that depend on the data, such as \code{scale()} or \code{poly()},
+##'   take their values from \code{newdata}, not from the training data. To
+##'   standardize a covariate, use the mean and standard deviation from the
+##'   training data. A factor must have the same levels as in the training
+##'   data.
+##'
 ##' @name dd_curves
 ##' @export
 ##' @author lcgodoy

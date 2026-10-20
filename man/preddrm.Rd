@@ -60,10 +60,17 @@ Considering a new dataset (across the same sites), computes
 predictions based on the DRM passed as \code{drm}.
 }
 \details{
-The current version of the code reorders the data where predictions
-are needed is ordered by "site" and "site" and, in addition, the sites
-MUST match ones used to obtain the parameters' estimates from the the
-\code{drm} object.
+The function sorts \code{new_data} by site and then by time. Each
+site used to fit \code{object} must appear exactly once in each year of
+\code{new_data}. The years in \code{new_data} must be consecutive and
+must start in the year after the last training year.
+
+The function builds the design matrices again from \code{new_data}.
+Terms that depend on the data, such as \code{scale()} or \code{poly()},
+take their values from \code{new_data}, not from the training data. To
+standardize a covariate, use the mean and standard deviation from the
+training data. A factor must have the same levels as in the training
+data.
 }
 \seealso{
 \code{\link[=fit_drm]{fit_drm()}}

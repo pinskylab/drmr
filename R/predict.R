@@ -104,10 +104,17 @@ int_score <- function(y, l, u, alpha) {
 ##'   \code{$generated_quantities}
 ##'
 ##'
-##' @details The current version of the code reorders the data where predictions
-##'   are needed is ordered by "site" and "site" and, in addition, the sites
-##'   MUST match ones used to obtain the parameters' estimates from the the
-##'   \code{drm} object.
+##' @details The function sorts \code{new_data} by site and then by time. Each
+##'   site used to fit \code{object} must appear exactly once in each year of
+##'   \code{new_data}. The years in \code{new_data} must be consecutive and
+##'   must start in the year after the last training year.
+##'
+##'   The function builds the design matrices again from \code{new_data}.
+##'   Terms that depend on the data, such as \code{scale()} or \code{poly()},
+##'   take their values from \code{new_data}, not from the training data. To
+##'   standardize a covariate, use the mean and standard deviation from the
+##'   training data. A factor must have the same levels as in the training
+##'   data.
 ##'
 ##' @author lcgodoy
 ##'
@@ -224,6 +231,7 @@ predict.adrm <- function(object,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
+  check_gq(gq)
   spt <- data.frame(v1 = new_sites_factor,
                     v2 = pred_data$time + max(object$data$time) + object$data$time_init - 1)
   colnames(spt) <- rev(unname(unlist(object$cols[2:3])))
@@ -257,10 +265,18 @@ predict.adrm <- function(object,
 ##' @param ... additional parameters to be passed to
 ##'   \code{$generated_quantities}
 ##'
-##' @details The current version of the code assumes the data where predictions
-##'   are needed is ordered by "site" and "site" and, in addition, its sites
-##'   MUST be the same as the ones used to obtain the parameters' estimates from
-##'   the the \code{sdm} object.
+##' @details The function sorts \code{new_data} by site and time. Each site
+##'   used to fit \code{object} must appear exactly once in each year of
+##'   \code{new_data}. All years in \code{new_data} must come after the last
+##'   training year. The years can have gaps: the AR term, if any, also steps
+##'   through the missing years.
+##'
+##'   The function builds the design matrices again from \code{new_data}.
+##'   Terms that depend on the data, such as \code{scale()} or \code{poly()},
+##'   take their values from \code{new_data}, not from the training data. To
+##'   standardize a covariate, use the mean and standard deviation from the
+##'   training data. A factor must have the same levels as in the training
+##'   data.
 ##'
 ##' @author lcgodoy
 ##'
@@ -287,15 +303,24 @@ predict.sdm <- function(object,
   ord <- order(new_data[[object$cols$site_col]],
                new_data[[object$cols$time_col]])
   new_data <- new_data[ord, ]
-  ## time points for predictions
-  ntime_for <- length(unique(new_data[[object$cols$time_col]]))
-  time_for <- new_data[[object$cols$time_col]] -
-    min(new_data[[object$cols$time_col]]) + 1
+  ## time points for predictions, counted from the last training year. The
+  ## AR term also steps through the years missing from new_data.
+  last_train <- object$data$time_init + max(object$data$time) - 1
+  time_for <- new_data[[object$cols$time_col]] - last_train
+  if (any(time_for < 1)) {
+    stop("new_data must contain only years after the last training year (",
+         last_train, ").")
+  }
+  ntime_for <- max(time_for)
   ## throw an error if predicing on new sites
-  new_sites_factor <- factor(new_data[[object$cols$site_col]], 
+  new_sites_factor <- factor(new_data[[object$cols$site_col]],
                              levels = object$cols$site_levels)
   if (any(is.na(new_sites_factor))) {
     stop("new_data contains sites that were not present in the training data.")
+  }
+  ## every training site must appear exactly once in each year
+  if (any(table(new_sites_factor, time_for) != 1)) {
+    stop("new_data must have exactly one row for each site and each year.")
   }
   new_sites_stan <- as.integer(new_sites_factor)
   ##--- pars from model fitted ----
@@ -315,11 +340,13 @@ predict.sdm <- function(object,
          cloglog = object$data$cloglog,
          likelihood = object$data$likelihood,
          type = type_prep,
-         Z = stats::model.matrix(object[["formulas"]][["formula_zero"]],
-                                 data = new_data),
-         X = stats::model.matrix(object[["formulas"]][["formula_dens"]],
-                                 data = new_data))
-  pred_data$N <- pred_data$n_sites * pred_data$n_time
+         Z = stats::model.matrix.lm(object[["formulas"]][["formula_zero"]],
+                                    data = new_data,
+                                    na.action = stats::na.fail),
+         X = stats::model.matrix.lm(object[["formulas"]][["formula_dens"]],
+                                    data = new_data,
+                                    na.action = stats::na.fail))
+  pred_data$N <- NROW(new_data)
   pred_data$K_z <- NCOL(pred_data$Z)
   pred_data$K_x <- NCOL(pred_data$X)
   ## load compiled predict_sdm
@@ -333,8 +360,9 @@ predict.sdm <- function(object,
                         seed = seed,
                         parallel_chains = cores,
                         ...)
+  check_gq(gq)
   spt <- data.frame(v1 = new_sites_factor,
-                    v2 = pred_data$time + max(object$data$time) + object$data$time_init - 1)
+                    v2 = new_data[[object$cols$time_col]])
   colnames(spt) <- rev(unname(unlist(object$cols[2:3])))
   output <- list("gq" = gq,
                  "spt" = spt)

@@ -20,7 +20,8 @@ fit_sdm(
 )
 }
 \arguments{
-\item{.data}{A \code{data frame} containing the data for the model.}
+\item{.data}{A \code{data frame} containing the data for the model. The
+function sorts the rows by site and then by time.}
 
 \item{y_col}{A \code{character} specifying the name of the column in \code{.data}
 that contains the response variable.}
@@ -93,8 +94,8 @@ if (instantiate::stan_cmdstan_exists()) {
 \seealso{
 \code{\link[=make_data_sdm]{make_data_sdm()}}
 
-Other models: 
-\code{\link{fit_drm}()}
+Other models:
+\code{\link[=fit_drm]{fit_drm()}}
 }
 \author{
 lcgodoy

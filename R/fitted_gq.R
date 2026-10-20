@@ -47,6 +47,7 @@ fitted.adrm <- function(object,
                         data = c(object$data, list(type = type_pred)),
                         parallel_chains = cores,
                         ...)
+  check_gq(gq)
   spt <- data.frame(v1 = object$cols$site_levels[object$data$site],
                     v2 = object$data$time + object$data$time_init - 1)
   colnames(spt) <- rev(unname(unlist(object$cols[2:3])))
@@ -103,6 +104,7 @@ fitted.sdm <- function(object,
                         data = c(object$data, list(type = type_pred)),
                         parallel_chains = cores,
                         ...)
+  check_gq(gq)
   spt <- data.frame(v1 = object$cols$site_levels[object$data$site],
                     v2 = object$data$time + object$data$time_init - 1)
   colnames(spt) <- rev(unname(unlist(object$cols[2:3])))

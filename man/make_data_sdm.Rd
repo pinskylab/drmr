@@ -14,7 +14,6 @@ make_data_sdm(
   .toggles,
   .priors,
   family = "gamma",
-  reorder = TRUE,
   phi_hat = FALSE
 )
 }
@@ -58,10 +57,6 @@ distribution assumed for density. The options are: \itemize{ \item
 \item \code{"lognormal_legacy"}: log-normal with
 its usual parametrization; }}
 
-\item{reorder}{a \code{boolean} telling whether the data needs to be
-reordered. The default is TRUE and means the data points will be ordered
-by site and time, respectively.}
-
 \item{phi_hat}{a \code{boolean} indicating whether the prior on \code{phi}
 should be determined through the data (using \code{\link[=get_phi_hat]{get_phi_hat()}}).}
 }
@@ -72,6 +67,9 @@ for the Stan model.
 \description{
 This function creates the \code{list} used as the input for the \code{stan}
 model.
+}
+\details{
+The function sorts the data by site and then by time.
 }
 \author{
 lcgodoy

@@ -45,6 +45,14 @@ containing the Stock-Recruitment evaluations.
 Computes expected recruitment across a grid of Spawning Stock Biomass (density)
 values, optionally conditioned on environmental regimes.
 }
+\details{
+The function builds the design matrix again from \code{newdata}.
+Terms that depend on the data, such as \code{scale()} or \code{poly()},
+take their values from \code{newdata}, not from the training data. To
+standardize a covariate, use the mean and standard deviation from the
+training data. A factor must have the same levels as in the training
+data.
+}
 \author{
 lcgodoy
 }

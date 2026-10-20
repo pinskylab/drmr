@@ -100,3 +100,14 @@ get_zeros <- function(y) {
               N_z = N_z,
               N_nz = N_nz))
 }
+
+##' @title Check a generated quantities run
+##' @param gq a \code{CmdStanGQ} object.
+##' @return \code{gq}, invisibly. Stops if Stan failed in any chain.
+check_gq <- function(gq) {
+  if (any(gq$return_codes() != 0)) {
+    stop("Stan could not compute the generated quantities. ",
+         "See the Stan messages above.")
+  }
+  invisible(gq)
+}
