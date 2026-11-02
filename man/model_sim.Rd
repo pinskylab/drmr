@@ -33,7 +33,7 @@ checks and simulation studies.
 \details{
 See
 \href{https://forum.posit.co/t/how-to-solve-no-visible-binding-for-global-variable-note/28887/3}{this
-link} for the \link[rlang:.data]{rlang::.data} import.
+link} for the \link[rlang:dot-data]{rlang::.data} import.
 }
 \seealso{
 \code{\link[=prior_inits]{prior_inits()}}

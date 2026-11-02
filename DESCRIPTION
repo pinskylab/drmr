@@ -22,7 +22,8 @@ BugReports: https://github.com/pinskylab/drmr/issues/
 Depends:
   R (>= 4.0.0)
 Imports:
-  instantiate (>= 0.2.3.9002),
+  instantiate (>= 0.2.4),
+  cmdstanr (>= 0.9.0),
   posterior,
   sf,
   spdep,
@@ -45,9 +46,7 @@ Config/Needs/website:
   ggplot2,
   r-lib/pkgdown,
   quarto
-Remotes: wlandau/instantiate
-Additional_repositories:
-  https://mc-stan.org/r-packages/
+Additional_repositories: https://stan-dev.r-universe.dev/
 SystemRequirements: CmdStan (https://mc-stan.org/users/interfaces/cmdstan)
 Encoding: UTF-8
 LazyData: true
@@ -58,3 +57,4 @@ Language: en-US
 License: GPL (>= 3)
 URL: https://pinskylab.github.io/drmr/
 Config/roxygen2/version: 8.1.0
+RoxygenNote: 7.3.3

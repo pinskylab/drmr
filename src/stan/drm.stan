@@ -101,9 +101,9 @@ transformed data {
         adj_mat_std[i] = adj_mat[i];
       }
     }
-    w_adj = csr_extract_w(adj_mat_std);
-    v_adj = csr_extract_v(adj_mat_std);
-    u_adj = csr_extract_u(adj_mat_std);
+    w_adj = csr_extract_w(adj_mat_std');
+    v_adj = csr_extract_v(adj_mat_std');
+    u_adj = csr_extract_u(adj_mat_std');
   }
   //--- Mortality ----
   // `fixed_m` is a "time X site" constant matrix. All of its positions are
