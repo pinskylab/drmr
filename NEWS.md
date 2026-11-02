@@ -1,9 +1,5 @@
 # drmr 1.1.2
 
-- The function for sparse matrix multiplication in Stan expects $A^\top$ instead
-  of $A$. We overlooked this detail in the previous version, and it was doing
-  the "wrong thing" in the movement routine.
-
 - Fixed bugs on data ordering and predictions.
 
 - Using hyperbolic tangent transform for the temporal autocorrelation parameter.
