@@ -1,5 +1,6 @@
 functions {
 #include utils/lpdfs.stanfunctions
+#include utils/icar.stanfunctions
 #include utils/age_struct.stanfunctions
 }
 data {
@@ -11,6 +12,7 @@ data {
   array[N] int<lower = 1, upper = n_time> time;
   array[N] int<lower = 1, upper = n_sites> site;
   vector[N] y;
+  vector<lower = 0>[n_sites] areas; // patch areas (A = diag(areas))
   //--- for vectorizing zero-inflation ----
   int N_nz;
   int N_z;
@@ -28,7 +30,7 @@ data {
                                       // mortality is stable at the beginning of
                                       // the time series
   int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
-  int<lower = 0, upper = 1> acc_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
+  int<lower = 0, upper = 1> acc_dd;   // 0 for local SSB, 1 for regional SSB
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
                                         // Gamma, 3 = log-Logistic. 4 = truncated normal)
@@ -52,7 +54,14 @@ data {
   array[sp_re > 0 ? 2 : 1,
         sp_re > 0 ? N_edges[1] : 1]
   int<lower = 1, upper = n_sites> neighbors;  // columnwise adjacent
-  array[sp_re > 0 ? 1 : 0] real scaling;
+  // scaling factor of each site's connected component (1 if no neighbors)
+  vector<lower = 0>[sp_re > 0 ? n_sites : 0] scaling;
+  // connected components with 2+ sites: number, sizes, and the sites
+  // ordered by component (sites with no neighbors last)
+  int<lower = 0> n_comp_s;
+  array[n_comp_s] int<lower = 2> comp_size_s;
+  array[sp_re > 0 ? n_sites : 0]
+  int<lower = 1, upper = n_sites> comp_order_s;
   //--- environmental data ----
   //--- * for mortality ----
   array[est_surv ? 1 : 0] int<lower = 1> K_m;
@@ -98,9 +107,16 @@ transformed data {
       if (row_s > 0) {
         adj_mat_std[i] = adj_mat[i] / row_s;
       } else {
-        adj_mat_std[i] = adj_mat[i];
+        // a site with no neighbors keeps its individuals
+        adj_mat_std[i] = rep_row_vector(0.0, n_sites);
+        adj_mat_std[i, i] = 1;
       }
     }
+    // A^{-1} W' A: moves abundance, then converts it back to density
+    adj_mat_std =
+      diag_post_multiply(diag_pre_multiply(inv(areas),
+                                           adj_mat_std'),
+                         areas);
     w_adj = csr_extract_w(adj_mat_std);
     v_adj = csr_extract_v(adj_mat_std);
     u_adj = csr_extract_u(adj_mat_std);
@@ -114,6 +130,8 @@ transformed data {
     fixed_m = rep_matrix(- m[1], n_time, n_sites);
   //--- scaling factors ----
   real s_iid = sqrt(n_sites / (n_sites - 1.0));
+  //--- ICAR: number of sites with no neighbors ----
+  int n_single_s = sp_re > 0 ? n_sites - sum(comp_size_s) : 0;
 }
 parameters {
   // relationship between mu and rho
@@ -145,10 +163,12 @@ parameters {
   // aux latent variable
   array[iid_re > 0 ? 1 : 0] sum_to_zero_vector[n_sites] z_i;
   //--- * ICAR RE ----
-  array[sp_re > 0 ? 1 : 0] sum_to_zero_vector[n_sites] w_s;
+  // unconstrained values; w_s (transformed parameters) sums to zero
+  // within each connected component
+  vector[sp_re > 0 ? n_sites - n_comp_s : 0] w_s_raw;
   array[sp_re > 0 ? 1 : 0] real log_sigma_s;
   //--- * Movement parameter ----
-  // logit of the probability of staying in the same site
+  // probability of staying in the same site
   array[movement] real<lower = 0, upper = 1> zeta;
 }
 transformed parameters {
@@ -191,10 +211,14 @@ transformed parameters {
   }
   //--- ICAR RE ----
   array[sp_re > 0 ? 1 : 0] real sigma_s;
+  vector[sp_re > 0 ? n_sites : 0] w_s;
   vector[sp_re > 0 ? n_sites : 0] z_s;
   if (sp_re > 0) {
+    w_s = icar_constrain(w_s_raw, n_sites, comp_size_s, comp_order_s);
     sigma_s[1] = exp(log_sigma_s[1]);
-    z_s = sigma_s[1] * inv_sqrt(scaling[1]) * w_s[1];
+    // scaled so that sigma_s is a typical marginal SD of z_s: the geometric
+    // mean of the marginal variances in each component is sigma_s^2
+    z_s = sigma_s[1] * w_s ./ sqrt(scaling);
   }
   {
     // linear predictor for survival (logit scale)
@@ -238,7 +262,7 @@ transformed parameters {
                               kappa[1], rec_dd,
                               zeta[1], w_adj, v_adj, u_adj,
                               ages_movement,
-                              acc_dd);
+                              acc_dd, areas);
       } else {
         lambda_aux =
           pop_rec_dd(n_sites, n_time, n_ages,
@@ -248,7 +272,7 @@ transformed parameters {
                      to_matrix(log_rec, n_time, n_sites),
                      amat, weight,
                      kappa[1], rec_dd,
-                     acc_dd);
+                     acc_dd, areas);
       }
     } else {
       if (movement) {
@@ -347,7 +371,13 @@ model {
   //--- SP RE ----
   if (sp_re > 0) {
     target += normal_lpdf(log_sigma_s[1] | pr_lsigma_s_mu, pr_lsigma_s_sd);
-    target += -0.5 * dot_self(w_s[1][neighbors[1]] - w_s[1][neighbors[2]]); // ICAR prior
+    // ICAR prior (each pair of neighbors appears once)
+    target += -0.5 * dot_self(w_s[neighbors[1]] - w_s[neighbors[2]]);
+    // sites with no neighbors: independent standard normal
+    if (n_single_s > 0) {
+      target += std_normal_lpdf(
+        w_s[comp_order_s[(n_sites - n_single_s + 1):n_sites]]);
+    }
   }
   //--- Movement ----
   if (movement) {

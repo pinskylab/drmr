@@ -2,23 +2,25 @@
 % Please edit documentation in R/data-gen.R
 \name{sim_ar}
 \alias{sim_ar}
-\title{Simulate AR(1)}
+\title{Simulate a zero-mean AR(1) process}
 \usage{
-sim_ar(pars, n_time)
+sim_ar(n_time, alpha, sigma)
 }
 \arguments{
-\item{pars}{a named \code{list} with two elements: \code{alpha}
-(representing the temporal autocorrelation parameter) and \code{tau}
-representing the conditional standard deviation of the AR(1) process.}
+\item{n_time}{number of time points.}
 
-\item{n_time}{number of time points}
+\item{alpha}{autocorrelation parameter, between -1 and 1.}
+
+\item{sigma}{conditional standard deviation.}
 }
 \value{
-a \code{vector} of length \code{n_time} representing a realization
-of a zero-mean AR(1) process.
+a \code{numeric} vector of length \code{n_time}.
 }
 \description{
-Simulate AR(1)
+Follows \code{drm.stan}: \eqn{z_1 = \sigma w_1} and
+\eqn{z_t = \alpha z_{t - 1} + \sigma w_t}, where the \eqn{w_t} are
+independent standard normal draws. The first value does not come from
+the stationary distribution.
 }
 \author{
 lcgodoy

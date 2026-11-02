@@ -18,7 +18,7 @@ function.}
 obtain predictions.}
 
 \item{f_test}{a \code{matrix} informing the instantaneous fishing mortality
-rates at each age (columns) and timepoint (rows).}
+rates at each age (rows) and time point (columns).}
 
 \item{cores}{number of threads used for the forecast. If four chains were
 used in the \code{drm}, then four (or less) threads are recommended.}

@@ -86,7 +86,7 @@ int_score <- function(y, l, u, alpha) {
 ##'   used in model fitting. Only needed when \code{f_test} is not missing or
 ##'   when estimating survival.
 ##' @param f_test a \code{matrix} informing the instantaneous fishing mortality
-##'   rates at each age (columns) and timepoint (rows).
+##'   rates at each age (rows) and time point (columns).
 ##' @param type type of predictions to be computed. Admitted values are
 ##' \itemize{
 ##' \item `"predictive"` (default): posterior predictive distribution;
@@ -195,7 +195,8 @@ predict.adrm <- function(object,
          amat = object$data$amat,
          weight = object$data$weight,
          adj_mat = object$data$adj_mat,
-         n_edges_adj = object$data$n_edges_adj,
+         n_edges_adj = get_n_edges_adj(object$data),
+         areas = get_areas(object$data),
          ages_movement = object$data$ages_movement,
          selectivity_at_age = object$data$selectivity_at_age,
          K_r = object$data$K_r,

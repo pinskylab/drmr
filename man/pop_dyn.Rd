@@ -5,63 +5,90 @@
 \title{Simulate population dynamics}
 \usage{
 pop_dyn(
-  n_patches,
-  n_time,
-  n_ages,
-  x_rec,
-  ar_time,
-  f_a_t,
-  x_sv = NULL,
-  m = 0.25,
-  pars,
+  log_rec,
+  log_surv,
+  f,
   init,
-  init_type,
-  movement = FALSE,
+  minit = 0,
+  rec_dd = 2,
+  kappa = NULL,
+  amat = NULL,
+  weight = NULL,
+  acc_dd = 0,
+  zeta = NULL,
   adj_mat = NULL,
-  mov_age = NULL
+  ages_movement = NULL,
+  areas = NULL
 )
 }
 \arguments{
-\item{n_patches}{number of patches}
+\item{log_rec}{a \code{n_time} by \code{n_sites} \code{matrix} with the
+log-recruitment linear predictor (\eqn{\psi_{t, i}}).}
 
-\item{n_time}{number of timepoints}
+\item{log_surv}{a \code{n_time} by \code{n_sites} \code{matrix} with the
+log-survival (\eqn{\log s_{t, i}}).}
 
-\item{n_ages}{a \code{integer} indicating the number of (assumed)
-age-classes.}
+\item{f}{a \code{n_ages} by \code{n_time} \code{matrix} with the
+instantaneous fishing mortality rates.}
 
-\item{x_rec}{matrix of environmental factors affecting recruitment}
+\item{init}{a \code{numeric} vector of length \code{n_ages - 1} with the
+log-densities of ages 2 to \code{n_ages} at the first time point.}
 
-\item{ar_time}{a \code{boolean} indicating whether an AR(1) term should be
-included to the log-recruitment.}
+\item{minit}{1 to start from the age structure that survival implies at
+the first time point, and 0 to use \code{init}.}
 
-\item{f_a_t}{fishing mortality}
+\item{rec_dd}{0 for Ricker, 1 for Beverton-Holt, and 2 for no density
+dependence.}
 
-\item{x_sv}{matrix of environmental factors affecting survival}
+\item{kappa}{density-dependence parameter.}
 
-\item{m}{a \code{numeric} value indicating the natural mortality
-instantaneous rate.}
+\item{amat}{maturity-at-age vector.}
 
-\item{pars}{a named \code{list} of model parameters.}
+\item{weight}{weight-at-age vector.}
 
-\item{init}{initialization vector of length \code{n_ages - 1}}
+\item{acc_dd}{1 to use the area-weighted mean SSB density of the whole
+region, and 0 to use the SSB density of each site.}
 
-\item{init_type}{type of initialization (integer between 0 and 5)}
+\item{zeta}{probability of staying at the same site. \code{NULL} means no
+movement.}
 
-\item{movement}{a \code{boolean} indicating whether movement should be
-applied or not. If TRUE, than \code{pars} must have an element called
-\code{zeta} indicating the probability of staying at a given patch between
-two timepoints.}
+\item{adj_mat}{a \code{n_sites} by \code{n_sites} adjacency
+\code{matrix}.}
 
-\item{adj_mat}{a \code{n_patches} by \code{n_patches} row-standardized
-adjacency \code{matrix}.}
+\item{ages_movement}{a 0/1 vector of length \code{n_ages}. A value of 1
+means the age group moves.}
 
-\item{mov_age}{a \code{vector} of ages at which movement starts.}
+\item{areas}{a positive \code{numeric} vector with the area of each site.
+\code{NULL} means 1 for each site.}
 }
 \value{
-an array of expected densities per age-group, patch, and timepoint.
+an \code{array} of expected densities with dimensions
+\code{n_ages}, \code{n_time}, and \code{n_sites}.
 }
 \description{
-Given a set of parameters, simulate population dynamics.
+Computes the expected density by age, time, and site. The
+function follows the Stan functions \code{simplest},
+\code{simplest_movement}, \code{pop_rec_dd}, and
+\code{pop_rec_dd_movement} in \code{age_struct.stanfunctions}.
+}
+\details{
+These details follow the Stan code on purpose:
+\itemize{
+\item At the first time point, recruitment is
+\code{exp(log_rec[1, ])}, also with density dependence.
+\item \code{minit} has no effect with density dependence.
+\item Movement is \code{zeta * x + (1 - zeta) * solve(A) \%*\% t(W)
+  \%*\% A \%*\% x}, where \code{W} is the row-standardized adjacency
+matrix and \code{A} is \code{diag(areas)}. So the \code{(1 - zeta)}
+share of the abundance at each site moves to its neighbors in
+proportion to the values in its row of \code{adj_mat} (in equal parts
+for a 0/1 matrix), and the total abundance (density times area) stays
+the same.
+For a site with no neighbors, \code{W} has a 1 on the diagonal, so its
+individuals stay there.
+\item With \code{acc_dd = 1}, the SSB is the mean SSB density of the
+sites, weighted by \code{areas}.
+}
 }
 \author{
 lcgodoy

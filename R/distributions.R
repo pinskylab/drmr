@@ -101,8 +101,18 @@ dtn <- function(x, mean = 0, sd = 1, range = c(0, Inf),
 ##' @seealso [stats::rnorm()], [stats::qnorm()]
 ##' @author lcgodoy
 rtn <- function(n, mean = 0, sd = 1, range = c(0, Inf)) {
-  ll <- stats::pnorm(q = min(range), mean = mean, sd = sd)
-  hh <- stats::pnorm(q = max(range), mean = mean, sd = sd)
+  lo <- min(range)
+  hi <- max(range)
+  if (lo > mean) {
+    ## the interval lies above the mean: upper-tail probabilities do not
+    ## round to 1, so the draws stay finite
+    pl <- stats::pnorm(q = lo, mean = mean, sd = sd, lower.tail = FALSE)
+    ph <- stats::pnorm(q = hi, mean = mean, sd = sd, lower.tail = FALSE)
+    u  <- stats::runif(n, min = ph, max = pl)
+    return(stats::qnorm(p = u, mean = mean, sd = sd, lower.tail = FALSE))
+  }
+  ll <- stats::pnorm(q = lo, mean = mean, sd = sd)
+  hh <- stats::pnorm(q = hi, mean = mean, sd = sd)
   u  <- stats::runif(n, min = ll, max = hh)
   stats::qnorm(p = u, mean = mean, sd = sd)
 }

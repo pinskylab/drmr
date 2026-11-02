@@ -75,6 +75,11 @@ shp_sum_fl <- system.file("maps/sum_fl.shp", package = "drmr") |>
 ## constructing adjacency matrix
 adj_mat <- gen_adj(st_buffer(st_geometry(shp_sum_fl),
                              dist = 2500))
+
+## patch areas (km^2), named by patch
+patch_areas <- sum_fl |>
+  distinct(patch, area_km2)
+patch_areas <- setNames(patch_areas$area_km2, patch_areas$patch)
 ```
 
 
@@ -112,9 +117,10 @@ drm_nuts <-
           f_mort = fmat[, -1],
           n_ages = NROW(fmat),
           adj_mat = adj_mat, ## A matrix for movement routine
+          areas = patch_areas, ## patch areas for movement
           ages_movement = c(0, 0,
-                            rep(1, 12),
-                            0, 0), ## ages allowed to move
+                            rep(1, 8),
+                            rep(0, 6)), ## ages 3 to 10 move
           .toggles = list(ar_re = "rec",
                           movement = 1,
                           est_surv = 1,

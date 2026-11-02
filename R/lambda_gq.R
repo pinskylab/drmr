@@ -5,7 +5,7 @@
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
 ##' @param f_test a \code{matrix} informing the instantaneous fishing mortality
-##'   rates at each age (columns) and timepoint (rows).
+##'   rates at each age (rows) and time point (columns).
 ##' @param cores number of threads used for the forecast. If four chains were
 ##'   used in the \code{drm}, then four (or less) threads are recommended.
 ##'
@@ -33,6 +33,8 @@ ages_edens <- function(drm,
                        "CmdStanPathfinder", "CmdStanVB")))  
   ##--- list for lambda_gq ----
   gq_data <- drm$data
+  gq_data$areas <- get_areas(gq_data)
+  gq_data$n_edges_adj <- get_n_edges_adj(gq_data)
   gq_data$proj <- as.integer(!is.null(new_data))
   
   if (gq_data$proj == 1) {

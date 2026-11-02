@@ -156,7 +156,7 @@ the latent underlying population dynamics.
 The mortality rates associated with the _Summer flounder_ dataset are shipped
 with the package. The mortality rates are stored in a matrix having the number
 of columns corresponding to the number of timepoints in our dataset, and number
-of columns corresponding to the total number of age-groups observed for the
+of rows corresponding to the total number of age-groups observed for the
 species. To load that matrix in our `R` session, we run:
 
 ```{r}
@@ -183,6 +183,11 @@ shp_sum_fl <- system.file("maps/sum_fl.shp", package = "drmr") |>
 ## constructing adjacency matrix
 adj_mat <- gen_adj(st_buffer(st_geometry(shp_sum_fl),
                              dist = 2500))
+
+## patch areas (km^2), named by patch
+patch_areas <- sum_fl |>
+  distinct(patch, area_km2)
+patch_areas <- setNames(patch_areas$area_km2, patch_areas$patch)
 ```
 
 > The `shp_sum_fl` has one row for each patch. It is important that this dataset
@@ -206,7 +211,10 @@ into account the following:
    information provided by `f_train`.
 
 1. Movement: We assume individuals from ages 3 to 10 may move between patches
-   from one year to another.
+   from one year to another. The patches differ in area, so we give their
+   areas (`areas = patch_areas`). The model then moves abundance (density
+   times area), not density, so movement does not change the total
+   abundance.
 
 1. Initialization: We use the survival rates to initialize the population
    dynamics (see the initialization vignette by running `vignette("init",
@@ -235,9 +243,10 @@ drm_rec <-
           f_mort = f_train,
           n_ages = NROW(f_train),
           adj_mat = adj_mat, ## A matrix for movement routine
+          areas = patch_areas, ## patch areas for movement
           ages_movement = c(0, 0,
-                            rep(1, 12),
-                            0, 0), ## ages allowed to move
+                            rep(1, 8),
+                            rep(0, 6)), ## ages 3 to 10 move
           .toggles = list(ar_re = "rec",
                           movement = 1,
                           est_surv = 1,
@@ -281,7 +290,8 @@ features to be enabled or disabled through a set of toggles (e.g., via the
     = \dots \xi \log(\mu)$.
 *   **`movement`**: If activated (`1`), includes the probability of individuals
     remaining in the same patch ($\zeta$) and activates the movement matrix
-    routines.
+    routines. Movement does not change the total abundance. Use the `areas`
+    argument to give the area of each patch; the default is 1 for each patch.
 *   **`ar_re`**: Determines the process for the AR(1) temporal correlation. If
     not `"none"`, it enables AR(1) parameters such as temporal correlation
     ($\alpha$), AR(1) conditional standard deviation ($\sigma_t$), and

@@ -69,6 +69,9 @@ array[] matrix forecast_simplest(int n_patches,
  * @param weight weight-at-age vector [n_ages]
  * @param beta density-dependence coefficient
  * @param rec_type 0 for Ricker, 1 for Beverton-Holt
+ * @param acc_dd 0 to use the SSB density of each patch, and 1 to use the
+ *   area-weighted mean SSB density of the whole region
+ * @param areas patch areas [n_patches]
  * 
  * @return an array of numbers by age, year and patch
  */
@@ -85,7 +88,8 @@ array[] matrix forecast_pop_rec_dd(int n_patches,
                                    vector weight,
                                    real beta,
                                    int rec_type,
-                                   int acc_dd) {
+                                   int acc_dd,
+                                   vector areas) {
   // initializing output with zeros
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
@@ -104,9 +108,11 @@ array[] matrix forecast_pop_rec_dd(int n_patches,
       }
     }
     
+    // area-weighted mean SSB density of the whole region
+    real ssb_reg = dot_product(ssb_prev, areas) / sum(areas);
     for (p in 1 : n_patches) {
       real ssb_aux;
-      ssb_aux = acc_dd ? sum(ssb_prev) : ssb_prev[p];
+      ssb_aux = acc_dd ? ssb_reg : ssb_prev[p];
       if (ssb_aux > 1e-10) {
         real log_S = log(ssb_aux);
         if (rec_type == 0) {
@@ -151,10 +157,14 @@ array[] matrix forecast_pop_rec_dd(int n_patches,
  * @param beta density-dependence coefficient
  * @param rec_type 0 for Ricker, 1 for Beverton-Holt
  * @param zeta probability of staying in the current site
- * @param w_adj sparse CSR vector of non-zero entries of adjacency matrix
+ * @param w_adj sparse CSR vector of non-zero entries of A^{-1} W' A,
+ *   where W is the row-standardized adjacency matrix and A = diag(areas)
  * @param v_adj sparse CSR array of column indices
  * @param u_adj sparse CSR array of row starting indices
  * @param mov_age ages at which movement starts
+ * @param acc_dd 0 to use the SSB density of each patch, and 1 to use the
+ *   area-weighted mean SSB density of the whole region
+ * @param areas patch areas [n_patches]
  * 
  * @return an array of numbers by age, year and patch
  */
@@ -176,7 +186,8 @@ array[] matrix forecast_pop_rec_dd_movement(int n_patches,
                                             array[] int v_adj,
                                             array[] int u_adj,
                                             array[] int mov_age,
-                                            int acc_dd) {
+                                            int acc_dd,
+                                            vector areas) {
   // initializing output with zeros
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
@@ -195,9 +206,11 @@ array[] matrix forecast_pop_rec_dd_movement(int n_patches,
       }
     }
     
+    // area-weighted mean SSB density of the whole region
+    real ssb_reg = dot_product(ssb_prev, areas) / sum(areas);
     for (p in 1 : n_patches) {
       real ssb_aux;
-      ssb_aux = acc_dd ? sum(ssb_prev) : ssb_prev[p];
+      ssb_aux = acc_dd ? ssb_reg : ssb_prev[p];
       if (ssb_aux > 1e-10) {
         real log_S = log(ssb_aux);
         if (rec_type == 0) {
@@ -253,7 +266,8 @@ array[] matrix forecast_pop_rec_dd_movement(int n_patches,
  * @param f_past a n_ages by n_time_train matrix
  * @param neg_mort_past a n_patches vector
  * @param zeta probability of staying in the current site
- * @param w_adj sparse CSR vector of non-zero entries of adjacency matrix
+ * @param w_adj sparse CSR vector of non-zero entries of A^{-1} W' A,
+ *   where W is the row-standardized adjacency matrix and A = diag(areas)
  * @param v_adj sparse CSR array of column indices
  * @param u_adj sparse CSR array of row starting indices
  * @param mov_age ages at which movement starts

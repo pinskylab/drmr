@@ -26,6 +26,7 @@ data {
   //--- movement related quantities ----
   matrix[movement ? n_sites: 1, movement ? n_sites : 1] adj_mat;
   int<lower = 0> n_edges_adj;
+  vector<lower = 0>[n_sites] areas; // patch areas (A = diag(areas))
   array[movement ? n_ages : 0] int ages_movement;
   //--- maturity and weight at age ----
   vector[n_ages] amat;
@@ -51,9 +52,16 @@ transformed data {
       if (row_s > 0) {
         adj_mat_std[i] = adj_mat[i] / row_s;
       } else {
-        adj_mat_std[i] = adj_mat[i];
+        // a site with no neighbors keeps its individuals
+        adj_mat_std[i] = rep_row_vector(0.0, n_sites);
+        adj_mat_std[i, i] = 1;
       }
     }
+    // A^{-1} W' A: moves abundance, then converts it back to density
+    adj_mat_std =
+      diag_post_multiply(diag_pre_multiply(inv(areas),
+                                           adj_mat_std'),
+                         areas);
     w_adj = csr_extract_w(adj_mat_std);
     v_adj = csr_extract_v(adj_mat_std);
     u_adj = csr_extract_u(adj_mat_std);
@@ -119,7 +127,7 @@ generated quantities {
                               kappa[1], rec_dd,
                               zeta[1], w_adj, v_adj, u_adj,
                               ages_movement,
-                              acc_dd);
+                              acc_dd, areas);
       } else {
         lambda =
           pop_rec_dd(n_sites, n_time, n_ages,
@@ -129,7 +137,7 @@ generated quantities {
                      to_matrix(log_rec, n_time, n_sites),
                      amat, weight,
                      kappa[1], rec_dd,
-                     acc_dd);
+                     acc_dd, areas);
       }
     } else {
       if (movement) {

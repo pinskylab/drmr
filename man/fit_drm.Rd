@@ -59,7 +59,13 @@ component. If \code{NULL} (the default), no survival component is included.}
 options include: a scalar greater than zero, say \code{x}, which
 initializes all parameters uniformly between \code{-x} and \code{x};
 \code{0}, which initializes all parameters at \code{0}; or "prior", which
-initializes parameters by sampling from their priors.}
+initializes parameters by sampling from their priors. With
+\code{rho_mu = 1} (the default), a draw of \code{xi} far in the tail of
+its prior can make the probability of a zero exactly 0 or 1. Then Stan
+cannot start that chain, and the fit reports it as failed. If this
+happens, draw new initial values or use another \code{init}. The
+initial values come from the R random number generator, not from
+\code{seed}, so call \code{\link[=set.seed]{set.seed()}} with another value first.}
 
 \item{algorithm}{a \code{character} specifying the algorithm used for
 inference. Default is \code{nuts} (the default MCMC in Stan). The
@@ -69,8 +75,7 @@ approximation centered at the mode of the posterior) or "optimize" for
 (penalized) MLEs.}
 
 \item{algo_args}{a \code{list} with arguments for the sampling
-algorithms. For instance, \code{tol_rel_obj} for variational inference.
-weight-at-age.}
+algorithms. For instance, \code{tol_rel_obj} for variational inference.}
 
 \item{...}{Passed on to the \code{\link[=make_data]{make_data()}} function used to build the input
 \code{list} for our \code{cmdstanr} model.}

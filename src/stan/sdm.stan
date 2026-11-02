@@ -1,5 +1,6 @@
 functions {
 #include utils/lpdfs.stanfunctions
+#include utils/icar.stanfunctions
 }
 data {
   //--- survey data  ---
@@ -30,7 +31,14 @@ data {
   array[sp_re > 0 ? 2 : 1,
         sp_re > 0 ? N_edges[1] : 1]
   int<lower = 1, upper = n_sites> neighbors;  // columnwise adjacent
-  array[sp_re > 0 ? 1 : 0] real scaling;
+  // scaling factor of each site's connected component (1 if no neighbors)
+  vector<lower = 0>[sp_re > 0 ? n_sites : 0] scaling;
+  // connected components with 2+ sites: number, sizes, and the sites
+  // ordered by component (sites with no neighbors last)
+  int<lower = 0> n_comp_s;
+  array[n_comp_s] int<lower = 2> comp_size_s;
+  array[sp_re > 0 ? n_sites : 0]
+  int<lower = 1, upper = n_sites> comp_order_s;
   //--- environmental data ----
   //--- * for counts ----
   int<lower = 1> K_x;
@@ -60,6 +68,8 @@ data {
 transformed data {
   //--- scaling factors ----
   real s_iid = sqrt(n_sites / (n_sites - 1.0));
+  //--- ICAR: number of sites with no neighbors ----
+  int n_single_s = sp_re > 0 ? n_sites - sum(comp_size_s) : 0;
 }
 parameters {
   // relationship between mu and rho
@@ -85,7 +95,9 @@ parameters {
   // aux latent variable
   array[iid_re] sum_to_zero_vector[n_sites] z_i;
   //--- * ICAR RE ----
-  array[sp_re] sum_to_zero_vector[n_sites] w_s;
+  // unconstrained values; w_s (transformed parameters) sums to zero
+  // within each connected component
+  vector[sp_re > 0 ? n_sites - n_comp_s : 0] w_s_raw;
   array[sp_re] real log_sigma_s;
 }
 transformed parameters {
@@ -115,10 +127,14 @@ transformed parameters {
   }
   //--- ICAR RE ----
   array[sp_re > 0 ? 1 : 0] real sigma_s;
+  vector[sp_re > 0 ? n_sites : 0] w_s;
   vector[sp_re > 0 ? n_sites : 0] z_s;
   if (sp_re > 0) {
+    w_s = icar_constrain(w_s_raw, n_sites, comp_size_s, comp_order_s);
     sigma_s[1] = exp(log_sigma_s[1]);
-    z_s = sigma_s[1] * inv_sqrt(scaling[1]) * w_s[1];
+    // scaled so that sigma_s is a typical marginal SD of z_s: the geometric
+    // mean of the marginal variances in each component is sigma_s^2
+    z_s = sigma_s[1] * w_s ./ sqrt(scaling);
   }
   //--- quantities used in the likelihood ----
   // probability of encounter at specific time/site combinations
@@ -178,7 +194,13 @@ model {
   //--- SP RE ----
   if (sp_re) {
     target += normal_lpdf(log_sigma_s[1] | pr_lsigma_s_mu, pr_lsigma_s_sd);
-    target += -0.5 * dot_self(w_s[1][neighbors[1]] - w_s[1][neighbors[2]]); // ICAR prior
+    // ICAR prior (each pair of neighbors appears once)
+    target += -0.5 * dot_self(w_s[neighbors[1]] - w_s[neighbors[2]]);
+    // sites with no neighbors: independent standard normal
+    if (n_single_s > 0) {
+      target += std_normal_lpdf(
+        w_s[comp_order_s[(n_sites - n_single_s + 1):n_sites]]);
+    }
   }
   //--- Counts ----
   target += normal_lpdf(beta_r | pr_beta_r_mu, pr_beta_r_sd);

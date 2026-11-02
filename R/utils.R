@@ -10,18 +10,16 @@
 ##' @author lcgodoy
 safe_modify <- function(original, replacements) {
   if (!missing(replacements)) {
-    stopifnot(all(names(replacements) %in% names(original)))
-    if ("ar_re" %in% names(replacements)) {
-      replacements[["ar_re"]] <-
-        fix_re(replacements[["ar_re"]])
+    bad <- setdiff(names(replacements), names(original))
+    if (length(bad) > 0) {
+      stop("Unknown name(s): ", paste(bad, collapse = ", "),
+           ". Valid names: ", paste(names(original), collapse = ", "), ".",
+           call. = FALSE)
     }
-    if ("iid_re" %in% names(replacements)) {
-      replacements[["iid_re"]] <-
-        fix_re(replacements[["iid_re"]])
-    }
-    if ("sp_re" %in% names(replacements)) {
-      replacements[["sp_re"]] <-
-        fix_re(replacements[["sp_re"]])
+    for (re in c("ar_re", "iid_re", "sp_re")) {
+      if (re %in% names(replacements)) {
+        replacements[[re]] <- fix_re(replacements[[re]], re)
+      }
     }
     if ("rec_dd" %in% names(replacements)) {
       replacements[["rec_dd"]] <-
@@ -34,31 +32,43 @@ safe_modify <- function(original, replacements) {
   return(out)
 }
 
-##' @title Random effects verbose to code
-##' @param x a \code{character}
-##' @return An \code{integer}.
+##' @title Toggle value to code
+##' @description Converts a toggle given as a name, such as \code{"rec"}, to
+##'   its code. A valid code passes unchanged. Any other value, including
+##'   \code{TRUE} and \code{FALSE}, stops with an error, so that a misspelled
+##'   toggle is not ignored.
+##' @param x a \code{character} or \code{numeric} scalar.
+##' @param codes a named \code{numeric} vector with the valid codes.
+##' @param name the name of the toggle, for the error message.
+##' @return A \code{numeric} scalar.
 ##' @author lcgodoy
-fix_re <- function(x) {
-  if (!x %in% c(0:3)) {
-    switch(x,
-           none = 0,
-           rec  = 1,
-           surv = 2,
-           dens = 3)
-  } else x
+toggle_code <- function(x, codes, name) {
+  if (is.numeric(x) && length(x) == 1 && !is.na(x) && x %in% codes) {
+    return(as.numeric(x))
+  }
+  if (is.character(x) && length(x) == 1 && x %in% names(codes)) {
+    return(codes[[x]])
+  }
+  stop("'", name, "' must be one of ",
+       paste0("\"", names(codes), "\"", collapse = ", "), " (or ",
+       paste(codes, collapse = ", "), ").", call. = FALSE)
+}
+
+##' @title Random effects verbose to code
+##' @param x a \code{character} or \code{numeric} scalar.
+##' @param name the name of the toggle, for the error message.
+##' @return A \code{numeric} scalar.
+##' @author lcgodoy
+fix_re <- function(x, name = "random effect toggle") {
+  toggle_code(x, c(none = 0, rec = 1, surv = 2, dens = 3), name)
 }
 
 ##' @title Density dependence verbose to code
-##' @param x a \code{character}
-##' @return An \code{integer}.
+##' @param x a \code{character} or \code{numeric} scalar.
+##' @return A \code{numeric} scalar.
 ##' @author lcgodoy
 fix_dd <- function(x) {
-  if (!x %in% c(0:3)) {
-    switch(x,
-           ricker = 0,
-           bh     = 1,
-           none   = 2)
-  } else x
+  toggle_code(x, c(ricker = 0, bh = 1, none = 2), "rec_dd")
 }
 
 ##' @title Estimate phi
@@ -99,6 +109,35 @@ get_zeros <- function(y) {
               id_nz = id_nz,
               N_z = N_z,
               N_nz = N_nz))
+}
+
+##' @title Site areas for the Stan models
+##' @param dat the \code{data} element of an \code{adrm} object.
+##' @return The \code{areas} element of \code{dat}. A fit from an earlier
+##'   version of drmr has no \code{areas}, so the function returns 1 for each
+##'   site.
+get_areas <- function(dat) {
+  if (!is.null(dat$areas)) {
+    return(dat$areas)
+  }
+  return(array(rep(1, dat$n_sites), dim = dat$n_sites))
+}
+
+##' @title Number of non-zero entries of the movement matrix
+##' @param dat a \code{list} with the elements \code{movement} and
+##'   \code{adj_mat}, such as the output of [make_data()] or the \code{data}
+##'   element of an \code{adrm} object.
+##' @return The number of non-zero entries of the movement matrix that the
+##'   Stan models build: one for each non-zero entry of \code{adj_mat} (two
+##'   for each pair of neighbors in a symmetric matrix), plus one on the
+##'   diagonal for each site with no neighbors. It is 0 without movement.
+##'   Fits from earlier versions of drmr stored a smaller count, so the
+##'   functions that reuse a fit call this function instead.
+get_n_edges_adj <- function(dat) {
+  if (!isTRUE(dat$movement == 1)) {
+    return(0)
+  }
+  return(sum(dat$adj_mat != 0) + sum(rowSums(dat$adj_mat) == 0))
 }
 
 ##' @title Check a generated quantities run

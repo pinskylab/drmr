@@ -11,9 +11,12 @@ get_nodes(adj)
 }
 \value{
 A \code{list} containing the number of edges and the neighbors.
+Each pair of neighbors appears once, so the ICAR precision is the graph
+Laplacian, the matrix that \code{\link[=get_scaling]{get_scaling()}} uses.
 }
 \description{
-Get nodes for ICAR spatial random effects
+Two sites are neighbors if either entry of \code{adj} for
+the pair is positive. The diagonal is ignored.
 }
 \author{
 lcgodoy

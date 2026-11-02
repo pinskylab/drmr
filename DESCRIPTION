@@ -20,7 +20,7 @@ Description: The models available are described in the vignette. The class of
   (<doi:10.1111/j.1466-8238.2011.00663.x>).
 BugReports: https://github.com/pinskylab/drmr/issues/
 Depends:
-  R (>= 4.0.0)
+  R (>= 4.3.0)
 Imports:
   instantiate (>= 0.2.4),
   cmdstanr (>= 0.9.0),

@@ -7,10 +7,10 @@
 fix_dd(x)
 }
 \arguments{
-\item{x}{a \code{character}}
+\item{x}{a \code{character} or \code{numeric} scalar.}
 }
 \value{
-An \code{integer}.
+A \code{numeric} scalar.
 }
 \description{
 Density dependence verbose to code

@@ -31,7 +31,7 @@ used in model fitting. Only needed when \code{f_test} is not missing or
 when estimating survival.}
 
 \item{f_test}{a \code{matrix} informing the instantaneous fishing mortality
-rates at each age (columns) and timepoint (rows).}
+rates at each age (rows) and time point (columns).}
 
 \item{type}{type of predictions to be computed. Admitted values are
 \itemize{

@@ -18,6 +18,7 @@ make_data(
   age_selectivity,
   ages_movement,
   adj_mat = matrix(0, ncol = 1, nrow = 1),
+  areas = NULL,
   amat = NULL,
   weight = NULL,
   .toggles,
@@ -39,7 +40,7 @@ of \code{y}.}
 population dynamics.}
 
 \item{f_mort}{an optional \code{matrix} informing the instantaneous fishing
-mortality rates at each age (columns) and timepoint (rows).}
+mortality rates at each age (rows) and time point (columns).}
 
 \item{m}{a \code{numeric} value corresponding to the instantaneous natural
 mortality rate. The default value for this is \code{-log(.7)}, as it
@@ -71,7 +72,33 @@ while 3 and 4 are mobile.}
 
 \item{adj_mat}{an adjacency \code{matrix} of dimensions \code{sites}
 \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
-and zero otherwise.}
+and zero otherwise. Its rows and columns follow the order of
+\code{levels(factor(site))}. Movement uses the values: entry
+\eqn{(i, j)} is the relative rate at which individuals at site \eqn{i}
+move to site \eqn{j}, and each row is scaled to sum to 1. The ICAR
+random effects (\code{sp_re}) use only which entries are positive, in
+either direction. If the sites form more than one connected group, each
+group gets its own sum-to-zero constraint and scaling factor, and each
+site with no neighbors gets an independent effect (Freni-Sterrantino et
+al., 2018). See \code{\link[=icar_data]{icar_data()}}.}
+
+\item{areas}{an optional \code{numeric vector} with the area of each site.
+All values must be positive. \code{NULL} (the default) means an area of
+1 for each site, with a warning when the model uses the areas. Two
+parts of the model use \code{areas}:
+\itemize{
+\item Movement converts density to abundance (density times area),
+moves the abundance, and converts it back to density. So movement does
+not change the total abundance. Individuals at a site with no neighbors
+stay at that site.
+\item Density dependence with \code{acc_dd = 1} uses the mean SSB
+density of the region, weighted by area.
+}
+Only the ratios between areas matter, so any unit works. We recommend a
+named vector: the function matches the names to the site names and
+ignores extra names. An unnamed vector must follow the order of
+\code{levels(factor(site))}, which is also the order of the rows of
+\code{adj_mat}.}
 
 \item{amat}{a \code{numeric vector} of length \code{n_ages} specifying the
 maturity-at-age.}
@@ -91,7 +118,9 @@ log-log and 0 for the logit link function for the absence probabilities.
 Beverton-Holt, and "none" (default) for no density dependence. \item
 \code{acc_dd}: 0 for recruitment to depend on the SSB of the patch
 (default), and 1 for recruitment to depend on the "global" (i.e., the
-whole study region) SSB. \item \code{ar_re}: a \code{character}. It
+whole study region) SSB. The global SSB is the mean SSB density of the
+patches, weighted by \code{areas}. \item \code{ar_re}: a
+\code{character}. It
 assumes one of the following values: "none" no AR, "rec" AR(1) for
 recruitment, "surv" AR(1) for survival (only works when \code{est_surv} is
 on), "dens" AR(1) for density. \item \code{iid_re}: a \code{character}. It

@@ -55,7 +55,13 @@ density component. Defaults to \code{~ 1} (intercept only).}
 options include: a scalar greater than zero, say \code{x}, which
 initializes all parameters uniformly between \code{-x} and \code{x};
 \code{0}, which initializes all parameters at \code{0}; or "prior", which
-initializes parameters by sampling from their priors.}
+initializes parameters by sampling from their priors. With
+\code{rho_mu = 1} (the default), a draw of \code{xi} far in the tail of
+its prior can make the probability of a zero exactly 0 or 1. Then Stan
+cannot start that chain, and the fit reports it as failed. If this
+happens, draw new initial values or use another \code{init}. The
+initial values come from the R random number generator, not from
+\code{seed}, so call \code{\link[=set.seed]{set.seed()}} with another value first.}
 
 \item{algorithm}{a \code{character} specifying the algorithm used for
 inference. Default is \code{nuts} (the default MCMC in Stan). The

@@ -34,7 +34,12 @@ densities.}
 
 \item{adj_mat}{an adjacency \code{matrix} of dimensions \code{sites}
 \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
-and zero otherwise.}
+and zero otherwise. Its rows and columns follow the order of
+\code{levels(factor(site))}. The ICAR random effects (\code{sp_re}) use
+only which entries are positive, in either direction. If the sites form
+more than one connected group, each group gets its own sum-to-zero
+constraint and scaling factor, and each site with no neighbors gets an
+independent effect (Freni-Sterrantino et al., 2018). See \code{\link[=icar_data]{icar_data()}}.}
 
 \item{.toggles}{a \code{list} of toggles for model components. The
 components are: \itemize{\item \code{rho_mu}: 1 to explicitly relate

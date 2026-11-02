@@ -20,7 +20,9 @@ of the model parameters.
 \description{
 Generates samples from the prior distributions of the model
 parameters. This is primarily used for prior predictive checks or to
-generate initial values for MCMC.
+generate initial values for MCMC. The values of \code{w_s_raw}
+(ICAR random effects) are independent standard normal starting values,
+not draws from the ICAR prior.
 }
 \seealso{
 \code{\link[=prior_inits]{prior_inits()}}

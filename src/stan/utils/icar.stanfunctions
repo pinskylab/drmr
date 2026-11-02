@@ -1,0 +1,58 @@
+/**
+ * @title Sum-to-zero transform
+ *
+ * @description The isometric transform that Stan uses for the
+ * sum_to_zero_vector type. It is written out here because CmdStan versions
+ * before 2.37 do not expose sum_to_zero_constrain() as a function.
+ *
+ * @param y unconstrained values [N]
+ *
+ * @return a vector of length N + 1 that sums to zero
+ */
+vector stz_constrain(vector y) {
+  int N = rows(y);
+  vector[N + 1] z = rep_vector(0.0, N + 1);
+  real sum_w = 0;
+  for (j in 1:N) {
+    int i = N - j + 1;
+    real w = y[i] * inv_sqrt(i * (i + 1.0));
+    sum_w += w;
+    z[i] += sum_w;
+    z[i + 1] -= w * i;
+  }
+  return z;
+}
+
+/**
+ * @title ICAR effects that sum to zero within each connected component
+ *
+ * @description Follows Freni-Sterrantino et al. (2018) for graphs that are
+ * not connected. Each connected component with two or more sites gets its
+ * own sum-to-zero constraint. Sites with no neighbors keep their values from
+ * w_raw (their prior is set in the model block).
+ *
+ * @param w_raw unconstrained values [n_sites - size(comp_size)]
+ * @param n_sites number of sites
+ * @param comp_size sizes of the components with two or more sites
+ * @param comp_order the sites, component by component, with the sites that
+ *   have no neighbors last
+ *
+ * @return a vector of length n_sites
+ */
+vector icar_constrain(vector w_raw, int n_sites, array[] int comp_size,
+                      array[] int comp_order) {
+  vector[n_sites] w;
+  int pos = 1;
+  int pos_raw = 1;
+  for (c in 1:size(comp_size)) {
+    int k = comp_size[c];
+    w[comp_order[pos:(pos + k - 1)]] =
+      stz_constrain(w_raw[pos_raw:(pos_raw + k - 2)]);
+    pos += k;
+    pos_raw += k - 1;
+  }
+  if (pos <= n_sites) {
+    w[comp_order[pos:n_sites]] = w_raw[pos_raw:rows(w_raw)];
+  }
+  return w;
+}

@@ -31,7 +31,13 @@
 ##'   options include: a scalar greater than zero, say \code{x}, which
 ##'   initializes all parameters uniformly between \code{-x} and \code{x};
 ##'   \code{0}, which initializes all parameters at \code{0}; or "prior", which
-##'   initializes parameters by sampling from their priors.
+##'   initializes parameters by sampling from their priors. With
+##'   \code{rho_mu = 1} (the default), a draw of \code{xi} far in the tail of
+##'   its prior can make the probability of a zero exactly 0 or 1. Then Stan
+##'   cannot start that chain, and the fit reports it as failed. If this
+##'   happens, draw new initial values or use another \code{init}. The
+##'   initial values come from the R random number generator, not from
+##'   \code{seed}, so call [set.seed()] with another value first.
 ##' @param algorithm a \code{character} specifying the algorithm used for
 ##'   inference. Default is \code{nuts} (the default MCMC in Stan). The
 ##'   remaining options are different flavors of variational bayes algorithms:
@@ -40,7 +46,6 @@
 ##'   (penalized) MLEs.
 ##' @param algo_args a \code{list} with arguments for the sampling
 ##'   algorithms. For instance, \code{tol_rel_obj} for variational inference.
-##'   weight-at-age.
 ##' @param ... Passed on to the [make_data()] function used to build the input
 ##'   \code{list} for our \code{cmdstanr} model.
 ##' @return An object of class \code{adrm} which is a \code{list} containing the
@@ -113,9 +118,8 @@ fit_drm <- function(.data,
   if (init == "cmdstan_default") {
     drm_init <- NULL
   } else if (init == "prior") {
-    chains <- ifelse("chains" %in% names(algo_args), algo_args[["chains"]],
-              ifelse("num_paths" %in% names(algo_args), algo_args[["num_paths"]],
-                     1))
+    ## one set of initial values for each chain (or path), after defaults
+    chains <- c(.algo_args[["chains"]], .algo_args[["num_paths"]], 1)[1]
     drm_init <-
       prior_inits(model_dat, chains, "drm")
   } else {
@@ -189,7 +193,13 @@ fit_drm <- function(.data,
 ##'   options include: a scalar greater than zero, say \code{x}, which
 ##'   initializes all parameters uniformly between \code{-x} and \code{x};
 ##'   \code{0}, which initializes all parameters at \code{0}; or "prior", which
-##'   initializes parameters by sampling from their priors.
+##'   initializes parameters by sampling from their priors. With
+##'   \code{rho_mu = 1} (the default), a draw of \code{xi} far in the tail of
+##'   its prior can make the probability of a zero exactly 0 or 1. Then Stan
+##'   cannot start that chain, and the fit reports it as failed. If this
+##'   happens, draw new initial values or use another \code{init}. The
+##'   initial values come from the R random number generator, not from
+##'   \code{seed}, so call [set.seed()] with another value first.
 ##' @param algorithm a \code{character} specifying the algorithm used for
 ##'   inference. Default is \code{nuts} (the default MCMC in Stan). The
 ##'   remaining options are different flavors of variational bayes algorithms:
@@ -250,18 +260,17 @@ fit_sdm <- function(.data,
                             name = "sdm",
                             package = "drmr"
                         )
+  .algo_args <- default_algo(algorithm, algo_args)
   if (init == "cmdstan_default") {
     sdm_init <- NULL
   } else if (init == "prior") {
-    chains <- ifelse("chains" %in% names(algo_args), algo_args[["chains"]],
-              ifelse("num_paths" %in% names(algo_args), algo_args[["num_paths"]],
-                     1))
+    ## one set of initial values for each chain (or path), after defaults
+    chains <- c(.algo_args[["chains"]], .algo_args[["num_paths"]], 1)[1]
     sdm_init <-
       prior_inits(model_dat, chains, "sdm")
   } else {
     sdm_init <- init
   }
-  .algo_args <- default_algo(algorithm, algo_args)
   my_args <- c(list(
       data = model_dat,
       seed = seed,

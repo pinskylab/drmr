@@ -59,29 +59,6 @@ array[] matrix simplest(int n_patches,
 }
 
 /**
- * @title Applying movement
- *
- * @description
- * 
- * @param lambda array of number of individuals per age, time, and patch
- * @param M movement matrix
- * @param mov_age ages at which movement starts (this can be generalized)
- * 
- * @return an array of numbers by age, year and patch
- */
-array[] matrix apply_movement(array[] matrix lambda, matrix M,
-                              array[] int mov_age) {
-  int n_ages = size(lambda);
-  array[n_ages] matrix[rows(lambda[1]), cols(lambda[1])] output = lambda;
-  for (a in 1:n_ages) {
-    if (mov_age[a]) {
-      output[a] = lambda[a] * M';
-    }
-  }
-  return output;
-}
-
-/**
  * @title Generate theoretical mean according to the simplest model possible with movement
  *
  * @description This version includes mechanistic movement.
@@ -95,7 +72,8 @@ array[] matrix apply_movement(array[] matrix lambda, matrix M,
  * @param recruitment a n_time by n_patches matrix;
  * @param minit 1 if mortality is stable at the beginning
  * @param zeta probability of staying in the current site
- * @param w_adj sparse CSR vector of non-zero entries of adjacency matrix
+ * @param w_adj sparse CSR vector of non-zero entries of A^{-1} W' A,
+ *   where W is the row-standardized adjacency matrix and A = diag(areas)
  * @param v_adj sparse CSR array of column indices
  * @param u_adj sparse CSR array of row starting indices
  * @param mov_age ages at which movement starts
@@ -173,6 +151,9 @@ array[] matrix simplest_movement(int n_patches,
  * @param weight weight-at-age vector [n_ages]
  * @param kappa density-dependence coefficient
  * @param rec_type 0 for Ricker, 1 for Beverton-Holt
+ * @param acc_dd 0 to use the SSB density of each patch, and 1 to use the
+ *   area-weighted mean SSB density of the whole region
+ * @param areas patch areas [n_patches]
  * 
  * @return an array of numbers by age, year and patch
  */
@@ -187,7 +168,8 @@ array[] matrix pop_rec_dd(int n_patches,
                           vector weight,
                           real kappa,
                           int rec_type,
-                          int acc_dd) {
+                          int acc_dd,
+                          vector areas) {
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
   output[1, 1] = exp(recruitment_env[1]);
@@ -200,9 +182,10 @@ array[] matrix pop_rec_dd(int n_patches,
     for (a in 1 : n_ages) {
       ssb_prev += output[a, i - 1] * (mat[a] * weight[a]);
     }
-    real ssb_tot = sum(ssb_prev);
+    // area-weighted mean SSB density of the whole region
+    real ssb_reg = dot_product(ssb_prev, areas) / sum(areas);
     for (p in 1 : n_patches) {
-      real ssb_aux = acc_dd ? ssb_tot : ssb_prev[p];
+      real ssb_aux = acc_dd ? ssb_reg : ssb_prev[p];
       if (ssb_aux > 1e-10) {
         real log_S = log(ssb_aux);
         if (rec_type == 0) {
@@ -244,10 +227,14 @@ array[] matrix pop_rec_dd(int n_patches,
  * @param kappa density-dependence coefficient
  * @param rec_type 0 for Ricker, 1 for Beverton-Holt
  * @param zeta probability of staying in the current site
- * @param w_adj sparse CSR vector of non-zero entries of adjacency matrix
+ * @param w_adj sparse CSR vector of non-zero entries of A^{-1} W' A,
+ *   where W is the row-standardized adjacency matrix and A = diag(areas)
  * @param v_adj sparse CSR array of column indices
  * @param u_adj sparse CSR array of row starting indices
  * @param mov_age ages at which movement starts
+ * @param acc_dd 0 to use the SSB density of each patch, and 1 to use the
+ *   area-weighted mean SSB density of the whole region
+ * @param areas patch areas [n_patches]
  * 
  * @return an array of numbers by age, year and patch
  */
@@ -267,7 +254,8 @@ array[] matrix pop_rec_dd_movement(int n_patches,
                                    array[] int v_adj,
                                    array[] int u_adj,
                                    array[] int mov_age,
-                                   int acc_dd) {
+                                   int acc_dd,
+                                   vector areas) {
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
     
@@ -284,9 +272,11 @@ array[] matrix pop_rec_dd_movement(int n_patches,
       ssb_prev += output[a, i - 1] .* (mat[a] * weight[a]);
     }
     
+    // area-weighted mean SSB density of the whole region
+    real ssb_reg = dot_product(ssb_prev, areas) / sum(areas);
     for (p in 1 : n_patches) {
       real ssb_aux;
-      ssb_aux = acc_dd ? sum(ssb_prev) : ssb_prev[p];
+      ssb_aux = acc_dd ? ssb_reg : ssb_prev[p];
       if (ssb_aux > 1e-10) {
         real log_S = log(ssb_aux);
         if (rec_type == 0) {

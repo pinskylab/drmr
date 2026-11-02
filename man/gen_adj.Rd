@@ -10,7 +10,8 @@ gen_adj(x)
 \item{x}{an \code{sf} object representing the patches.}
 }
 \value{
-An adjacency \code{matrix}.
+An adjacency \code{matrix}. A patch with no neighbors, such as an
+island, gets a row and a column of zeros.
 }
 \description{
 Generates an adjacency matrix

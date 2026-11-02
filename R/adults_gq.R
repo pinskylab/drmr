@@ -19,8 +19,10 @@
 ##'   When density dependence is enabled, this is the quantity driving
 ##'   recruitment: the adults at time \eqn{t} produce the recruits at time
 ##'   \eqn{t + 1}. If recruitment depends on the adults from the whole region
-##'   (\code{acc_dd = 1}), the relevant quantity at each time point is the sum
-##'   of the adults across sites. Contrasting these samples with the curves
+##'   (\code{acc_dd = 1}), the relevant quantity at each time point is the mean
+##'   of the adults across sites, weighted by the site areas (see the
+##'   \code{areas} argument of [make_data()]). Contrasting these samples with
+##'   the curves
 ##'   from [dd_curves()] helps assess the range of densities (or biomass)
 ##'   informing the density-dependence relationship.
 ##'
@@ -82,9 +84,12 @@ get_adults.adrm <- function(object,
     instantiate::stan_package_model(name = "adults_drm",
                                     package = "drmr")
   ## computing the adults
+  gq_data <- object$data
+  gq_data$areas <- get_areas(gq_data)
+  gq_data$n_edges_adj <- get_n_edges_adj(gq_data)
   gq <- adults_comp$
     generate_quantities(fitted_params = fitted_params,
-                        data = object$data,
+                        data = gq_data,
                         parallel_chains = cores,
                         ...)
   check_gq(gq)

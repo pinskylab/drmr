@@ -4,13 +4,15 @@
 \alias{fix_re}
 \title{Random effects verbose to code}
 \usage{
-fix_re(x)
+fix_re(x, name = "random effect toggle")
 }
 \arguments{
-\item{x}{a \code{character}}
+\item{x}{a \code{character} or \code{numeric} scalar.}
+
+\item{name}{the name of the toggle, for the error message.}
 }
 \value{
-An \code{integer}.
+A \code{numeric} scalar.
 }
 \description{
 Random effects verbose to code

@@ -11,7 +11,7 @@
 ##' @param init_data an optional vector (of length n_ages - 1) to initialize the
 ##'   population dynamics.
 ##' @param f_mort an optional \code{matrix} informing the instantaneous fishing
-##'   mortality rates at each age (columns) and timepoint (rows).
+##'   mortality rates at each age (rows) and time point (columns).
 ##' @param m a \code{numeric} value corresponding to the instantaneous natural
 ##'   mortality rate. The default value for this is \code{-log(.7)}, as it
 ##'   implies a survival rate of 0.70 between age classes.
@@ -35,7 +35,32 @@
 ##'   while 3 and 4 are mobile.
 ##' @param adj_mat an adjacency \code{matrix} of dimensions \code{sites}
 ##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
-##'   and zero otherwise.
+##'   and zero otherwise. Its rows and columns follow the order of
+##'   \code{levels(factor(site))}. Movement uses the values: entry
+##'   \eqn{(i, j)} is the relative rate at which individuals at site \eqn{i}
+##'   move to site \eqn{j}, and each row is scaled to sum to 1. The ICAR
+##'   random effects (\code{sp_re}) use only which entries are positive, in
+##'   either direction. If the sites form more than one connected group, each
+##'   group gets its own sum-to-zero constraint and scaling factor, and each
+##'   site with no neighbors gets an independent effect (Freni-Sterrantino et
+##'   al., 2018). See [icar_data()].
+##' @param areas an optional \code{numeric vector} with the area of each site.
+##'   All values must be positive. \code{NULL} (the default) means an area of
+##'   1 for each site, with a warning when the model uses the areas. Two
+##'   parts of the model use \code{areas}:
+##'   \itemize{
+##'   \item Movement converts density to abundance (density times area),
+##'   moves the abundance, and converts it back to density. So movement does
+##'   not change the total abundance. Individuals at a site with no neighbors
+##'   stay at that site.
+##'   \item Density dependence with \code{acc_dd = 1} uses the mean SSB
+##'   density of the region, weighted by area.
+##'   }
+##'   Only the ratios between areas matter, so any unit works. We recommend a
+##'   named vector: the function matches the names to the site names and
+##'   ignores extra names. An unnamed vector must follow the order of
+##'   \code{levels(factor(site))}, which is also the order of the rows of
+##'   \code{adj_mat}.
 ##' @param amat a \code{numeric vector} of length \code{n_ages} specifying the
 ##'   maturity-at-age.
 ##' @param weight a \code{numeric vector} of length \code{n_ages} specifying the
@@ -52,7 +77,9 @@
 ##'   Beverton-Holt, and "none" (default) for no density dependence. \item
 ##'   \code{acc_dd}: 0 for recruitment to depend on the SSB of the patch
 ##'   (default), and 1 for recruitment to depend on the "global" (i.e., the
-##'   whole study region) SSB. \item \code{ar_re}: a \code{character}. It
+##'   whole study region) SSB. The global SSB is the mean SSB density of the
+##'   patches, weighted by \code{areas}. \item \code{ar_re}: a
+##'   \code{character}. It
 ##'   assumes one of the following values: "none" no AR, "rec" AR(1) for
 ##'   recruitment, "surv" AR(1) for survival (only works when \code{est_surv} is
 ##'   on), "dens" AR(1) for density. \item \code{iid_re}: a \code{character}. It
@@ -91,6 +118,7 @@ make_data <- function(y,
                       age_selectivity,
                       ages_movement,
                       adj_mat = matrix(0, ncol = 1, nrow = 1),
+                      areas = NULL,
                       amat = NULL,
                       weight = NULL,
                       .toggles,
@@ -112,6 +140,11 @@ make_data <- function(y,
   toggles <- default_toggles() |>
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
+  if (any(c(toggles$ar_re, toggles$iid_re, toggles$sp_re) == 2) &&
+        toggles$est_surv == 0) {
+    stop("Random effects on survival (\"surv\") need ",
+         "'.toggles = list(est_surv = 1)'.", call. = FALSE)
+  }
   ## getting the default priors and using user options
   if (phi_hat) {
     phi_hat <- get_phi_hat(y, family)
@@ -151,9 +184,10 @@ make_data <- function(y,
     amat <- rep(1, n_ages)
   if (is.null(weight))
     weight <- rep(1, n_ages)
+  if (toggles$movement || toggles$sp_re > 0) {
+    check_adj_mat(adj_mat, n_sites)
+  }
   if (toggles$movement) {
-    stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
-              nrow(adj_mat) == n_sites)
     if (missing(ages_movement)) {
       ages_movement <- rep(1L, n_ages)
     } else if (length(ages_movement) == 1) {
@@ -164,6 +198,37 @@ make_data <- function(y,
     }
   } else if (missing(ages_movement)) {
     ages_movement <- integer(0)
+  }
+  if (is.null(areas)) {
+    areas <- rep(1, n_sites)
+    uses_areas <- toggles$movement == 1 ||
+      (toggles$rec_dd < 2 && toggles$acc_dd == 1)
+    if (uses_areas && n_sites > 1) {
+      warning("'areas' is NULL, so all sites have an area of 1. ",
+              "Movement and regional density dependence use the areas.",
+              call. = FALSE)
+    }
+  } else {
+    if (!is.numeric(areas) || length(dim(areas)) > 1) {
+      stop("'areas' must be a numeric vector.")
+    }
+    if (!is.null(names(areas))) {
+      if (anyDuplicated(names(areas)) > 0 ||
+          !all(site_levels %in% names(areas))) {
+        stop("The names of 'areas' must be unique and include all the ",
+             "site names.")
+      }
+      areas <- areas[site_levels]
+    } else if (length(areas) != n_sites) {
+      stop("An unnamed 'areas' must have one value per site.")
+    }
+    if (any(!is.finite(areas)) || any(areas <= 0)) {
+      stop("'areas' must contain finite, positive values only.")
+    }
+    areas <- as.numeric(areas)
+  }
+  if (n_sites == 1) {
+    areas <- array(areas, dim = 1)
   }
   if (!toggles$est_surv) {
     m <- array(m, dim = 1)
@@ -230,20 +295,16 @@ make_data <- function(y,
     }
   }
   if (toggles$sp_re > 0) {
-    stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
-              nrow(adj_mat) == n_sites)
-    aux_sp <- get_nodes(adj_mat)
-    scaling <- array(get_scaling(adj_mat), dim = 1)
-    N_edges <- array(as.integer(aux_sp$N_edges), dim = 1)
-    neighbors <- aux_sp$neighbors
-    if (!toggles$movement) {
-      adj_mat <- matrix(0, ncol = 1, nrow = 1)
-    }
+    check_adj_mat(adj_mat, n_sites)
+    icar <- icar_data(adj_mat)
   } else {
-    scaling <- numeric(0)
-    neighbors <- matrix(1, ncol = 1, nrow = 1)
-    N_edges <- integer(0)
+    icar <- icar_data_none()
   }
+  if (!toggles$movement) {
+    adj_mat <- matrix(0, ncol = 1, nrow = 1)
+  }
+  n_edges_adj <- get_n_edges_adj(list(movement = toggles$movement,
+                                      adj_mat = adj_mat))
   zeros <- get_zeros(y)
   if (any(is.na(y)))
     y <- ifelse(is.na(y), -99, y)
@@ -265,16 +326,15 @@ make_data <- function(y,
                  K_m = K_m,
                  X_r = x_r,
                  K_r = K_r,
-                 scaling = scaling,
-                 neighbors = neighbors,
-                 N_edges = N_edges,
                  adj_mat = adj_mat,
-                 n_edges_adj = sum(adj_mat != 0),
+                 n_edges_adj = n_edges_adj,
+                 areas = areas,
                  ages_movement = ages_movement,
                  selectivity_at_age = selectivity_at_age,
                  amat = amat,
                  weight = weight) |>
-    c(zeros,
+    c(icar,
+      zeros,
       toggles,
       priors)
   return(output)
@@ -296,7 +356,12 @@ make_data <- function(y,
 ##'   densities.
 ##' @param adj_mat an adjacency \code{matrix} of dimensions \code{sites}
 ##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
-##'   and zero otherwise.
+##'   and zero otherwise. Its rows and columns follow the order of
+##'   \code{levels(factor(site))}. The ICAR random effects (\code{sp_re}) use
+##'   only which entries are positive, in either direction. If the sites form
+##'   more than one connected group, each group gets its own sum-to-zero
+##'   constraint and scaling factor, and each site with no neighbors gets an
+##'   independent effect (Freni-Sterrantino et al., 2018). See [icar_data()].
 ##' @param .toggles a \code{list} of toggles for model components. The
 ##'   components are: \itemize{\item \code{rho_mu}: 1 to explicitly relate
 ##'   rho to mu and 0 otherwise. \item \code{cloglog}: 1 to use the
@@ -350,7 +415,12 @@ make_data_sdm <- function(y,
                   cloglog = 0) |>
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
-  stopifnot(toggles$ar_re <= 1)
+  for (re in c("ar_re", "iid_re", "sp_re")) {
+    if (toggles[[re]] > 1) {
+      stop("In an SDM, '", re, "' must be 0 or 1 (\"none\" or \"rec\").",
+           call. = FALSE)
+    }
+  }
   ## getting the default priors and using user options
   if (phi_hat) {
     phi_hat <- get_phi_hat(y, family)
@@ -414,18 +484,10 @@ make_data_sdm <- function(y,
     }
   }
   if (toggles$sp_re > 0) {
-    stopifnot(ncol(adj_mat) == nrow(adj_mat) &&
-              nrow(adj_mat) == n_sites)
-    aux_sp <- get_nodes(adj_mat)
-    adj2 <- matrix(0, ncol = NCOL(adj_mat), nrow = NROW(adj_mat))
-    adj2[adj_mat > 0] <- 1
-    scaling <- array(get_scaling(adj2), dim = 1)
-    N_edges <- array(as.integer(aux_sp$N_edges), dim = 1)
-    neighbors <- aux_sp$neighbors
+    check_adj_mat(adj_mat, n_sites)
+    icar <- icar_data(adj_mat)
   } else {
-    scaling <- numeric(0)
-    neighbors <- matrix(1, ncol = 1, nrow = 1)
-    N_edges <- integer(0)
+    icar <- icar_data_none()
   }
   zeros <- get_zeros(y)
   if (any(is.na(y)))
@@ -441,11 +503,9 @@ make_data_sdm <- function(y,
                  X = x,
                  K_x = K_x,
                  Z = z,
-                 K_z = K_z,
-                 scaling = scaling,
-                 neighbors = neighbors,
-                 N_edges = N_edges) |>
-    c(zeros,
+                 K_z = K_z) |>
+    c(icar,
+      zeros,
       toggles,
       priors)
   return(output)

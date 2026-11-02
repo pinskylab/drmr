@@ -50,8 +50,10 @@ reproductive age. Similarly, if \code{weight} was not provided,
 When density dependence is enabled, this is the quantity driving
 recruitment: the adults at time \eqn{t} produce the recruits at time
 \eqn{t + 1}. If recruitment depends on the adults from the whole region
-(\code{acc_dd = 1}), the relevant quantity at each time point is the sum
-of the adults across sites. Contrasting these samples with the curves
+(\code{acc_dd = 1}), the relevant quantity at each time point is the mean
+of the adults across sites, weighted by the site areas (see the
+\code{areas} argument of \code{\link[=make_data]{make_data()}}). Contrasting these samples with
+the curves
 from \code{\link[=dd_curves]{dd_curves()}} helps assess the range of densities (or biomass)
 informing the density-dependence relationship.
 
