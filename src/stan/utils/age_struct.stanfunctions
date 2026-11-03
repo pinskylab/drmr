@@ -1,4 +1,17 @@
 /**
+ * Move expected densities among patches, conserving abundance.  w_adj, v_adj,
+ * u_adj hold A^{-1} W' A in CSR form.
+ */
+row_vector move_density(row_vector lambda, real zeta, vector w_adj,
+                        array[] int v_adj, array[] int u_adj) {
+  int n = cols(lambda);
+  vector[n] k_lambda =
+    csr_matrix_times_vector(n, n, w_adj, v_adj, u_adj, lambda');
+  return zeta * lambda + (1 - zeta) * k_lambda';
+}
+
+
+/**
  * @title Generate theoretical mean according to the simplest model possible
  *
  * @description
@@ -24,12 +37,6 @@ array[] matrix simplest(int n_patches,
                         array[] real init,
                         matrix recruitment,
                         int minit) {
-  /*
-    This function could be updated to have patches and time as the input as
-    opposed to n_patches and n_time. The advantage would be that the ordering
-    of these variables in the input dataset would not be important. The would
-    come at the cost of increasing the complexity of the function.
-   */
   // initializing output with zeros
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
@@ -112,6 +119,9 @@ array[] matrix simplest_movement(int n_patches,
   }
   
   for (i in 2 : n_time) {
+    if (mov_age[1]) {
+      output[1, i] = move_density(output[1, i], zeta, w_adj, v_adj, u_adj);
+    }
     // Recruitment at time i
     output[1, i] = exp(recruitment[i]);
     
@@ -122,11 +132,7 @@ array[] matrix simplest_movement(int n_patches,
       row_vector[n_patches] lambda_surv = output[a - 1, i - 1] .* surv;
       
       if (mov_age[a]) {
-        // Mechanistic movement: survivors move
-        vector[n_patches] adj_x =
-          csr_matrix_times_vector(n_patches, n_patches, w_adj,
-                                  v_adj, u_adj, lambda_surv');
-        output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
+        output[a, i] = move_density(lambda_surv, zeta, w_adj, v_adj, u_adj);
       } else {
         output[a, i] = lambda_surv;
       }
@@ -297,10 +303,7 @@ array[] matrix pop_rec_dd_movement(int n_patches,
       row_vector[n_patches] lambda_surv = output[a - 1, i - 1] .* surv;
       
       if (mov_age[a]) {
-        vector[n_patches] adj_x =
-          csr_matrix_times_vector(n_patches, n_patches, w_adj,
-                                  v_adj, u_adj, lambda_surv');
-        output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
+        output[a, i] = move_density(lambda_surv, zeta, w_adj, v_adj, u_adj);
       } else {
         output[a, i] = lambda_surv;
       }
