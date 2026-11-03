@@ -62,13 +62,19 @@ export(prior_inits)
 export(prior_sample)
 export(sim_drm)
 export(summarise_adens)
-importFrom(grDevices,dev.interactive)
-importFrom(grDevices,devAskNewPage)
-importFrom(grDevices,palette)
-importFrom(graphics,legend)
-importFrom(graphics,lines)
-importFrom(graphics,par)
+importFrom(grDevices,
+  dev.interactive,
+  devAskNewPage,
+  palette
+)
+importFrom(graphics,
+  legend,
+  lines,
+  par
+)
 importFrom(instantiate,stan_package_model)
 importFrom(rlang,.data)
-importFrom(stats,density)
-importFrom(stats,fitted)
+importFrom(stats,
+  density,
+  fitted
+)
