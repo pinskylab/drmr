@@ -15,9 +15,12 @@ vignette: >
 ---
 
 All model configurations require the initialization of the age-specific
-densities at the first year ($\lambda_{a, 1, i}$). This initialization applies
-to all age classes greater than one ($a > 1$), as the density of the first
-age-class is always determined by the estimated recruitment.
+densities at the first year ($\lambda_{a, 1, i}$). Without density dependence,
+this initialization applies to all age classes greater than one ($a > 1$),
+because the estimated recruitment gives the density of the first age class.
+With density-dependent recruitment, recruits at the first year depend on the
+spawning stock biomass of the year before, which the data do not have. So the
+initialization also applies to the first age class ($a \geq 1$).
 
 The `drmr` package provides three methods for setting these initial values, each
 controlled by a specific parameter or toggle in the `fit_drm` function. The
@@ -31,7 +34,8 @@ This is the most direct method, activated by providing a numeric vector to the
 
 * **How it works:** The user supplies a vector of log-transformed densities of
   length `n_ages - 1`, corresponding to the initial densities for ages `2`
-  through `n_ages` (total number of age classes).
+  through `n_ages` (total number of age classes). With density-dependent
+  recruitment, the vector has length `n_ages` and starts at age `1`.
   
 * **Limitation:** This method applies the same initial age structure to all
   patches, which may not capture pre-existing spatial variation.
@@ -42,7 +46,8 @@ This option is enabled by setting the `est_init = 1` toggle.
 
 * **How it works:** Instead of requiring fixed inputs, the model treats the
   initial log-densities for ages `2` through `n_ages` as free parameters to be
-  estimated.
+  estimated. With density-dependent recruitment, the model also estimates the
+  initial log-density of age `1`.
 
 * **Limitation:** Similar to the user-provided option, this method estimates a
   single set of initial densities that are applied uniformly across all
@@ -59,6 +64,25 @@ particularly useful when external, age-specific mortality data is available.
   distribution just before the first year of observation. It uses the model's
   estimated (or externally provided) mortality and recruitment rates to
   reconstruct the initial age-specific densities for each patch.
+
+* **With density-dependent recruitment:** The method assumes that the
+  population was at equilibrium just before the first year. Let $\ell_{a, i}$
+  be the fraction of recruits in patch $i$ that survive to age $a$, and let
+  $\phi_i = \sum_a m_a w_a \ell_{a, i}$ be the spawning biomass per recruit.
+  The equilibrium recruitment $R_i$ solves $R_i = h(\phi_i R_i)$, where $h$ is
+  the Ricker or the Beverton-Holt function. Then
+  $\lambda_{a, 1, i} = R_i \ell_{a, i}$. If the parameters imply that the
+  population cannot persist, $R_i = 0$. The equilibrium ignores movement.
+
+* **Scaled equilibrium (`minit = 2`):** This option needs density-dependent
+  recruitment. It multiplies the equilibrium densities by a scale $d$ that the
+  model estimates: $\lambda_{a, 1, i} = d \, R_i \ell_{a, i}$. A value $d < 1$
+  means that the population starts below its equilibrium, for example after
+  a period of depletion. A value $d > 1$ means that it starts above its
+  equilibrium. The prior is $\log d \sim N(\mu_d, \sigma_d)$, with
+  hyperparameters `pr_linit_scale_mu` (default 0) and `pr_linit_scale_sd`
+  (default 0.5). The data inform $d$ mainly through the first years, so keep
+  this prior informative.
 
 Unlike the other methods, this allows the initial age structure to vary
 spatially across patches, reflecting local differences in estimated recruitment

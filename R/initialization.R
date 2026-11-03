@@ -157,8 +157,14 @@ prior_sample <- function(dat, model = "drm") {
                          dim = 1)
     }
     if (dat$est_init) {
-      out$log_init <- array(stats::rnorm(dat$n_ages - 1),
-                            dim = dat$n_ages - 1)
+      len_init <- n_init(dat$n_ages, dat$rec_dd)
+      out$log_init <- array(stats::rnorm(len_init), dim = len_init)
+    }
+    if (dat$minit == 2 && dat$rec_dd < 2) {
+      out$log_init_scale <- array(stats::rnorm(1,
+                                               dat$pr_linit_scale_mu,
+                                               dat$pr_linit_scale_sd),
+                                  dim = 1)
     }
   }
   return(out)

@@ -87,9 +87,10 @@ the results reproducible.
 
 Give \code{pars} on the natural scale: standard deviations, not their
 logarithms, and \code{alpha}, not its inverse hyperbolic tangent. The
-exception is \code{log_init}, which holds the log-densities of ages 2
-to \code{n_ages} at the first time point. The elements that you need
-depend on the toggles:
+exception is \code{log_init}, which holds the log-densities at the
+first time point: ages 2 to \code{n_ages} without density dependence,
+and ages 1 to \code{n_ages} with it. The elements that you need depend
+on the toggles:
 \itemize{
 \item \code{beta_r} and \code{beta_t}: always.
 \item \code{phi}, or \code{sigma_obs} for \code{"lognormal_legacy"}:
@@ -101,6 +102,7 @@ always.
 \item \code{zeta}: when \code{movement = 1}.
 \item \code{log_init}: when \code{est_init = 1}. Otherwise, the
 simulation uses \code{init_data} from \code{\link[=make_data]{make_data()}}.
+\item \code{init_scale} (positive): when \code{minit = 2}.
 \item \code{alpha} and \code{sigma_t}: when \code{ar_re} is not
 \code{"none"}.
 \item \code{sigma_i}: when \code{iid_re} is not \code{"none"}.

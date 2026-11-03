@@ -71,6 +71,20 @@ fix_dd <- function(x) {
   toggle_code(x, c(ricker = 0, bh = 1, none = 2), "rec_dd")
 }
 
+##' @title Number of initial log-densities
+##' @description With density dependence, the first time point needs the
+##'   densities of ages 1 to \code{n_ages}. Without it, recruitment gives the
+##'   density of age 1, so the first time point needs ages 2 to
+##'   \code{n_ages} only.
+##' @param n_ages number of age classes.
+##' @param rec_dd 0 for Ricker, 1 for Beverton-Holt, and 2 for no density
+##'   dependence.
+##' @return A \code{numeric} scalar.
+##' @author lcgodoy
+n_init <- function(n_ages, rec_dd) {
+  if (rec_dd < 2) n_ages else n_ages - 1
+}
+
 ##' @title Estimate phi
 ##' @inheritParams make_data
 ##' @return A \code{numeric} scalar representing an estimate for phi.

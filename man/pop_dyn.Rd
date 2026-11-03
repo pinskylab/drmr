@@ -10,6 +10,7 @@ pop_dyn(
   f,
   init,
   minit = 0,
+  init_scale = 1,
   rec_dd = 2,
   kappa = NULL,
   amat = NULL,
@@ -31,11 +32,17 @@ log-survival (\eqn{\log s_{t, i}}).}
 \item{f}{a \code{n_ages} by \code{n_time} \code{matrix} with the
 instantaneous fishing mortality rates.}
 
-\item{init}{a \code{numeric} vector of length \code{n_ages - 1} with the
-log-densities of ages 2 to \code{n_ages} at the first time point.}
+\item{init}{a \code{numeric} vector with the log-densities at the first
+time point: ages 2 to \code{n_ages} without density dependence, and
+ages 1 to \code{n_ages} with it.}
 
 \item{minit}{1 to start from the age structure that survival implies at
-the first time point, and 0 to use \code{init}.}
+the first time point (with density dependence, the equilibrium age
+structure), and 0 to use \code{init}. With density dependence, 2 starts
+from the equilibrium age structure times \code{init_scale}.}
+
+\item{init_scale}{a positive scale for the equilibrium densities. The
+function uses it only if \code{minit = 2}.}
 
 \item{rec_dd}{0 for Ricker, 1 for Beverton-Holt, and 2 for no density
 dependence.}
@@ -74,9 +81,13 @@ function follows the Stan functions \code{simplest},
 \details{
 These details follow the Stan code on purpose:
 \itemize{
-\item At the first time point, recruitment is
-\code{exp(log_rec[1, ])}, also with density dependence.
-\item \code{minit} has no effect with density dependence.
+\item Without density dependence, recruitment at the first time point
+is \code{exp(log_rec[1, ])}.
+\item With density dependence, \code{minit = 1} starts from the
+equilibrium age structure (see \code{\link[=dd_init_eq]{dd_init_eq()}}), \code{minit = 2}
+multiplies that age structure by \code{init_scale}, and
+\code{minit = 0} takes the densities of ages 1 to \code{n_ages} from
+\code{init}.
 \item Movement is \code{zeta * x + (1 - zeta) * solve(A) \%*\% t(W)
   \%*\% A \%*\% x}, where \code{W} is the row-standardized adjacency
 matrix and \code{A} is \code{diag(areas)}. So the \code{(1 - zeta)}

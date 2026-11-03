@@ -28,7 +28,9 @@ default_priors <- function() {
        pr_beta_r_mu = 0,
        pr_beta_r_sd = 1,
        pr_kappa_mu = -2,
-       pr_kappa_sd = 1)
+       pr_kappa_sd = 1,
+       pr_linit_scale_mu = 0,
+       pr_linit_scale_sd = .5)
 }
 
 ##' Returns default toggles for the DRM model.

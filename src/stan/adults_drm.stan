@@ -13,7 +13,7 @@ data {
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> est_init; // estimate "initial cohort"
-  int<lower = 0, upper = 1> minit;
+  int<lower = 0, upper = 2> minit;
   int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt,
                                       // 2 for none
   int<lower = 0, upper = 1> acc_dd;
@@ -32,13 +32,17 @@ data {
   vector[n_ages] amat;
   vector[n_ages] weight;
   //--- initial cohort (if not estimated) ----
-  array[est_init ? 0 : n_ages - 1] real init_data;
+  // log-densities of ages 1 to n_ages with density dependence, and of ages
+  // 2 to n_ages without it
+  array[est_init ? 0 : (rec_dd < 2 ? n_ages : n_ages - 1)] real init_data;
   //--- environmental data ----
   //--- * for mortality ----
   array[est_surv ? 1 : 0] int<lower = 1> K_m;
   matrix[est_surv ? N : 1, est_surv ? K_m[1] : 1] X_m;
 }
 transformed data {
+  // number of initial log-densities (see init_data)
+  int n_init = rec_dd < 2 ? n_ages : n_ages - 1;
   matrix[est_surv ? 0 : n_time, est_surv ? 0 : n_sites] fixed_m;
   if (!est_surv)
     fixed_m = rep_matrix(- m[1], n_time, n_sites);
@@ -80,7 +84,9 @@ parameters {
   //--- * density-dependence ----
   array[rec_dd < 2 ? 1 : 0] real kappa;
   //--- * initialization parameter ----
-  array[est_init ? n_ages - 1 : 0] real log_init;
+  array[est_init ? n_init : 0] real log_init;
+  // log of the scale of the equilibrium initial densities (minit = 2)
+  array[minit == 2 && rec_dd < 2 ? 1 : 0] real log_init_scale;
 }
 generated quantities {
   // Density (or biomass, when weight at age is informed) of adults in
@@ -89,7 +95,7 @@ generated quantities {
   vector[N] adults;
   {
     //--- Initialization ----
-    array[est_init ? n_ages - 1 : 0] real init_par;
+    array[est_init ? n_init : 0] real init_par;
     if (est_init)
       init_par = log_init;
     //--- Mortality ----
@@ -115,6 +121,9 @@ generated quantities {
     }
     //--- Expected density by age ----
     array[n_ages] matrix[n_time, n_sites] lambda;
+    // scale of the equilibrium initial densities (1 unless minit is 2)
+    real init_scale =
+      minit == 2 && rec_dd < 2 ? exp(log_init_scale[1]) : 1.0;
     if (rec_dd < 2) {
       if (movement) {
         lambda =
@@ -123,6 +132,7 @@ generated quantities {
                               mortality,
                               est_init ? init_par : init_data,
                               to_matrix(log_rec, n_time, n_sites),
+                              minit, init_scale,
                               amat, weight,
                               kappa[1], rec_dd,
                               zeta[1], w_adj, v_adj, u_adj,
@@ -135,6 +145,7 @@ generated quantities {
                      mortality,
                      est_init ? init_par : init_data,
                      to_matrix(log_rec, n_time, n_sites),
+                     minit, init_scale,
                      amat, weight,
                      kappa[1], rec_dd,
                      acc_dd, areas);

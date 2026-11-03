@@ -1,3 +1,6 @@
+// Include age_struct.stanfunctions before this file. The movement functions
+// call move_density(), which that file defines.
+
 /**
  * @title Forecast theoretical mean according to the simplest model possible
  *
@@ -161,7 +164,8 @@ array[] matrix forecast_pop_rec_dd(int n_patches,
  *   where W is the row-standardized adjacency matrix and A = diag(areas)
  * @param v_adj sparse CSR array of column indices
  * @param u_adj sparse CSR array of row starting indices
- * @param mov_age ages at which movement starts
+ * @param mov_age a 0/1 flag for each age. 1 means the age group moves.
+ *   make_data() converts an integer input to this form.
  * @param acc_dd 0 to use the SSB density of each patch, and 1 to use the
  *   area-weighted mean SSB density of the whole region
  * @param areas patch areas [n_patches]
@@ -223,6 +227,11 @@ array[] matrix forecast_pop_rec_dd_movement(int n_patches,
       }
     }
     
+    // Recruits move if mov_age[1] is 1.
+    if (mov_age[1]) {
+      output[1, i] = move_density(output[1, i], zeta, w_adj, v_adj, u_adj);
+    }
+
     // 2. Survival and Movement (transition from i-1 to i)
     for (a in 2 : n_ages) {
       row_vector[n_patches] lambda_prev;
@@ -238,10 +247,7 @@ array[] matrix forecast_pop_rec_dd_movement(int n_patches,
       row_vector[n_patches] lambda_surv = lambda_prev .* surv;
       
       if (mov_age[a]) {
-        vector[n_patches] adj_x =
-          csr_matrix_times_vector(n_patches, n_patches, w_adj,
-                                  v_adj, u_adj, lambda_surv');
-        output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
+        output[a, i] = move_density(lambda_surv, zeta, w_adj, v_adj, u_adj);
       } else {
         output[a, i] = lambda_surv;
       }
@@ -270,7 +276,8 @@ array[] matrix forecast_pop_rec_dd_movement(int n_patches,
  *   where W is the row-standardized adjacency matrix and A = diag(areas)
  * @param v_adj sparse CSR array of column indices
  * @param u_adj sparse CSR array of row starting indices
- * @param mov_age ages at which movement starts
+ * @param mov_age a 0/1 flag for each age. 1 means the age group moves.
+ *   make_data() converts an integer input to this form.
  * 
  * @return an array of numbers by age, year and patch
  */
@@ -294,9 +301,12 @@ array[] matrix forecast_simplest_movement(int n_patches,
   int past_last_time = cols(f_past);
   
   for (i in 1 : n_time) {
-    // Recruitment
+    // Recruits at time i. Recruits move if mov_age[1] is 1.
     output[1, i] = exp(recruitment[i]);
-    
+    if (mov_age[1]) {
+      output[1, i] = move_density(output[1, i], zeta, w_adj, v_adj, u_adj);
+    }
+
     for (a in 2 : n_ages) {
       row_vector[n_patches] lambda_prev;
       row_vector[n_patches] surv;
@@ -311,10 +321,7 @@ array[] matrix forecast_simplest_movement(int n_patches,
       row_vector[n_patches] lambda_surv = lambda_prev .* surv;
       
       if (mov_age[a]) {
-        vector[n_patches] adj_x =
-          csr_matrix_times_vector(n_patches, n_patches, w_adj,
-                                  v_adj, u_adj, lambda_surv');
-        output[a, i] = (zeta * lambda_surv' + (1 - zeta) * adj_x)';
+        output[a, i] = move_density(lambda_surv, zeta, w_adj, v_adj, u_adj);
       } else {
         output[a, i] = lambda_surv;
       }

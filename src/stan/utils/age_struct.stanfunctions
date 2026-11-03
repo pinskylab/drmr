@@ -10,6 +10,75 @@ row_vector move_density(row_vector lambda, real zeta, vector w_adj,
   return zeta * lambda + (1 - zeta) * k_lambda';
 }
 
+/**
+ * @title Equilibrium age structure for density-dependent recruitment
+ *
+ * @description Expected densities at the first time point for a population
+ * at equilibrium. The function uses the survival and recruitment rates of
+ * the first time point, and it ignores movement. Survivorship l_a[a, p] is
+ * the fraction of recruits in patch p that survive to age a. sbpr[p] is the
+ * spawning biomass per recruit. The equilibrium recruitment R solves
+ * R = h(sbpr * R), where h is the Ricker or the Beverton-Holt function. With
+ * acc_dd = 1, h uses the area-weighted mean SSB density of the whole region.
+ * If the population cannot persist, R is 0.
+ *
+ * @param n_patches number of patches
+ * @param n_ages number of age classes
+ * @param f_a_t fishing mortality at age "a" and time "t"
+ * @param neg_mort minus natural mortality (instantaneous) rate
+ * @param recruitment_env log-productivity (alpha) matrix [n_time, n_patches]
+ * @param mat maturity-at-age vector [n_ages]
+ * @param weight weight-at-age vector [n_ages]
+ * @param kappa density-dependence coefficient
+ * @param rec_type 0 for Ricker, 1 for Beverton-Holt
+ * @param acc_dd 0 to use the SSB density of each patch, and 1 to use the
+ *   area-weighted mean SSB density of the whole region
+ * @param areas patch areas [n_patches]
+ *
+ * @return a n_ages by n_patches matrix with the expected densities
+ */
+matrix dd_init_eq(int n_patches, int n_ages, matrix f_a_t,
+                  matrix neg_mort, matrix recruitment_env, vector mat,
+                  vector weight, real kappa, int rec_type, int acc_dd,
+                  vector areas) {
+  // survivorship to each age (rows) in each patch (columns)
+  matrix[n_ages, n_patches] l_a = rep_matrix(1.0, n_ages, n_patches);
+  for (a in 2 : n_ages) {
+    l_a[a] = l_a[a - 1] .* exp(neg_mort[1] - f_a_t[a - 1, 1]);
+  }
+  row_vector[n_patches] sbpr = (mat .* weight)' * l_a;
+  row_vector[n_patches] rec_max = exp(recruitment_env[1]);
+  row_vector[n_patches] r_eq = rep_row_vector(0.0, n_patches);
+  if (acc_dd) {
+    // area-weighted mean of sbpr * exp(psi)
+    real prod_reg = dot_product(sbpr .* rec_max, areas) / sum(areas);
+    if (rec_type == 0) {
+      // Ricker
+      if (prod_reg > 1) {
+        r_eq = rec_max * log(prod_reg) / (kappa * prod_reg);
+      }
+    } else {
+      // Beverton-Holt
+      if (prod_reg > kappa) {
+        r_eq = rec_max * (1 - kappa / prod_reg);
+      }
+    }
+  } else {
+    for (p in 1 : n_patches) {
+      if (sbpr[p] > 0) {
+        if (rec_type == 0) {
+          // Ricker
+          r_eq[p] = (recruitment_env[1, p] + log(sbpr[p])) / (kappa * sbpr[p]);
+        } else {
+          // Beverton-Holt
+          r_eq[p] = rec_max[p] - kappa / sbpr[p];
+        }
+        r_eq[p] = fmax(r_eq[p], 0);
+      }
+    }
+  }
+  return diag_post_multiply(l_a, r_eq);
+}
 
 /**
  * @title Generate theoretical mean according to the simplest model possible
@@ -83,7 +152,8 @@ array[] matrix simplest(int n_patches,
  *   where W is the row-standardized adjacency matrix and A = diag(areas)
  * @param v_adj sparse CSR array of column indices
  * @param u_adj sparse CSR array of row starting indices
- * @param mov_age ages at which movement starts
+ * @param mov_age a 0/1 flag for each age. 1 means the age group moves.
+ *   make_data() converts an integer input to this form.
  * 
  * @return an array of numbers by age, year and patch
  */
@@ -119,12 +189,11 @@ array[] matrix simplest_movement(int n_patches,
   }
   
   for (i in 2 : n_time) {
+    // Recruitment at time i
+    output[1, i] = exp(recruitment[i]);
     if (mov_age[1]) {
       output[1, i] = move_density(output[1, i], zeta, w_adj, v_adj, u_adj);
     }
-    // Recruitment at time i
-    output[1, i] = exp(recruitment[i]);
-    
     // Survival and Movement from time i-1 to i
     for (a in 2 : n_ages) {
       // Survival first (at each patch)
@@ -151,8 +220,14 @@ array[] matrix simplest_movement(int n_patches,
  * @param n_ages number of age classes
  * @param f_a_t fishing mortality at age "a" and time "t"
  * @param neg_mort minus natural mortality (instantaneous) rate
- * @param init initialization for ages 2 to n_ages at time t=1
+ * @param init log-densities of ages 1 to n_ages at time t = 1. The function
+ *   ignores init if minit is 1.
  * @param recruitment_env log-productivity (alpha) matrix [n_time, n_patches]
+ * @param minit 0 to use init. 1 to start from the equilibrium age structure
+ *   (see dd_init_eq). 2 to start from the equilibrium age structure times
+ *   init_scale.
+ * @param init_scale positive scale for the equilibrium densities. The
+ *   function uses it only if minit is 2.
  * @param mat maturity-at-age vector [n_ages]
  * @param weight weight-at-age vector [n_ages]
  * @param kappa density-dependence coefficient
@@ -170,6 +245,8 @@ array[] matrix pop_rec_dd(int n_patches,
                           matrix neg_mort,
                           array[] real init,
                           matrix recruitment_env,
+                          int minit,
+                          real init_scale,
                           vector mat,
                           vector weight,
                           real kappa,
@@ -178,9 +255,19 @@ array[] matrix pop_rec_dd(int n_patches,
                           vector areas) {
   array[n_ages] matrix[n_time, n_patches] output
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
-  output[1, 1] = exp(recruitment_env[1]);
-  for (a in 1 : (n_ages - 1)) {
-    output[a + 1, 1] = rep_row_vector(exp(init[a]), n_patches);
+  if (minit) {
+    real scale = minit == 2 ? init_scale : 1.0;
+    matrix[n_ages, n_patches] lambda_1 =
+      scale * dd_init_eq(n_patches, n_ages, f_a_t, neg_mort,
+                         recruitment_env, mat, weight, kappa, rec_type,
+                         acc_dd, areas);
+    for (a in 1 : n_ages) {
+      output[a, 1] = lambda_1[a];
+    }
+  } else {
+    for (a in 1 : n_ages) {
+      output[a, 1] = rep_row_vector(exp(init[a]), n_patches);
+    }
   }  
   for (i in 2 : n_time) {
     // SSB at each patch
@@ -226,8 +313,14 @@ array[] matrix pop_rec_dd(int n_patches,
  * @param n_ages number of age classes
  * @param f_a_t fishing mortality at age "a" and time "t"
  * @param neg_mort minus natural mortality (instantaneous) rate
- * @param init initialization for ages 2 to n_ages at time t=1
+ * @param init log-densities of ages 1 to n_ages at time t = 1. The function
+ *   ignores init if minit is 1.
  * @param recruitment_env log-productivity (alpha) matrix [n_time, n_patches]
+ * @param minit 0 to use init. 1 to start from the equilibrium age structure
+ *   (see dd_init_eq). 2 to start from the equilibrium age structure times
+ *   init_scale.
+ * @param init_scale positive scale for the equilibrium densities. The
+ *   function uses it only if minit is 2.
  * @param mat maturity-at-age vector [n_ages]
  * @param weight weight-at-age vector [n_ages]
  * @param kappa density-dependence coefficient
@@ -237,7 +330,8 @@ array[] matrix pop_rec_dd(int n_patches,
  *   where W is the row-standardized adjacency matrix and A = diag(areas)
  * @param v_adj sparse CSR array of column indices
  * @param u_adj sparse CSR array of row starting indices
- * @param mov_age ages at which movement starts
+ * @param mov_age a 0/1 flag for each age. 1 means the age group moves.
+ *   make_data() converts an integer input to this form.
  * @param acc_dd 0 to use the SSB density of each patch, and 1 to use the
  *   area-weighted mean SSB density of the whole region
  * @param areas patch areas [n_patches]
@@ -251,6 +345,8 @@ array[] matrix pop_rec_dd_movement(int n_patches,
                                    matrix neg_mort,
                                    array[] real init,
                                    matrix recruitment_env,
+                                   int minit,
+                                   real init_scale,
                                    vector mat,
                                    vector weight,
                                    real kappa,
@@ -266,9 +362,19 @@ array[] matrix pop_rec_dd_movement(int n_patches,
     = rep_array(rep_matrix(0.0, n_time, n_patches), n_ages);
     
   // Time t=1
-  output[1, 1] = exp(recruitment_env[1]);
-  for (a in 1 : (n_ages - 1)) {
-    output[a + 1, 1] = rep_row_vector(exp(init[a]), n_patches);
+  if (minit) {
+    real scale = minit == 2 ? init_scale : 1.0;
+    matrix[n_ages, n_patches] lambda_1 =
+      scale * dd_init_eq(n_patches, n_ages, f_a_t, neg_mort,
+                         recruitment_env, mat, weight, kappa, rec_type,
+                         acc_dd, areas);
+    for (a in 1 : n_ages) {
+      output[a, 1] = lambda_1[a];
+    }
+  } else {
+    for (a in 1 : n_ages) {
+      output[a, 1] = rep_row_vector(exp(init[a]), n_patches);
+    }
   }
   
   for (i in 2 : n_time) {
@@ -296,7 +402,9 @@ array[] matrix pop_rec_dd_movement(int n_patches,
         output[1, i, p] = 0.0;
       }
     }
-    
+    if (mov_age[1]) {
+      output[1, i] = move_density(output[1, i], zeta, w_adj, v_adj, u_adj);
+    }
     // 2. Survival and Movement (transition from i-1 to i)
     for (a in 2 : n_ages) {
       row_vector[n_patches] surv = exp(neg_mort[i - 1] - f_a_t[a - 1, i - 1]);

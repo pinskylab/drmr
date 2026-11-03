@@ -8,8 +8,10 @@
 ##'   element of \code{y}.
 ##' @param site a \code{vector} indicating the sites associated to each element
 ##'   of \code{y}.
-##' @param init_data an optional vector (of length n_ages - 1) to initialize the
-##'   population dynamics.
+##' @param init_data an optional vector with the log-densities at the first
+##'   time point. Without density dependence, give ages 2 to \code{n_ages}
+##'   (length \code{n_ages - 1}). With density dependence, give ages 1 to
+##'   \code{n_ages} (length \code{n_ages}).
 ##' @param f_mort an optional \code{matrix} informing the instantaneous fishing
 ##'   mortality rates at each age (rows) and time point (columns).
 ##' @param m a \code{numeric} value corresponding to the instantaneous natural
@@ -32,7 +34,9 @@
 ##'   age group. A value of \code{0} indicates the corresponding age group is
 ##'   static, while \code{1} indicates movement is allowed. For example,
 ##'   \code{c(0, 0, 1, 1, 0)} specifies that age groups 1, 2, and 5 are static,
-##'   while 3 and 4 are mobile.
+##'   while 3 and 4 are mobile. If you omit \code{ages_movement}, age 1
+##'   (recruits) is static and all other age groups move. This default is the
+##'   same as \code{ages_movement = 2}.
 ##' @param adj_mat an adjacency \code{matrix} of dimensions \code{sites}
 ##'   \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
 ##'   and zero otherwise. Its rows and columns follow the order of
@@ -73,7 +77,13 @@
 ##'   \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 ##'   \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
 ##'   \item \code{minit}: 1 to use mortality to estimate initial age classes and
-##'   0 otherwise. \item \code{rec_dd}: "ricker" for Ricker, "bh" for
+##'   0 otherwise. With density-dependent recruitment, 1 starts from the
+##'   equilibrium age structure at the first time point, and 2 starts from
+##'   the equilibrium age structure times a scale \eqn{d} that the model
+##'   estimates, with \eqn{\log d \sim N(}\code{pr_linit_scale_mu},
+##'   \code{pr_linit_scale_sd}\eqn{)}. The value 2 needs density-dependent
+##'   recruitment. \item
+##'   \code{rec_dd}: "ricker" for Ricker, "bh" for
 ##'   Beverton-Holt, and "none" (default) for no density dependence. \item
 ##'   \code{acc_dd}: 0 for recruitment to depend on the SSB of the patch
 ##'   (default), and 1 for recruitment to depend on the "global" (i.e., the
@@ -145,6 +155,13 @@ make_data <- function(y,
     stop("Random effects on survival (\"surv\") need ",
          "'.toggles = list(est_surv = 1)'.", call. = FALSE)
   }
+  if (!toggles$minit %in% 0:2) {
+    stop("'minit' must be 0, 1, or 2.", call. = FALSE)
+  }
+  if (toggles$minit == 2 && toggles$rec_dd == 2) {
+    stop("'minit = 2' needs density-dependent recruitment. ",
+         "Set 'rec_dd' to \"ricker\" or \"bh\".", call. = FALSE)
+  }
   ## getting the default priors and using user options
   if (phi_hat) {
     phi_hat <- get_phi_hat(y, family)
@@ -189,7 +206,8 @@ make_data <- function(y,
   }
   if (toggles$movement) {
     if (missing(ages_movement)) {
-      ages_movement <- rep(1L, n_ages)
+      ## recruits (age 1) are static by default
+      ages_movement <- c(0L, rep(1L, n_ages - 1))
     } else if (length(ages_movement) == 1) {
       aux_mov <- seq_len(n_ages)
       ages_movement <- ifelse(aux_mov >= ages_movement, 1, 0)
@@ -285,11 +303,12 @@ make_data <- function(y,
     }
   }
   if (!toggles$est_init) {
+    len_init <- n_init(n_ages, toggles$rec_dd)
     if (length(init_data) > 0) {
-      stopifnot(length(init_data) == n_ages - 1)
+      stopifnot(length(init_data) == len_init)
     } else {
       init_data <- log(seq(from = 1, to = .01,
-                           length.out = n_ages - 1))
+                           length.out = len_init))
       if (length(init_data) == 1)
         init_data <- array(init_data, dim = 1)
     }

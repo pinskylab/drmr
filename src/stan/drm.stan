@@ -26,9 +26,11 @@ data {
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> est_init; // estimate "initial cohort"
-  int<lower = 0, upper = 1> minit;    // estimate "initial cohort" assuming
+  int<lower = 0, upper = 2> minit;    // estimate "initial cohort" assuming
                                       // mortality is stable at the beginning of
-                                      // the time series
+                                      // the time series (equilibrium age
+                                      // structure with density dependence);
+                                      // 2: equilibrium times init_scale
   int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
   int<lower = 0, upper = 1> acc_dd;   // 0 for local SSB, 1 for regional SSB
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
@@ -48,7 +50,9 @@ data {
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
   //--- initial cohort (if not estimated) ----
-  array[est_init ? 0 : n_ages - 1] real init_data;
+  // log-densities of ages 1 to n_ages with density dependence, and of ages
+  // 2 to n_ages without it
+  array[est_init ? 0 : (rec_dd < 2 ? n_ages : n_ages - 1)] real init_data;
   //--- for spatial random effects ----
   array[sp_re > 0 ? 1 : 0] int<lower = 0> N_edges;  // number of neighbor pairs
   array[sp_re > 0 ? 2 : 1,
@@ -94,8 +98,13 @@ data {
   vector[K_r] pr_beta_r_sd;
   real pr_kappa_mu;
   real pr_kappa_sd;
+  real pr_linit_scale_mu;
+  real<lower = 0> pr_linit_scale_sd;
 }
 transformed data {
+  //--- Initialization ----
+  // number of initial log-densities (see init_data)
+  int n_init = rec_dd < 2 ? n_ages : n_ages - 1;
   //--- Movement ----
   vector[movement ? n_edges_adj : 0] w_adj;
   array[movement ? n_edges_adj : 0] int v_adj;
@@ -149,7 +158,9 @@ parameters {
   // coefficients for mortality/survival (it is a log-linear model)
   array[est_surv] vector[est_surv ? K_m[1] : 0] beta_s;
   //--- * initialization parameter ----
-  array[est_init ? n_ages - 1 : 0] real log_init;
+  array[est_init ? n_init : 0] real log_init;
+  // log of the scale of the equilibrium initial densities (minit = 2)
+  array[minit == 2 && rec_dd < 2 ? 1 : 0] real log_init_scale;
   //--- * AR process parameters ----
   // conditional SD
   array[ar_re > 0 ? 1 : 0] real log_sigma_t;
@@ -177,7 +188,7 @@ transformed parameters {
   if (rho_mu)
     xi = - exp(lxi);
   //--- Initialization ----
-  array[est_init ? n_ages - 1 : 0] real init_par;
+  array[est_init ? n_init : 0] real init_par;
   if (est_init)
     init_par = log_init;
   //--- Recruitment ----
@@ -250,6 +261,9 @@ transformed parameters {
       mortality = -log1p(exp(-lp_surv));
     // expected density at specific time/site combinations by age
     array[n_ages] matrix[n_time, n_sites] lambda_aux;
+    // scale of the equilibrium initial densities (1 unless minit is 2)
+    real init_scale =
+      minit == 2 && rec_dd < 2 ? exp(log_init_scale[1]) : 1.0;
     if (rec_dd < 2) {
       if (movement) {
         lambda_aux =
@@ -258,6 +272,7 @@ transformed parameters {
                               est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
                               est_init ? init_par : init_data,
                               to_matrix(log_rec, n_time, n_sites),
+                              minit, init_scale,
                               amat, weight,
                               kappa[1], rec_dd,
                               zeta[1], w_adj, v_adj, u_adj,
@@ -270,6 +285,7 @@ transformed parameters {
                      est_surv ? to_matrix(mortality, n_time, n_sites) : fixed_m,
                      est_init ? init_par : init_data,
                      to_matrix(log_rec, n_time, n_sites),
+                     minit, init_scale,
                      amat, weight,
                      kappa[1], rec_dd,
                      acc_dd, areas);
@@ -387,6 +403,11 @@ model {
   if (rec_dd < 2) {
     target += normal_lpdf(kappa[1] | pr_kappa_mu, pr_kappa_sd) -
       1.0 * normal_lccdf(0 | pr_kappa_mu, pr_kappa_sd);
+  }
+  //--- Scale of the equilibrium initial densities ----
+  if (minit == 2 && rec_dd < 2) {
+    target += normal_lpdf(log_init_scale[1] | pr_linit_scale_mu,
+                          pr_linit_scale_sd);
   }
   //--- Mortality ----
   if (est_surv)

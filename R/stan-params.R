@@ -87,6 +87,8 @@ fitted_pars_lambda <- function(data_list) {
     output <- c(output, "kappa")
   if (data_list$est_init == 1)
     output <- c(output, "log_init")
+  if (data_list$minit == 2 && data_list$rec_dd < 2)
+    output <- c(output, "log_init_scale")
   return(output)
 }
 

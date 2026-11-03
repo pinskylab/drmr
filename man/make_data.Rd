@@ -36,8 +36,10 @@ element of \code{y}.}
 \item{site}{a \code{vector} indicating the sites associated to each element
 of \code{y}.}
 
-\item{init_data}{an optional vector (of length n_ages - 1) to initialize the
-population dynamics.}
+\item{init_data}{an optional vector with the log-densities at the first
+time point. Without density dependence, give ages 2 to \code{n_ages}
+(length \code{n_ages - 1}). With density dependence, give ages 1 to
+\code{n_ages} (length \code{n_ages}).}
 
 \item{f_mort}{an optional \code{matrix} informing the instantaneous fishing
 mortality rates at each age (rows) and time point (columns).}
@@ -68,7 +70,9 @@ vector of length \code{n_ages}, it indicates movement capability for each
 age group. A value of \code{0} indicates the corresponding age group is
 static, while \code{1} indicates movement is allowed. For example,
 \code{c(0, 0, 1, 1, 0)} specifies that age groups 1, 2, and 5 are static,
-while 3 and 4 are mobile.}
+while 3 and 4 are mobile. If you omit \code{ages_movement}, age 1
+(recruits) is static and all other age groups move. This default is the
+same as \code{ages_movement = 2}.}
 
 \item{adj_mat}{an adjacency \code{matrix} of dimensions \code{sites}
 \eqn{\times} \code{sites}. Its elements are 1 if two sites are neighbors
@@ -114,7 +118,13 @@ log-log and 0 for the logit link function for the absence probabilities.
 \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
 \item \code{minit}: 1 to use mortality to estimate initial age classes and
-0 otherwise. \item \code{rec_dd}: "ricker" for Ricker, "bh" for
+0 otherwise. With density-dependent recruitment, 1 starts from the
+equilibrium age structure at the first time point, and 2 starts from
+the equilibrium age structure times a scale \eqn{d} that the model
+estimates, with \eqn{\log d \sim N(}\code{pr_linit_scale_mu},
+\code{pr_linit_scale_sd}\eqn{)}. The value 2 needs density-dependent
+recruitment. \item
+\code{rec_dd}: "ricker" for Ricker, "bh" for
 Beverton-Holt, and "none" (default) for no density dependence. \item
 \code{acc_dd}: 0 for recruitment to depend on the SSB of the patch
 (default), and 1 for recruitment to depend on the "global" (i.e., the
