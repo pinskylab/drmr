@@ -16,7 +16,7 @@ default_priors <- function() {
        pr_lsigma_s_mu = -2,
        pr_lsigma_s_sd = .25,
        pr_alpha_mu = 0,
-       pr_alpha_sd = 0.5,
+       pr_alpha_sd = 0.75,
        pr_zeta_a = .5,
        pr_zeta_b = .5,
        pr_lmxi_mu = 0,
