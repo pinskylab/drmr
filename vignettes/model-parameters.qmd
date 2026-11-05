@@ -1,0 +1,141 @@
+---
+title: "Model parameters and priors"
+author: Lucas da Cunha Godoy
+format:
+  html:
+    html-math-method: mathjax
+vignette: >
+  %\VignetteIndexEntry{Model parameters and priors}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+This article lists the parameters of the dynamic range model (DRM) that
+`fit_drm()` fits. For each parameter, it gives the notation, the name in the
+Stan code, the meaning, and the default prior. The last section covers the
+species distribution model (SDM) that `fit_sdm()` fits.
+
+## Notation
+
+The indices are $t$ for time, $i$ for patch, and $a$ for age. In
+$\boldsymbol{\beta}_t$, $\boldsymbol{\beta}_r$, $\boldsymbol{\beta}_s$,
+$\sigma_t$, $\sigma_i$, and $\sigma_s$, the subscripts are labels, not
+indices. For example, $\sigma_t$ is one number, the same for all time points.
+
+The priors use these distributions:
+
+- $\mathrm{N}(m, s)$: the normal distribution with mean $m$ and standard
+  deviation (SD) $s$. As in Stan, the second argument is an SD, not a variance.
+- $\mathrm{N}^{+}(m, s)$: $\mathrm{N}(m, s)$ truncated to positive values.
+- $\mathrm{Gamma}(a, b)$: the gamma distribution with shape $a$ and rate $b$.
+  Its mean is $a / b$.
+- $\mathrm{Beta}(a, b)$: the beta distribution with shape parameters $a$ and
+  $b$.
+
+## Parameters
+
+The following table lists all the parameters of the DRM. The Code column gives
+the name of each parameter in the Stan model. A model includes a parameter only
+when its component is on. For the conditions, see [Model
+overview](#model-overview).
+
+| Parameter              | Code             | Meaning                          |
+|:----------------------:|:----------------:|:---------------------------------|
+| $\boldsymbol{\beta}_t$ | `beta_t`         | Absence probability coefficients |
+| $\xi$                  | `xi`             | Effect of $\log \mu$ on absence  |
+| $\boldsymbol{\beta}_r$ | `beta_r`         | Recruitment coefficients         |
+| $\kappa$               | `kappa`          | Density-dependence coefficient   |
+| $\boldsymbol{\beta}_s$ | `beta_s`         | Survival coefficients            |
+| $\zeta$                | `zeta`           | Probability of staying in place  |
+| $\log \lambda_{a,1}$   | `log_init`       | Initial log-density at age $a$   |
+| $\log d$               | `log_init_scale` | Log of the initial-density scale |
+| $\phi$                 | `phi`            | Dispersion parameter             |
+| $\sigma_{obs}$         | `sigma_obs`      | SD of $\log y$                   |
+| $\alpha$               | `alpha`          | AR(1) temporal correlation       |
+| $\sigma_t$             | `sigma_t`        | AR(1) conditional SD             |
+| $z_t$                  | `z_t`            | AR(1) temporal random effects    |
+| $\sigma_i$             | `sigma_i`        | SD of the iid patch effects      |
+| $z_i$                  | `z_i`            | Patch random effects (iid)       |
+| $\sigma_s$             | `sigma_s`        | SD of the ICAR patch effects     |
+| $z_s$                  | `z_s`            | Patch random effects (ICAR)      |
+
+
+## Default priors
+
+The following table gives the default prior of each parameter, in the same
+order as the preceding table. The Hyperparameters column gives the names to
+use in the `.priors` argument. The first name sets the first argument of the
+distribution, and the second name sets the second argument.
+
++-----------------------------------------------+----------------------+
+| Default prior                                 | Hyperparameters      |
++===============================================+======================+
+| $\boldsymbol{\beta}_t \sim \mathrm{N}(0, 1)$  | `pr_beta_t_mu`,      |
+|                                               | `pr_beta_t_sd`       |
++-----------------------------------------------+----------------------+
+| $\log(-\xi) \sim \mathrm{N}(0, 2.5)$          | `pr_lmxi_mu`,        |
+|                                               | `pr_lmxi_sd`         |
++-----------------------------------------------+----------------------+
+| $\boldsymbol{\beta}_r \sim \mathrm{N}(0, 1)$  | `pr_beta_r_mu`,      |
+|                                               | `pr_beta_r_sd`       |
++-----------------------------------------------+----------------------+
+| $\kappa \sim \mathrm{N}^{+}(-2, 1)$           | `pr_kappa_mu`,       |
+|                                               | `pr_kappa_sd`        |
++-----------------------------------------------+----------------------+
+| $\boldsymbol{\beta}_s \sim \mathrm{N}(0, 1)$  | `pr_beta_s_mu`,      |
+|                                               | `pr_beta_s_sd`       |
++-----------------------------------------------+----------------------+
+| $\zeta \sim \mathrm{Beta}(0.5, 0.5)$          | `pr_zeta_a`,         |
+|                                               | `pr_zeta_b`          |
++-----------------------------------------------+----------------------+
+| $\log \lambda_{a,1} \sim \mathrm{N}(0, 1)$    | None (fixed)         |
++-----------------------------------------------+----------------------+
+| $\log d \sim \mathrm{N}(0, 0.5)$              | `pr_linit_scale_mu`, |
+|                                               | `pr_linit_scale_sd`  |
++-----------------------------------------------+----------------------+
+| $\phi \sim \mathrm{Gamma}(2, 1)$              | `pr_phi_a`,          |
+|                                               | `pr_phi_b`           |
++-----------------------------------------------+----------------------+
+| $\sigma_{obs} \sim \mathrm{N}^{+}(0, 1)$      | `pr_sigma_obs_mu`,   |
+|                                               | `pr_sigma_obs_sd`    |
++-----------------------------------------------+----------------------+
+| $\tanh^{-1}(\alpha) \sim \mathrm{N}(0, 0.75)$ | `pr_alpha_mu`,       |
+|                                               | `pr_alpha_sd`        |
++-----------------------------------------------+----------------------+
+| $\log \sigma_t \sim \mathrm{N}(-2, 0.25)$     | `pr_lsigma_t_mu`,    |
+|                                               | `pr_lsigma_t_sd`     |
++-----------------------------------------------+----------------------+
+| $z_t$ follows the AR(1) process               | None                 |
++-----------------------------------------------+----------------------+
+| $\log \sigma_i \sim \mathrm{N}(-2, 0.25)$     | `pr_lsigma_i_mu`,    |
+|                                               | `pr_lsigma_i_sd`     |
++-----------------------------------------------+----------------------+
+| $z_i \sim \mathrm{N}(0, \sigma_i)$, with      | None                 |
+| $\sum_i z_i = 0$                              |                      |
++-----------------------------------------------+----------------------+
+| $\log \sigma_s \sim \mathrm{N}(-2, 0.25)$     | `pr_lsigma_s_mu`,    |
+|                                               | `pr_lsigma_s_sd`     |
++-----------------------------------------------+----------------------+
+| $z_s$ follows the scaled ICAR model           | None                 |
++-----------------------------------------------+----------------------+
+
+Notes on the default priors:
+
+- Each coefficient in $\boldsymbol{\beta}_t$, $\boldsymbol{\beta}_r$, and
+  $\boldsymbol{\beta}_s$ has its own normal prior. By default, each prior is
+  $\mathrm{N}(0, 1)$.
+- The priors on $\xi$, $\alpha$, $\sigma_t$, $\sigma_i$, and $\sigma_s$ apply
+  to transformed values. The transformations keep $\xi < 0$,
+  $-1 < \alpha < 1$, and the SDs positive.
+- The default priors on $\sigma_t$, $\sigma_i$, and $\sigma_s$ are
+  informative. Each one puts about 95% of its mass between 0.08 and 0.22.
+- The default prior on $\alpha$ puts about 95% of its mass between $-0.90$ and
+  $0.90$.
+- The default prior on $\kappa$ favors small values. Its mean is about 0.37.
+  The scale of $\kappa$ depends on the units of the SSB density, so check this
+  prior against your data.
+- With `family = "loglogistic"`, the prior on $\phi$ is truncated to
+  $\phi > 1$.
+- With `phi_hat = TRUE`, `make_data()` sets `pr_phi_b` from the data, unless
+  you give `pr_phi_b`. Then the prior mean of $\phi$ is an estimate from the
+  positive densities.

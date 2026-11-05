@@ -23,7 +23,6 @@ Depends:
   R (>= 4.3.0)
 Imports:
   instantiate (>= 0.2.4),
-  cmdstanr (>= 0.9.0),
   posterior,
   sf,
   spdep,
@@ -56,4 +55,4 @@ VignetteBuilder:
 Language: en-US
 License: GPL (>= 3)
 URL: https://pinskylab.github.io/drmr/
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1
