@@ -2,7 +2,7 @@
 % Please edit documentation in R/stan-params.R
 \name{get_fitted_pars}
 \alias{get_fitted_pars}
-\title{Retrieve parameters needed for predictions}
+\title{Names of the fitted parameters that a function needs}
 \usage{
 get_fitted_pars(data_list, model = "drm")
 }
@@ -10,17 +10,21 @@ get_fitted_pars(data_list, model = "drm")
 \item{data_list}{a \code{list} used as input for model fitting. Typically,
 the output from the \link{make_data} function.}
 
-\item{model}{a \code{character} indicating which model predictions are
-sought for. This input admits two possible entries: "drm" (default) or
-"sdm".}
+\item{model}{a \code{character}: "drm" (default) or "sdm".}
 }
 \value{
-a \code{character} vector of labels indicating the parameters
-necessary for the predictions.
+a \code{character} vector with the names of the parameters.
 }
 \description{
-This function identifies the parameters necessary for carrying
-out predictions based on the data used to fit a DRM (or SDM).
+Lists the parameters to take from the draws of a fitted DRM
+(or SDM). \code{summary()}, \code{mcmc_diag()}, and \code{draws()}
+(which the plot method uses) start from the list that
+\code{get_fitted_pars()} gives. \code{predict()} uses the same list,
+but for a DRM it drops \code{sigma_i}, which \code{predict.stan} does
+not need. \code{fitted_pars_lambda()} gives the inputs that
+\code{ages_edens()} and \code{get_adults()} need, and
+\code{fitted_pars_ll()} gives the inputs that \code{log_lik()} and
+\code{fitted()} need.
 }
 \author{
 lcgodoy

@@ -60,10 +60,11 @@ Considering a new dataset (across the same sites), computes
 predictions based on the DRM passed as \code{drm}.
 }
 \details{
-The function sorts \code{new_data} by site and then by time. Each
-site used to fit \code{object} must appear exactly once in each year of
-\code{new_data}. The years in \code{new_data} must be consecutive and
-must start in the year after the last training year.
+The function sorts \code{new_data} by site, in the site order of
+the training data, and then by time. Each site used to fit
+\code{object} must appear exactly once in each year of \code{new_data}.
+The years in \code{new_data} must be consecutive and must start in the
+year after the last training year.
 
 The function builds the design matrices again from \code{new_data}.
 Terms that depend on the data, such as \code{scale()} or \code{poly()},

@@ -7,7 +7,9 @@
 gen_adj(x)
 }
 \arguments{
-\item{x}{an \code{sf} object representing the patches.}
+\item{x}{the patches: an \code{sf} or \code{sfc} object with one polygon
+per patch. For 1-D patches, \code{x} can also be a vector with one
+element per patch, in their order along the line.}
 }
 \value{
 An adjacency \code{matrix}. A patch with no neighbors, such as an

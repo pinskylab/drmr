@@ -104,7 +104,6 @@ default_vb <- function() {
        adapt_iter = NULL,
        tol_rel_obj = NULL,
        eval_elbo = NULL,
-       output_samples = NULL,
        draws = NULL,
        show_messages = TRUE,
        show_exceptions = TRUE,

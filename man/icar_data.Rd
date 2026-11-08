@@ -23,10 +23,10 @@ Follows Freni-Sterrantino et al. (2018) for graphs that are
 not connected. Each connected component with two or more sites gets its
 own sum-to-zero constraint and its own scaling factor. The scaling
 makes the geometric mean of the marginal variances of the scaled effect
-equal to 1 in each component. Sites with more neighbors have smaller
-variances. Each site with no neighbors gets an independent standard
-normal effect. So \code{sigma_s} is a typical marginal standard
-deviation of the spatial effect.
+equal to 1 in each component. The marginal variance of a site depends
+on its position in the graph. Each site with no neighbors gets an
+independent standard normal effect. So \code{sigma_s} is a typical
+marginal standard deviation of the spatial effect.
 }
 \references{
 Freni-Sterrantino, A., Ventrucci, M., and Rue, H. (2018). A

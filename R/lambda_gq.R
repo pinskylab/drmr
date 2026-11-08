@@ -38,8 +38,11 @@ ages_edens <- function(drm,
   gq_data$proj <- as.integer(!is.null(new_data))
   
   if (gq_data$proj == 1) {
-    ## Ensure new_data is ordered by site and then time
-    ord <- order(new_data[[drm$cols$site_col]],
+    ## lambda_gq.stan reads the rows as one block per site code, so sort by
+    ## the site order of the training data (not by the raw site values),
+    ## and then by time
+    ord <- order(factor(new_data[[drm$cols$site_col]],
+                        levels = drm$cols$site_levels),
                  new_data[[drm$cols$time_col]])
     new_data <- new_data[ord, ]
 

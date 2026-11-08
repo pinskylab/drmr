@@ -189,7 +189,10 @@ model {
   //--- IID RE ----
   if (iid_re) {
     target += normal_lpdf(log_sigma_i[1] | pr_lsigma_i_mu, pr_lsigma_i_sd);
-    target += normal_lpdf(z_i[1] | 0, sigma_i[1] * s_iid);
+    // z_i has n_sites - 1 free values, but normal_lpdf normalizes over
+    // n_sites values. Adding log(sigma_i) removes the extra -log(sigma_i),
+    // so the prior on log_sigma_i is the one stated above.
+    target += normal_lpdf(z_i[1] | 0, sigma_i[1] * s_iid) + log_sigma_i[1];
   }
   //--- SP RE ----
   if (sp_re) {

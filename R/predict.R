@@ -104,10 +104,11 @@ int_score <- function(y, l, u, alpha) {
 ##'   \code{$generated_quantities}
 ##'
 ##'
-##' @details The function sorts \code{new_data} by site and then by time. Each
-##'   site used to fit \code{object} must appear exactly once in each year of
-##'   \code{new_data}. The years in \code{new_data} must be consecutive and
-##'   must start in the year after the last training year.
+##' @details The function sorts \code{new_data} by site, in the site order of
+##'   the training data, and then by time. Each site used to fit
+##'   \code{object} must appear exactly once in each year of \code{new_data}.
+##'   The years in \code{new_data} must be consecutive and must start in the
+##'   year after the last training year.
 ##'
 ##'   The function builds the design matrices again from \code{new_data}.
 ##'   Terms that depend on the data, such as \code{scale()} or \code{poly()},
@@ -140,9 +141,27 @@ predict.adrm <- function(object,
                       predictive = 0,
                       expected   = 1,
                       latent     = 2)
-  ord <- order(new_data[[object$cols$site_col]],
+  ## predict.stan reads the rows as one block per site code, so sort by the
+  ## site order of the training data (not by the raw site values)
+  ord <- order(factor(new_data[[object$cols$site_col]],
+                      levels = object$cols$site_levels),
                new_data[[object$cols$time_col]])
   new_data <- new_data[ord, ]
+  ## throw an error if predicing on new sites
+  new_sites_factor <- factor(new_data[[object$cols$site_col]],
+                             levels = object$cols$site_levels)
+  if (any(is.na(new_sites_factor))) {
+    stop("new_data contains sites that were not present in the training data.")
+  }
+  ## the forecast steps one year at a time from the last training year
+  last_train <- object$data$time_init + max(object$data$time) - 1
+  years <- sort(unique(new_data[[object$cols$time_col]]))
+  if (anyNA(new_data[[object$cols$time_col]]) || length(years) == 0 ||
+        years[1] != last_train + 1 || any(diff(years) != 1)) {
+    stop("The years in new_data must have no missing values, be ",
+         "consecutive, and start in ", last_train + 1,
+         ", the year after the last training year.")
+  }
   ## number time points for predictions
   ntime_for <- length(unique(new_data[[object$cols$time_col]]))
   time_for <- new_data[[object$cols$time_col]] -
@@ -150,11 +169,9 @@ predict.adrm <- function(object,
   if (!missing(f_test)) {
     stopifnot(NROW(f_test) == object$data[["n_ages"]])
   }
-  ## throw an error if predicing on new sites
-  new_sites_factor <- factor(new_data[[object$cols$site_col]], 
-                             levels = object$cols$site_levels)
-  if (any(is.na(new_sites_factor))) {
-    stop("new_data contains sites that were not present in the training data.")
+  ## every training site must appear exactly once in each year
+  if (any(table(new_sites_factor, time_for) != 1)) {
+    stop("new_data must have exactly one row for each site and each year.")
   }
   new_sites_stan <- as.integer(new_sites_factor)
   x_tt <- stats::model.matrix(object[["formulas"]][["formula_zero"]],
@@ -165,7 +182,10 @@ predict.adrm <- function(object,
     f_test <- matrix(0, ncol = ntime_for, nrow = object$data$n_ages)
   }
   ##--- pars from model fitted ----
-  pars <- get_fitted_pars(object$data, "drm")
+  ## CmdStan matches the fitted parameters to the parameters block of
+  ## predict.stan by position, so pass only the ones it declares (it does
+  ## not declare sigma_i, which summary() uses)
+  pars <- setdiff(get_fitted_pars(object$data, "drm"), "sigma_i")
   fitted_params <-
     object$stanfit$draws(variables = pars)
   ##--- list for predictions gq ----

@@ -1,10 +1,14 @@
 ##' @title Generates an adjacency matrix
-##' @param x an \code{sf} object representing the patches.
+##' @param x the patches: an \code{sf} or \code{sfc} object with one polygon
+##'   per patch. For 1-D patches, \code{x} can also be a vector with one
+##'   element per patch, in their order along the line.
 ##' @return An adjacency \code{matrix}. A patch with no neighbors, such as an
 ##'   island, gets a row and a column of zeros.
 ##' @author lcgodoy
 ##' @export
 gen_adj <- function(x) {
+  if (inherits(x, "sf"))
+    x <- sf::st_geometry(x)
   if (!inherits(x, "sfc")) {
     message("Assuming patches are 1d and ordered in such a way that the first and last patches have only one neighbor.")
     aux <-
@@ -70,10 +74,10 @@ get_components <- function(a) {
 ##'   not connected. Each connected component with two or more sites gets its
 ##'   own sum-to-zero constraint and its own scaling factor. The scaling
 ##'   makes the geometric mean of the marginal variances of the scaled effect
-##'   equal to 1 in each component. Sites with more neighbors have smaller
-##'   variances. Each site with no neighbors gets an independent standard
-##'   normal effect. So \code{sigma_s} is a typical marginal standard
-##'   deviation of the spatial effect.
+##'   equal to 1 in each component. The marginal variance of a site depends
+##'   on its position in the graph. Each site with no neighbors gets an
+##'   independent standard normal effect. So \code{sigma_s} is a typical
+##'   marginal standard deviation of the spatial effect.
 ##' @param adj adjacency \code{matrix}. Two sites are neighbors if either
 ##'   entry for the pair is positive. Weights and the diagonal are ignored.
 ##' @return A \code{list} with the ICAR inputs for the Stan models:

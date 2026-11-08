@@ -1,15 +1,19 @@
-##' @title Retrieve parameters needed for predictions
+##' @title Names of the fitted parameters that a function needs
 ##'
-##' @description This function identifies the parameters necessary for carrying
-##'   out predictions based on the data used to fit a DRM (or SDM).
+##' @description Lists the parameters to take from the draws of a fitted DRM
+##'   (or SDM). \code{summary()}, \code{mcmc_diag()}, and \code{draws()}
+##'   (which the plot method uses) start from the list that
+##'   \code{get_fitted_pars()} gives. \code{predict()} uses the same list,
+##'   but for a DRM it drops \code{sigma_i}, which \code{predict.stan} does
+##'   not need. \code{fitted_pars_lambda()} gives the inputs that
+##'   \code{ages_edens()} and \code{get_adults()} need, and
+##'   \code{fitted_pars_ll()} gives the inputs that \code{log_lik()} and
+##'   \code{fitted()} need.
 ##'
 ##' @param data_list a \code{list} used as input for model fitting. Typically,
 ##'   the output from the [make_data] function.
-##' @param model a \code{character} indicating which model predictions are
-##'   sought for. This input admits two possible entries: "drm" (default) or
-##'   "sdm".
-##' @return a \code{character} vector of labels indicating the parameters
-##'   necessary for the predictions.
+##' @param model a \code{character}: "drm" (default) or "sdm".
+##' @return a \code{character} vector with the names of the parameters.
 ##' @author lcgodoy
 get_fitted_pars <- function(data_list, model = "drm") {
   stopifnot(inherits(data_list, "list"))
