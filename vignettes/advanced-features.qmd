@@ -54,91 +54,25 @@ running:
 ## loads the data
 data(sum_fl)
 
-## computing density
-sum_fl <- sum_fl |>
-  mutate(dens = 100 * y / area_km2,
-         .before = y)
-```
-
-A quick exploration of the data reveals the following:
-
-* Surface salinity (ssalin) and bottom salinity (bsalin) have missing values
-  (around 30% missing for each).
-
-* At least 25% of the density (`dens`) values are zero.
-
-Finally, we split the data, reserving the last five years for evaluating
-predictions:
-
-```{r}
-#| label: data-split
-
-## 5 years-ahead predictions
-first_year_forecast <- max(sum_fl$year) - 4
-
-first_id_forecast <-
-  first_year_forecast - min(sum_fl$year) + 1
-
-years_all <- order(unique(sum_fl$year))
-years_train <- years_all[years_all < first_id_forecast]
-years_test <- years_all[years_all >= first_id_forecast]
-
-## splitting data
+## splitting data for 5 years-ahead predictions
 dat_test <- sum_fl |>
-  filter(year >= first_year_forecast)
+  filter(!train_flag)
 
 dat_train <- sum_fl |>
-  filter(year < first_year_forecast)
+  filter(train_flag)
 ```
 
-
-When fitting models with explanatory variables, it's good practice to
-standardize them by centering (subtracting the mean) and scaling (dividing by
-the standard deviation). This transformation to zero mean and unit variance
-offers two main benefits: it typically improves the efficiency of Monte Carlo
-Markov Chain (MCMC) sampling, and it makes comparing the magnitude of regression
-coefficients easier for assessing relative variable importance. For applications
-involving forecasting or prediction, it is crucial to calculate the mean and
-standard deviation for standardization using only the training dataset. These
-exact same values must then be applied to standardize the test dataset (or any
-future data), simulating the real-world scenario where information about future
-observations is unavailable during model fitting.
-
-
-In that spirit, we center and scale some of our potential explanatory variables
-as follows:
-
-```{r}
-#| label: center-scale
-
-avgs <- c("stemp" = mean(dat_train$stemp),
-          "btemp" = mean(dat_train$btemp),
-          "depth" = mean(dat_train$depth),
-          "n_hauls" = mean(dat_train$n_hauls),
-          "lat" = mean(dat_train$lat),
-          "lon" = mean(dat_train$lon))
-
-min_year <- dat_train$year |>
-  min()
-
-## centering covariates
-dat_train <- dat_train |>
-  mutate(c_stemp = stemp - avgs["stemp"],
-         c_btemp = btemp - avgs["btemp"],
-         c_hauls = n_hauls - avgs["n_hauls"],
-         c_lat   = lat - avgs["lat"],
-         c_lon   = lon - avgs["lon"],
-         time  = year - min_year)
-
-dat_test <- dat_test |>
-  mutate(c_stemp = stemp - avgs["stemp"],
-         c_btemp = btemp - avgs["btemp"],
-         c_hauls = n_hauls - avgs["n_hauls"],
-         c_lat   = lat - avgs["lat"],
-         c_lon   = lon - avgs["lon"],
-         time  = year - min_year)
-```
-
+When fitting models with explanatory variables, it's good practice to center
+(subtracting the mean). This transformation typically improves the efficiency of
+Monte Carlo Markov Chain (MCMC) sampling. For applications involving forecasting
+or prediction, it is crucial to calculate the mean and standard deviation for
+standardization using only the training dataset. These exact same values must
+then be applied to standardize the test dataset (or any future data), simulating
+the real-world scenario where information about future observations is
+unavailable during model fitting. For that reason, centered the environmental
+variables in the `sum_fl` dataset using the mean of the variables under the
+training period (when the `train_flag` column equals `TRUE`). In this dataset,
+the centered environmental variables start with `c_`.
 
 > For an extensive list of the variables present in this dataset run: `?sum_fl`.
 
@@ -165,6 +99,9 @@ species. To load that matrix in our `R` session, we run:
 fmat <-
   system.file("fmat.rds", package = "drmr") |>
   readRDS()
+
+years_train <- unique(dat_train$time + 1)
+years_test  <- unique(dat_test$time + 1)
 
 ## splitting between train and test for model assessment
 f_train <- fmat[, years_train]
@@ -218,7 +155,7 @@ into account the following:
 
 1. Initialization: We use the survival rates to initialize the population
    dynamics (see the initialization vignette by running `vignette("init",
-   "drmr")`.
+   "drmr")`).
 
 ```{r}
 #| label: drm_rec
@@ -276,6 +213,29 @@ drm_srv <-
          formula_surv = ~ 1 + c_btemp + I(c_btemp * c_btemp))
 ```
 
+
+To visually assess how well the models fit the data, we can do posterior
+predictive check through the function `ppc`. Below we also show the two
+different options we offer for the `transform` and `type` parameters for the
+`ppc` call. The first one takes two possible values: 
+
+* `"none"` (default): displays the PPC on the original scale
+* `"log1p"` (default): displays the PPC on the $log(x + 1)$ scale.
+
+While the `type` argument distinguishes between a `"density"` or an empirical
+cumulative density function `"ecdf"`.
+
+```{r}
+#| label: ppc2
+
+par(mfcol = c(2, 2))
+ppc(drm_rec, transform = "log1p")
+ppc(drm_rec, type = "ecdf")
+ppc(drm_srv, transform = "log1p")
+ppc(drm_srv, type = "ecdf")
+```
+
+
 ## Model Toggles
 
 The `fit_drm` function is designed to be flexible, allowing different model
@@ -311,10 +271,10 @@ For each of the random effects "toggles", there are three alternatives to
 ## Environment and demographic processes
 
 We can easily visualize the relationship between the environmental variables and
-specific demographic processes using the `marg` function. The output of that
-function can be plotted by simply calling the `plot` function. Below, we plot
-both the relationship between recruitment and sea surface temperature for the
-first model we fit, and between survival and sea bottom temperature for the
+specific demographic processes using the `effects_drm` function. The output of
+that function can be plotted by simply calling the `plot` function. Below, we
+plot both the relationship between recruitment and sea surface temperature for
+the first model we fit, and between survival and sea bottom temperature for the
 second model fitted.
 
 ```{r}
@@ -358,7 +318,7 @@ multiple_cis <-
              mutate(prob_mass = pr)
          }, .dt = _) |>
   bind_rows() |>
-  mutate(c_btemp = c_btemp + avgs["btemp"])
+  mutate(c_btemp = c_btemp + mean(dat_train$btemp))
 
 ggplot(data = multiple_cis,
        aes(x = c_btemp,
@@ -394,11 +354,10 @@ ggplot(data = multiple_cis,
   )
 ```
 
-From the graph, on may infer that the temperature maximizes the survival rates
+From the graph, one may infer that the temperature maximizes the survival rates
 is around 15 degrees Celsius.
 
-
-## Comparing out-of-sample predictions
+## Comparing predictions
 
 The fitted values (or in-sample predictions) are obtained from the draws of the
 posterior predictive distribution. In general, we will be interested in
@@ -476,7 +435,7 @@ We can objectively compare the predictions as well.
 
 combined_sfl <-
   combined_sfl |>
-  mutate(type = ifelse(year >= first_year_forecast,
+  mutate(type = ifelse(train_flag,
                        "out-of-sample",
                        "in-sample"))
 

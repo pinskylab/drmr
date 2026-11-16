@@ -40,30 +40,6 @@ library(dplyr)
 ## loads the data
 data(sum_fl)
 
-## computing density
-sum_fl <- sum_fl |>
-  mutate(dens = 100 * y / area_km2,
-         .before = y)
-
-avgs <- c("stemp" = mean(sum_fl$stemp),
-          "btemp" = mean(sum_fl$btemp),
-          "depth" = mean(sum_fl$depth),
-          "n_hauls" = mean(sum_fl$n_hauls),
-          "lat" = mean(sum_fl$lat),
-          "lon" = mean(sum_fl$lon))
-
-min_year <- sum_fl$year |>
-  min()
-
-## centering covariates
-sum_fl <- sum_fl |>
-  mutate(c_stemp = stemp - avgs["stemp"],
-         c_btemp = btemp - avgs["btemp"],
-         c_hauls = n_hauls - avgs["n_hauls"],
-         c_lat   = lat - avgs["lat"],
-         c_lon   = lon - avgs["lon"],
-         time  = year - min_year)
-
 ## mortality rates
 fmat <-
   system.file("fmat.rds", package = "drmr") |>
@@ -121,8 +97,7 @@ drm_nuts <-
           ages_movement = c(0, 0,
                             rep(1, 8),
                             rep(0, 6)), ## ages 3 to 10 move
-          .toggles = list(ar_re = "rec",
-                          movement = 1,
+          .toggles = list(movement = 1,
                           est_surv = 1,
                           est_init = 0,
                           minit = 1),
@@ -137,13 +112,13 @@ Differentiation Variational Inference (ADVI) algorithm (for for details see
 
 ```{r}
 #| label: advi
-#| eval: false
+#| eval: true
 
 ## in our tests, this algorithm has been the least stable so far.
 
 advi_args <- list(show_messages = FALSE,
                   show_exceptions = FALSE,
-                  iter = 10^5, ## maximum number of iterations (optimization)
+                  iter = 10^4, ## maximum number of iterations (optimization)
                   draws = 4000) ## number of samples from the posterior
 
 drm_advi <-
@@ -198,7 +173,7 @@ then makes a graph to compare them.
 
 bind_rows(
     mutate(summary(drm_nuts)$estimates, algo = "nuts"),
-    ## mutate(summary(drm_advi)$estimates, algo = "advi"),
+    mutate(summary(drm_advi)$estimates, algo = "advi"),
     mutate(summary(drm_path)$estimates, algo = "path"),
     mutate(summary(drm_lapl)$estimates, algo = "lapl")
 ) |>
@@ -216,8 +191,8 @@ uncertainty around the parameter estimates. We can also look at the estimated
 relationship between environment and recruitment for each of those methods:
 ```{r}
 #| label: envrec
-#| layout-ncol: 3
-#| layout-nrow: 1
+#| layout-ncol: 2
+#| layout-nrow: 2
 
 effects_drm(drm_nuts, "rec", "c_stemp") |>
   plot() +
@@ -227,9 +202,9 @@ effects_drm(drm_path, "rec", "c_stemp") |>
   plot() +
   labs(title = "path")
 
-## effects_drm(drm_advi, "rec", "c_stemp") |>
-##   plot() +
-##   labs(title = "advi")
+effects_drm(drm_advi, "rec", "c_stemp") |>
+  plot() +
+  labs(title = "advi")
 
 effects_drm(drm_lapl, "rec", "c_stemp") |>
   plot() +

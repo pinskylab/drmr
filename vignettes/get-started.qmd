@@ -30,42 +30,6 @@ data(sum_fl)
 
 ## Data processing & splitting
 
-To assess model predictions, the chunk below splits the data into train and
-test.
-
-```{r}
-#| label: split
-## 5 years-ahead predictions
-first_year_forecast <- max(sum_fl$year) - 5
-
-first_id_forecast <-
-  first_year_forecast - min(sum_fl$year) + 1
-
-years_all <- length(unique(sum_fl$year))
-years_train <- years_all[years_all < first_id_forecast]
-years_test <- years_all[years_all >= first_id_forecast]
-
-## splitting data
-dat_test <- sum_fl |>
-  filter(year >= first_year_forecast)
-
-dat_train <- sum_fl |>
-  filter(year < first_year_forecast)
-```
-
-Finally, I transform our response variable into a density.
-
-```{r}
-#| label: ytransform
-dat_train <- dat_train |>
-  mutate(dens = y / area_km2,
-         .before = y)
-
-dat_test <- dat_test |>
-  mutate(dens = y / area_km2,
-         .before = y)
-```
-
 The elements we need to fit a DRM are:
 
 * A response variable representing a density
@@ -81,14 +45,14 @@ patches, we expect to have 20 rows in the dataset per patch. Equivalently, we
 would expect 10 rows in the dataset per year.
 
 
-The first and last 10 rows of the `dat_train` object look as follows:
+The first and last 10 rows of the `sum_fl` object look as follows:
 
 ```{r}
 #| label: data-format
 
-head(dat_train[, c("year", "patch",  "y", "stemp")],
+head(sum_fl[, c("year", "patch",  "y", "stemp")],
      n = 10)
-tail(dat_train[, c("year", "patch",  "y", "stemp")],
+tail(sum_fl[, c("year", "patch",  "y", "stemp")],
      n = 10)
 ```
 
@@ -105,7 +69,7 @@ follows:
 #| label: fit_drm
 #| eval: true
 my_drm <-
-  fit_drm(.data = dat_train,
+  fit_drm(.data = sum_fl,
           y_col = "dens",
           time_col = "year",
           site_col = "patch",
@@ -124,15 +88,15 @@ parameter estimates and some convergence diagnostics using the `summary` method:
 summary(my_drm)
 ```
 
-In the output above, the column `variable` represents distinguish the model
-parameters (for the details on the model parameters see the
+In the output above, the column `variable` represents the model parameters (for
+the details on the model parameters see the
 [Theory](pinskylab.github.io/drmr/theory.html) vignette), while `mean` and `sd`,
 respectively, are the mean and standard deviation of the respective posterior
 distributions. The `rhat` and `ess_bulk` are diagnostic statistics. In general,
-an `rhat < 1.01` suggests convergence, but one should also look into traceplots
-to further assess convergence. The `ess_bulk` is the effective sample size in
-the bulk of the posterior. The columns starting with `q` represent percentiles
-of the posterior distribution.
+`rhat < 1.01` suggests convergence, but one should also look into traceplots to
+further assess convergence. The `ess_bulk` is the effective sample size in the
+bulk of the posterior. The columns starting with `q` represent percentiles of
+the posterior distribution.
 
 
 
@@ -152,7 +116,7 @@ If we want to update a few arguments of our `fit_drm` call, we can resort to the
 `update` method. For example, suppose we want to make the probability of absence
 depend on a measure of "effort". In our case, number of hauls `n_hauls` can be
 used as a proxy for effort. In addition, let us establish a non-linear
-relationship between recruitment and SST (the `stemp` column in our data). We
+relationship between recruitment and SST (the `stemp` column in our data).
 ```{r}
 #| label: update_method
 #| eval: false

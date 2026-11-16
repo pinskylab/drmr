@@ -1,15 +1,20 @@
 ##' @title Summer Flounder
 ##'
 ##' @description A dataset containing containing the number of fish caught at
-##'   different sites and timepoints.
+##'   different sites and timepoints. There is also a flag indicating how to
+##'   split the data into training and test datasets in our examples. In that
+##'   case, we reserve the last five years for assessing predictions. The
+##'   variables starting with \code{c_} are centered using the mean of the
+##'   training period.
 ##'
 ##' @details This dataset was also used in Fredston et. al 2026 <DOI:10.32942/X24D00>
 ##'
-##' @format A \code{data.frame} with 350 rows and 13 columns:
+##' @format A \code{data.frame} with 350 rows and 21 columns:
 ##' \describe{
 ##'     \item{patch}{Patch code}
 ##'     \item{lat_floor}{Lowest latitute associated with the current patch}
 ##'     \item{year}{Year}
+##'     \item{train_flag}{Flag indicating sample units used for training in our examples.}
 ##'     \item{y}{Number of fish caught}
 ##'     \item{n_hauls}{Number of hauls used to catch the fish}
 ##'     \item{stemp}{Sea surface temperature}
@@ -20,7 +25,15 @@
 ##'     \item{lon}{Avg. longitude}
 ##'     \item{depth}{Avg. depth}
 ##'     \item{area_km2}{Area in km^2^}
-##'   }
+##'     \item{dens}{Hundreds of individuals per unit of area (\code{dens = 100 * y / area_km2})}
+##'     \item{c_stemp}{Centered sea surface temperature}
+##'     \item{c_ssalin}{Centered sea surface salinity}
+##'     \item{c_btemp}{Centered sea bottom temperature}
+##'     \item{c_bsalin}{Centered sea bottom salinity}
+##'     \item{c_lat}{Centered avg. latitude}
+##'     \item{c_lon}{Centered avg. longitude}
+##'     \item{time}{Time (in years) starting at 0. That is, \code{time = years - min(years).}}
+##'     }
 ##'
 ##' @source \url{https://www.fisheries.noaa.gov/feature-story/2022-fall-bottom-trawl-survey-completed-northeast}
 "sum_fl"
