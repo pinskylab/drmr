@@ -11,7 +11,9 @@
 ##'   \code{fitted()} need.
 ##'
 ##' @param data_list a \code{list} used as input for model fitting. Typically,
-##'   the output from the [make_data] function.
+##'   the output from [make_data()] or [make_data_sdm()].
+##'   \code{fitted_pars_lambda()} also needs the element \code{proj}: 1 if
+##'   the densities are also computed for new data, and 0 otherwise.
 ##' @param model a \code{character}: "drm" (default) or "sdm".
 ##' @return a \code{character} vector with the names of the parameters.
 ##' @author lcgodoy

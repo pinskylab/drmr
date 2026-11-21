@@ -39,9 +39,9 @@ distribution assumed for density. The options are: \itemize{ \item
 \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 \code{"loglogistic"}: log-logistic parametrized in terms of its median
 (usual parametrization), with shape \code{phi} > 1 so its mean is finite;
-\item \code{"lognormal_legacy"}: log-normal with
-its usual parametrization; \item \code{"truncnorm"} a truncated normal
-distribution. }}
+\item \code{"lognormal_legacy"}: log-normal with its usual
+parametrization; \item \code{"truncnorm"} a truncated normal distribution
+(not parametrized in terms of its mean)}}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero
 inflation component. Defaults to \code{~ 1} (intercept only).}
@@ -59,20 +59,19 @@ component. If \code{NULL} (the default), no survival component is included.}
 options include: a scalar greater than zero, say \code{x}, which
 initializes all parameters uniformly between \code{-x} and \code{x};
 \code{0}, which initializes all parameters at \code{0}; or "prior", which
-initializes parameters by sampling from their priors. With
-\code{rho_mu = 1} (the default), a draw of \code{xi} far in the tail of
-its prior can make the probability of a zero exactly 0 or 1. Then Stan
-cannot start that chain, and the fit reports it as failed. If this
-happens, draw new initial values or use another \code{init}. The
-initial values come from the R random number generator, not from
-\code{seed}, so call \code{\link[=set.seed]{set.seed()}} with another value first.}
+initializes parameters by sampling from their priors. With \code{rho_mu =
+1} (the default), a draw of \code{xi} far in the tail of its prior can
+make the probability of a zero exactly 0 or 1. Then Stan cannot start that
+chain, and the fit reports it as failed. If this happens, draw new initial
+values or use another \code{init}. The initial values come from the R
+random number generator, not from \code{seed}, so call \code{\link[=set.seed]{set.seed()}} with
+another value first.}
 
 \item{algorithm}{a \code{character} specifying the algorithm used for
 inference. Default is \code{nuts} (the default MCMC in Stan). The
-remaining options are different flavors of variational bayes algorithms:
-"vb" (for ADVI), "pathfinder" (for Pathfinder), "laplace" (normal
-approximation centered at the mode of the posterior) or "optimize" for
-(penalized) MLEs.}
+remaining options are: "vb" (for automatic differentiation variational
+bayes), "pathfinder" (for Pathfinder), "laplace" (normal approximation
+centered at the mode of the posterior) or "optimize" for (penalized) MLEs.}
 
 \item{algo_args}{a \code{list} with arguments for the sampling
 algorithms. For instance, \code{tol_rel_obj} for variational inference.}

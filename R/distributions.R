@@ -1,35 +1,3 @@
-##' @title Density of a truncated Student's t distribution
-##' @description Calculates the density of a truncated Student's t distribution.
-##' @param x A \code{numeric vector} at which to evaluate the density.
-##' @param mean A \code{numeric} scalar representing the mean of the underlying t
-##'   distribution. Defaults to 0.
-##' @param sd A \code{numeric} scalar representing the standard deviation of the
-##'   underlying t distribution. Defaults to 1.
-##' @param df A \code{numeric} scalar representing the degrees of freedom of the
-##'   underlying t distribution. Defaults to 3.
-##' @param range A \code{numeric} vector of length 2 specifying the lower and
-##'   upper truncation bounds. Defaults to \code{c(0, Inf)}, indicating
-##'   truncation from below at 0.
-##' @param log \code{Logical}; if \code{TRUE}, the natural logarithm of the
-##'   density is returned.  Defaults to \code{FALSE}.
-##' @return A numeric vector of the same length as \code{x}, containing the
-##'   (log) density values of the truncated t distribution.
-##' @seealso [stats::dt()], [stats::pt()]
-##' @author lcgodoy
-dtt <- function(x, mean = 0, sd = 1,
-                df = 3, range = c(0, Inf),
-                log = FALSE) {
-  ll <- stats::pt(q = min(range - mean) / sd, df = df)
-  hh <- stats::pt(q = max(range - mean) / sd, df = df)
-  ## 1/sd is the Jacobian of the transformation.
-  out <- stats::dt((x - mean) / sd, df = df, log = TRUE) -
-    log(hh - ll) +
-    log(sd)
-  if (!log)
-    out <- exp(out)
-  return(out)
-}
-
 ##' @title Random number generation from a truncated Student's t distribution
 ##' @description Generates random numbers from a truncated Student's t
 ##'   distribution.

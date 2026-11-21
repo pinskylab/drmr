@@ -3,7 +3,6 @@
 \name{preddrm}
 \alias{preddrm}
 \alias{predict.adrm}
-\alias{predict_drm}
 \title{Predictions based on DRM.}
 \usage{
 \method{predict}{adrm}(
@@ -16,12 +15,9 @@
   cores = 1,
   ...
 )
-
-predict_drm(...)
 }
 \arguments{
-\item{object}{An \code{adrm} object containing the output from the
-\code{\link[=fit_drm]{fit_drm()}} function.}
+\item{object}{The output from the \code{\link[=fit_drm]{fit_drm()}} function.}
 
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
@@ -34,11 +30,10 @@ when estimating survival.}
 rates at each age (rows) and time point (columns).}
 
 \item{type}{type of predictions to be computed. Admitted values are
-\itemize{
-\item \code{"predictive"} (default): posterior predictive distribution;
-\item \code{"expected"}: theoretical mean of the posterior predictive distribution;
-\item \code{"latent"}: latent density (i.e., disregarding the observation error);
-}}
+\itemize{ \item \code{"predictive"} (default): posterior predictive
+distribution; \item \code{"expected"}: theoretical mean of the posterior
+predictive distribution; \item \code{"latent"}: latent density (i.e.,
+disregarding the observation error); }}
 
 \item{seed}{a seed used for the predictions. predictions are obtained
 through Monte Carlo samples from the posterior predictive
@@ -49,7 +44,7 @@ reproducibility.}
 chains were used in the \code{drm}, then four (or less) threads are
 recommended.}
 
-\item{...}{params to be passed to \code{predict.adrm}}
+\item{...}{additional parameters to be passed to \code{$generate_quantities}}
 }
 \value{
 an object of class \code{"CmdStanGQ"} containing samples for the
@@ -57,7 +52,7 @@ posterior predictive distribution for predictions.
 }
 \description{
 Considering a new dataset (across the same sites), computes
-predictions based on the DRM passed as \code{drm}.
+predictions based on a fitted DRM.
 }
 \details{
 The function sorts \code{new_data} by site, in the site order of

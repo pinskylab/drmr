@@ -36,7 +36,7 @@
 ##'   draws.
 ##' @param prob A numeric scalar in \eqn{(0, 1)} specifying the probability mass
 ##'   of the equal-tailed credible interval. Defaults to \code{0.9}, which
-##'   produces a 90\% credible interval (i.e., the 5th and 95th percentiles)
+##'   produces a 90% credible interval (i.e., the 5th and 95th percentiles)
 ##'   together with the median.
 ##' @param ... Additional arguments passed to methods.
 ##' 
@@ -58,8 +58,8 @@ effects_drm.adrm <- function(object,
                       variable, 
                       newdata = NULL,
                       n_pts = 100,
-                      summary = TRUE, 
-                      prob = 0.95, ...) {
+                      summary = TRUE,
+                      prob = 0.9, ...) {
   process <- match.arg(process)
   stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                        "CmdStanPathfinder", "CmdStanVB")))
@@ -236,7 +236,7 @@ plot.eff_drm <- function(x, rug_data = NULL, ...) {
 ##'   not provided. Defaults to 100.
 ##' @param summary Logical. If \code{TRUE}, returns posterior quantiles. If \code{FALSE},
 ##'   returns the raw posterior draws.
-##' @param prob Numeric. Credible interval probability mass. Defaults to 0.95.
+##' @inheritParams effects_drm prob
 ##' @param ... Additional arguments.
 ##' 
 ##' @return A \code{data.frame} of class \code{dd_curve} (if \code{summary = TRUE}) 
@@ -262,8 +262,8 @@ dd_curves.adrm <- function(object,
                            density_grid = NULL, 
                            newdata = NULL, 
                            n_pts = 100, 
-                           summary = TRUE, 
-                           prob = 0.95, ...) {
+                           summary = TRUE,
+                           prob = 0.9, ...) {
   stopifnot(inherits(object$stanfit, c("CmdStanFit", "CmdStanLaplace",
                                        "CmdStanPathfinder", "CmdStanVB")))
   

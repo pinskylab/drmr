@@ -40,7 +40,7 @@ distribution assumed for density. The options are: \itemize{ \item
 (usual parametrization), with shape \code{phi} > 1 so its mean is finite;
 \item \code{"lognormal_legacy"}: log-normal with
 its usual parametrization; \item \code{"truncnorm"} a truncated normal
-distribution. }}
+distribution (not parametrized in terms of its mean)}}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero
 inflation component. Defaults to \code{~ 1} (intercept only).}
@@ -65,10 +65,9 @@ initial values come from the R random number generator, not from
 
 \item{algorithm}{a \code{character} specifying the algorithm used for
 inference. Default is \code{nuts} (the default MCMC in Stan). The
-remaining options are different flavors of variational bayes algorithms:
-"vb" (for ADVI), "pathfinder" (for Pathfinder), "laplace" (normal
-approximation centered at the mode of the posterior) or "optimize" for
-(penalized) MLEs.}
+remaining options are: "vb" (for automatic differentiation variational
+bayes), "pathfinder" (for Pathfinder), "laplace" (normal approximation
+centered at the mode of the posterior) or "optimize" for (penalized) MLEs.}
 
 \item{algo_args}{a \code{list} with arguments for the sampling
 algorithms. For instance, \code{tol_rel_obj} for variational inference.}

@@ -9,10 +9,9 @@ default_algo(algorithm = "nuts", algo_args = list())
 \arguments{
 \item{algorithm}{a \code{character} specifying the algorithm used for
 inference. Default is \code{nuts} (the default MCMC in Stan). The
-remaining options are different flavors of variational bayes algorithms:
-"vb" (for ADVI), "pathfinder" (for Pathfinder), "laplace" (normal
-approximation centered at the mode of the posterior) or "optimize" for
-(penalized) MLEs.}
+remaining options are: "vb" (for automatic differentiation variational
+bayes), "pathfinder" (for Pathfinder), "laplace" (normal approximation
+centered at the mode of the posterior) or "optimize" for (penalized) MLEs.}
 
 \item{algo_args}{a \code{list} with arguments for the sampling
 algorithms. For instance, \code{tol_rel_obj} for variational inference.}

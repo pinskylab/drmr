@@ -1,30 +1,36 @@
-# drmr (development version)
+# drmr 1.1.3
 
-- New `areas` argument of `make_data()` (and so of `fit_drm()`) for the area
-  of each site. The default is 1 for each site. A warning tells you when the
-  model uses the areas but you did not give them.
+- Fixed a bug in `effects_drm`. The documented default and code were not
+  matching.
 
-- Movement now conserves abundance (density times area). Each moving age
-  group goes through $\mathbf{A}^{-1} \mathbf{M}^\top \mathbf{A}$, where
-  $\mathbf{M} = \zeta \mathbf{I} + (1 - \zeta) \mathbf{W}$, $\mathbf{W}$ is
-  `adj_mat` with each row scaled to sum to 1, and $\mathbf{A}$ holds the site
-  areas. Row $i$ of `adj_mat` now gives where individuals at site $i$ go.
-  For an `adj_mat` that is not symmetric, this reverses the direction of
-  earlier versions. Individuals at a site with no neighbors now stay there.
-  Before, the share $1 - \zeta$ of them was lost every year.
+- Removed `lambda_drm()`, `predict_drm()`, and `predict_sdm()`. They were
+  deprecated in 0.3.1. Use `ages_edens()` and `predict()` instead.
 
-- With `acc_dd = 1`, the regional SSB is now the area-weighted mean SSB
-  density of the sites. Before, it was the sum of the SSB densities.
+- New `areas` argument of `make_data()` (and so of `fit_drm()`) for the area of
+  each site. The default is 1 for each site. A warning tells you when the model
+  uses the areas but you did not give them.
 
-- Results for models with `movement = 1`, or with density dependence and
-  `acc_dd = 1`, differ from those of earlier versions, even with equal
-  areas. Refit these models. For fits from earlier versions, `predict()`,
-  `ages_edens()`, and `get_adults()` still run, with an area of 1 for each
-  site. But they apply the new movement and regional SSB to the old draws,
-  so their results do not match the old fit.
+- Movement now conserves abundance (density times area). Each moving age group
+  goes through $\mathbf{A}^{-1} \mathbf{M}^\top \mathbf{A}$, where $\mathbf{M} =
+  \zeta \mathbf{I} + (1 - \zeta) \mathbf{W}$, $\mathbf{W}$ is `adj_mat` with
+  each row scaled to sum to 1, and $\mathbf{A}$ holds the site areas. Row $i$ of
+  `adj_mat` now gives where individuals at site $i$ go.  For an `adj_mat` that
+  is not symmetric, this reverses the direction of earlier versions. Individuals
+  at a site with no neighbors now stay there.  Before, the share $1 - \zeta$ of
+  them was lost every year.
 
-- Changes to the ICAR random effects (`sp_re`). Results of models with
-  `sp_re` change, so refit them.
+- With `acc_dd = 1`, the regional SSB is now the area-weighted mean SSB density
+  of the sites. Before, it was the sum of the SSB densities.
+
+- Results for models with `movement = 1`, or with density dependence and `acc_dd
+  = 1`, differ from those of earlier versions, even with equal areas. Refit
+  these models. For fits from earlier versions, `predict()`, `ages_edens()`, and
+  `get_adults()` still run, with an area of 1 for each site. But they apply the
+  new movement and regional SSB to the old draws, so their results do not match
+  the old fit.
+
+- Changes to the ICAR random effects (`sp_re`). Results of models with `sp_re`
+  change, so refit them.
   - Each pair of neighbors now enters the prior once. Before, a symmetric
     `adj_mat` listed each pair twice. So `sigma_s` was $\sqrt{2}$ times the
     typical marginal standard deviation of the spatial effect, and the prior
@@ -34,21 +40,21 @@
     al. (2018). Each connected group of sites gets its own sum-to-zero
     constraint and scaling factor, and each site with no neighbors gets an
     independent effect. Before, the scaling factor was huge, so the spatial
-    effect was close to zero. `gen_adj()` now accepts patches with no
-    neighbors, such as islands.
+    effect was close to zero. `gen_adj()` now accepts patches with no neighbors,
+    such as islands.
   - The prior uses only which entries of `adj_mat` are positive, in either
     direction. Before, the scaling factor of a DRM also used the weights.
-  - The effects now work when every site has the same number of neighbors,
-    and when `adj_mat` has no row names. Before, they used wrong pairs of
-    neighbors when the row names of `adj_mat` were not 1 to n in order.
+  - The effects now work when every site has the same number of neighbors, and
+    when `adj_mat` has no row names. Before, they used wrong pairs of neighbors
+    when the row names of `adj_mat` were not 1 to n in order.
   - The model parameter is now `w_s_raw`. `w_s` and `z_s` are transformed
     parameters.
 
 - `fit_drm(init = "prior")` and `fit_sdm(init = "prior")` now work.
-  `prior_sample()` drew initial values for random effects that the model did
-  not have, used wrong names and dimensions, and failed for every DRM. The
-  docs now say that, with `rho_mu = 1`, a chain can fail to start if the
-  draw of `xi` is far in the tail of its prior.
+  `prior_sample()` drew initial values for random effects that the model did not
+  have, used wrong names and dimensions, and failed for every DRM. The docs now
+  say that, with `rho_mu = 1`, a chain can fail to start if the draw of `xi` is
+  far in the tail of its prior.
 
 - Clearer errors for wrong toggles and priors:
   - A misspelled toggle value, such as `rec_dd = "Ricker"`, or a value of
@@ -65,7 +71,7 @@
 - New `sim_drm()` simulates data from a DRM for known parameter values, for
   parameter-recovery and other simulation studies.
 
-- drmr now requires R 4.3.0 or later.
+- `drmr` now requires R 4.3.0 or later.
 
 # drmr 1.1.2
 

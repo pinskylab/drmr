@@ -29,9 +29,8 @@ Imports:
   stats,
   utils,
   rlang,
-  grDevices,
-  lifecycle
-Suggests: 
+  grDevices
+Suggests:
   knitr,
   rmarkdown,
   ggplot2,

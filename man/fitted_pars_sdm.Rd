@@ -8,7 +8,9 @@ fitted_pars_sdm(data_list)
 }
 \arguments{
 \item{data_list}{a \code{list} used as input for model fitting. Typically,
-the output from the \link{make_data} function.}
+the output from \code{\link[=make_data]{make_data()}} or \code{\link[=make_data_sdm]{make_data_sdm()}}.
+\code{fitted_pars_lambda()} also needs the element \code{proj}: 1 if
+the densities are also computed for new data, and 0 otherwise.}
 }
 \value{
 a \code{character} vector with the names of the parameters.

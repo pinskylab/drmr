@@ -76,10 +76,9 @@ int_score <- function(y, l, u, alpha) {
 ##' @title Predictions based on DRM.
 ##'
 ##' @description Considering a new dataset (across the same sites), computes
-##'   predictions based on the DRM passed as \code{drm}.
+##'   predictions based on a fitted DRM.
 ##'
-##' @param object An \code{adrm} object containing the output from the
-##'   [fit_drm()] function.
+##' @param object The output from the [fit_drm()] function.
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
 ##' @param past_data a \code{data.frame} with the dataset from the last year
@@ -88,11 +87,10 @@ int_score <- function(y, l, u, alpha) {
 ##' @param f_test a \code{matrix} informing the instantaneous fishing mortality
 ##'   rates at each age (rows) and time point (columns).
 ##' @param type type of predictions to be computed. Admitted values are
-##' \itemize{
-##' \item `"predictive"` (default): posterior predictive distribution;
-##' \item `"expected"`: theoretical mean of the posterior predictive distribution;
-##' \item `"latent"`: latent density (i.e., disregarding the observation error);
-##' }
+##'   \itemize{ \item `"predictive"` (default): posterior predictive
+##'   distribution; \item `"expected"`: theoretical mean of the posterior
+##'   predictive distribution; \item `"latent"`: latent density (i.e.,
+##'   disregarding the observation error); }
 ##' @param seed a seed used for the predictions. predictions are obtained
 ##'   through Monte Carlo samples from the posterior predictive
 ##'   distribution. Therefore, a \code{seed} is needed to ensure the results'
@@ -100,8 +98,7 @@ int_score <- function(y, l, u, alpha) {
 ##' @param cores number of threads used to compute the predictions. If four
 ##'   chains were used in the \code{drm}, then four (or less) threads are
 ##'   recommended.
-##' @param ... additional parameters to be passed to
-##'   \code{$generated_quantities}
+##' @param ... additional parameters to be passed to \code{$generate_quantities}
 ##'
 ##'
 ##' @details The function sorts \code{new_data} by site, in the site order of
@@ -264,9 +261,9 @@ predict.adrm <- function(object,
 ##' @title Predictions based on SDM.
 ##'
 ##' @description Considering a new dataset (across the same sites), computes
-##'   predictions based on the SDM passed as \code{sdm}.
+##'   predictions based on a fitted SDM.
 ##'
-##' @param object An \code{sdm} object containing the output of a [fit_sdm] call.
+##' @param object The output of a [fit_sdm] call.
 ##'
 ##' @param new_data a \code{data.frame} with the dataset at which we wish to
 ##'   obtain predictions.
@@ -284,7 +281,7 @@ predict.adrm <- function(object,
 ##'   chains were used in the \code{sdm}, then four (or less) threads are
 ##'   recommended.
 ##' @param ... additional parameters to be passed to
-##'   \code{$generated_quantities}
+##'   \code{$generate_quantities}
 ##'
 ##' @details The function sorts \code{new_data} by site and time. Each site
 ##'   used to fit \code{object} must appear exactly once in each year of
@@ -388,20 +385,4 @@ predict.sdm <- function(object,
   output <- list("gq" = gq,
                  "spt" = spt)
   return(new_pred_drmr(output))
-}
-
-##' @rdname preddrm
-##' @param ... params to be passed to \code{predict.adrm}
-##' @export
-predict_drm <- function(...) {
-  lifecycle::deprecate_warn("0.3.1", "predict_drm()", "predict()")
-  predict.adrm(...)
-}
-
-##' @rdname predsdm
-##' @param ... params to be passed to \code{predict.sdm}
-##' @export
-predict_sdm <- function(...) {
-  lifecycle::deprecate_warn("0.3.1", "predict_sdm()", "predict()")
-  predict.sdm(...)
 }

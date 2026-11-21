@@ -121,20 +121,13 @@ ages_edens <- function(drm,
   return(new_aesd(output))
 }
 
-##' @rdname age_dens
-##' @param ... params to be passed to \code{age_edens}
-##' @export
-lambda_drm <- function(...) {
-  lifecycle::deprecate_warn("0.3.1", "lambda_drm()", "ages_edens()")
-  ages_edens(...)
-}
-
 ##' Extract and Summarize Age-Specific Densities
 ##'
-##' Parses the output of \code{lambda_drm} to return a data frame of
-##' age-specific densities, indexed by age, time, and patch.
+##' Parses the \code{gq} element of the [ages_edens()] output to return a data
+##' frame of age-specific densities, indexed by age, time, and patch.
 ##'
-##' @param lambda_obj A \code{CmdStanGQ} object returned by \code{lambda_drm}.
+##' @param lambda_obj A \code{CmdStanGQ} object, such as the \code{gq} element
+##'   of the [ages_edens()] output.
 ##' @param ages An optional vector of integers. If provided, the output is filtered
 ##'   to include only these specific ages.
 ##' @param probs A numeric vector of quantiles to calculate in the summary.

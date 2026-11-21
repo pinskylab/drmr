@@ -162,7 +162,7 @@ summary.drmrmodels <- function(object, probs = c(0.05, 0.5, 0.95), ...) {
   return(out)
 }
 
-##' @title Draws method for \code{adrm} and \code{sdm} objects.
+##' @title MCMC convergence diagnostics for \code{adrm} and \code{sdm} objects
 ##' @description Mirrors the behavior of \code{cmdstanr}'s \code{$draws} method
 ##'   to retrieve the samples from the posterior distribution of the models'
 ##'   parameters.

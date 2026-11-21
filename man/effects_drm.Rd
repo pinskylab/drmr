@@ -14,7 +14,7 @@ effects_drm(object, ...)
   newdata = NULL,
   n_pts = 100,
   summary = TRUE,
-  prob = 0.95,
+  prob = 0.9,
   ...
 )
 }
@@ -45,7 +45,7 @@ draws.}
 
 \item{prob}{A numeric scalar in \eqn{(0, 1)} specifying the probability mass
 of the equal-tailed credible interval. Defaults to \code{0.9}, which
-produces a 90\\% credible interval (i.e., the 5th and 95th percentiles)
+produces a 90\% credible interval (i.e., the 5th and 95th percentiles)
 together with the median.}
 }
 \value{

@@ -7,7 +7,8 @@
 summarise_adens(lambda_obj, ages = NULL, probs = c(0.05, 0.5, 0.95))
 }
 \arguments{
-\item{lambda_obj}{A \code{CmdStanGQ} object returned by \code{lambda_drm}.}
+\item{lambda_obj}{A \code{CmdStanGQ} object, such as the \code{gq} element
+of the \code{\link[=ages_edens]{ages_edens()}} output.}
 
 \item{ages}{An optional vector of integers. If provided, the output is filtered
 to include only these specific ages.}
@@ -20,6 +21,6 @@ A \code{data.frame} containing the summary statistics and parsed indices
 (age, time, patch).
 }
 \description{
-Parses the output of \code{lambda_drm} to return a data frame of
-age-specific densities, indexed by age, time, and patch.
+Parses the \code{gq} element of the \code{\link[=ages_edens]{ages_edens()}} output to return a data
+frame of age-specific densities, indexed by age, time, and patch.
 }

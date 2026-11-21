@@ -102,37 +102,6 @@ g(y) = \frac{1}{\Gamma(\phi)} \frac{\phi^\phi}{\mu^\phi} y^{\phi-1} \exp \left \
 \frac{\phi}{\mu} y \right \},
 $$
 
-## Truncated Normal
-
-The Normal density is defined as:
-$$
-g_u(y) = \frac{1}{\sqrt{2 \pi \phi^2}} \exp \left \{ - \frac{(y - \mu)^2}{2
-\phi^2} \},
-$$
-
-where $\mu$ and $\phi$ are the mean and standard devition, respectively. Since
-the Normal assignts positive density for negative values of $y$, we truncated it
-to positive values. To truncated it, we use standard results on conditional
-densities, to define
-$$
-g(y) = g_{u}(t \mid y >
-0) = \begin{cases}
-g_u(y) / K, & y > 0,
-0, & \text{ otherwise.}
-$$ 
-In the expression above, $K = \int_{0}^\infty g_u(x) dx$. Importantly, both `R`
-(`pnorm(0, mu, sigma)`) and `Stan` (`exp(normal_lccdf(0 | mu, sigma))`)) have
-functions to compute $K$ accurately.
-
-
-The mean and variance of the resulting distribution are
-$$
-E[Y] = \mu + \frac{g_{u}(0)}{\int_{0}^\infty g_u(x) dx} \phi
-$$
-and
-$$
-V[Y] = \phi^2 \left[ 1 - {\left(\frac{g_u(0)}{K}\right)}^2 \right].
-$$
 
 ## Log-logistic
 

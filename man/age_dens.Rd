@@ -3,12 +3,9 @@
 \name{age_dens}
 \alias{age_dens}
 \alias{ages_edens}
-\alias{lambda_drm}
 \title{Age-specific expected densities based on DRM.}
 \usage{
 ages_edens(drm, new_data = NULL, f_test = NULL, cores = 1)
-
-lambda_drm(...)
 }
 \arguments{
 \item{drm}{A \code{list} object containing the output from the \link{fit_drm}
@@ -22,8 +19,6 @@ rates at each age (rows) and time point (columns).}
 
 \item{cores}{number of threads used for the forecast. If four chains were
 used in the \code{drm}, then four (or less) threads are recommended.}
-
-\item{...}{params to be passed to \code{age_edens}}
 }
 \value{
 an object of class \code{"CmdStanGQ"} containing samples for the

@@ -2,15 +2,12 @@
 % Please edit documentation in R/predict.R
 \name{predict.sdm}
 \alias{predict.sdm}
-\alias{predict_sdm}
 \title{Predictions based on SDM.}
 \usage{
 \method{predict}{sdm}(object, new_data, type = "predictive", seed = 1, cores = 1, ...)
-
-predict_sdm(...)
 }
 \arguments{
-\item{object}{An \code{sdm} object containing the output of a \link{fit_sdm} call.}
+\item{object}{The output of a \link{fit_sdm} call.}
 
 \item{new_data}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
@@ -31,7 +28,8 @@ reproducibility.}
 chains were used in the \code{sdm}, then four (or less) threads are
 recommended.}
 
-\item{...}{params to be passed to \code{predict.sdm}}
+\item{...}{additional parameters to be passed to
+\code{$generate_quantities}}
 }
 \value{
 An object of class \code{CmdStanGQ} (from the \code{instantiate}
@@ -40,7 +38,7 @@ predictions.
 }
 \description{
 Considering a new dataset (across the same sites), computes
-predictions based on the SDM passed as \code{sdm}.
+predictions based on a fitted SDM.
 }
 \details{
 The function sorts \code{new_data} by site and time. Each site

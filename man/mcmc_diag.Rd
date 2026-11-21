@@ -3,7 +3,7 @@
 \name{mcmc_diag}
 \alias{mcmc_diag}
 \alias{mcmc_diag.drmrmodels}
-\title{Draws method for \code{adrm} and \code{sdm} objects.}
+\title{MCMC convergence diagnostics for \code{adrm} and \code{sdm} objects}
 \usage{
 mcmc_diag(x, ...)
 

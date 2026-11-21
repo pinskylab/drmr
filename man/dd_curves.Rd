@@ -13,7 +13,7 @@ dd_curves(object, ...)
   newdata = NULL,
   n_pts = 100,
   summary = TRUE,
-  prob = 0.95,
+  prob = 0.9,
   ...
 )
 }
@@ -35,7 +35,10 @@ not provided. Defaults to 100.}
 \item{summary}{Logical. If \code{TRUE}, returns posterior quantiles. If \code{FALSE},
 returns the raw posterior draws.}
 
-\item{prob}{Numeric. Credible interval probability mass. Defaults to 0.95.}
+\item{prob}{A numeric scalar in \eqn{(0, 1)} specifying the probability mass
+of the equal-tailed credible interval. Defaults to \code{0.9}, which
+produces a 90\% credible interval (i.e., the 5th and 95th percentiles)
+together with the median.}
 }
 \value{
 A \code{data.frame} of class \code{dd_curve} (if \code{summary = TRUE})
