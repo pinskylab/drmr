@@ -1,17 +1,10 @@
 ##' @title Age-specific expected densities based on DRM.
 ##'
-##' @param drm A \code{list} object containing the output from the [fit_drm]
-##'   function.
-##' @param new_data a \code{data.frame} with the dataset at which we wish to
-##'   obtain predictions.
-##' @param f_test a \code{matrix} informing the instantaneous fishing mortality
-##'   rates at each age (rows) and time point (columns).
-##' @param cores number of threads used for the forecast. If four chains were
-##'   used in the \code{drm}, then four (or less) threads are recommended.
+##' @inheritParams preddrm
 ##'
 ##' @details The function builds the design matrices again from
-##'   \code{new_data}. Terms that depend on the data, such as \code{scale()} or
-##'   \code{poly()}, take their values from \code{new_data}, not from the
+##'   \code{newdata}. Terms that depend on the data, such as \code{scale()} or
+##'   \code{poly()}, take their values from \code{newdata}, not from the
 ##'   training data. To standardize a covariate, use the mean and standard
 ##'   deviation from the training data. A factor must have the same levels as
 ##'   in the training data.
@@ -24,55 +17,55 @@
 ##' @name age_dens
 ##' 
 ##' @export
-ages_edens <- function(drm,
-                       new_data = NULL,
+ages_edens <- function(object,
+                       newdata = NULL,
                        f_test = NULL,
                        cores = 1) {
-  stopifnot(inherits(drm$stanfit,
+  stopifnot(inherits(object$stanfit,
                      c("CmdStanFit", "CmdStanLaplace",
                        "CmdStanPathfinder", "CmdStanVB")))  
   ##--- list for lambda_gq ----
-  gq_data <- drm$data
+  gq_data <- object$data
   gq_data$areas <- get_areas(gq_data)
   gq_data$n_edges_adj <- get_n_edges_adj(gq_data)
-  gq_data$proj <- as.integer(!is.null(new_data))
+  gq_data$proj <- as.integer(!is.null(newdata))
   
   if (gq_data$proj == 1) {
     ## lambda_gq.stan reads the rows as one block per site code, so sort by
     ## the site order of the training data (not by the raw site values),
     ## and then by time
-    ord <- order(factor(new_data[[drm$cols$site_col]],
-                        levels = drm$cols$site_levels),
-                 new_data[[drm$cols$time_col]])
-    new_data <- new_data[ord, ]
+    ord <- order(factor(newdata[[object$cols$site_col]],
+                        levels = object$cols$site_levels),
+                 newdata[[object$cols$time_col]])
+    newdata <- newdata[ord, ]
 
     ## number time points for forecasting
-    ntime_for <- length(unique(new_data[[drm$cols$time_col]]))
+    ntime_for <- length(unique(newdata[[object$cols$time_col]]))
 
-    time_for <- new_data[[drm$cols$time_col]] -
-      min(new_data[[drm$cols$time_col]]) + 1
+    time_for <- newdata[[object$cols$time_col]] -
+      min(newdata[[object$cols$time_col]]) + 1
     
     ## throw an error if predicing on new sites
-    new_sites_factor <- factor(new_data[[drm$cols$site_col]], 
-                               levels = drm$cols$site_levels)
+    new_sites_factor <- factor(newdata[[object$cols$site_col]], 
+                               levels = object$cols$site_levels)
     if (any(is.na(new_sites_factor))) {
-      stop("new_data contains sites that were not present in the training data.")
+      stop("newdata contains sites that were not present in the training data.")
     }
     new_sites_stan <- as.integer(new_sites_factor)
     
     if (is.null(f_test)) {
-      f_test <- matrix(0, ncol = ntime_for, nrow = drm$data$n_ages)
+      f_test <- matrix(0, ncol = ntime_for, nrow = object$data$n_ages)
     }
     
     gq_data$n_proj <- array(ntime_for, dim = 1)
     gq_data$time_proj <- time_for
     gq_data$site_proj <- new_sites_stan
     gq_data$f_proj <- f_test
-    gq_data$X_r <- stats::model.matrix(drm$formulas$formula_rec,
-                                       data = new_data)
-    if (drm$data$est_surv == 1) {
-      gq_data$X_mproj <- stats::model.matrix(drm$formulas$formula_surv,
-                                             data = new_data)
+    gq_data$X_r <- stats::model.matrix(object$formulas$formula_rec,
+                                       data = newdata)
+    if (object$data$est_surv == 1) {
+      gq_data$X_mproj <- stats::model.matrix(object$formulas$formula_surv,
+                                             data = newdata)
     } else {
       gq_data$X_mproj <- matrix(0, nrow = 1, ncol = 1)
     }
@@ -88,7 +81,7 @@ ages_edens <- function(drm,
   ##--- pars from model fitted ----
   pars <- fitted_pars_lambda(gq_data)
   fitted_params <-
-    drm$stanfit$draws(variables = pars)
+    object$stanfit$draws(variables = pars)
   ## load compiled lambda
   lambda_comp <-
     instantiate::stan_package_model(name = "lambda_gq",
@@ -98,21 +91,21 @@ ages_edens <- function(drm,
                         data = gq_data,
                         parallel_chains = cores)
   check_gq(output)
-  spt <- data.frame(v1 = drm$cols$site_levels[drm$data$site],
-                    v2 = drm$data$time + drm$data$time_init - 1,
-                    site_id = drm$data$site,
-                    time = drm$data$time)
-  colnames(spt)[1:2] <- rev(unname(unlist(drm$cols[2:3])))
+  spt <- data.frame(v1 = object$cols$site_levels[object$data$site],
+                    v2 = object$data$time + object$data$time_init - 1,
+                    site_id = object$data$site,
+                    time = object$data$time)
+  colnames(spt)[1:2] <- rev(unname(unlist(object$cols[2:3])))
   spt <- unique(spt)
   
   spt_proj <- NULL
   if (gq_data$proj == 1) {
     spt_proj <- data.frame(v1 = new_sites_factor,
-                           v2 = time_for + max(drm$data$time) + drm$data$time_init - 1,
+                           v2 = time_for + max(object$data$time) + object$data$time_init - 1,
                            site_id = new_sites_stan,
                            time = time_for) |>
       unique()
-    colnames(spt_proj)[1:2] <- rev(unname(unlist(drm$cols[2:3])))
+    colnames(spt_proj)[1:2] <- rev(unname(unlist(object$cols[2:3])))
   }
   
   output <- list("gq" = output,
@@ -126,19 +119,17 @@ ages_edens <- function(drm,
 ##' Parses the \code{gq} element of the [ages_edens()] output to return a data
 ##' frame of age-specific densities, indexed by age, time, and patch.
 ##'
-##' @param lambda_obj A \code{CmdStanGQ} object, such as the \code{gq} element
-##'   of the [ages_edens()] output.
+##' @inheritParams summary.CmdStanGQ object
+##' @inheritParams summary.drmrmodels probs
 ##' @param ages An optional vector of integers. If provided, the output is filtered
 ##'   to include only these specific ages.
-##' @param probs A numeric vector of quantiles to calculate in the summary.
-##'   Defaults to c(0.05, 0.5, 0.95).
 ##'
 ##' @return A \code{data.frame} containing the summary statistics and parsed indices
 ##'   (age, time, patch).
 ##' @export
-summarise_adens <- function(lambda_obj, ages = NULL,
+summarise_adens <- function(object, ages = NULL,
                             probs = c(0.05, 0.5, 0.95)) {
-  summ <- lambda_obj$summary(NULL, "mean", "sd",
+  summ <- object$summary(NULL, "mean", "sd",
                              ~quantile(., probs = probs))
   summ <- as.data.frame(summ)
   summ <- summ[grep("^lambda\\[", summ$variable), ]

@@ -7,8 +7,8 @@
 \method{plot}{drmrmodels}(x, variables = NULL, type = c("trace", "density"), ask = NULL, ...)
 }
 \arguments{
-\item{x}{An object of class \code{drmrmodels}. Typically, the output of a
-\code{fit_drm} or \code{fit_sdm} call.}
+\item{x}{An object of class \code{drmrmodels} (\code{adrm} or
+\code{sdm}). Typically, the output of a \code{\link[=fit_drm]{fit_drm()}} or \code{\link[=fit_sdm]{fit_sdm()}} call.}
 
 \item{variables}{An optional character vector of parameter names to plot. If
 \code{NULL}, plots all.}

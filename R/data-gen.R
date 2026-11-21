@@ -77,8 +77,7 @@ sim_icar <- function(neighbors, n_sites, sigma, scaling) {
 ##'   per site.
 ##' @param ssb spawning stock biomass at the previous time point, one value
 ##'   per site.
-##' @param kappa density-dependence parameter.
-##' @param rec_dd 0 for Ricker and 1 for Beverton-Holt.
+##' @inheritParams dd_init_eq
 ##' @return a \code{numeric} vector of expected recruits. Recruits are zero
 ##'   where \code{ssb} is not above \code{1e-10}.
 ##' @author lcgodoy
@@ -201,11 +200,9 @@ dd_init_eq <- function(log_rec1, log_surv1, f1, mat_weight, kappa, rec_dd,
 ##'   function uses it only if \code{minit = 2}.
 ##' @param rec_dd 0 for Ricker, 1 for Beverton-Holt, and 2 for no density
 ##'   dependence.
-##' @param kappa density-dependence parameter.
+##' @inheritParams dd_init_eq kappa acc_dd
 ##' @param amat maturity-at-age vector.
 ##' @param weight weight-at-age vector.
-##' @param acc_dd 1 to use the area-weighted mean SSB density of the whole
-##'   region, and 0 to use the SSB density of each site.
 ##' @param zeta probability of staying at the same site. \code{NULL} means no
 ##'   movement.
 ##' @param adj_mat a \code{n_sites} by \code{n_sites} adjacency
@@ -337,7 +334,7 @@ sim_obs <- function(mu, rho, likelihood, phi) {
 }
 
 ##' @title Check a data list before a simulation
-##' @param dat a \code{list} created by [make_data()].
+##' @inheritParams check_sim_pars
 ##' @return \code{dat}, invisibly. The function stops if it cannot simulate
 ##'   from \code{dat}.
 ##' @author lcgodoy
@@ -367,7 +364,8 @@ check_sim_dat <- function(dat) {
 
 ##' @title Check the parameters of a simulation
 ##' @param pars a named \code{list} of parameters. See [sim_drm()].
-##' @param dat a \code{list} created by [make_data()].
+##' @param dat a \code{list} created by [make_data()], or the \code{data}
+##'   element of a [fit_drm()] output.
 ##' @return \code{pars}, invisibly. The function stops if \code{pars} does
 ##'   not fit the model that \code{dat} defines.
 ##' @author lcgodoy
@@ -492,7 +490,7 @@ re_at <- function(pars, dat, target) {
 ##' @description Draws one set of parameters from the priors in the model
 ##'   block of \code{drm.stan}. The names and scales are the ones that
 ##'   [sim_drm()] expects.
-##' @param dat a \code{list} created by [make_data()].
+##' @inheritParams check_sim_pars
 ##' @return a named \code{list} of parameters.
 ##' @seealso [pp_sim()], [sim_drm()]
 ##' @author lcgodoy
@@ -560,7 +558,7 @@ prior_pars <- function(dat) {
 ##'
 ##' @param dat a \code{list} created by [make_data()]. The function ignores
 ##'   the response \code{y}.
-##' @param pars a named \code{list} of parameters. See [sim_drm()].
+##' @inheritParams check_sim_pars pars
 ##' @return A \code{list} with the elements below. Vectors follow the row
 ##'   order of \code{dat}: by site, then by time. \itemize{
 ##'   \item \code{y}: simulated densities.
@@ -629,8 +627,7 @@ model_sim <- function(dat, pars) {
 ##' @title Simulate from the prior predictive distribution of a DRM
 ##' @description Draws one set of parameters from the priors in
 ##'   \code{drm.stan}. Then it simulates data with [model_sim()].
-##' @param dat a \code{list} created by [make_data()], or the \code{data}
-##'   element of a [fit_drm()] output.
+##' @inheritParams check_sim_pars
 ##' @return The output of [model_sim()], plus \code{hyper_pars}: the prior
 ##'   hyperparameters.
 ##' @seealso [prior_pars()], [model_sim()]

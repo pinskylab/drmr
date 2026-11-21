@@ -23,8 +23,7 @@ make_data(
   weight = NULL,
   .toggles,
   .priors,
-  family = "gamma",
-  phi_hat = FALSE
+  family = "gamma"
 )
 }
 \arguments{
@@ -150,11 +149,9 @@ distribution assumed for density. The options are: \itemize{ \item
 \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 \code{"loglogistic"}: log-logistic parametrized in terms of its median
 (usual parametrization), with shape \code{phi} > 1 so its mean is finite;
-\item \code{"lognormal_legacy"}: log-normal with
-its usual parametrization; }}
-
-\item{phi_hat}{a \code{boolean} indicating whether the prior on \code{phi}
-should be determined through the data (using \code{\link[=get_phi_hat]{get_phi_hat()}}).}
+\item \code{"lognormal_legacy"}: log-normal with its usual
+parametrization; \item \code{"truncnorm"} a truncated normal distribution
+(not parametrized in terms of its mean)}}
 }
 \value{
 A \code{list} containing the data and settings to be used as input

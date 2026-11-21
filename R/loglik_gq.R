@@ -1,10 +1,6 @@
 ##' @title Computing the log-likelihood function fot `adrm` and `sdm` objets.
-##' @param x an object of class \code{adrm} or \code{sdm}. These objects are
-##'   generated as the output of the [fit_drm()] and [fit_sdm()] functions,
-##'   respectively,
-##' @param cores number of threads used to calculate the log-likelihood
-##'   function. If four chains were used in the \code{fit_drm} (of
-##'   \code{fit_sdm}), then four (or less) threads are recommended.
+##' @inheritParams plot.drmrmodels x
+##' @inheritParams preddrm
 ##' @return an object of class \code{"CmdStanGQ"} containing the log-likelihood
 ##'   function evaluated at each data point given each sample from the
 ##'   posterior.

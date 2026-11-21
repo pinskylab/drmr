@@ -14,13 +14,11 @@ log_lik(x, cores = 1)
 \method{log_lik}{sdm}(x, cores = 1)
 }
 \arguments{
-\item{x}{an object of class \code{adrm} or \code{sdm}. These objects are
-generated as the output of the \code{\link[=fit_drm]{fit_drm()}} and \code{\link[=fit_sdm]{fit_sdm()}} functions,
-respectively,}
+\item{x}{An object of class \code{drmrmodels} (\code{adrm} or
+\code{sdm}). Typically, the output of a \code{\link[=fit_drm]{fit_drm()}} or \code{\link[=fit_sdm]{fit_sdm()}} call.}
 
-\item{cores}{number of threads used to calculate the log-likelihood
-function. If four chains were used in the \code{fit_drm} (of
-\code{fit_sdm}), then four (or less) threads are recommended.}
+\item{cores}{number of threads used for the computations. If four chains
+were used to fit the model, then four (or less) threads are recommended.}
 }
 \value{
 an object of class \code{"CmdStanGQ"} containing the log-likelihood

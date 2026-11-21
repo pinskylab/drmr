@@ -7,7 +7,8 @@
 prior_pars(dat)
 }
 \arguments{
-\item{dat}{a \code{list} created by \code{\link[=make_data]{make_data()}}.}
+\item{dat}{a \code{list} created by \code{\link[=make_data]{make_data()}}, or the \code{data}
+element of a \code{\link[=fit_drm]{fit_drm()}} output.}
 }
 \value{
 a named \code{list} of parameters.

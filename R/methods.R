@@ -1,7 +1,8 @@
 ##' Update and Re-fit a DRM Model
 ##'
-##' @param object An object of class \code{adrm}.
-##' @param ... Arguments to be updated in the new call (e.g., .data, formula_zero, iter_sampling).
+##' @inheritParams preddrm object
+##' @param ... Arguments to be updated in the new call (e.g., .data,
+##'   formula_zero, algo_args).
 ##'
 ##' @return An updated \code{adrm} object.
 ##' @export
@@ -23,8 +24,8 @@ update.adrm <- function(object, ...) {
 
 ##' Update and Re-fit a SDM Model
 ##'
-##' @param object An object of class \code{sdm}.
-##' @param ... Arguments to be updated in the new call.
+##' @inheritParams predict.sdm object
+##' @inheritParams update.adrm
 ##'
 ##' @return An updated \code{sdm} object.
 ##' @export
@@ -46,7 +47,7 @@ update.sdm <- function(object, ...) {
 
 ##' Print method for \code{adrm} and \code{sdm} objects
 ##'
-##' @param x An object of class \code{drmrmodels}.
+##' @inheritParams plot.drmrmodels x
 ##' @param ... Additional arguments (ignored).
 ##'
 ##' @export
@@ -88,7 +89,7 @@ print.drmrmodels <- function(x, ...) {
 ##' @title Internal helper to generate parameter descriptions
 ##' @param v A character string representing the parameter name
 ##' @param covars A list of covariate names extracted from the model object
-##' @param model A list of covariate names extracted from the model object
+##' @inheritParams prior_sample model
 .get_param_description <- function(v, covars,
                                    model = c("drm", "sdm")) {
   model <- match.arg(model)
@@ -122,9 +123,10 @@ print.drmrmodels <- function(x, ...) {
 ##' Summary method for \code{adrm} and \code{sdm} objects
 ##'
 ##' @param object An object of class \code{drmrmodels}.
-##' @param probs A numeric vector of quantiles to calculate. 
+##' @param probs A numeric vector of quantiles to calculate.
 ##'   Defaults to c(0.05, 0.5, 0.95).
-##' @param ... Additional arguments (ignored).
+##' @param ... Additional arguments passed to the \code{$summary()} method of
+##'   the underlying \code{cmdstanr} object.
 ##'
 ##' @export
 summary.drmrmodels <- function(object, probs = c(0.05, 0.5, 0.95), ...) {
@@ -163,15 +165,18 @@ summary.drmrmodels <- function(object, probs = c(0.05, 0.5, 0.95), ...) {
 }
 
 ##' @title MCMC convergence diagnostics for \code{adrm} and \code{sdm} objects
-##' @description Mirrors the behavior of \code{cmdstanr}'s \code{$draws} method
-##'   to retrieve the samples from the posterior distribution of the models'
-##'   parameters.
 ##'
-##' @param x An object of class \code{adrm} or \code{sdm}.
-##' @param ... currently ignored.
+##' @inheritParams plot.drmrmodels x
+##' @param object An object of class \code{drmrdiag}, the output of
+##'   \code{mcmc_diag()}.
+##' @param ... For \code{mcmc_diag()}, additional arguments passed to the
+##'   \code{$summary()} method of the underlying \code{cmdstanr} object.
+##'   \code{summary()} ignores them.
 ##'
 ##' @author lcgodoy
-##' @return an object of class \code{"drmrdiag"}
+##' @return \code{mcmc_diag()} returns an object of class \code{"drmrdiag"}.
+##'   \code{summary()} prints the parameters with possible convergence
+##'   problems and returns them invisibly, as a \code{list}.
 ##' @name mcmc_diag
 ##' @export
 mcmc_diag <- function(x, ...) UseMethod("mcmc_diag", x)
@@ -194,6 +199,7 @@ mcmc_diag.drmrmodels <- function(x, ...) {
   return(summ)
 }
 
+##' @rdname mcmc_diag
 ##' @export
 summary.drmrdiag <- function(object, ...) {
   pars <- object$variable 
@@ -263,7 +269,7 @@ print.summary.drmrmodels <- function(x, ...) {
 ##'   to retrieve the samples from the posterior distribution of the models'
 ##'   parameters.
 ##'
-##' @param x An object of class \code{adrm} or \code{sdm}.
+##' @inheritParams plot.drmrmodels x
 ##' @param variables a string vector with the name of the variables for which we
 ##'   want to obtain posteriors samples (defaults to the same variables as the
 ##'   \code{summary} methods).
@@ -319,9 +325,7 @@ draws.drmrmodels <- function(x,
 ##' Wrapper for the summary method for \code{CmdStanGQ} objects
 ##'
 ##' @param object An object of class \code{CmdStanGQ}.
-##' @param probs A numeric vector of quantiles to calculate. 
-##'   Defaults to c(0.05, 0.5, 0.95).
-##' @param ... Additional arguments (ignored).
+##' @inheritParams summary.drmrmodels
 ##'
 ##' @export
 summary.CmdStanGQ <- function(object,
@@ -336,9 +340,7 @@ summary.CmdStanGQ <- function(object,
 ##' Summary method for \code{pred_drmr} objects
 ##'
 ##' @param object An object of class \code{pred_drmr}.
-##' @param probs A numeric vector of quantiles to calculate. 
-##'   Defaults to c(0.05, 0.5, 0.95).
-##' @param ... Additional arguments (ignored).
+##' @inheritParams summary.drmrmodels
 ##'
 ##' @export
 summary.pred_drmr <- function(object,
@@ -374,9 +376,7 @@ clean_edens <- function(x) {
 ##' Summary method for \code{aesd} objects
 ##'
 ##' @param object An object of class \code{aesd}.
-##' @param probs A numeric vector of quantiles to calculate. 
-##'   Defaults to c(0.05, 0.5, 0.95).
-##' @param ... Additional arguments (ignored).
+##' @inheritParams summary.drmrmodels
 ##'
 ##' @export
 summary.aesd <- function(object,
@@ -422,8 +422,8 @@ summary.aesd <- function(object,
 ##' @description Provides trace and density plots for the posterior draws of a
 ##'   DRM (or SDM) model.
 ##' 
-##' @param x An object of class \code{drmrmodels}. Typically, the output of a
-##'   \code{fit_drm} or \code{fit_sdm} call.
+##' @param x An object of class \code{drmrmodels} (\code{adrm} or
+##'   \code{sdm}). Typically, the output of a [fit_drm()] or [fit_sdm()] call.
 ##' @param variables An optional character vector of parameter names to plot. If
 ##'   \code{NULL}, plots all.
 ##' @param type A character vector specifying which plots to draw:
@@ -511,7 +511,7 @@ plot.drmrmodels <- function(x,
 ##' @description Generates posterior predictive check plots comparing observed
 ##'   data to simulated data from the posterior predictive distribution.
 ##' 
-##' @param x An object of class \code{drmrmodels}.
+##' @inheritParams plot.drmrmodels
 ##' @param type Character string indicating the type of plot: \code{"density"}
 ##'   (default) or \code{"ecdf"}.
 ##' @param npost Integer specifying the number of posterior draws to plot.
@@ -519,8 +519,7 @@ plot.drmrmodels <- function(x,
 ##'   because the plot tends to get too heavy.
 ##' @param transform Character string specifying the scale for plotting. Either
 ##'   \code{"none"} (default) or \code{"log1p"}.
-##' @param ... Additional graphical parameters passed to \code{plot}.
-##' 
+##'
 ##' @name ppc
 ##' @export
 ppc <- function(x, ...) UseMethod("ppc", x)

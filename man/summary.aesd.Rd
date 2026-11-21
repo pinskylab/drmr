@@ -12,7 +12,8 @@
 \item{probs}{A numeric vector of quantiles to calculate.
 Defaults to c(0.05, 0.5, 0.95).}
 
-\item{...}{Additional arguments (ignored).}
+\item{...}{Additional arguments passed to the \code{$summary()} method of
+the underlying \code{cmdstanr} object.}
 }
 \description{
 Summary method for \code{aesd} objects

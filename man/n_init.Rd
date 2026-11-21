@@ -7,7 +7,8 @@
 n_init(n_ages, rec_dd)
 }
 \arguments{
-\item{n_ages}{number of age classes.}
+\item{n_ages}{an \code{integer} indicating the number of ages for the
+underlying population dynamic model.}
 
 \item{rec_dd}{0 for Ricker, 1 for Beverton-Holt, and 2 for no density
 dependence.}

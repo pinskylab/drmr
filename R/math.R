@@ -24,11 +24,7 @@ fix_linbeta <- function(beta1, beta2, offset) {
 ##'   before being included in the linear predictor. This function returns the
 ##'   value of \eqn{x} (on its original scale) such that the linear predictor is
 ##'   maximized (or minimized).
-##' @param beta1 A \code{numeric} regression coefficient associated with the
-##'   linear term.
-##' @param beta2 A \code{numeric} regression coefficient associated with the
-##'   quadratic term.
-##' @param offset a \code{numeric} representing the "center" of \eqn{x}.
+##' @inheritParams fix_linbeta
 ##' @return A \code{numeric} value representing the uncentered \eqn{x} that maximizes
 ##'   (or minimizes) the linear predictor.
 ##' @author Lucas Godoy

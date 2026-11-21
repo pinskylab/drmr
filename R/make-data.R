@@ -101,16 +101,7 @@
 ##'   for recruitment, "surv" ICAR random effect for survival (only works when
 ##'   \code{est_surv} is on), "dens" ICAR random effect for density.}
 ##' @param .priors a \code{list} of priors hyperparameters.
-##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{ \item
-##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
-##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
-##'   \code{"loglogistic"}: log-logistic parametrized in terms of its median
-##'   (usual parametrization), with shape \code{phi} > 1 so its mean is finite;
-##'   \item \code{"lognormal_legacy"}: log-normal with
-##'   its usual parametrization; }
-##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
-##'   should be determined through the data (using [get_phi_hat()]).
+##' @inheritParams fit_drm
 ##' @return A \code{list} containing the data and settings to be used as input
 ##'   for the Stan model.
 ##' @author lcgodoy
@@ -133,8 +124,7 @@ make_data <- function(y,
                       weight = NULL,
                       .toggles,
                       .priors,
-                      family = "gamma",
-                      phi_hat = FALSE) {
+                      family = "gamma") {
   ## getting the default toggles and using user options
   stopifnot(all(!is.na(c(time))))
   stopifnot(all(!is.na(c(site))))
@@ -163,18 +153,6 @@ make_data <- function(y,
          "Set 'rec_dd' to \"ricker\" or \"bh\".", call. = FALSE)
   }
   ## getting the default priors and using user options
-  if (phi_hat) {
-    phi_hat <- get_phi_hat(y, family)
-    if (missing(.priors)) {
-      .priors <- list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat)
-    } else if (!"pr_phi_b" %in% names(.priors)) {
-      if (!"pr_phi_a" %in% names(.priors)) {
-        .priors <- c(.priors, list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat))
-      } else {
-        .priors <- c(.priors, list(pr_phi_b = .priors$pr_phi_a / phi_hat))
-      }
-    }
-  }
   priors <- default_priors() |>
     safe_modify(.priors)
   ## additional quantities that can be inferred from data
@@ -364,13 +342,8 @@ make_data <- function(y,
 ##'
 ##' @title Make data for SDM stan models
 ##' @details The function sorts the data by site and then by time.
-##' @param y a \code{numeric vector} of species' densities.
-##' @param time a \code{vector} indicating the time point associated to each
-##'   element of \code{y}.
-##' @param site a \code{vector} indicating the sites associated to each element
-##'   of \code{y}.
-##' @param z a design \code{matrix} of variables associated to the probability
-##'   of absence at each site/time.
+##' @inheritParams fit_drm
+##' @inheritParams make_data
 ##' @param x a design \code{matrix} of variables associated to the non-zero
 ##'   densities.
 ##' @param adj_mat an adjacency \code{matrix} of dimensions \code{sites}
@@ -390,17 +363,6 @@ make_data <- function(y,
 ##'   specific IID random effect to density and 0 otherwise. \item \code{sp_re}:
 ##'   1 to incorporate a site specific ICAR random effect to density and 0
 ##'   otherwise.}
-##' @param .priors a \code{list} of priors hyperparameters.
-##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{ \item
-##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
-##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
-##'   \code{"loglogistic"}: log-logistic parametrized in terms of its median
-##'   (usual parametrization), with shape \code{phi} > 1 so its mean is finite;
-##'   \item \code{"lognormal_legacy"}: log-normal with
-##'   its usual parametrization; }
-##' @param phi_hat a \code{boolean} indicating whether the prior on \code{phi}
-##'   should be determined through the data (using [get_phi_hat()]).
 ##' @return A \code{list} containing the data and settings to be used as input
 ##'   for the Stan model.
 ##' @author lcgodoy
@@ -408,13 +370,12 @@ make_data <- function(y,
 make_data_sdm <- function(y,
                           time,
                           site,
-                          z,
+                          x_t,
                           x,
                           adj_mat = matrix(0, ncol = 1, nrow = 1),
                           .toggles,
                           .priors,
-                          family = "gamma",
-                          phi_hat = FALSE) {
+                          family = "gamma") {
   ## getting the default toggles and using user options
   stopifnot(all(!is.na(c(time))))
   stopifnot(all(!is.na(c(site))))
@@ -441,18 +402,6 @@ make_data_sdm <- function(y,
     }
   }
   ## getting the default priors and using user options
-  if (phi_hat) {
-    phi_hat <- get_phi_hat(y, family)
-    if (missing(.priors)) {
-      .priors <- list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat)
-    } else if (!"pr_phi_b" %in% names(.priors)) {
-      if (!"pr_phi_a" %in% names(.priors)) {
-        .priors <- c(.priors, list(pr_phi_a = 2, pr_phi_b = 2 / phi_hat))
-      } else {
-        .priors <- c(.priors, list(pr_phi_b = .priors$pr_phi_a / phi_hat))
-      }
-    }
-  }
   priors <- default_priors() |>
     safe_modify(.priors)
   ## additional quantities that can be inferred from data
@@ -485,12 +434,12 @@ make_data_sdm <- function(y,
                                    dim = 1)
     }
   }
-  if (missing(z)) {
-    z <- matrix(1, nrow = n_time * n_sites)
+  if (missing(x_t)) {
+    x_t <- matrix(1, nrow = n_time * n_sites)
     K_z <- 1
   } else {
-    K_z <- ncol(z)
-    z <- z[my_ord, , drop = FALSE]
+    K_z <- ncol(x_t)
+    x_t <- x_t[my_ord, , drop = FALSE]
     if (length(priors$pr_beta_t_mu) < K_z)
       priors$pr_beta_t_mu <- rep(0, K_z)
     if (length(priors$pr_beta_t_sd) < K_z)
@@ -521,7 +470,7 @@ make_data_sdm <- function(y,
                  y = y,
                  X = x,
                  K_x = K_x,
-                 Z = z,
+                 Z = x_t,
                  K_z = K_z) |>
     c(icar,
       zeros,

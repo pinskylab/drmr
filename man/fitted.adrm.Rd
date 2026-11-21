@@ -7,20 +7,18 @@
 \method{fitted}{adrm}(object, type = "predictive", cores = 1, ...)
 }
 \arguments{
-\item{object}{\code{adrm} object containing the output from the \link{fit_drm}
-function.}
+\item{object}{The output from the \code{\link[=fit_drm]{fit_drm()}} function.}
 
 \item{type}{type of predictions to be computed. Admitted values are
-\itemize{
-\item \code{"predictive"} (default): posterior predictive distribution;
-\item \code{"expected"}: theoretical mean of the posterior predictive distribution;
-\item \code{"latent"}: latent density (i.e., disconsidering the observation error);
-}}
+\itemize{ \item \code{"predictive"} (default): posterior predictive
+distribution; \item \code{"expected"}: theoretical mean of the posterior
+predictive distribution; \item \code{"latent"}: latent density (i.e.,
+disregarding the observation error); }}
 
-\item{cores}{number of threads used for the forecast. If four chains were
-used in the \code{fit_drm}, then four (or less) threads are recommended.}
+\item{cores}{number of threads used for the computations. If four chains
+were used to fit the model, then four (or less) threads are recommended.}
 
-\item{...}{additional parameters to be passed to \code{$generated_quantities}}
+\item{...}{additional parameters to be passed to \code{$generate_quantities}}
 }
 \value{
 an object of class \code{"CmdStanGQ"} containing samples for the

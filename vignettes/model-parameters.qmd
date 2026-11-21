@@ -136,6 +136,3 @@ Notes on the default priors:
   prior against your data.
 - With `family = "loglogistic"`, the prior on $\phi$ is truncated to
   $\phi > 1$.
-- With `phi_hat = TRUE`, `make_data()` sets `pr_phi_b` from the data, unless
-  you give `pr_phi_b`. Then the prior mean of $\phi$ is an estimate from the
-  positive densities.

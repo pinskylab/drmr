@@ -30,7 +30,7 @@ gen_adj <- function(x) {
 ##' @title Get nodes for ICAR spatial random effects
 ##' @description Two sites are neighbors if either entry of \code{adj} for
 ##'   the pair is positive. The diagonal is ignored.
-##' @param adj adjacency \code{matrix}
+##' @inheritParams icar_data
 ##' @return A \code{list} containing the number of edges and the neighbors.
 ##'   Each pair of neighbors appears once, so the ICAR precision is the graph
 ##'   Laplacian, the matrix that [get_scaling()] uses.
@@ -47,7 +47,8 @@ get_nodes <- function(adj) {
 }
 
 ##' @title Connected components of a graph
-##' @param a a symmetric \code{logical} adjacency \code{matrix}.
+##' @param a a symmetric 0/1 or \code{logical} adjacency \code{matrix} with an
+##'   empty diagonal.
 ##' @return An \code{integer} vector with the component of each site.
 ##' @author lcgodoy
 get_components <- function(a) {
@@ -133,13 +134,13 @@ icar_data_none <- function() {
 ##'
 ##' @description Using results from Rue and Held 2005 and Morris et al. 2019.
 ##' 
-##' @param adj adjacency \code{matrix}
+##' @inheritParams get_components
 ##' @return A \code{scalar} representing the scaling factor.
 ##' @author lcgodoy
-get_scaling <- function(adj) {
-  Q <- matrix(0, nrow = nrow(adj), ncol = ncol(adj))
-  diag(Q) <- apply(adj, 1, sum)
-  Q <- Q - adj
+get_scaling <- function(a) {
+  Q <- matrix(0, nrow = nrow(a), ncol = ncol(a))
+  diag(Q) <- apply(a, 1, sum)
+  Q <- Q - a
   jitter <- max(diag(Q)) * sqrt(.Machine$double.eps)
   Q <- Q +
     diag(jitter,

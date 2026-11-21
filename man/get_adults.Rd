@@ -10,15 +10,12 @@ get_adults(object, ...)
 \method{get_adults}{adrm}(object, cores = 1, ...)
 }
 \arguments{
-\item{object}{An object of class \code{adrm}, typically the output of
-\code{\link[=fit_drm]{fit_drm()}}.}
+\item{object}{The output from the \code{\link[=fit_drm]{fit_drm()}} function.}
 
-\item{...}{additional parameters to be passed to
-\code{$generate_quantities}}
+\item{...}{additional parameters to be passed to \code{$generate_quantities}}
 
-\item{cores}{number of threads used to compute the samples. If four chains
-were used in the \code{fit_drm}, then four (or less) threads are
-recommended.}
+\item{cores}{number of threads used for the computations. If four chains
+were used to fit the model, then four (or less) threads are recommended.}
 }
 \value{
 An object of class \code{pred_drmr}, which is a \code{list} with

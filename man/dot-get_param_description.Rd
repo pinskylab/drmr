@@ -11,7 +11,8 @@
 
 \item{covars}{A list of covariate names extracted from the model object}
 
-\item{model}{A list of covariate names extracted from the model object}
+\item{model}{A \code{character} string specifying the model type. Must be
+either "drm" or "sdm". Defaults to "drm".}
 }
 \description{
 Internal helper to generate parameter descriptions

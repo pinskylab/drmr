@@ -4,16 +4,15 @@
 \alias{summarise_adens}
 \title{Extract and Summarize Age-Specific Densities}
 \usage{
-summarise_adens(lambda_obj, ages = NULL, probs = c(0.05, 0.5, 0.95))
+summarise_adens(object, ages = NULL, probs = c(0.05, 0.5, 0.95))
 }
 \arguments{
-\item{lambda_obj}{A \code{CmdStanGQ} object, such as the \code{gq} element
-of the \code{\link[=ages_edens]{ages_edens()}} output.}
+\item{object}{An object of class \code{CmdStanGQ}.}
 
 \item{ages}{An optional vector of integers. If provided, the output is filtered
 to include only these specific ages.}
 
-\item{probs}{A numeric vector of quantiles to calculate in the summary.
+\item{probs}{A numeric vector of quantiles to calculate.
 Defaults to c(0.05, 0.5, 0.95).}
 }
 \value{

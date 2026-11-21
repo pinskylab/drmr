@@ -4,17 +4,7 @@
 ##'   object. These fitted values are useful for "hindcasts" and posterior
 ##'   predictive checks.
 ##'
-##' @param object \code{adrm} object containing the output from the [fit_drm]
-##'   function.
-##' @param type type of predictions to be computed. Admitted values are
-##' \itemize{
-##' \item `"predictive"` (default): posterior predictive distribution;
-##' \item `"expected"`: theoretical mean of the posterior predictive distribution;
-##' \item `"latent"`: latent density (i.e., disconsidering the observation error);
-##' }
-##' @param cores number of threads used for the forecast. If four chains were
-##'   used in the \code{fit_drm}, then four (or less) threads are recommended.
-##' @param ... additional parameters to be passed to \code{$generated_quantities}
+##' @inheritParams preddrm
 ##'
 ##' @author lcgodoy
 ##'
@@ -61,17 +51,8 @@ fitted.adrm <- function(object,
 ##' @description Calculates the log-likelihood associated to a \code{sdm}
 ##'   obkect.
 ##'
-##' @param object A \code{sdm} object containing the output from the [fit_sdm]
-##'   function.
-##' @param type type of predictions to be computed. Admitted values are
-##' \itemize{
-##' \item `"predictive"` (default): posterior predictive distribution;
-##' \item `"expected"`: theoretical mean of the posterior predictive distribution;
-##' \item `"latent"`: latent density (i.e., disconsidering the observation error);
-##' }
-##' @param cores number of threads used for the forecast. If four chains were
-##'   used in the \code{sdm}, then four (or less) threads are recommended.
-##' @param ... additional parameters to be passed to \code{$generated_quantities}
+##' @inheritParams predict.sdm object
+##' @inheritParams preddrm
 ##'
 ##' @author lcgodoy
 ##'

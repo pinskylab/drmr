@@ -383,7 +383,7 @@ The out-of-sample predictions are obtained just as easily:
 #| label: preds
 
 predicted_rec <- predict(drm_rec,
-                         new_data = dat_test,
+                         newdata = dat_test,
                          past_data = filter(dat_train,
                                             year == max(year)),
                          seed = 2026,
@@ -393,7 +393,7 @@ predicted_rec <- predict(drm_rec,
   mutate(model = "rec", .before = 1)
 
 predicted_srv <- predict(drm_srv,
-                         new_data = dat_test,
+                         newdata = dat_test,
                          past_data = filter(dat_train,
                                             year == max(year)),
                          seed = 2026,
@@ -477,7 +477,7 @@ fitted_rl <- fitted(drm_rec, type = "latent") |>
   summary() 
 
 predicted_rl <- predict(drm_rec,
-                        new_data = dat_test,
+                        newdata = dat_test,
                         past_data = filter(dat_train,
                                            year == max(year)),
                         seed = 2026,

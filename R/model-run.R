@@ -165,47 +165,9 @@ fit_drm <- function(.data,
 ##' @export
 ##' @family models
 ##' @description Fit the SDM Stan model
-##' @param .data A \code{data frame} containing the data for the model. The
-##'   function sorts the rows by site and then by time.
-##' @param y_col A \code{character} specifying the name of the column in `.data`
-##'   that contains the response variable.
-##' @param time_col A \code{character} specifying the name of the column in
-##'   `.data` that contains the time variable.
-##' @param site_col A \code{character} specifying the name of the column in
-##'   `.data` that contains the site variable.
-##' @param family a \code{character} specifying the family of the probability
-##'   distribution assumed for density. The options are: \itemize{ \item
-##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
-##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
-##'   \code{"loglogistic"}: log-logistic parametrized in terms of its median
-##'   (usual parametrization), with shape \code{phi} > 1 so its mean is finite;
-##'   \item \code{"lognormal_legacy"}: log-normal with
-##'   its usual parametrization; \item \code{"truncnorm"} a truncated normal
-##'   distribution (not parametrized in terms of its mean)}
-##' @param formula_zero A \code{formula} specifying the model for the zero
-##'   inflation component. Defaults to `~ 1` (intercept only).
+##' @inheritParams fit_drm
 ##' @param formula_dens A \code{formula} specifying the model for the non-zero
 ##'   density component. Defaults to `~ 1` (intercept only).
-##' @param seed An \code{integer} specifying the random number seed.
-##' @param init A scalar specifying the initialization method. The default
-##'   ("cmdstan_default") lets \code{cmdstan} initialize parameters.  Other
-##'   options include: a scalar greater than zero, say \code{x}, which
-##'   initializes all parameters uniformly between \code{-x} and \code{x};
-##'   \code{0}, which initializes all parameters at \code{0}; or "prior", which
-##'   initializes parameters by sampling from their priors. With
-##'   \code{rho_mu = 1} (the default), a draw of \code{xi} far in the tail of
-##'   its prior can make the probability of a zero exactly 0 or 1. Then Stan
-##'   cannot start that chain, and the fit reports it as failed. If this
-##'   happens, draw new initial values or use another \code{init}. The
-##'   initial values come from the R random number generator, not from
-##'   \code{seed}, so call [set.seed()] with another value first.
-##' @param algorithm a \code{character} specifying the algorithm used for
-##'   inference. Default is \code{nuts} (the default MCMC in Stan). The
-##'   remaining options are: "vb" (for automatic differentiation variational
-##'   bayes), "pathfinder" (for Pathfinder), "laplace" (normal approximation
-##'   centered at the mode of the posterior) or "optimize" for (penalized) MLEs.
-##' @param algo_args a \code{list} with arguments for the sampling
-##'   algorithms. For instance, \code{tol_rel_obj} for variational inference.
 ##' @param ... Passed on to the [make_data_sdm()] function used to build the
 ##'   input \code{list} for our \code{cmdstanr} model.
 ##' @return An object of class \code{sdm} which is a \code{list} containing the
@@ -249,7 +211,7 @@ fit_sdm <- function(.data,
                              time = .data[[time_col]],
                              site = .data[[site_col]],
                              family = family,
-                             z = x_t,
+                             x_t = x_t,
                              x = x_r,
                              ...)
   site_levels <- model_dat$site_levels

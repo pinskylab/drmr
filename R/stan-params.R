@@ -10,100 +10,100 @@
 ##'   \code{fitted_pars_ll()} gives the inputs that \code{log_lik()} and
 ##'   \code{fitted()} need.
 ##'
-##' @param data_list a \code{list} used as input for model fitting. Typically,
-##'   the output from [make_data()] or [make_data_sdm()].
-##'   \code{fitted_pars_lambda()} also needs the element \code{proj}: 1 if
-##'   the densities are also computed for new data, and 0 otherwise.
-##' @param model a \code{character}: "drm" (default) or "sdm".
+##' @details \code{fitted_pars_lambda()} also needs the element \code{proj} in
+##'   \code{dat}: 1 if the densities are also computed for new data, and 0
+##'   otherwise.
+##'
+##' @inheritParams prior_sample
 ##' @return a \code{character} vector with the names of the parameters.
 ##' @author lcgodoy
-get_fitted_pars <- function(data_list, model = "drm") {
-  stopifnot(inherits(data_list, "list"))
+get_fitted_pars <- function(dat, model = "drm") {
+  stopifnot(inherits(dat, "list"))
   stopifnot(length(model) == 1)
   if (model == "drm") {
-    output <- fitted_pars_drm(data_list)
+    output <- fitted_pars_drm(dat)
   } else
-    output <- fitted_pars_sdm(data_list)
+    output <- fitted_pars_sdm(dat)
   return(output)
 }
 
-##' @inherit get_fitted_pars
-fitted_pars_drm <- function(data_list) {
+##' @rdname get_fitted_pars
+fitted_pars_drm <- function(dat) {
   output <- c("beta_t", "beta_r",
               "lambda")
-  if (data_list$rho_mu == 1)
+  if (dat$rho_mu == 1)
     output <- c(output, "xi")
-  if (data_list$likelihood == 0) {
+  if (dat$likelihood == 0) {
     output <- c(output, "sigma_obs")
   } else {
     output <- c(output, "phi")
   }
-  if (data_list$movement == 1)
+  if (dat$movement == 1)
     output <- c(output, "zeta")
-  if (data_list$rec_dd < 2)
+  if (dat$rec_dd < 2)
     output <- c(output, "kappa")
-  if (data_list$est_surv == 1)
+  if (dat$est_surv == 1)
     output <- c(output, "beta_s")
-  if (data_list$ar_re > 0)
+  if (dat$ar_re > 0)
     output <- c(output, "z_t", "alpha", "sigma_t")
-  if (data_list$iid_re > 0)
+  if (dat$iid_re > 0)
     output <- c(output, "z_i", "sigma_i")
-  if (data_list$sp_re > 0)
+  if (dat$sp_re > 0)
     output <- c(output, "z_s")
   return(output)
 }
 
-##' @inherit get_fitted_pars
-fitted_pars_sdm <- function(data_list) {
+##' @rdname get_fitted_pars
+fitted_pars_sdm <- function(dat) {
   output <- c("beta_t", "beta_r")
-  if (data_list$rho_mu == 1)
+  if (dat$rho_mu == 1)
     output <- c(output, "xi")
-  if (data_list$likelihood == 0) {
+  if (dat$likelihood == 0) {
     output <- c(output, "sigma_obs")
   } else {
     output <- c(output, "phi")
   }
-  if (data_list$ar_re == 1)
+  if (dat$ar_re == 1)
     output <- c(output, "z_t", "alpha", "sigma_t")
-  if (data_list$iid_re == 1)
+  if (dat$iid_re == 1)
     output <- c(output, "z_i")
-  if (data_list$sp_re == 1)
+  if (dat$sp_re == 1)
     output <- c(output, "z_s")
   return(output)
 }
 
-##' @inherit get_fitted_pars
-fitted_pars_lambda <- function(data_list) {
+##' @rdname get_fitted_pars
+fitted_pars_lambda <- function(dat) {
   output <- c("log_rec")
-  if (data_list$proj == 1)
+  if (dat$proj == 1)
     output <- c(output, "beta_r")
-  if (data_list$ar_re > 0)
+  if (dat$ar_re > 0)
     output <- c(output, "z_t")
-  if (data_list$proj == 1 && data_list$ar_re > 0)
+  if (dat$proj == 1 && dat$ar_re > 0)
     output <- c(output, "alpha", "sigma_t")
-  if (data_list$iid_re > 0)
+  if (dat$iid_re > 0)
     output <- c(output, "z_i")
-  if (data_list$sp_re > 0)
+  if (dat$sp_re > 0)
     output <- c(output, "z_s")
-  if (data_list$est_surv == 1)
+  if (dat$est_surv == 1)
     output <- c(output, "beta_s")
-  if (data_list$movement == 1)
+  if (dat$movement == 1)
     output <- c(output, "zeta")
-  if (data_list$rec_dd < 2)
+  if (dat$rec_dd < 2)
     output <- c(output, "kappa")
-  if (data_list$est_init == 1)
+  if (dat$est_init == 1)
     output <- c(output, "log_init")
-  if (data_list$minit == 2 && data_list$rec_dd < 2)
+  if (dat$minit == 2 && dat$rec_dd < 2)
     output <- c(output, "log_init_scale")
   return(output)
 }
 
-##' @inherit get_fitted_pars
-fitted_pars_ll <- function(data_list) {
+##' @rdname get_fitted_pars
+fitted_pars_ll <- function(dat) {
   output <- c("mu", "beta_t")
-  if (data_list$rho_mu == 1)
+  if (dat$rho_mu == 1)
     output <- c(output, "lxi")
-  if (data_list$likelihood == 0) {
+  if (dat$likelihood == 0) {
     output <- c(output, "sigma_obs")
   } else {
     output <- c(output, "phi")

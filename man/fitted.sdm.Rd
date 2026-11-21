@@ -7,20 +7,18 @@
 \method{fitted}{sdm}(object, type = "predictive", cores = 1, ...)
 }
 \arguments{
-\item{object}{A \code{sdm} object containing the output from the \link{fit_sdm}
-function.}
+\item{object}{The output of a \link{fit_sdm} call.}
 
 \item{type}{type of predictions to be computed. Admitted values are
-\itemize{
-\item \code{"predictive"} (default): posterior predictive distribution;
-\item \code{"expected"}: theoretical mean of the posterior predictive distribution;
-\item \code{"latent"}: latent density (i.e., disconsidering the observation error);
-}}
+\itemize{ \item \code{"predictive"} (default): posterior predictive
+distribution; \item \code{"expected"}: theoretical mean of the posterior
+predictive distribution; \item \code{"latent"}: latent density (i.e.,
+disregarding the observation error); }}
 
-\item{cores}{number of threads used for the forecast. If four chains were
-used in the \code{sdm}, then four (or less) threads are recommended.}
+\item{cores}{number of threads used for the computations. If four chains
+were used to fit the model, then four (or less) threads are recommended.}
 
-\item{...}{additional parameters to be passed to \code{$generated_quantities}}
+\item{...}{additional parameters to be passed to \code{$generate_quantities}}
 }
 \value{
 an object of class \code{"CmdStanGQ"} containing samples for the

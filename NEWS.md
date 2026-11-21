@@ -6,6 +6,15 @@
 - Removed `lambda_drm()`, `predict_drm()`, and `predict_sdm()`. They were
   deprecated in 0.3.1. Use `ages_edens()` and `predict()` instead.
 
+- Removed the `phi_hat` argument of `make_data()` and `make_data_sdm()`. To
+  set the prior on $\phi$, use `pr_phi_a` and `pr_phi_b` in `.priors`.
+
+- Renamed some arguments. The old names no longer work.
+  - `new_data` is now `newdata` in `predict()` and `ages_edens()`.
+  - `drm` is now `object` in `ages_edens()`.
+  - `z` is now `x_t` in `make_data_sdm()`.
+  - `lambda_obj` is now `object` in `summarise_adens()`.
+
 - New `areas` argument of `make_data()` (and so of `fit_drm()`) for the area of
   each site. The default is 1 for each site. A warning tells you when the model
   uses the areas but you did not give them.

@@ -18,8 +18,7 @@
 ##'   training data. A factor must have the same levels as in the training
 ##'   data.
 ##'
-##' @param object An object of class \code{adrm}, typically the output of
-##'   \code{fit_drm()}.
+##' @inheritParams preddrm object
 ##' @param process A character string indicating the process to evaluate:
 ##'   \code{"rec"} (recruitment), \code{"surv"} (survival), or \code{"pabs"}
 ##'   (probability of absence).
@@ -226,19 +225,15 @@ plot.eff_drm <- function(x, rug_data = NULL, ...) {
 ##' @description Computes expected recruitment across a grid of Spawning Stock Biomass (density)
 ##'   values, optionally conditioned on environmental regimes.
 ##' 
-##' @param object An object of class \code{adrm}, typically the output of
-##'   \code{fit_drm()}.
-##' @param density_grid A numeric vector of density values to evaluate. If \code{NULL}, a default 
+##' @inheritParams preddrm object
+##' @param density_grid A numeric vector of density values to evaluate. If \code{NULL}, a default
 ##'   sequence is generated from 0 to the maximum observed response.
-##' @param newdata An optional \code{data.frame} of environmental covariates. Each row 
+##' @param newdata An optional \code{data.frame} of environmental covariates. Each row
 ##'   represents a distinct environmental regime.
 ##' @param n_pts Integer. Number of points for the default \code{density_grid} when it is
 ##'   not provided. Defaults to 100.
-##' @param summary Logical. If \code{TRUE}, returns posterior quantiles. If \code{FALSE},
-##'   returns the raw posterior draws.
-##' @inheritParams effects_drm prob
-##' @param ... Additional arguments.
-##' 
+##' @inheritParams effects_drm
+##'
 ##' @return A \code{data.frame} of class \code{dd_curve} (if \code{summary = TRUE}) 
 ##'   containing the Stock-Recruitment evaluations.
 ##'
@@ -451,7 +446,7 @@ dd_curves.adrm <- function(object,
 ##' 
 ##' @param x An object of class \code{dd_curve}, usually the output of
 ##'   \code{dd_curves()}.
-##' @param ... Additional arguments passed to the underlying plotting functions.
+##' @inheritParams plot.eff_drm
 ##' 
 ##' @export
 plot.dd_curve <- function(x, ...) {

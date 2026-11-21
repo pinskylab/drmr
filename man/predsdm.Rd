@@ -4,32 +4,29 @@
 \alias{predict.sdm}
 \title{Predictions based on SDM.}
 \usage{
-\method{predict}{sdm}(object, new_data, type = "predictive", seed = 1, cores = 1, ...)
+\method{predict}{sdm}(object, newdata, type = "predictive", seed = 1, cores = 1, ...)
 }
 \arguments{
 \item{object}{The output of a \link{fit_sdm} call.}
 
-\item{new_data}{a \code{data.frame} with the dataset at which we wish to
+\item{newdata}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
 
 \item{type}{type of predictions to be computed. Admitted values are
-\itemize{
-\item \code{"predictive"} (default): posterior predictive distribution;
-\item \code{"expected"}: theoretical mean of the posterior predictive distribution;
-\item \code{"latent"}: latent density (i.e., disregarding the observation error);
-}}
+\itemize{ \item \code{"predictive"} (default): posterior predictive
+distribution; \item \code{"expected"}: theoretical mean of the posterior
+predictive distribution; \item \code{"latent"}: latent density (i.e.,
+disregarding the observation error); }}
 
-\item{seed}{a seed used for the predictions. predictions are obtained
+\item{seed}{a seed used for the predictions. Predictions are obtained
 through Monte Carlo samples from the posterior predictive
 distribution. Therefore, a \code{seed} is needed to ensure the results'
 reproducibility.}
 
-\item{cores}{number of threads used to compute the predictions. If four
-chains were used in the \code{sdm}, then four (or less) threads are
-recommended.}
+\item{cores}{number of threads used for the computations. If four chains
+were used to fit the model, then four (or less) threads are recommended.}
 
-\item{...}{additional parameters to be passed to
-\code{$generate_quantities}}
+\item{...}{additional parameters to be passed to \code{$generate_quantities}}
 }
 \value{
 An object of class \code{CmdStanGQ} (from the \code{instantiate}
@@ -41,15 +38,15 @@ Considering a new dataset (across the same sites), computes
 predictions based on a fitted SDM.
 }
 \details{
-The function sorts \code{new_data} by site and time. Each site
+The function sorts \code{newdata} by site and time. Each site
 used to fit \code{object} must appear exactly once in each year of
-\code{new_data}. All years in \code{new_data} must come after the last
+\code{newdata}. All years in \code{newdata} must come after the last
 training year. The years can have gaps: the AR term, if any, also steps
 through the missing years.
 
-The function builds the design matrices again from \code{new_data}.
+The function builds the design matrices again from \code{newdata}.
 Terms that depend on the data, such as \code{scale()} or \code{poly()},
-take their values from \code{new_data}, not from the training data. To
+take their values from \code{newdata}, not from the training data. To
 standardize a covariate, use the mean and standard deviation from the
 training data. A factor must have the same levels as in the training
 data.

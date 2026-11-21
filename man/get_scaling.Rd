@@ -4,10 +4,11 @@
 \alias{get_scaling}
 \title{Scaling factor for ICAR}
 \usage{
-get_scaling(adj)
+get_scaling(a)
 }
 \arguments{
-\item{adj}{adjacency \code{matrix}}
+\item{a}{a symmetric 0/1 or \code{logical} adjacency \code{matrix} with an
+empty diagonal.}
 }
 \value{
 A \code{scalar} representing the scaling factor.

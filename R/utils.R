@@ -55,8 +55,7 @@ toggle_code <- function(x, codes, name) {
 }
 
 ##' @title Random effects verbose to code
-##' @param x a \code{character} or \code{numeric} scalar.
-##' @param name the name of the toggle, for the error message.
+##' @inheritParams toggle_code
 ##' @return A \code{numeric} scalar.
 ##' @author lcgodoy
 fix_re <- function(x, name = "random effect toggle") {
@@ -64,7 +63,7 @@ fix_re <- function(x, name = "random effect toggle") {
 }
 
 ##' @title Density dependence verbose to code
-##' @param x a \code{character} or \code{numeric} scalar.
+##' @inheritParams toggle_code
 ##' @return A \code{numeric} scalar.
 ##' @author lcgodoy
 fix_dd <- function(x) {
@@ -76,35 +75,12 @@ fix_dd <- function(x) {
 ##'   densities of ages 1 to \code{n_ages}. Without it, recruitment gives the
 ##'   density of age 1, so the first time point needs ages 2 to
 ##'   \code{n_ages} only.
-##' @param n_ages number of age classes.
-##' @param rec_dd 0 for Ricker, 1 for Beverton-Holt, and 2 for no density
-##'   dependence.
+##' @inheritParams make_data
+##' @inheritParams pop_dyn
 ##' @return A \code{numeric} scalar.
 ##' @author lcgodoy
 n_init <- function(n_ages, rec_dd) {
   if (rec_dd < 2) n_ages else n_ages - 1
-}
-
-##' @title Estimate phi
-##' @inheritParams make_data
-##' @return A \code{numeric} scalar representing an estimate for phi.
-##' @author lcgodoy
-get_phi_hat <- function(y, family) {
-  if (family == "gamma") {
-    ng0 <- sum(y > 0)
-    xbar <- mean(y[y > 0])
-    xbar2 <- xbar * xbar
-    s2 <- stats::var(y[y > 0]) * (ng0 - 1) / ng0
-    return(xbar2 * s2)
-  } else if (family == "lognormal") {
-    lxbar <- mean(log(y[y > 0]))
-    ng0 <- sum(y > 0)
-    ls2 <- stats::var(log(y[y > 0])) * (ng0 - 1) / ng0
-    muhat <- exp(lxbar + 0.5 * ls2)
-    return(muhat * muhat * (exp(ls2) - 1))
-  } else {
-    return(1)
-  }
 }
 
 ##' @title Zeros and nonzeros

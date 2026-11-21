@@ -5,20 +5,19 @@
 \alias{ages_edens}
 \title{Age-specific expected densities based on DRM.}
 \usage{
-ages_edens(drm, new_data = NULL, f_test = NULL, cores = 1)
+ages_edens(object, newdata = NULL, f_test = NULL, cores = 1)
 }
 \arguments{
-\item{drm}{A \code{list} object containing the output from the \link{fit_drm}
-function.}
+\item{object}{The output from the \code{\link[=fit_drm]{fit_drm()}} function.}
 
-\item{new_data}{a \code{data.frame} with the dataset at which we wish to
+\item{newdata}{a \code{data.frame} with the dataset at which we wish to
 obtain predictions.}
 
 \item{f_test}{a \code{matrix} informing the instantaneous fishing mortality
 rates at each age (rows) and time point (columns).}
 
-\item{cores}{number of threads used for the forecast. If four chains were
-used in the \code{drm}, then four (or less) threads are recommended.}
+\item{cores}{number of threads used for the computations. If four chains
+were used to fit the model, then four (or less) threads are recommended.}
 }
 \value{
 an object of class \code{"CmdStanGQ"} containing samples for the
@@ -29,8 +28,8 @@ Age-specific expected densities based on DRM.
 }
 \details{
 The function builds the design matrices again from
-\code{new_data}. Terms that depend on the data, such as \code{scale()} or
-\code{poly()}, take their values from \code{new_data}, not from the
+\code{newdata}. Terms that depend on the data, such as \code{scale()} or
+\code{poly()}, take their values from \code{newdata}, not from the
 training data. To standardize a covariate, use the mean and standard
 deviation from the training data. A factor must have the same levels as
 in the training data.

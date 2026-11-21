@@ -7,9 +7,10 @@
 \method{update}{sdm}(object, ...)
 }
 \arguments{
-\item{object}{An object of class \code{sdm}.}
+\item{object}{The output of a \link{fit_sdm} call.}
 
-\item{...}{Arguments to be updated in the new call.}
+\item{...}{Arguments to be updated in the new call (e.g., .data,
+formula_zero, algo_args).}
 }
 \value{
 An updated \code{sdm} object.

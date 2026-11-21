@@ -7,7 +7,8 @@
 get_nodes(adj)
 }
 \arguments{
-\item{adj}{adjacency \code{matrix}}
+\item{adj}{adjacency \code{matrix}. Two sites are neighbors if either
+entry for the pair is positive. Weights and the diagonal are ignored.}
 }
 \value{
 A \code{list} containing the number of edges and the neighbors.

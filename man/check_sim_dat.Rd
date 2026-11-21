@@ -7,7 +7,8 @@
 check_sim_dat(dat)
 }
 \arguments{
-\item{dat}{a \code{list} created by \code{\link[=make_data]{make_data()}}.}
+\item{dat}{a \code{list} created by \code{\link[=make_data]{make_data()}}, or the \code{data}
+element of a \code{\link[=fit_drm]{fit_drm()}} output.}
 }
 \value{
 \code{dat}, invisibly. The function stops if it cannot simulate

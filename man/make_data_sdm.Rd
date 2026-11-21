@@ -8,13 +8,12 @@ make_data_sdm(
   y,
   time,
   site,
-  z,
+  x_t,
   x,
   adj_mat = matrix(0, ncol = 1, nrow = 1),
   .toggles,
   .priors,
-  family = "gamma",
-  phi_hat = FALSE
+  family = "gamma"
 )
 }
 \arguments{
@@ -26,7 +25,7 @@ element of \code{y}.}
 \item{site}{a \code{vector} indicating the sites associated to each element
 of \code{y}.}
 
-\item{z}{a design \code{matrix} of variables associated to the probability
+\item{x_t}{a design \code{matrix} of variables associated to the probability
 of absence at each site/time.}
 
 \item{x}{a design \code{matrix} of variables associated to the non-zero
@@ -59,11 +58,9 @@ distribution assumed for density. The options are: \itemize{ \item
 \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 \code{"loglogistic"}: log-logistic parametrized in terms of its median
 (usual parametrization), with shape \code{phi} > 1 so its mean is finite;
-\item \code{"lognormal_legacy"}: log-normal with
-its usual parametrization; }}
-
-\item{phi_hat}{a \code{boolean} indicating whether the prior on \code{phi}
-should be determined through the data (using \code{\link[=get_phi_hat]{get_phi_hat()}}).}
+\item \code{"lognormal_legacy"}: log-normal with its usual
+parametrization; \item \code{"truncnorm"} a truncated normal distribution
+(not parametrized in terms of its mean)}}
 }
 \value{
 A \code{list} containing the data and settings to be used as input

@@ -31,13 +31,7 @@
 ##'   observation error, or random effects acting directly on the density
 ##'   (i.e., \code{"dens"}).
 ##'
-##' @param object An object of class \code{adrm}, typically the output of
-##'   [fit_drm()].
-##' @param cores number of threads used to compute the samples. If four chains
-##'   were used in the \code{fit_drm}, then four (or less) threads are
-##'   recommended.
-##' @param ... additional parameters to be passed to
-##'   \code{$generate_quantities}
+##' @inheritParams preddrm
 ##'
 ##' @return An object of class \code{pred_drmr}, which is a \code{list} with
 ##'   the elements: \itemize{ \item \code{gq}: a \code{"CmdStanGQ"} object

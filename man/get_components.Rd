@@ -7,7 +7,8 @@
 get_components(a)
 }
 \arguments{
-\item{a}{a symmetric \code{logical} adjacency \code{matrix}.}
+\item{a}{a symmetric 0/1 or \code{logical} adjacency \code{matrix} with an
+empty diagonal.}
 }
 \value{
 An \code{integer} vector with the component of each site.

@@ -18,10 +18,9 @@ dd_curves(object, ...)
 )
 }
 \arguments{
-\item{object}{An object of class \code{adrm}, typically the output of
-\code{fit_drm()}.}
+\item{object}{The output from the \code{\link[=fit_drm]{fit_drm()}} function.}
 
-\item{...}{Additional arguments.}
+\item{...}{Additional arguments passed to methods.}
 
 \item{density_grid}{A numeric vector of density values to evaluate. If \code{NULL}, a default
 sequence is generated from 0 to the maximum observed response.}
@@ -32,8 +31,9 @@ represents a distinct environmental regime.}
 \item{n_pts}{Integer. Number of points for the default \code{density_grid} when it is
 not provided. Defaults to 100.}
 
-\item{summary}{Logical. If \code{TRUE}, returns posterior quantiles. If \code{FALSE},
-returns the raw posterior draws.}
+\item{summary}{Logical. If \code{TRUE} (the default), returns the quantiles
+of the posterior predictions. If \code{FALSE}, returns the raw posterior
+draws.}
 
 \item{prob}{A numeric scalar in \eqn{(0, 1)} specifying the probability mass
 of the equal-tailed credible interval. Defaults to \code{0.9}, which

@@ -26,20 +26,20 @@ rtt <- function(n, mean = 0, sd = 1,
   mean + stats::qt(p = u, df = df) * sd
 }
 
-##' @title Density of a truncated Normal distribution
-##' @description Calculates the density of a truncated Normal distribution.
+##' @title Truncated Normal distribution
+##' @description \code{dtn()} calculates the density of a truncated Normal
+##'   distribution.
 ##' @param x A \code{numeric vector} at which to evaluate the density.
 ##' @param mean A \code{numeric} scalar representing the mean of the underlying
 ##'   normal distribution. Defaults to 0.
 ##' @param sd A \code{numeric} scalar representing the standard deviation of the
 ##'   underlying normal distribution. Defaults to 1.
-##' @param range A \code{numeric} vector of length 2 specifying the lower and
-##'   upper truncation bounds. Defaults to `c(0, Inf)`, indicating truncation
-##'   from below at 0.
+##' @inheritParams rtt range n
 ##' @param log \code{Logical}; if \code{TRUE}, the natural logarithm of the
 ##'   density is returned. Defaults to \code{FALSE}.
-##' @return A numeric vector of the same length as \code{x}, containing the
-##'   (log) density values of the truncated normal distribution.
+##' @return \code{dtn()} returns a numeric vector of the same length as
+##'   \code{x}, containing the (log) density values of the truncated normal
+##'   distribution.
 ##' @seealso [stats::dnorm()], [stats::pnorm()]
 ##' @author lcgodoy
 dtn <- function(x, mean = 0, sd = 1, range = c(0, Inf),
@@ -53,21 +53,13 @@ dtn <- function(x, mean = 0, sd = 1, range = c(0, Inf),
   return(out)
 }
 
-##' @title Random number generation from a truncated Normal distribution
-##' @description Generates random numbers from a truncated Normal distribution.
-##' @param n An \code{integer} specifying the number of random samples to
-##'   generate.
-##' @param mean A \code{numeric} scalar representing the mean of the underlying
-##'   normal distribution. Defaults to 0.
-##' @param sd A \code{numeric} scalar representing the standard deviation of the
-##'   underlying normal distribution. Defaults to 1.
-##' @param range A \code{numeric vector} of length 2 specifying the lower and
-##'   upper truncation bounds. Defaults to \code{c(0, Inf)}, indicating
-##'   truncation from below at 0.
-##' @return A \code{numeric vector} of length \code{n} containing random numbers
-##'   drawn from the specified truncated normal distribution.
+##' @description \code{rtn()} generates random numbers from a truncated Normal
+##'   distribution.
+##' @return \code{rtn()} returns a \code{numeric vector} of length \code{n}
+##'   containing random numbers drawn from the specified truncated normal
+##'   distribution.
 ##' @seealso [stats::rnorm()], [stats::qnorm()]
-##' @author lcgodoy
+##' @rdname dtn
 rtn <- function(n, mean = 0, sd = 1, range = c(0, Inf)) {
   lo <- min(range)
   hi <- max(range)

@@ -7,9 +7,10 @@
 \method{update}{adrm}(object, ...)
 }
 \arguments{
-\item{object}{An object of class \code{adrm}.}
+\item{object}{The output from the \code{\link[=fit_drm]{fit_drm()}} function.}
 
-\item{...}{Arguments to be updated in the new call (e.g., .data, formula_zero, iter_sampling).}
+\item{...}{Arguments to be updated in the new call (e.g., .data,
+formula_zero, algo_args).}
 }
 \value{
 An updated \code{adrm} object.

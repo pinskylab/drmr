@@ -19,8 +19,7 @@ effects_drm(object, ...)
 )
 }
 \arguments{
-\item{object}{An object of class \code{adrm}, typically the output of
-\code{fit_drm()}.}
+\item{object}{The output from the \code{\link[=fit_drm]{fit_drm()}} function.}
 
 \item{...}{Additional arguments passed to methods.}
 

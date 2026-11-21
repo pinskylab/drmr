@@ -16,7 +16,8 @@ draws(x, ...)
 )
 }
 \arguments{
-\item{x}{An object of class \code{adrm} or \code{sdm}.}
+\item{x}{An object of class \code{drmrmodels} (\code{adrm} or
+\code{sdm}). Typically, the output of a \code{\link[=fit_drm]{fit_drm()}} or \code{\link[=fit_sdm]{fit_sdm()}} call.}
 
 \item{...}{currently ignored.}
 

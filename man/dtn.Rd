@@ -2,9 +2,12 @@
 % Please edit documentation in R/distributions.R
 \name{dtn}
 \alias{dtn}
-\title{Density of a truncated Normal distribution}
+\alias{rtn}
+\title{Truncated Normal distribution}
 \usage{
 dtn(x, mean = 0, sd = 1, range = c(0, Inf), log = FALSE)
+
+rtn(n, mean = 0, sd = 1, range = c(0, Inf))
 }
 \arguments{
 \item{x}{A \code{numeric vector} at which to evaluate the density.}
@@ -15,22 +18,36 @@ normal distribution. Defaults to 0.}
 \item{sd}{A \code{numeric} scalar representing the standard deviation of the
 underlying normal distribution. Defaults to 1.}
 
-\item{range}{A \code{numeric} vector of length 2 specifying the lower and
+\item{range}{A \code{numeric vector} of length 2 specifying the lower and
 upper truncation bounds. Defaults to \code{c(0, Inf)}, indicating truncation
 from below at 0.}
 
 \item{log}{\code{Logical}; if \code{TRUE}, the natural logarithm of the
 density is returned. Defaults to \code{FALSE}.}
+
+\item{n}{An \code{integer} specifying the number of random numbers to
+generate.}
 }
 \value{
-A numeric vector of the same length as \code{x}, containing the
-(log) density values of the truncated normal distribution.
+\code{dtn()} returns a numeric vector of the same length as
+\code{x}, containing the (log) density values of the truncated normal
+distribution.
+
+\code{rtn()} returns a \code{numeric vector} of length \code{n}
+containing random numbers drawn from the specified truncated normal
+distribution.
 }
 \description{
-Calculates the density of a truncated Normal distribution.
+\code{dtn()} calculates the density of a truncated Normal
+distribution.
+
+\code{rtn()} generates random numbers from a truncated Normal
+distribution.
 }
 \seealso{
 \code{\link[stats:dnorm]{stats::dnorm()}}, \code{\link[stats:pnorm]{stats::pnorm()}}
+
+\code{\link[stats:rnorm]{stats::rnorm()}}, \code{\link[stats:qnorm]{stats::qnorm()}}
 }
 \author{
 lcgodoy

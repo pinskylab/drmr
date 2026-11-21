@@ -3,24 +3,33 @@
 \name{mcmc_diag}
 \alias{mcmc_diag}
 \alias{mcmc_diag.drmrmodels}
+\alias{summary.drmrdiag}
 \title{MCMC convergence diagnostics for \code{adrm} and \code{sdm} objects}
 \usage{
 mcmc_diag(x, ...)
 
 \method{mcmc_diag}{drmrmodels}(x, ...)
+
+\method{summary}{drmrdiag}(object, ...)
 }
 \arguments{
-\item{x}{An object of class \code{adrm} or \code{sdm}.}
+\item{x}{An object of class \code{drmrmodels} (\code{adrm} or
+\code{sdm}). Typically, the output of a \code{\link[=fit_drm]{fit_drm()}} or \code{\link[=fit_sdm]{fit_sdm()}} call.}
 
-\item{...}{currently ignored.}
+\item{...}{For \code{mcmc_diag()}, additional arguments passed to the
+\code{$summary()} method of the underlying \code{cmdstanr} object.
+\code{summary()} ignores them.}
+
+\item{object}{An object of class \code{drmrdiag}, the output of
+\code{mcmc_diag()}.}
 }
 \value{
-an object of class \code{"drmrdiag"}
+\code{mcmc_diag()} returns an object of class \code{"drmrdiag"}.
+\code{summary()} prints the parameters with possible convergence
+problems and returns them invisibly, as a \code{list}.
 }
 \description{
-Mirrors the behavior of \code{cmdstanr}'s \code{$draws} method
-to retrieve the samples from the posterior distribution of the models'
-parameters.
+MCMC convergence diagnostics for \code{adrm} and \code{sdm} objects
 }
 \author{
 lcgodoy

@@ -9,7 +9,8 @@ check_sim_pars(pars, dat)
 \arguments{
 \item{pars}{a named \code{list} of parameters. See \code{\link[=sim_drm]{sim_drm()}}.}
 
-\item{dat}{a \code{list} created by \code{\link[=make_data]{make_data()}}.}
+\item{dat}{a \code{list} created by \code{\link[=make_data]{make_data()}}, or the \code{data}
+element of a \code{\link[=fit_drm]{fit_drm()}} output.}
 }
 \value{
 \code{pars}, invisibly. The function stops if \code{pars} does
