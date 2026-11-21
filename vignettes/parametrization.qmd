@@ -16,7 +16,7 @@ vignette: >
 ## TL; DR {.unnumbered}
 
 This document states the parametrization used for the positive density functions
-used in the package.
+used in the package. Unlike the Log-Normal
 
 ## Log-normal
 
@@ -56,27 +56,17 @@ $$
 \end{align*}
 $$
 
-Alternatively, one may set 
-$$
-\phi = [\exp \{ \tau \} - 1] \exp \{2 \eta + \tau \}.
-$$
-Which yields:
-\begin{align*}
-\eta = \log \left ( \frac{\mu^2}{\sqrt{\phi + \mu^2}} \right) \\
-\tau = \log \left ( \frac{\phi + \mu^2}{\mu^2} \right).
-\end{align*}
 
-
-For simplicity, we work with the first option, which yields the following
-density:
+The parametrization above yields the following density:
 $$
 g(y) = {(\pi \phi)}^{-1/2} y^{-1} \exp \left \{ - \frac{1}{\phi} {(\log y -
 \log \mu + \phi)}^{2} \right \}.
 $$
 
+
 ## Gamma
 
-Similarly, let~$Y \sim Gamma(\alpha, \beta)$, with density given by:
+Similarly, let $Y \sim Gamma(\alpha, \beta)$, with density given by:
 $$
 g(y) = \frac{\beta^\alpha}{\Gamma(\alpha)} y^{\alpha-1} \exp\{- \beta y \},
 $$
@@ -111,5 +101,55 @@ $$
 g(y) = \frac{1}{\Gamma(\phi)} \frac{\phi^\phi}{\mu^\phi} y^{\phi-1} \exp \left \{-
 \frac{\phi}{\mu} y \right \},
 $$
+
+## Truncated Normal
+
+The Normal density is defined as:
+$$
+g_u(y) = \frac{1}{\sqrt{2 \pi \phi^2}} \exp \left \{ - \frac{(y - \mu)^2}{2
+\phi^2} \},
+$$
+
+where $\mu$ and $\phi$ are the mean and standard devition, respectively. Since
+the Normal assignts positive density for negative values of $y$, we truncated it
+to positive values. To truncated it, we use standard results on conditional
+densities, to define
+$$
+g(y) = g_{u}(t \mid y >
+0) = \begin{cases}
+g_u(y) / K, & y > 0,
+0, & \text{ otherwise.}
+$$ 
+In the expression above, $K = \int_{0}^\infty g_u(x) dx$. Importantly, both `R`
+(`pnorm(0, mu, sigma)`) and `Stan` (`exp(normal_lccdf(0 | mu, sigma))`)) have
+functions to compute $K$ accurately.
+
+
+The mean and variance of the resulting distribution are
+$$
+E[Y] = \mu + \frac{g_{u}(0)}{\int_{0}^\infty g_u(x) dx} \phi
+$$
+and
+$$
+V[Y] = \phi^2 \left[ 1 - {\left(\frac{g_u(0)}{K}\right)}^2 \right].
+$$
+
+## Log-logistic
+
+The density of a Log-logistic is:
+$$
+g(y) = \frac{(\mu / \phi)(y / \phi)^{\mu - 1}}{1 + (x / \mu)^{\phi}},
+$$
+where $\mu$ is the median of $Y$. The mean of this distribution is
+$$
+E[Y] = \frac{\mu \pi / \phi}{\sin (\pi / \phi)}, \text{ for } \phi > 1,
+$$
+while the variance is:
+$$
+V[Y] = \mu^2 \left(\frac{(2 \pi / \phi)}{\sin (2 \pi / \phi)} - 
+\frac{(\pi / \phi)^2}{\sin^2 (\pi / \phi)} \right), \text{ for } \phi > 2.
+$$
+When $\phi < 1$ both the mean and variance are $\infty$, and when $\phi \in (1,
+2)$ the variance is $\infty$.
 
 ## References
