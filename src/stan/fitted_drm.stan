@@ -12,7 +12,7 @@ data {
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> cloglog;
   int<lower = 0, upper = 1> rho_mu;
-  int<lower = 0, upper = 4> likelihood;
+  int<lower = 1, upper = 3> likelihood;
   int<lower = 0, upper = 2> type;
   //--- environmental data ----
   //--- * for mortality ----
@@ -27,8 +27,7 @@ parameters {
   vector[N] mu;
   vector[K_t] beta_t;
   array[rho_mu] real lxi;
-  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
-  array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
+  array[1] real<lower = 0> phi;
 }
 transformed parameters {
 }
@@ -59,13 +58,13 @@ generated quantities {
     if (type == 0) {
       for (n in 1:N) {
         y_pp[n] = drmsdm_rng(mu[n], rho[n],
-                             likelihood == 0 ? sigma_obs[1] : phi[1],
+                             phi[1],
                              likelihood);
       }
     } else if (type == 1) {
       for (n in 1:N) {
         y_pp[n] = (1 - rho[n]) *
-          cond_mean(mu[n], likelihood == 0 ? sigma_obs[1] : phi[1],
+          cond_mean(mu[n], phi[1],
                     likelihood);
       }
     } else if (type == 2) {

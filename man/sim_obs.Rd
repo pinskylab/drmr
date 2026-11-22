@@ -7,15 +7,14 @@
 sim_obs(mu, rho, likelihood, phi)
 }
 \arguments{
-\item{mu}{a \code{numeric} vector. It is the mean for codes 0, 1, and 2,
-the median for code 3, and the location before truncation for code 4.}
+\item{mu}{a \code{numeric} vector. It is the mean for codes 1 and 2, and
+the median for code 3.}
 
 \item{rho}{a \code{numeric} vector with the probabilities of a zero.}
 
-\item{likelihood}{0 (log-normal, legacy), 1 (log-normal), 2 (gamma),
-3 (log-logistic), or 4 (truncated normal).}
+\item{likelihood}{1 (log-normal), 2 (gamma), or 3 (log-logistic).}
 
-\item{phi}{\code{sigma_obs} for code 0, and \code{phi} otherwise.}
+\item{phi}{the additional parameter of the likelihood.}
 }
 \value{
 a \code{numeric} vector with the same length as \code{mu}.

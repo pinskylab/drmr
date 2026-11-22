@@ -50,7 +50,6 @@ overview](#model-overview).
 | $\log \lambda_{a,1}$   | `log_init`       | Initial log-density at age $a$   |
 | $\log d$               | `log_init_scale` | Log of the initial-density scale |
 | $\phi$                 | `phi`            | Dispersion parameter             |
-| $\sigma_{obs}$         | `sigma_obs`      | SD of $\log y$                   |
 | $\alpha$               | `alpha`          | AR(1) temporal correlation       |
 | $\sigma_t$             | `sigma_t`        | AR(1) conditional SD             |
 | $z_t$                  | `z_t`            | AR(1) temporal random effects    |
@@ -95,9 +94,6 @@ distribution, and the second name sets the second argument.
 +-----------------------------------------------+----------------------+
 | $\phi \sim \mathrm{Gamma}(2, 1)$              | `pr_phi_a`,          |
 |                                               | `pr_phi_b`           |
-+-----------------------------------------------+----------------------+
-| $\sigma_{obs} \sim \mathrm{N}^{+}(0, 1)$      | `pr_sigma_obs_mu`,   |
-|                                               | `pr_sigma_obs_sd`    |
 +-----------------------------------------------+----------------------+
 | $\tanh^{-1}(\alpha) \sim \mathrm{N}(0, 0.75)$ | `pr_alpha_mu`,       |
 |                                               | `pr_alpha_sd`        |

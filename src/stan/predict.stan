@@ -22,9 +22,8 @@ data {
   int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
   int<lower = 0, upper = 1> acc_dd;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
-  int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
-                                        // Gamma, 3 = loglogistic, 4 = truncated
-                                        // normal)
+  int<lower = 1, upper = 3> likelihood; // (1 = repar LN, 2 = Gamma,
+                                        // 3 = loglogistic)
   int<lower = 0, upper = 2> type;
   //--- suitability (for rho) ----
   int<lower = 1> K_t;
@@ -85,8 +84,7 @@ parameters {
   //--- rel between rho and mu ----
   array[rho_mu] real xi;
   //--- additional parameter for different lik functions ----
-  array[likelihood > 0 ? 1 : 0] real phi;
-  array[likelihood == 0 ? 1 : 0] real sigma_obs;
+  array[1] real phi;
   //--- movement ----
   array[movement] real zeta;
   //--- density-dependence ---
@@ -289,13 +287,13 @@ generated quantities {
     if (type == 0) {
       for (n in 1:N) {
         y_proj[n] = drmsdm_rng(mu_proj[n], rho_proj[n],
-                               likelihood == 0 ? sigma_obs[1] : phi[1],
+                               phi[1],
                                likelihood);
       }
     } else if (type == 1) {
       for (n in 1:N) {
         y_proj[n] = (1 - rho_proj[n]) *
-          cond_mean(mu_proj[n], likelihood == 0 ? sigma_obs[1] : phi[1],
+          cond_mean(mu_proj[n], phi[1],
                     likelihood);
       }
     } else if (type == 2) {

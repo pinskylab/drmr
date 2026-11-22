@@ -305,12 +305,11 @@ pop_dyn <- function(log_rec, log_surv, f, init,
 ##' @description Follows \code{drmsdm_rng} in \code{lpdfs.stanfunctions}.
 ##'   Each value is zero with probability \code{rho}. Otherwise, it comes
 ##'   from the family that \code{likelihood} selects.
-##' @param mu a \code{numeric} vector. It is the mean for codes 0, 1, and 2,
-##'   the median for code 3, and the location before truncation for code 4.
+##' @param mu a \code{numeric} vector. It is the mean for codes 1 and 2, and
+##'   the median for code 3.
 ##' @param rho a \code{numeric} vector with the probabilities of a zero.
-##' @param likelihood 0 (log-normal, legacy), 1 (log-normal), 2 (gamma),
-##'   3 (log-logistic), or 4 (truncated normal).
-##' @param phi \code{sigma_obs} for code 0, and \code{phi} otherwise.
+##' @param likelihood 1 (log-normal), 2 (gamma), or 3 (log-logistic).
+##' @param phi the additional parameter of the likelihood.
 ##' @return a \code{numeric} vector with the same length as \code{mu}.
 ##' @author lcgodoy
 sim_obs <- function(mu, rho, likelihood, phi) {
@@ -320,14 +319,12 @@ sim_obs <- function(mu, rho, likelihood, phi) {
   k <- length(pos)
   y[pos] <- switch(
     as.character(likelihood),
-    "0" = stats::rlnorm(k, meanlog = log(m) - phi^2 / 2, sdlog = phi),
     "1" = stats::rlnorm(k, meanlog = log(m) - phi, sdlog = sqrt(2 * phi)),
     "2" = stats::rgamma(k, shape = phi, rate = phi / m),
     "3" = {
       u <- stats::runif(k)
       m * (u / (1 - u))^(1 / phi)
     },
-    "4" = m - phi * stats::qnorm(stats::runif(k, 0, stats::pnorm(m / phi))),
     stop("Unknown likelihood code: ", likelihood, ".")
   )
   return(y)
@@ -371,7 +368,7 @@ check_sim_dat <- function(dat) {
 ##' @author lcgodoy
 check_sim_pars <- function(pars, dat) {
   need <- c("beta_r", "beta_t",
-            if (dat$likelihood == 0) "sigma_obs" else "phi",
+            "phi",
             if (dat$est_surv == 1) "beta_s",
             if (dat$rho_mu == 1) "xi",
             if (dat$rec_dd < 2) "kappa",
@@ -385,7 +382,7 @@ check_sim_pars <- function(pars, dat) {
   if (length(miss) > 0) {
     stop("'pars' must contain: ", paste(miss, collapse = ", "), ".")
   }
-  scalars <- c("xi", "sigma_obs", "phi", "kappa", "zeta", "init_scale",
+  scalars <- c("xi", "phi", "kappa", "zeta", "init_scale",
                "alpha", "sigma_t", "sigma_i", "sigma_s")
   for (p in intersect(scalars, names(pars))) {
     if (length(pars[[p]]) != 1) {
@@ -397,8 +394,7 @@ check_sim_pars <- function(pars, dat) {
     length(pars$beta_t) == dat$K_t,
     dat$est_surv == 0 || length(pars$beta_s) == dat$K_m[1],
     dat$rho_mu == 0 || (length(pars$xi) == 1 && pars$xi < 0),
-    dat$likelihood > 0 || pars$sigma_obs > 0,
-    dat$likelihood == 0 || pars$phi > as.numeric(dat$likelihood == 3),
+    pars$phi > as.numeric(dat$likelihood == 3),
     dat$rec_dd == 2 || pars$kappa > 0,
     dat$movement == 0 || (pars$zeta >= 0 && pars$zeta <= 1),
     dat$est_init == 0 ||
@@ -511,17 +507,13 @@ prior_pars <- function(dat) {
   if (dat$rho_mu == 1) {
     out$xi <- -exp(rn(1, dat$pr_lmxi_mu, dat$pr_lmxi_sd))
   }
-  if (dat$likelihood == 0) {
-    out$sigma_obs <- rn_pos(dat$pr_sigma_obs_mu, dat$pr_sigma_obs_sd)
-  } else {
-    ## the log-logistic requires phi > 1, as in drm.stan
-    lower <- as.numeric(dat$likelihood == 3)
-    p_up <- stats::pgamma(lower, shape = dat$pr_phi_a, rate = dat$pr_phi_b,
-                          lower.tail = FALSE)
-    out$phi <- stats::qgamma(stats::runif(1, min = 0, max = p_up),
-                             shape = dat$pr_phi_a, rate = dat$pr_phi_b,
-                             lower.tail = FALSE)
-  }
+  ## the log-logistic requires phi > 1, as in drm.stan
+  lower <- as.numeric(dat$likelihood == 3)
+  p_up <- stats::pgamma(lower, shape = dat$pr_phi_a, rate = dat$pr_phi_b,
+                        lower.tail = FALSE)
+  out$phi <- stats::qgamma(stats::runif(1, min = 0, max = p_up),
+                           shape = dat$pr_phi_a, rate = dat$pr_phi_b,
+                           lower.tail = FALSE)
   if (dat$rec_dd < 2) {
     out$kappa <- rn_pos(dat$pr_kappa_mu, dat$pr_kappa_sd)
   }
@@ -614,8 +606,7 @@ model_sim <- function(dat, pars) {
     eta <- eta + pars$xi * log(mu)
   }
   rho <- if (dat$cloglog == 1) -expm1(-exp(eta)) else stats::plogis(eta)
-  phi <- if (dat$likelihood == 0) pars$sigma_obs else pars$phi
-  return(list(y = sim_obs(mu, rho, dat$likelihood, phi),
+  return(list(y = sim_obs(mu, rho, dat$likelihood, pars$phi),
               mu = mu,
               rho = rho,
               log_rec = log_rec,
@@ -659,8 +650,7 @@ pp_sim <- function(dat) {
 ##'   on the toggles:
 ##'   \itemize{
 ##'   \item \code{beta_r} and \code{beta_t}: always.
-##'   \item \code{phi}, or \code{sigma_obs} for \code{"lognormal_legacy"}:
-##'   always.
+##'   \item \code{phi}: always.
 ##'   \item \code{beta_s}: when \code{est_surv = 1}.
 ##'   \item \code{xi} (negative): when \code{rho_mu = 1}.
 ##'   \item \code{kappa}: when \code{rec_dd} is \code{"ricker"} or

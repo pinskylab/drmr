@@ -129,14 +129,11 @@ make_data <- function(y,
   stopifnot(all(!is.na(c(time))))
   stopifnot(all(!is.na(c(site))))
   stopifnot(length(family) == 1)
-  stopifnot(family %in% c("lognormal_legacy", "lognormal",
-                          "gamma", "loglogistic", "truncnorm"))
+  stopifnot(family %in% c("lognormal", "gamma", "loglogistic"))
   likelihood <- switch(family,
-                       lognormal_legacy  = 0,
-                       lognormal         = 1,
-                       gamma             = 2,
-                       loglogistic       = 3,
-                       truncnorm         = 4)
+                       lognormal   = 1,
+                       gamma       = 2,
+                       loglogistic = 3)
   toggles <- default_toggles() |>
     safe_modify(.toggles) |>
     c(list(likelihood = likelihood))
@@ -380,14 +377,11 @@ make_data_sdm <- function(y,
   stopifnot(all(!is.na(c(time))))
   stopifnot(all(!is.na(c(site))))
   stopifnot(length(family) == 1)
-  stopifnot(family %in% c("lognormal_legacy", "lognormal",
-                          "gamma", "loglogistic", "truncnorm"))
+  stopifnot(family %in% c("lognormal", "gamma", "loglogistic"))
   likelihood <- switch(family,
-                       lognormal_legacy = 0,
-                       lognormal        = 1,
-                       gamma            = 2,
-                       loglogistic      = 3,
-                       truncnorm        = 4)
+                       lognormal   = 1,
+                       gamma       = 2,
+                       loglogistic = 3)
   toggles <- list(rho_mu = 1,
                   ar_re = 0,
                   sp_re = 0,

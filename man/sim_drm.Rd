@@ -35,10 +35,8 @@ distribution assumed for density. The options are: \itemize{ \item
 \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
 \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 \code{"loglogistic"}: log-logistic parametrized in terms of its median
-(usual parametrization), with shape \code{phi} > 1 so its mean is finite;
-\item \code{"lognormal_legacy"}: log-normal with its usual
-parametrization; \item \code{"truncnorm"} a truncated normal distribution
-(not parametrized in terms of its mean)}}
+(usual parametrization), with shape \code{phi} > 1 so its mean is
+finite.}}
 
 \item{formula_zero}{A \code{formula} specifying the model for the zero
 inflation component. Defaults to \code{~ 1} (intercept only).}
@@ -93,8 +91,7 @@ and ages 1 to \code{n_ages} with it. The elements that you need depend
 on the toggles:
 \itemize{
 \item \code{beta_r} and \code{beta_t}: always.
-\item \code{phi}, or \code{sigma_obs} for \code{"lognormal_legacy"}:
-always.
+\item \code{phi}: always.
 \item \code{beta_s}: when \code{est_surv = 1}.
 \item \code{xi} (negative): when \code{rho_mu = 1}.
 \item \code{kappa}: when \code{rec_dd} is \code{"ricker"} or

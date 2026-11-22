@@ -10,7 +10,7 @@ data {
   vector[N] y;
   int<lower = 0, upper = 1> cloglog;
   int<lower = 0, upper = 1> rho_mu;
-  int<lower = 0, upper = 4> likelihood;
+  int<lower = 1, upper = 3> likelihood;
   //--- environmental data ----
   int<lower = 1> K_z;
   matrix[N, K_z] Z;
@@ -21,8 +21,7 @@ parameters {
   vector[N] mu;
   vector[K_z] beta_t;
   array[rho_mu] real lxi;
-  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
-  array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
+  array[1] real<lower = 0> phi;
 }
 transformed parameters {
 }
@@ -58,7 +57,7 @@ generated quantities {
       }
       log_lik[n] = ptziloglik_lpdf(y[n] | likelihood, is_zero,
                                    mu[n], rho[n],
-                                   likelihood == 0 ? sigma_obs[1] : phi[1]);
+                                   phi[1]);
     }
   }
 }

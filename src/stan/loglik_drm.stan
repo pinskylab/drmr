@@ -13,7 +13,7 @@ data {
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
   int<lower = 0, upper = 1> cloglog;
   int<lower = 0, upper = 1> rho_mu;
-  int<lower = 0, upper = 4> likelihood;
+  int<lower = 1, upper = 3> likelihood;
   //--- environmental data ----
   //--- * for mortality ----
   array[est_surv ? 1 : 0] int<lower = 1> K_m;
@@ -27,8 +27,7 @@ parameters {
   vector[N] mu;
   vector[K_t] beta_t;
   array[rho_mu] real lxi;
-  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
-  array[likelihood > 0 ? 1 : 0] real<lower = 0> phi;
+  array[1] real<lower = 0> phi;
 }
 transformed parameters {
 }
@@ -61,12 +60,12 @@ generated quantities {
         log_lik[n] = ptziloglik_lpdf(0 |
                                      likelihood, 1,
                                      mu[n], rho[n],
-                                     likelihood == 0 ? sigma_obs[1] : phi[1]);
+                                     phi[1]);
       } else {
         log_lik[n] = ptziloglik_lpdf(y[n] |
                                      likelihood, 0,
                                      mu[n], rho[n],
-                                     likelihood == 0 ? sigma_obs[1] : phi[1]);
+                                     phi[1]);
       }
     }
   }

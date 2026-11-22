@@ -34,8 +34,8 @@ data {
   int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
   int<lower = 0, upper = 1> acc_dd;   // 0 for local SSB, 1 for regional SSB
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
-  int<lower = 0, upper = 4> likelihood; // (0 = Original LN, 1 = repar LN, 2 =
-                                        // Gamma, 3 = log-Logistic. 4 = truncated normal)
+  int<lower = 1, upper = 3> likelihood; // (1 = repar LN, 2 = Gamma,
+                                        // 3 = log-Logistic)
   //--- suitability (for rho) ----
   int<lower = 1> K_t;
   matrix[N, K_t] X_t;
@@ -74,8 +74,6 @@ data {
   int<lower = 1> K_r;
   matrix[N, K_r] X_r;
   //--- priors hyperparameters ----
-  real pr_sigma_obs_mu; 
-  real pr_sigma_obs_sd; // formerly sigma_obs_cv
   real<lower = 0> pr_phi_a; // revise this. It is for phi in gamma, loglogistic, and
   real<lower = 0> pr_phi_b;
   real pr_lsigma_t_mu; 
@@ -146,9 +144,7 @@ parameters {
   // relationship between mu and rho
   array[rho_mu] real lxi;
   // parameter associated to the likelihood 
-  array[likelihood == 0 ? 1 : 0] real<lower = 0> sigma_obs;
-  // (log-logistic requires phi > 1 for its mean to be finite)
-  array[likelihood > 0 ? 1 : 0] real<lower = (likelihood == 3 ? 1 : 0)> phi;
+  array[1] real<lower = 0> phi;
   // coefficients for recruitment (it is a log-linear model)
   vector[K_r] beta_r;
   // parameter associated with "density dependence"
@@ -420,20 +416,12 @@ model {
   //--- suitability ----
   target += normal_lpdf(beta_t | pr_beta_t_mu, pr_beta_t_sd);
   //--- Likelihood ----
-  if (likelihood == 0) {
-    target += normal_lpdf(sigma_obs[1] | pr_sigma_obs_mu, pr_sigma_obs_sd) -
-      1.0 * normal_lccdf(0 | pr_sigma_obs_mu, pr_sigma_obs_sd);
-  } else {
-    target += gamma_lpdf(phi[1] | pr_phi_a, pr_phi_b);
-    if (likelihood == 3) {
-      target += - gamma_lccdf(1 | pr_phi_a, pr_phi_b);
-    }
-  }
+  target += gamma_lpdf(phi[1] | pr_phi_a, pr_phi_b);
   // only evaluate density if there are length comps to evaluate
   target += ziloglik_lpdf(y | likelihood, N_nz, N,
                           id_nz, id_z,
                           mu, rho,
-                          likelihood == 0 ? sigma_obs[1] : phi[1]);
+                          phi[1]);
 }
 generated quantities {
 }

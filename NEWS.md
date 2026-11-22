@@ -15,6 +15,13 @@
   - `z` is now `x_t` in `make_data_sdm()`.
   - `lambda_obj` is now `object` in `summarise_adens()`.
 
+- `family` now takes only `"gamma"` (the default), `"lognormal"`, or
+  `"loglogistic"`. The options `"lognormal_legacy"` and `"truncnorm"` are
+  removed, and so are the parameter `sigma_obs` and the priors
+  `pr_sigma_obs_mu` and `pr_sigma_obs_sd`. Fits made with the removed
+  families in earlier versions no longer work with `predict()`, `fitted()`,
+  or `log_lik()`. Refit them with one of the three families.
+
 - New `areas` argument of `make_data()` (and so of `fit_drm()`) for the area of
   each site. The default is 1 for each site. A warning tells you when the model
   uses the areas but you did not give them.

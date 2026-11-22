@@ -65,34 +65,24 @@ prior_sample <- function(dat, model = "drm") {
                          array(stats::rnorm(1, mean = dat$pr_lmxi_mu,
                                             sd = dat$pr_lmxi_sd))))
   }
-  if (dat$likelihood == 0) {
-    out <-
-      c(out,
-        list(sigma_obs = array(rtn(1,
-                                   mean = dat$pr_sigma_obs_mu,
-                                   sd = dat$pr_sigma_obs_sd,
-                                   range = c(0, Inf)),
-                               dim = 1)))
+  a <- dat$pr_phi_a
+  b <- dat$pr_phi_b
+  if (dat$likelihood == 3) {
+    ## the log-logistic requires phi > 1: gamma truncated to (1, Inf), as
+    ## in the Stan models, drawn with upper-tail probabilities
+    p1 <- stats::pgamma(1, shape = a, rate = b, lower.tail = FALSE)
+    phi <- stats::qgamma(stats::runif(1, 0, p1), shape = a, rate = b,
+                         lower.tail = FALSE)
   } else {
-    a <- dat$pr_phi_a
-    b <- dat$pr_phi_b
-    if (dat$likelihood == 3) {
-      ## the log-logistic requires phi > 1: gamma truncated to (1, Inf), as
-      ## in the Stan models, drawn with upper-tail probabilities
-      p1 <- stats::pgamma(1, shape = a, rate = b, lower.tail = FALSE)
-      phi <- stats::qgamma(stats::runif(1, 0, p1), shape = a, rate = b,
-                           lower.tail = FALSE)
-    } else {
-      phi <- stats::rgamma(1, shape = a, rate = b)
-    }
-    ## keep phi off its lower bound (rgamma can underflow to 0)
-    lower <- as.numeric(dat$likelihood == 3)
-    phi <- max(phi, lower + sqrt(.Machine$double.eps))
-    if (!is.finite(phi)) {
-      phi <- lower + 1
-    }
-    out <- c(out, list(phi = array(phi, dim = 1)))
+    phi <- stats::rgamma(1, shape = a, rate = b)
   }
+  ## keep phi off its lower bound (rgamma can underflow to 0)
+  lower <- as.numeric(dat$likelihood == 3)
+  phi <- max(phi, lower + sqrt(.Machine$double.eps))
+  if (!is.finite(phi)) {
+    phi <- lower + 1
+  }
+  out <- c(out, list(phi = array(phi, dim = 1)))
   if (time_re) {
     w_t <- stats::rnorm(dat$n_time)
     ## drm.stan: array[1] vector[n_time]; sdm.stan: vector[n_time]

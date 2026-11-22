@@ -5,9 +5,7 @@
 ##' @author lcgodoy
 ##' @export
 default_priors <- function() {
-  list(pr_sigma_obs_mu = 0,
-       pr_sigma_obs_sd = 1,
-       pr_phi_a = 2,
+  list(pr_phi_a = 2,
        pr_phi_b = 1,
        pr_lsigma_t_mu = -2,
        pr_lsigma_t_sd = .25,

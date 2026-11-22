@@ -26,40 +26,17 @@ rtt <- function(n, mean = 0, sd = 1,
   mean + stats::qt(p = u, df = df) * sd
 }
 
-##' @title Truncated Normal distribution
-##' @description \code{dtn()} calculates the density of a truncated Normal
-##'   distribution.
-##' @param x A \code{numeric vector} at which to evaluate the density.
+##' @title Random number generation from a truncated Normal distribution
+##' @description Generates random numbers from a truncated Normal distribution.
+##' @inheritParams rtt n range
 ##' @param mean A \code{numeric} scalar representing the mean of the underlying
 ##'   normal distribution. Defaults to 0.
 ##' @param sd A \code{numeric} scalar representing the standard deviation of the
 ##'   underlying normal distribution. Defaults to 1.
-##' @inheritParams rtt range n
-##' @param log \code{Logical}; if \code{TRUE}, the natural logarithm of the
-##'   density is returned. Defaults to \code{FALSE}.
-##' @return \code{dtn()} returns a numeric vector of the same length as
-##'   \code{x}, containing the (log) density values of the truncated normal
-##'   distribution.
-##' @seealso [stats::dnorm()], [stats::pnorm()]
-##' @author lcgodoy
-dtn <- function(x, mean = 0, sd = 1, range = c(0, Inf),
-                log = FALSE) {
-  ll <- stats::pnorm(q = min(range), mean = mean, sd = sd)
-  hh <- stats::pnorm(q = max(range), mean = mean, sd = sd)
-  out <- stats::dnorm(x, mean = mean, sd = sd,
-                      log = TRUE) - log(hh - ll)
-  if (!log)
-    out <- exp(out)
-  return(out)
-}
-
-##' @description \code{rtn()} generates random numbers from a truncated Normal
-##'   distribution.
-##' @return \code{rtn()} returns a \code{numeric vector} of length \code{n}
-##'   containing random numbers drawn from the specified truncated normal
-##'   distribution.
+##' @return A \code{numeric vector} of length \code{n} containing random numbers
+##'   drawn from the specified truncated normal distribution.
 ##' @seealso [stats::rnorm()], [stats::qnorm()]
-##' @rdname dtn
+##' @author lcgodoy
 rtn <- function(n, mean = 0, sd = 1, range = c(0, Inf)) {
   lo <- min(range)
   hi <- max(range)

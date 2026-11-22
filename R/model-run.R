@@ -15,10 +15,8 @@
 ##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
 ##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 ##'   \code{"loglogistic"}: log-logistic parametrized in terms of its median
-##'   (usual parametrization), with shape \code{phi} > 1 so its mean is finite;
-##'   \item \code{"lognormal_legacy"}: log-normal with its usual
-##'   parametrization; \item \code{"truncnorm"} a truncated normal distribution
-##'   (not parametrized in terms of its mean)}
+##'   (usual parametrization), with shape \code{phi} > 1 so its mean is
+##'   finite.}
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_rec A \code{formula} specifying the model for the recruitment

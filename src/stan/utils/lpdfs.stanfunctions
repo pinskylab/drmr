@@ -85,11 +85,7 @@ real ziloglik_lpdf(vector y,
   real out = 0.0;
   out += sum(log(rho[id_z]));
   out += sum(log1m(rho[id_nz]));
-  if (likelihood == 0) {
-    vector[N_nz] loc_par;
-    loc_par = log(mu[id_nz]) - square(phi) / 2;
-    out += lognormal_lpdf(y[id_nz] | loc_par, phi);
-  } else if (likelihood == 1) {
+  if (likelihood == 1) {
     vector[N_nz] mu_ln;
     mu_ln = log(mu[id_nz]) - phi;
     out += lognormal_lpdf(y[id_nz] | mu_ln, sqrt(2 * phi));
@@ -97,11 +93,8 @@ real ziloglik_lpdf(vector y,
     vector[N_nz] b_g;
     b_g = phi * inv(mu[id_nz]);
     out += gamma_lpdf(y[id_nz] | phi, b_g);
-  } else if (likelihood == 3) {
+  } else { // likelihood == 3
     out += loglogistic_lpdf(y[id_nz] | mu[id_nz], phi);
-  } else {
-    out += normal_lpdf(y[id_nz] | mu[id_nz], phi) -
-      normal_lccdf(rep_vector(0.0, N_nz) | mu[id_nz], phi);
   }
   return out;
 }
@@ -117,21 +110,14 @@ real ptziloglik_lpdf(real y,
     out += log(rho);
   } else {
     out += log1m(rho);
-    if (likelihood == 0) {
-      real loc_par;
-      loc_par = log(mu) - square(phi) / 2;
-      out += lognormal_lpdf(y | loc_par, phi);
-    } else if (likelihood == 1) {
+    if (likelihood == 1) {
       out += ln_mu_lpdf(y | mu, phi);
     } else if (likelihood == 2) {
       real gamma_beta;
       gamma_beta = phi / mu;
       out += gamma_lpdf(y | phi, gamma_beta);
-    } else if (likelihood == 3) {
+    } else { // likelihood == 3
       out += loglogistic_lpdf(y | mu, phi);
-    } else {
-      out += normal_lpdf(y | mu, phi) -
-        normal_lccdf(0.0 | mu, phi);
     }
   }
   return out;
@@ -144,11 +130,7 @@ real drmsdm_rng(real mu,
   real out;
   out = (1 - bernoulli_rng(rho));
   if (out > 0) {
-    if (likelihood == 0) {
-      real loc_par;
-      loc_par = log(mu) - square(phi) / 2;
-      out *= lognormal_rng(loc_par, phi);
-    } else if (likelihood == 1) {
+    if (likelihood == 1) {
       real mu_ln;
       mu_ln = log(mu) - phi;
       out *= lognormal_rng(mu_ln, sqrt(2 * phi));
@@ -156,11 +138,8 @@ real drmsdm_rng(real mu,
       real gamma_beta;
       gamma_beta = phi / mu;
       out *= gamma_rng(phi, gamma_beta);
-    } else if (likelihood == 3) {
+    } else { // likelihood == 3
       out *= loglogistic_rng(mu, phi);
-    } else {
-      // inverse-cdf draw from a normal truncated to (0, Inf)
-      out *= mu - phi * inv_Phi(uniform_rng(0, Phi(mu / phi)));
     }
   }
   return out;
@@ -170,11 +149,10 @@ real drmsdm_rng(real mu,
  * Mean of the non-zero part of the density, E[Y | Y > 0].
  *
  * For the log-normal and gamma likelihoods, mu is already the mean. For the
- * log-logistic, mu is the median and phi (> 1) the shape. For the truncated
- * normal, mu and phi are the location and scale before truncation.
+ * log-logistic, mu is the median and phi (> 1) the shape.
  *
  * @param mu location parameter, as passed to the likelihood
- * @param phi additional likelihood parameter (sigma_obs when likelihood == 0)
+ * @param phi additional likelihood parameter
  * @param likelihood likelihood code
  *
  * @return E[Y | Y > 0]
@@ -183,9 +161,6 @@ real cond_mean(real mu, real phi, data int likelihood) {
   if (likelihood == 3) {
     real aux = pi() / phi;
     return mu * aux / sin(aux);
-  } else if (likelihood == 4) {
-    real z = mu / phi;
-    return mu + phi * exp(std_normal_lpdf(z) - std_normal_lcdf(z));
   } else {
     return mu;
   }

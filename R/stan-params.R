@@ -33,11 +33,7 @@ fitted_pars_drm <- function(dat) {
               "lambda")
   if (dat$rho_mu == 1)
     output <- c(output, "xi")
-  if (dat$likelihood == 0) {
-    output <- c(output, "sigma_obs")
-  } else {
-    output <- c(output, "phi")
-  }
+  output <- c(output, "phi")
   if (dat$movement == 1)
     output <- c(output, "zeta")
   if (dat$rec_dd < 2)
@@ -58,11 +54,7 @@ fitted_pars_sdm <- function(dat) {
   output <- c("beta_t", "beta_r")
   if (dat$rho_mu == 1)
     output <- c(output, "xi")
-  if (dat$likelihood == 0) {
-    output <- c(output, "sigma_obs")
-  } else {
-    output <- c(output, "phi")
-  }
+  output <- c(output, "phi")
   if (dat$ar_re == 1)
     output <- c(output, "z_t", "alpha", "sigma_t")
   if (dat$iid_re == 1)
@@ -103,10 +95,6 @@ fitted_pars_ll <- function(dat) {
   output <- c("mu", "beta_t")
   if (dat$rho_mu == 1)
     output <- c(output, "lxi")
-  if (dat$likelihood == 0) {
-    output <- c(output, "sigma_obs")
-  } else {
-    output <- c(output, "phi")
-  }
+  output <- c(output, "phi")
   return(output)
 }
