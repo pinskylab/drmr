@@ -380,13 +380,13 @@ prior_pars <- function(dat) {
   }
   if (dat$ar_re > 0) {
     out$alpha <- tanh(rn(1, dat$pr_alpha_mu, dat$pr_alpha_sd))
-    out$sigma_t <- exp(rn(1, dat$pr_lsigma_t_mu, dat$pr_lsigma_t_sd))
+    out$sigma_t <- rtcauchy(1, dat$pr_sigma_t_loc, dat$pr_sigma_t_scale)
   }
   if (dat$iid_re > 0) {
-    out$sigma_i <- exp(rn(1, dat$pr_lsigma_i_mu, dat$pr_lsigma_i_sd))
+    out$sigma_i <- rtcauchy(1, dat$pr_sigma_i_loc, dat$pr_sigma_i_scale)
   }
   if (dat$sp_re > 0) {
-    out$sigma_s <- exp(rn(1, dat$pr_lsigma_s_mu, dat$pr_lsigma_s_sd))
+    out$sigma_s <- rtcauchy(1, dat$pr_sigma_s_loc, dat$pr_sigma_s_scale)
   }
   return(out)
 }

@@ -86,6 +86,25 @@ fix_beta_prior <- function(x, k, default, name) {
   return(x)
 }
 
+##' @title Check the scales of priors
+##' @description Stops with an error unless each named hyperparameter is a
+##'   single finite number greater than 0. Stan accepts a scale of 0 in the
+##'   data block, so this check is stricter than Stan's.
+##' @param priors a named \code{list} of prior hyperparameters.
+##' @param scale_names a \code{character} vector with the names of the
+##'   scales to check.
+##' @return \code{priors}, unchanged and invisibly.
+##' @author Anonymous
+check_prior_scale <- function(priors, scale_names) {
+  for (name in scale_names) {
+    x <- priors[[name]]
+    if (!is.numeric(x) || length(x) != 1 || !is.finite(x) || x <= 0) {
+      stop("'", name, "' must be a single positive number.", call. = FALSE)
+    }
+  }
+  invisible(priors)
+}
+
 ##' @title Zeros and nonzeros
 ##' @inheritParams make_data
 ##' @return A \code{list} containing necessary input for stan to identify zeros

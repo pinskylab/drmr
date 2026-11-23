@@ -117,7 +117,8 @@ for recruitment, "surv" ICAR random effect for survival (only works when
 \item{.priors}{a \code{list} of priors hyperparameters. A prior of the
 regression coefficients (\code{pr_beta_*}) takes one value, which
 applies to all the coefficients, or one value for each column of its
-design matrix.}
+design matrix. The scales of the priors on the random effect SDs
+(\code{pr_sigma_*_scale}) must be positive.}
 
 \item{family}{a \code{character} specifying the family of the probability
 distribution assumed for density. The options are: \itemize{ \item

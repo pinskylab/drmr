@@ -22,6 +22,20 @@
   families in earlier versions no longer work with `predict()`, `fitted()`,
   or `log_lik()`. Refit them with one of the three families.
 
+- The priors on the random effect SDs `sigma_t`, `sigma_i`, and `sigma_s`
+  changed. Each one is now a Cauchy distribution truncated to positive
+  values. The default is a half-Cauchy distribution with location 0 and
+  scale 1. Before, the default prior on the log of each SD was
+  $\mathrm{N}(-2, 0.25)$. Results of models with random effects change, so
+  refit them. The hyperparameters in `.priors` have new names, and the old
+  names no longer work:
+  - `pr_lsigma_t_mu` and `pr_lsigma_t_sd` are now `pr_sigma_t_loc` and
+    `pr_sigma_t_scale`.
+  - `pr_lsigma_i_mu` and `pr_lsigma_i_sd` are now `pr_sigma_i_loc` and
+    `pr_sigma_i_scale`.
+  - `pr_lsigma_s_mu` and `pr_lsigma_s_sd` are now `pr_sigma_s_loc` and
+    `pr_sigma_s_scale`.
+
 - New `areas` argument of `make_data()` (and so of `fit_drm()`) for the area of
   each site. The default is 1 for each site. A warning tells you when the model
   uses the areas but you did not give them.

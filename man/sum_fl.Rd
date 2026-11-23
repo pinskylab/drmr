@@ -46,6 +46,7 @@ variables starting with \code{c_} are centered using the mean of the
 training period.
 }
 \details{
-This dataset was also used in Fredston et. al 2026 \url{DOI:10.32942/X24D00}
+This dataset was also used in Fredston et. al 2026
+\doi{10.32942/X24D00}
 }
 \keyword{datasets}

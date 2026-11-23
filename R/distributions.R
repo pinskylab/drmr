@@ -53,3 +53,36 @@ rtn <- function(n, mean = 0, sd = 1, range = c(0, Inf)) {
   u  <- stats::runif(n, min = ll, max = hh)
   stats::qnorm(p = u, mean = mean, sd = sd)
 }
+
+##' @title Random number generation from a truncated Cauchy distribution
+##' @description Generates random numbers from a truncated Cauchy
+##'   distribution. With \code{location = 0} and the default \code{range},
+##'   this is the half-Cauchy distribution.
+##' @inheritParams rtt n range
+##' @param location A \code{numeric} scalar representing the location of the
+##'   underlying Cauchy distribution. Defaults to 0.
+##' @param scale A \code{numeric} scalar representing the scale of the
+##'   underlying Cauchy distribution. Defaults to 1.
+##' @return A \code{numeric vector} of length \code{n} containing random numbers
+##'   drawn from the specified truncated Cauchy distribution.
+##' @seealso [stats::rcauchy()], [stats::qcauchy()]
+##' @author Anonymous
+rtcauchy <- function(n, location = 0, scale = 1, range = c(0, Inf)) {
+  lo <- min(range)
+  hi <- max(range)
+  if (lo > location) {
+    ## the interval lies above the location: upper-tail probabilities do not
+    ## round to 1, so the draws stay finite
+    pl <- stats::pcauchy(q = lo, location = location, scale = scale,
+                         lower.tail = FALSE)
+    ph <- stats::pcauchy(q = hi, location = location, scale = scale,
+                         lower.tail = FALSE)
+    u  <- stats::runif(n, min = ph, max = pl)
+    return(stats::qcauchy(p = u, location = location, scale = scale,
+                          lower.tail = FALSE))
+  }
+  ll <- stats::pcauchy(q = lo, location = location, scale = scale)
+  hh <- stats::pcauchy(q = hi, location = location, scale = scale)
+  u  <- stats::runif(n, min = ll, max = hh)
+  stats::qcauchy(p = u, location = location, scale = scale)
+}

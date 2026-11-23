@@ -80,7 +80,8 @@
 ##' @param .priors a \code{list} of priors hyperparameters. A prior of the
 ##'   regression coefficients (\code{pr_beta_*}) takes one value, which
 ##'   applies to all the coefficients, or one value for each column of its
-##'   design matrix.
+##'   design matrix. The scales of the priors on the random effect SDs
+##'   (\code{pr_sigma_*_scale}) must be positive.
 ##' @inheritParams fit_drm
 ##' @return A \code{list} containing the data and settings to be used as input
 ##'   for the Stan model.
@@ -126,6 +127,8 @@ make_data <- function(y,
   ## getting the default priors and using user options
   priors <- default_priors() |>
     safe_modify(.priors)
+  check_prior_scale(priors, c("pr_sigma_t_scale", "pr_sigma_i_scale",
+                              "pr_sigma_s_scale"))
   ## additional quantities that can be inferred from data
   n_sites <- length(unique(site))
   n_time <- length(unique(time))
@@ -340,6 +343,8 @@ make_data_sdm <- function(y,
   ## getting the default priors and using user options
   priors <- default_priors() |>
     safe_modify(.priors)
+  check_prior_scale(priors, c("pr_sigma_t_scale", "pr_sigma_i_scale",
+                              "pr_sigma_s_scale"))
   ## additional quantities that can be inferred from data
   n_sites <- length(unique(site))
   n_time <- length(unique(time))

@@ -91,9 +91,9 @@ prior_sample <- function(dat, model = "drm") {
     }
     out <-
       c(out,
-        list(log_sigma_t = array(stats::rnorm(1,
-                                              dat$pr_lsigma_t_mu,
-                                              dat$pr_lsigma_t_sd),
+        list(log_sigma_t = array(log(rtcauchy(1,
+                                              dat$pr_sigma_t_loc,
+                                              dat$pr_sigma_t_scale)),
                                  dim = 1),
              atanh_alpha = array(stats::rnorm(1,
                                               dat$pr_alpha_mu,
@@ -102,7 +102,7 @@ prior_sample <- function(dat, model = "drm") {
              w_t         = w_t))
   }
   if (iid_re) {
-    log_sigma_i <- stats::rnorm(1, dat$pr_lsigma_i_mu, dat$pr_lsigma_i_sd)
+    log_sigma_i <- log(rtcauchy(1, dat$pr_sigma_i_loc, dat$pr_sigma_i_scale))
     ## Stan: z_i ~ normal(0, sigma_i * sqrt(n / (n - 1))), summing to zero
     n <- dat$n_sites
     out <-
@@ -116,9 +116,9 @@ prior_sample <- function(dat, model = "drm") {
     n_raw <- dat$n_sites - dat$n_comp_s
     out <-
       c(out,
-        list(log_sigma_s = array(stats::rnorm(1,
-                                              dat$pr_lsigma_s_mu,
-                                              dat$pr_lsigma_s_sd),
+        list(log_sigma_s = array(log(rtcauchy(1,
+                                              dat$pr_sigma_s_loc,
+                                              dat$pr_sigma_s_scale)),
                                  dim = 1),
              w_s_raw     = array(stats::rnorm(n_raw), dim = n_raw)))
   }

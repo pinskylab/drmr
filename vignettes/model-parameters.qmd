@@ -89,19 +89,19 @@ distribution, and the second name sets the second argument.
 | $\tanh^{-1}(\alpha) \sim \mathrm{N}(0, 0.75)$ | `pr_alpha_mu`,       |
 |                                               | `pr_alpha_sd`        |
 +-----------------------------------------------+----------------------+
-| $\log \sigma_t \sim \mathrm{N}(-2, 0.25)$     | `pr_lsigma_t_mu`,    |
-|                                               | `pr_lsigma_t_sd`     |
+| $\sigma_t \sim \mathrm{Cauchy}^{+}(0, 1)$     | `pr_sigma_t_loc`,    |
+|                                               | `pr_sigma_t_scale`   |
 +-----------------------------------------------+----------------------+
 | $z_t$ follows the AR(1) process               | None                 |
 +-----------------------------------------------+----------------------+
-| $\log \sigma_i \sim \mathrm{N}(-2, 0.25)$     | `pr_lsigma_i_mu`,    |
-|                                               | `pr_lsigma_i_sd`     |
+| $\sigma_i \sim \mathrm{Cauchy}^{+}(0, 1)$     | `pr_sigma_i_loc`,    |
+|                                               | `pr_sigma_i_scale`   |
 +-----------------------------------------------+----------------------+
 | $z_i \sim \mathrm{N}(0, \sigma_i)$, with      | None                 |
 | $\sum_i z_i = 0$                              |                      |
 +-----------------------------------------------+----------------------+
-| $\log \sigma_s \sim \mathrm{N}(-2, 0.25)$     | `pr_lsigma_s_mu`,    |
-|                                               | `pr_lsigma_s_sd`     |
+| $\sigma_s \sim \mathrm{Cauchy}^{+}(0, 1)$     | `pr_sigma_s_loc`,    |
+|                                               | `pr_sigma_s_scale`   |
 +-----------------------------------------------+----------------------+
 | $z_s$ follows the scaled ICAR model           | None                 |
 +-----------------------------------------------+----------------------+
@@ -111,11 +111,14 @@ Notes on the default priors:
 - Each coefficient in $\boldsymbol{\beta}_t$, $\boldsymbol{\beta}_r$, and
   $\boldsymbol{\beta}_s$ has its own normal prior. By default, each prior is
   $\mathrm{N}(0, 1)$.
-- The priors on $\xi$, $\alpha$, $\sigma_t$, $\sigma_i$, and $\sigma_s$ apply
-  to transformed values. The transformations keep $\xi < 0$,
-  $-1 < \alpha < 1$, and the SDs positive.
-- The default priors on $\sigma_t$, $\sigma_i$, and $\sigma_s$ are
-  informative. Each one puts about 95% of its mass between 0.08 and 0.22.
+- The priors on $\xi$ and $\alpha$ apply to transformed values. The
+  transformations keep $\xi < 0$ and $-1 < \alpha < 1$.
+- $\mathrm{Cauchy}^{+}(\ell, s)$ is a Cauchy distribution with location
+  $\ell$ and scale $s$, truncated to positive values. With $\ell = 0$, it is
+  the half-Cauchy distribution.
+- The default priors on $\sigma_t$, $\sigma_i$, and $\sigma_s$ are weakly
+  informative. Each one has a median of 1 and puts 95% of its mass below
+  12.7.
 - The default prior on $\alpha$ puts about 95% of its mass between $-0.90$ and
   $0.90$.
 - With `family = "loglogistic"`, the prior on $\phi$ is truncated to

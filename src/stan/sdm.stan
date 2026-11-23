@@ -47,13 +47,13 @@ data {
   real pr_phi_a; // revise this. It is for phi in gamma, loglogistic, and
                  // inverse-gaussian
   real pr_phi_b;
-  // * now AR SD parameters have pcpriors
-  real pr_lsigma_t_mu; 
-  real pr_lsigma_t_sd;
-  real pr_lsigma_i_mu; 
-  real pr_lsigma_i_sd;
-  real pr_lsigma_s_mu; 
-  real pr_lsigma_s_sd;
+  // random effect SDs: Cauchy priors truncated to positive values
+  real pr_sigma_t_loc;
+  real<lower = 0> pr_sigma_t_scale;
+  real pr_sigma_i_loc;
+  real<lower = 0> pr_sigma_i_scale;
+  real pr_sigma_s_loc;
+  real<lower = 0> pr_sigma_s_scale;
   real pr_alpha_mu; 
   real pr_alpha_sd;
   real pr_lmxi_mu;
@@ -179,20 +179,29 @@ model {
   //--- AR process ----
   if (ar_re) {
     target += std_normal_lpdf(w_t);
-    target += normal_lpdf(log_sigma_t[1] | pr_lsigma_t_mu, pr_lsigma_t_sd);
+    // half-Cauchy prior on sigma_t; the last term is the log Jacobian
+    // of sigma_t = exp(log_sigma_t)
+    target += cauchy_lpdf(sigma_t[1] | pr_sigma_t_loc, pr_sigma_t_scale) -
+      cauchy_lccdf(0 | pr_sigma_t_loc, pr_sigma_t_scale) + log_sigma_t[1];
     target += normal_lpdf(atanh_alpha[1] | pr_alpha_mu, pr_alpha_sd);
   }
   //--- IID RE ----
   if (iid_re) {
-    target += normal_lpdf(log_sigma_i[1] | pr_lsigma_i_mu, pr_lsigma_i_sd);
+    // half-Cauchy prior on sigma_i; the last term is the log Jacobian
+    // of sigma_i = exp(log_sigma_i)
+    target += cauchy_lpdf(sigma_i[1] | pr_sigma_i_loc, pr_sigma_i_scale) -
+      cauchy_lccdf(0 | pr_sigma_i_loc, pr_sigma_i_scale) + log_sigma_i[1];
     // z_i has n_sites - 1 free values, but normal_lpdf normalizes over
-    // n_sites values. Adding log(sigma_i) removes the extra -log(sigma_i),
-    // so the prior on log_sigma_i is the one stated above.
+    // n_sites values. Adding log(sigma_i) removes the extra -log(sigma_i).
+    // This term is separate from the Jacobian above.
     target += normal_lpdf(z_i[1] | 0, sigma_i[1] * s_iid) + log_sigma_i[1];
   }
   //--- SP RE ----
   if (sp_re) {
-    target += normal_lpdf(log_sigma_s[1] | pr_lsigma_s_mu, pr_lsigma_s_sd);
+    // half-Cauchy prior on sigma_s; the last term is the log Jacobian
+    // of sigma_s = exp(log_sigma_s)
+    target += cauchy_lpdf(sigma_s[1] | pr_sigma_s_loc, pr_sigma_s_scale) -
+      cauchy_lccdf(0 | pr_sigma_s_loc, pr_sigma_s_scale) + log_sigma_s[1];
     // ICAR prior (each pair of neighbors appears once)
     target += -0.5 * dot_self(w_s[neighbors[1]] - w_s[neighbors[2]]);
     // sites with no neighbors: independent standard normal
