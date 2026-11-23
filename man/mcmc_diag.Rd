@@ -32,5 +32,5 @@ problems and returns them invisibly, as a \code{list}.
 MCMC convergence diagnostics for \code{adrm} and \code{sdm} objects
 }
 \author{
-lcgodoy
+Anonymous
 }

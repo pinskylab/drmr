@@ -74,5 +74,5 @@ training data. A factor must have the same levels as in the training
 data.
 }
 \author{
-lcgodoy
+Anonymous
 }

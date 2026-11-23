@@ -14,5 +14,5 @@ sizes that the Stan models expect when \code{sp_re} is off.
 Placeholder ICAR data for models without ICAR effects
 }
 \author{
-lcgodoy
+Anonymous
 }

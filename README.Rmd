@@ -12,18 +12,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-# drmr <a href="https://pinskylab.github.io/drmr/"><img src="man/figures/logo.png" align="right" height="120" alt="drmr website" /></a>
+# drmr <img src="man/figures/logo.png" align="right" height="120" alt="logo" />
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/pinskylab/drmr/workflows/check-cran/badge.svg)](https://github.com/pinskylab/drmr/actions)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 > **Warning:** If working on a MacOS (or Linux) machine, one should install
-> `data.table` and `cmdstanr` from source in order to use the
-> package. Otherwise, one get `segmentation fault` errors which are hard to
-> debug (and also not a `drmr`, but rather a `cmdstanr` issue). To install a
-> package from source, one should use:
+> `data.table` from source in order to use the package. Otherwise, one get
+> `segmentation fault` errors which are hard to debug (and also not a `drmr`,
+> but rather a `cmdstanr` issue). To install a package from source, one should
+> use:
 ``` r
 install.packages("<package>", type = "source")
 ```
@@ -39,22 +38,34 @@ population models in which demographic rates (e.g., reproduction or mortality)
 are influenced by the environment. Inference is carried out in a Bayesian
 framework via Markov Chain Monte Carlo (MCMC) samples available in `Stan`.
 
-For details, please see Vignettes linked below and [da Cunha Godoy et
+For details, please see the vignettes listed below and [da Cunha Godoy et
 al. 2026](https://ecoevorxiv.org/repository/view/12564/).
 
 ### Installation
 
-The installation of the development version from GitHub can be done via
+`drmr` compiles its Stan models during installation, so it needs CmdStan.
+Before you install `drmr`, install the `cmdstanr` package and CmdStan 2.38.0:
 
 ``` r
-remotes::install_github("pinskylab/drmr")
-## or devtools::install_github("pinskylab/drmr")
+install.packages("cmdstanr",
+                 repos = c("https://stan-dev.r-universe.dev",
+                           getOption("repos")))
+cmdstanr::install_cmdstan(version = "2.38.0")
 ```
+
+Then install `drmr` from your copy of the package. Replace `path/to/drmr` with
+the path to the package folder or `.tar.gz` file:
+
+``` r
+remotes::install_local("path/to/drmr")
+```
+
 ### Vignettes
 
-* [Get started](https://pinskylab.github.io/drmr/articles/get-started.html)
+* Get started
 * [Theoretical background](https://ecoevorxiv.org/repository/view/12564/)
-* [Algorithms](https://pinskylab.github.io/drmr/articles/algos.html)
-* [Initializing densities](https://pinskylab.github.io/drmr/articles/init.html)
-* [Parameterization of the density functions](https://pinskylab.github.io/drmr/articles/parametrization.html)
-* [Advanced features](https://pinskylab.github.io/drmr/articles/advanced-features.html)
+* Model parameters and priors
+* Algorithms
+* Initializing densities
+* Parameterization of the density functions
+* Advanced features

@@ -9,7 +9,7 @@
 ##' @seealso [make_data()], [make_data_sdm()]
 ##' @keywords internal
 ##' @export
-##' @author lcgodoy
+##' @author Anonymous
 check_pars <- function(dat, model) {
   if (model == "drm") {
     names_check <-
@@ -35,7 +35,7 @@ check_pars <- function(dat, model) {
 ##'   of the model parameters.
 ##' @seealso [prior_inits()]
 ##' @export
-##' @author lcgodoy
+##' @author Anonymous
 prior_sample <- function(dat, model = "drm") {
   check_pars(dat, model)
   ## toggles are numbers after make_data(): 0 means "off"
@@ -138,22 +138,9 @@ prior_sample <- function(dat, model = "drm") {
                                        sd = dat$pr_beta_s_sd),
                           dim = c(1, dat$K_m))
     }
-    if (dat$rec_dd < 2) {
-      out$kappa <- array(rtn(1,
-                             mean = dat$pr_kappa_mu,
-                             sd = dat$pr_kappa_sd,
-                             range = c(0, Inf)),
-                         dim = 1)
-    }
     if (dat$est_init) {
-      len_init <- n_init(dat$n_ages, dat$rec_dd)
+      len_init <- dat$n_ages - 1
       out$log_init <- array(stats::rnorm(len_init), dim = len_init)
-    }
-    if (dat$minit == 2 && dat$rec_dd < 2) {
-      out$log_init_scale <- array(stats::rnorm(1,
-                                               dat$pr_linit_scale_mu,
-                                               dat$pr_linit_scale_sd),
-                                  dim = 1)
     }
   }
   return(out)
@@ -170,7 +157,7 @@ prior_sample <- function(dat, model = "drm") {
 ##'   the output of \code{prior_sample()}.
 ##' @seealso [prior_sample()]
 ##' @export
-##' @author lcgodoy
+##' @author Anonymous
 prior_inits <- function(dat, chains, model = "drm") {
   check_pars(dat, model)
   out <-

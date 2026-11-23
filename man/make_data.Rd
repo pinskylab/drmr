@@ -19,8 +19,6 @@ make_data(
   ages_movement,
   adj_mat = matrix(0, ncol = 1, nrow = 1),
   areas = NULL,
-  amat = NULL,
-  weight = NULL,
   .toggles,
   .priors,
   family = "gamma"
@@ -35,10 +33,8 @@ element of \code{y}.}
 \item{site}{a \code{vector} indicating the sites associated to each element
 of \code{y}.}
 
-\item{init_data}{an optional vector with the log-densities at the first
-time point. Without density dependence, give ages 2 to \code{n_ages}
-(length \code{n_ages - 1}). With density dependence, give ages 1 to
-\code{n_ages} (length \code{n_ages}).}
+\item{init_data}{an optional vector with the log-densities of ages 2 to
+\code{n_ages} at the first time point (length \code{n_ages - 1}).}
 
 \item{f_mort}{an optional \code{matrix} informing the instantaneous fishing
 mortality rates at each age (rows) and time point (columns).}
@@ -87,27 +83,16 @@ al., 2018). See \code{\link[=icar_data]{icar_data()}}.}
 
 \item{areas}{an optional \code{numeric vector} with the area of each site.
 All values must be positive. \code{NULL} (the default) means an area of
-1 for each site, with a warning when the model uses the areas. Two
-parts of the model use \code{areas}:
-\itemize{
-\item Movement converts density to abundance (density times area),
-moves the abundance, and converts it back to density. So movement does
-not change the total abundance. Individuals at a site with no neighbors
-stay at that site.
-\item Density dependence with \code{acc_dd = 1} uses the mean SSB
-density of the region, weighted by area.
-}
+1 for each site, with a warning when the model uses the areas. Movement
+uses \code{areas}: it converts density to abundance (density times
+area), moves the abundance, and converts it back to density. So
+movement does not change the total abundance. Individuals at a site
+with no neighbors stay at that site.
 Only the ratios between areas matter, so any unit works. We recommend a
 named vector: the function matches the names to the site names and
 ignores extra names. An unnamed vector must follow the order of
 \code{levels(factor(site))}, which is also the order of the rows of
 \code{adj_mat}.}
-
-\item{amat}{a \code{numeric vector} of length \code{n_ages} specifying the
-maturity-at-age.}
-
-\item{weight}{a \code{numeric vector} of length \code{n_ages} specifying the
-weight-at-age.}
 
 \item{.toggles}{a \code{list} of toggles for model components. The
 components are: \itemize{ \item \code{rho_mu}: 1 to explicitly relate rho
@@ -117,19 +102,7 @@ log-log and 0 for the logit link function for the absence probabilities.
 \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
 \item \code{minit}: 1 to use mortality to estimate initial age classes and
-0 otherwise. With density-dependent recruitment, 1 starts from the
-equilibrium age structure at the first time point, and 2 starts from
-the equilibrium age structure times a scale \eqn{d} that the model
-estimates, with \eqn{\log d \sim N(}\code{pr_linit_scale_mu},
-\code{pr_linit_scale_sd}\eqn{)}. The value 2 needs density-dependent
-recruitment. \item
-\code{rec_dd}: "ricker" for Ricker, "bh" for
-Beverton-Holt, and "none" (default) for no density dependence. \item
-\code{acc_dd}: 0 for recruitment to depend on the SSB of the patch
-(default), and 1 for recruitment to depend on the "global" (i.e., the
-whole study region) SSB. The global SSB is the mean SSB density of the
-patches, weighted by \code{areas}. \item \code{ar_re}: a
-\code{character}. It
+0 otherwise. \item \code{ar_re}: a \code{character}. It
 assumes one of the following values: "none" no AR, "rec" AR(1) for
 recruitment, "surv" AR(1) for survival (only works when \code{est_surv} is
 on), "dens" AR(1) for density. \item \code{iid_re}: a \code{character}. It
@@ -166,5 +139,5 @@ model.
 The function sorts the data by site and then by time.
 }
 \author{
-lcgodoy
+Anonymous
 }

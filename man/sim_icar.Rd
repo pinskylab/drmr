@@ -30,5 +30,5 @@ value. The function returns \code{sigma * w / sqrt(scaling)}, which is
 \code{z_s} in \code{drm.stan}.
 }
 \author{
-lcgodoy
+Anonymous
 }

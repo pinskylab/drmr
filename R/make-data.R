@@ -8,10 +8,8 @@
 ##'   element of \code{y}.
 ##' @param site a \code{vector} indicating the sites associated to each element
 ##'   of \code{y}.
-##' @param init_data an optional vector with the log-densities at the first
-##'   time point. Without density dependence, give ages 2 to \code{n_ages}
-##'   (length \code{n_ages - 1}). With density dependence, give ages 1 to
-##'   \code{n_ages} (length \code{n_ages}).
+##' @param init_data an optional vector with the log-densities of ages 2 to
+##'   \code{n_ages} at the first time point (length \code{n_ages - 1}).
 ##' @param f_mort an optional \code{matrix} informing the instantaneous fishing
 ##'   mortality rates at each age (rows) and time point (columns).
 ##' @param m a \code{numeric} value corresponding to the instantaneous natural
@@ -50,25 +48,16 @@
 ##'   al., 2018). See [icar_data()].
 ##' @param areas an optional \code{numeric vector} with the area of each site.
 ##'   All values must be positive. \code{NULL} (the default) means an area of
-##'   1 for each site, with a warning when the model uses the areas. Two
-##'   parts of the model use \code{areas}:
-##'   \itemize{
-##'   \item Movement converts density to abundance (density times area),
-##'   moves the abundance, and converts it back to density. So movement does
-##'   not change the total abundance. Individuals at a site with no neighbors
-##'   stay at that site.
-##'   \item Density dependence with \code{acc_dd = 1} uses the mean SSB
-##'   density of the region, weighted by area.
-##'   }
+##'   1 for each site, with a warning when the model uses the areas. Movement
+##'   uses \code{areas}: it converts density to abundance (density times
+##'   area), moves the abundance, and converts it back to density. So
+##'   movement does not change the total abundance. Individuals at a site
+##'   with no neighbors stay at that site.
 ##'   Only the ratios between areas matter, so any unit works. We recommend a
 ##'   named vector: the function matches the names to the site names and
 ##'   ignores extra names. An unnamed vector must follow the order of
 ##'   \code{levels(factor(site))}, which is also the order of the rows of
 ##'   \code{adj_mat}.
-##' @param amat a \code{numeric vector} of length \code{n_ages} specifying the
-##'   maturity-at-age.
-##' @param weight a \code{numeric vector} of length \code{n_ages} specifying the
-##'   weight-at-age.
 ##' @param .toggles a \code{list} of toggles for model components. The
 ##'   components are: \itemize{ \item \code{rho_mu}: 1 to explicitly relate rho
 ##'   to mu and 0 otherwise.  \item \code{cloglog}: 1 to use the complementary
@@ -77,19 +66,7 @@
 ##'   \item \code{est_surv}: 1 to estimate mortality and 0 otherwise.  \item
 ##'   \code{est_init}: 1 to estimate initial values for lambda and 0 otherwise.
 ##'   \item \code{minit}: 1 to use mortality to estimate initial age classes and
-##'   0 otherwise. With density-dependent recruitment, 1 starts from the
-##'   equilibrium age structure at the first time point, and 2 starts from
-##'   the equilibrium age structure times a scale \eqn{d} that the model
-##'   estimates, with \eqn{\log d \sim N(}\code{pr_linit_scale_mu},
-##'   \code{pr_linit_scale_sd}\eqn{)}. The value 2 needs density-dependent
-##'   recruitment. \item
-##'   \code{rec_dd}: "ricker" for Ricker, "bh" for
-##'   Beverton-Holt, and "none" (default) for no density dependence. \item
-##'   \code{acc_dd}: 0 for recruitment to depend on the SSB of the patch
-##'   (default), and 1 for recruitment to depend on the "global" (i.e., the
-##'   whole study region) SSB. The global SSB is the mean SSB density of the
-##'   patches, weighted by \code{areas}. \item \code{ar_re}: a
-##'   \code{character}. It
+##'   0 otherwise. \item \code{ar_re}: a \code{character}. It
 ##'   assumes one of the following values: "none" no AR, "rec" AR(1) for
 ##'   recruitment, "surv" AR(1) for survival (only works when \code{est_surv} is
 ##'   on), "dens" AR(1) for density. \item \code{iid_re}: a \code{character}. It
@@ -107,7 +84,7 @@
 ##' @inheritParams fit_drm
 ##' @return A \code{list} containing the data and settings to be used as input
 ##'   for the Stan model.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 make_data <- function(y,
                       time,
@@ -123,8 +100,6 @@ make_data <- function(y,
                       ages_movement,
                       adj_mat = matrix(0, ncol = 1, nrow = 1),
                       areas = NULL,
-                      amat = NULL,
-                      weight = NULL,
                       .toggles,
                       .priors,
                       family = "gamma") {
@@ -145,12 +120,8 @@ make_data <- function(y,
     stop("Random effects on survival (\"surv\") need ",
          "'.toggles = list(est_surv = 1)'.", call. = FALSE)
   }
-  if (!toggles$minit %in% 0:2) {
-    stop("'minit' must be 0, 1, or 2.", call. = FALSE)
-  }
-  if (toggles$minit == 2 && toggles$rec_dd == 2) {
-    stop("'minit = 2' needs density-dependent recruitment. ",
-         "Set 'rec_dd' to \"ricker\" or \"bh\".", call. = FALSE)
+  if (!toggles$minit %in% 0:1) {
+    stop("'minit' must be 0 or 1.", call. = FALSE)
   }
   ## getting the default priors and using user options
   priors <- default_priors() |>
@@ -175,10 +146,6 @@ make_data <- function(y,
     stopifnot(length(age_selectivity) == n_ages)
     selectivity_at_age <- age_selectivity
   }
-  if (is.null(amat))
-    amat <- rep(1, n_ages)
-  if (is.null(weight))
-    weight <- rep(1, n_ages)
   if (toggles$movement || toggles$sp_re > 0) {
     check_adj_mat(adj_mat, n_sites)
   }
@@ -197,11 +164,9 @@ make_data <- function(y,
   }
   if (is.null(areas)) {
     areas <- rep(1, n_sites)
-    uses_areas <- toggles$movement == 1 ||
-      (toggles$rec_dd < 2 && toggles$acc_dd == 1)
-    if (uses_areas && n_sites > 1) {
+    if (toggles$movement == 1 && n_sites > 1) {
       warning("'areas' is NULL, so all sites have an area of 1. ",
-              "Movement and regional density dependence use the areas.",
+              "Movement uses the areas.",
               call. = FALSE)
     }
   } else {
@@ -263,7 +228,7 @@ make_data <- function(y,
                                           "pr_beta_t_sd")
   }
   if (!toggles$est_init) {
-    len_init <- n_init(n_ages, toggles$rec_dd)
+    len_init <- n_ages - 1
     if (length(init_data) > 0) {
       stopifnot(length(init_data) == len_init)
     } else {
@@ -309,9 +274,7 @@ make_data <- function(y,
                  n_edges_adj = n_edges_adj,
                  areas = areas,
                  ages_movement = ages_movement,
-                 selectivity_at_age = selectivity_at_age,
-                 amat = amat,
-                 weight = weight) |>
+                 selectivity_at_age = selectivity_at_age) |>
     c(icar,
       zeros,
       toggles,
@@ -347,7 +310,7 @@ make_data <- function(y,
 ##'   otherwise.}
 ##' @return A \code{list} containing the data and settings to be used as input
 ##'   for the Stan model.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 make_data_sdm <- function(y,
                           time,

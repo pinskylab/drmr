@@ -22,5 +22,5 @@ Draws one set of parameters from the priors in
 \code{\link[=prior_pars]{prior_pars()}}, \code{\link[=model_sim]{model_sim()}}
 }
 \author{
-lcgodoy
+Anonymous
 }

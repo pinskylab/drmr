@@ -113,7 +113,7 @@ int_score <- function(y, l, u, alpha) {
 ##'   training data. A factor must have the same levels as in the training
 ##'   data.
 ##'
-##' @author lcgodoy
+##' @author Anonymous
 ##'
 ##' @name preddrm
 ##' @seealso [fit_drm()]
@@ -198,8 +198,6 @@ predict.adrm <- function(object,
          sp_re = object$data$sp_re,
          movement = object$data$movement,
          est_surv = object$data$est_surv,
-         rec_dd = object$data$rec_dd,
-         acc_dd = object$data$acc_dd,
          cloglog = object$data$cloglog,
          likelihood = object$data$likelihood,
          type = type_prep,
@@ -208,8 +206,6 @@ predict.adrm <- function(object,
          f = f_test,
          f_past = object$data$f,
          m = object$data$m,
-         amat = object$data$amat,
-         weight = object$data$weight,
          adj_mat = object$data$adj_mat,
          n_edges_adj = get_n_edges_adj(object$data),
          areas = get_areas(object$data),
@@ -278,7 +274,7 @@ predict.adrm <- function(object,
 ##'   training data. A factor must have the same levels as in the training
 ##'   data.
 ##'
-##' @author lcgodoy
+##' @author Anonymous
 ##'
 ##' @return An object of class \code{CmdStanGQ} (from the \code{instantiate}
 ##'   package) containing samples for the posterior predictive distribution for

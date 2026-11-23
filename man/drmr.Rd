@@ -8,21 +8,12 @@
 \description{
 Fitting process-based species distribution models in stan.
 }
-\seealso{
-Useful links:
-\itemize{
-  \item \url{https://pinskylab.github.io/drmr/}
-  \item Report bugs at \url{https://github.com/pinskylab/drmr/issues/}
-}
-
-}
 \author{
-\strong{Maintainer}: Lucas da Cunha Godoy \email{lcgodoy@duck.com} (\href{https://orcid.org/0000-0003-4265-972X}{ORCID})
+\strong{Maintainer}: Anonymous \email{anonymous@example.com}
 
 Authors:
 \itemize{
-  \item Lucas da Cunha Godoy \email{lcgodoy@duck.com} (\href{https://orcid.org/0000-0003-4265-972X}{ORCID})
-  \item Malin Pinsky \email{mpinsky@ucsc.edu} (\href{https://orcid.org/0000-0002-8523-8952}{ORCID})
+  \item Anonymous \email{anonymous@example.com}
 }
 
 }

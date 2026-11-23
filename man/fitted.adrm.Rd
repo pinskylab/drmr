@@ -30,5 +30,5 @@ object. These fitted values are useful for "hindcasts" and posterior
 predictive checks.
 }
 \author{
-lcgodoy
+Anonymous
 }

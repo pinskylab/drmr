@@ -9,7 +9,7 @@
 ##' @param re_codes a named \code{numeric} vector with the valid codes of the
 ##'   random effect toggles (\code{ar_re}, \code{iid_re}, and \code{sp_re}).
 ##' @return The updated \code{original} list.
-##' @author lcgodoy
+##' @author Anonymous
 safe_modify <- function(original, replacements,
                         re_codes = c(none = 0, rec = 1, surv = 2, dens = 3)) {
   if (!missing(replacements)) {
@@ -23,10 +23,6 @@ safe_modify <- function(original, replacements,
       if (re %in% names(replacements)) {
         replacements[[re]] <- fix_re(replacements[[re]], re, re_codes)
       }
-    }
-    if ("rec_dd" %in% names(replacements)) {
-      replacements[["rec_dd"]] <-
-        fix_dd(replacements[["rec_dd"]])
     }
     out <- utils::modifyList(original, replacements)
   } else {
@@ -44,7 +40,7 @@ safe_modify <- function(original, replacements,
 ##' @param codes a named \code{numeric} vector with the valid codes.
 ##' @param name the name of the toggle, for the error message.
 ##' @return A \code{numeric} scalar.
-##' @author lcgodoy
+##' @author Anonymous
 toggle_code <- function(x, codes, name) {
   if (is.numeric(x) && length(x) == 1 && !is.na(x) && x %in% codes) {
     return(as.numeric(x))
@@ -60,31 +56,10 @@ toggle_code <- function(x, codes, name) {
 ##' @title Random effects verbose to code
 ##' @inheritParams toggle_code
 ##' @return A \code{numeric} scalar.
-##' @author lcgodoy
+##' @author Anonymous
 fix_re <- function(x, name = "random effect toggle",
                    codes = c(none = 0, rec = 1, surv = 2, dens = 3)) {
   toggle_code(x, codes, name)
-}
-
-##' @title Density dependence verbose to code
-##' @inheritParams toggle_code
-##' @return A \code{numeric} scalar.
-##' @author lcgodoy
-fix_dd <- function(x) {
-  toggle_code(x, c(ricker = 0, bh = 1, none = 2), "rec_dd")
-}
-
-##' @title Number of initial log-densities
-##' @description With density dependence, the first time point needs the
-##'   densities of ages 1 to \code{n_ages}. Without it, recruitment gives the
-##'   density of age 1, so the first time point needs ages 2 to
-##'   \code{n_ages} only.
-##' @inheritParams make_data
-##' @inheritParams pop_dyn
-##' @return A \code{numeric} scalar.
-##' @author lcgodoy
-n_init <- function(n_ages, rec_dd) {
-  if (rec_dd < 2) n_ages else n_ages - 1
 }
 
 ##' @title Match prior hyperparameters to the coefficients
@@ -96,7 +71,7 @@ n_init <- function(n_ages, rec_dd) {
 ##' @param name the name of the prior, for the error message.
 ##' @return A \code{numeric} vector with \code{k} elements. When \code{k}
 ##'   is 1, it is an \code{array} of size 1, as Stan needs.
-##' @author lcgodoy
+##' @author Anonymous
 fix_beta_prior <- function(x, k, default, name) {
   if (length(x) == 0)
     x <- default
@@ -115,7 +90,7 @@ fix_beta_prior <- function(x, k, default, name) {
 ##' @inheritParams make_data
 ##' @return A \code{list} containing necessary input for stan to identify zeros
 ##'   and nonzeros in the response variable.
-##' @author lcgodoy
+##' @author Anonymous
 get_zeros <- function(y) {
   stopifnot(NCOL(y) == 1)
   stopifnot(all(y[!is.na(y)] >= 0))

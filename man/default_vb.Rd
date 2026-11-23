@@ -13,5 +13,5 @@ A \code{list} containing the default arguments for the Variational Bayes algorit
 Returns default for Variational Bayes
 }
 \author{
-lcgodoy
+Anonymous
 }

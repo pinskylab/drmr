@@ -10,12 +10,6 @@ pop_dyn(
   f,
   init,
   minit = 0,
-  init_scale = 1,
-  rec_dd = 2,
-  kappa = NULL,
-  amat = NULL,
-  weight = NULL,
-  acc_dd = 0,
   zeta = NULL,
   adj_mat = NULL,
   ages_movement = NULL,
@@ -32,29 +26,11 @@ log-survival (\eqn{\log s_{t, i}}).}
 \item{f}{a \code{n_ages} by \code{n_time} \code{matrix} with the
 instantaneous fishing mortality rates.}
 
-\item{init}{a \code{numeric} vector with the log-densities at the first
-time point: ages 2 to \code{n_ages} without density dependence, and
-ages 1 to \code{n_ages} with it.}
+\item{init}{a \code{numeric} vector with the log-densities of ages 2 to
+\code{n_ages} at the first time point.}
 
 \item{minit}{1 to start from the age structure that survival implies at
-the first time point (with density dependence, the equilibrium age
-structure), and 0 to use \code{init}. With density dependence, 2 starts
-from the equilibrium age structure times \code{init_scale}.}
-
-\item{init_scale}{a positive scale for the equilibrium densities. The
-function uses it only if \code{minit = 2}.}
-
-\item{rec_dd}{0 for Ricker, 1 for Beverton-Holt, and 2 for no density
-dependence.}
-
-\item{kappa}{density-dependence parameter.}
-
-\item{amat}{maturity-at-age vector.}
-
-\item{weight}{weight-at-age vector.}
-
-\item{acc_dd}{1 to use the area-weighted mean SSB density of the whole
-region, and 0 to use the SSB density of each site.}
+the first time point, and 0 to use \code{init}.}
 
 \item{zeta}{probability of staying at the same site. \code{NULL} means no
 movement.}
@@ -74,20 +50,13 @@ an \code{array} of expected densities with dimensions
 }
 \description{
 Computes the expected density by age, time, and site. The
-function follows the Stan functions \code{simplest},
-\code{simplest_movement}, \code{pop_rec_dd}, and
-\code{pop_rec_dd_movement} in \code{age_struct.stanfunctions}.
+function follows the Stan functions \code{simplest} and
+\code{simplest_movement} in \code{age_struct.stanfunctions}.
 }
 \details{
 These details follow the Stan code on purpose:
 \itemize{
-\item Without density dependence, recruitment at the first time point
-is \code{exp(log_rec[1, ])}.
-\item With density dependence, \code{minit = 1} starts from the
-equilibrium age structure (see \code{\link[=dd_init_eq]{dd_init_eq()}}), \code{minit = 2}
-multiplies that age structure by \code{init_scale}, and
-\code{minit = 0} takes the densities of ages 1 to \code{n_ages} from
-\code{init}.
+\item Recruitment at the first time point is \code{exp(log_rec[1, ])}.
 \item Movement is \code{zeta * x + (1 - zeta) * solve(A) \%*\% t(W)
   \%*\% A \%*\% x}, where \code{W} is the row-standardized adjacency
 matrix and \code{A} is \code{diag(areas)}. So the \code{(1 - zeta)}
@@ -97,10 +66,8 @@ for a 0/1 matrix), and the total abundance (density times area) stays
 the same.
 For a site with no neighbors, \code{W} has a 1 on the diagonal, so its
 individuals stay there.
-\item With \code{acc_dd = 1}, the SSB is the mean SSB density of the
-sites, weighted by \code{areas}.
 }
 }
 \author{
-lcgodoy
+Anonymous
 }

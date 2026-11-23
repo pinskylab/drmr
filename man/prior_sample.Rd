@@ -28,5 +28,5 @@ not draws from the ICAR prior.
 \code{\link[=prior_inits]{prior_inits()}}
 }
 \author{
-lcgodoy
+Anonymous
 }

@@ -51,8 +51,6 @@ test_that("sim_drm() works with valid inputs", {
   expect_type(do.call(sim_drm, movement_args()), "list")
   ## the toggles that the tests below use
   ok <- list(
-    list(list(rec_dd = "ricker"), list(kappa = 1)),
-    list(list(rec_dd = "bh"), list(kappa = 1)),
     list(list(rho_mu = 1), list(xi = -0.5)),
     list(list(est_init = 1), list(log_init = c(0, 0, 0))),
     list(list(ar_re = "rec"), list(alpha = 0.5, sigma_t = 0.3)),
@@ -183,10 +181,6 @@ test_that("sim_drm() stops when pars lacks a required parameter", {
 
 test_that("sim_drm() stops when pars lacks a parameter for a toggle", {
   set.seed(2026)
-  args <- sim_args()
-  args$.toggles$rec_dd <- "bh"
-  expect_error(do.call(sim_drm, args), "'pars' must contain: kappa.",
-               fixed = TRUE)
   args <- movement_args()
   args$pars$zeta <- NULL
   expect_error(do.call(sim_drm, args), "'pars' must contain: zeta.",
@@ -296,12 +290,6 @@ test_that("sim_drm() stops when xi is positive", {
   expect_error(do.call(sim_drm, args))
 })
 
-test_that("sim_drm() stops when kappa is negative", {
-  set.seed(2026)
-  args <- toggle_args(list(rec_dd = "ricker"), list(kappa = -1))
-  expect_error(do.call(sim_drm, args))
-})
-
 test_that("sim_drm() stops when zeta is above 1", {
   set.seed(2026)
   args <- movement_args()
@@ -353,17 +341,6 @@ test_that("sim_drm() stops when f_mort has the wrong dimensions", {
   args$f_mort <- matrix(0, 4, 29)
   expect_error(do.call(sim_drm, args), msg, fixed = TRUE)
   args$f_mort <- matrix(0, 30, 4)
-  expect_error(do.call(sim_drm, args), msg, fixed = TRUE)
-})
-
-test_that("sim_drm() stops when amat or weight has the wrong length", {
-  set.seed(2026)
-  msg <- "'amat' and 'weight' must have one value per age."
-  args <- sim_args()
-  args$amat <- c(0, 1, 1)
-  expect_error(do.call(sim_drm, args), msg, fixed = TRUE)
-  args <- sim_args()
-  args$weight <- 1:5
   expect_error(do.call(sim_drm, args), msg, fixed = TRUE)
 })
 

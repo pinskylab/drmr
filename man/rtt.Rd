@@ -39,5 +39,5 @@ For details on the method used, see:
 \code{\link[stats:rt]{stats::rt()}}, \code{\link[stats:qt]{stats::qt()}}
 }
 \author{
-lcgodoy
+Anonymous
 }

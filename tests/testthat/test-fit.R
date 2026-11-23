@@ -422,14 +422,6 @@ test_that("fit_drm() stops when an argument in ... is a partial name", {
   expect_input_error(do.call(fit_drm, args))
 })
 
-test_that("fit_drm() stops when acc_dd is on without density dependence", {
-  skip("No input check yet")
-  local_no_stan()
-  args <- fit_args()
-  args$.toggles <- list(acc_dd = 1)
-  expect_input_error(do.call(fit_drm, args))
-})
-
 test_that("fit_drm() stops when init_data is given and est_init is on", {
   skip("No input check yet")
   local_no_stan()

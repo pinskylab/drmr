@@ -53,8 +53,8 @@ replaces an existing column with this name.}
 \item{...}{passed on to \code{\link[=make_data]{make_data()}}. For example: \code{n_ages},
 \code{f_mort} (one row per age and one column per time point),
 \code{m}, \code{init_data}, \code{age_selectivity},
-\code{ages_movement}, \code{adj_mat}, \code{areas}, \code{amat},
-\code{weight}, and \code{.toggles}.}
+\code{ages_movement}, \code{adj_mat}, \code{areas}, and
+\code{.toggles}.}
 }
 \value{
 A \code{list} with four elements:
@@ -85,21 +85,17 @@ the results reproducible.
 
 Give \code{pars} on the natural scale: standard deviations, not their
 logarithms, and \code{alpha}, not its inverse hyperbolic tangent. The
-exception is \code{log_init}, which holds the log-densities at the
-first time point: ages 2 to \code{n_ages} without density dependence,
-and ages 1 to \code{n_ages} with it. The elements that you need depend
-on the toggles:
+exception is \code{log_init}, which holds the log-densities of ages 2
+to \code{n_ages} at the first time point. The elements that you need
+depend on the toggles:
 \itemize{
 \item \code{beta_r} and \code{beta_t}: always.
 \item \code{phi}: always.
 \item \code{beta_s}: when \code{est_surv = 1}.
 \item \code{xi} (negative): when \code{rho_mu = 1}.
-\item \code{kappa}: when \code{rec_dd} is \code{"ricker"} or
-\code{"bh"}.
 \item \code{zeta}: when \code{movement = 1}.
 \item \code{log_init}: when \code{est_init = 1}. Otherwise, the
 simulation uses \code{init_data} from \code{\link[=make_data]{make_data()}}.
-\item \code{init_scale} (positive): when \code{minit = 2}.
 \item \code{alpha} and \code{sigma_t}: when \code{ar_re} is not
 \code{"none"}.
 \item \code{sigma_i}: when \code{iid_re} is not \code{"none"}.
@@ -134,5 +130,5 @@ head(sim$data)
 \code{\link[=fit_drm]{fit_drm()}}, \code{\link[=ages_edens]{ages_edens()}}
 }
 \author{
-lcgodoy
+Anonymous
 }

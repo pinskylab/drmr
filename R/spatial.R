@@ -4,7 +4,7 @@
 ##'   element per patch, in their order along the line.
 ##' @return An adjacency \code{matrix}. A patch with no neighbors, such as an
 ##'   island, gets a row and a column of zeros.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 gen_adj <- function(x) {
   if (inherits(x, "sf"))
@@ -34,7 +34,7 @@ gen_adj <- function(x) {
 ##' @return A \code{list} containing the number of edges and the neighbors.
 ##'   Each pair of neighbors appears once, so the ICAR precision is the graph
 ##'   Laplacian, the matrix that [get_scaling()] uses.
-##' @author lcgodoy
+##' @author Anonymous
 get_nodes <- function(adj) {
   adj <- as.matrix(adj)
   stopifnot(NROW(adj) == NCOL(adj))
@@ -50,7 +50,7 @@ get_nodes <- function(adj) {
 ##' @param a a symmetric 0/1 or \code{logical} adjacency \code{matrix} with an
 ##'   empty diagonal.
 ##' @return An \code{integer} vector with the component of each site.
-##' @author lcgodoy
+##' @author Anonymous
 get_components <- function(a) {
   n <- NROW(a)
   comp <- integer(n)
@@ -90,7 +90,7 @@ get_components <- function(a) {
 ##' @references Freni-Sterrantino, A., Ventrucci, M., and Rue, H. (2018). A
 ##'   note on intrinsic conditional autoregressive models for disconnected
 ##'   graphs. \emph{Spatial and Spatio-temporal Epidemiology}, 26, 25-34.
-##' @author lcgodoy
+##' @author Anonymous
 icar_data <- function(adj) {
   adj <- as.matrix(adj)
   stopifnot(NROW(adj) == NCOL(adj))
@@ -120,7 +120,7 @@ icar_data <- function(adj) {
 ##' @title Placeholder ICAR data for models without ICAR effects
 ##' @return A \code{list} with the same elements as [icar_data()], with the
 ##'   sizes that the Stan models expect when \code{sp_re} is off.
-##' @author lcgodoy
+##' @author Anonymous
 icar_data_none <- function() {
   return(list(N_edges = integer(0),
               neighbors = matrix(1L, ncol = 1, nrow = 1),
@@ -136,7 +136,7 @@ icar_data_none <- function() {
 ##' 
 ##' @inheritParams get_components
 ##' @return A \code{scalar} representing the scaling factor.
-##' @author lcgodoy
+##' @author Anonymous
 get_scaling <- function(a) {
   Q <- matrix(0, nrow = nrow(a), ncol = ncol(a))
   diag(Q) <- apply(a, 1, sum)
@@ -162,7 +162,7 @@ get_scaling <- function(a) {
 ##' @return \code{adj_mat}, invisibly. The function stops if \code{adj_mat}
 ##'   does not have one row and one column per site, or if it has values that
 ##'   are missing, infinite, or negative.
-##' @author lcgodoy
+##' @author Anonymous
 check_adj_mat <- function(adj_mat, n_sites) {
   a <- as.matrix(adj_mat)
   if (NROW(a) != n_sites || NCOL(a) != n_sites) {

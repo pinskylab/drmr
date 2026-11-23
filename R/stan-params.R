@@ -6,9 +6,8 @@
 ##'   \code{get_fitted_pars()} gives. \code{predict()} uses the same list,
 ##'   but for a DRM it drops \code{sigma_i}, which \code{predict.stan} does
 ##'   not need. \code{fitted_pars_lambda()} gives the inputs that
-##'   \code{ages_edens()} and \code{get_adults()} need, and
-##'   \code{fitted_pars_ll()} gives the inputs that \code{log_lik()} and
-##'   \code{fitted()} need.
+##'   \code{ages_edens()} needs, and \code{fitted_pars_ll()} gives the inputs
+##'   that \code{log_lik()} and \code{fitted()} need.
 ##'
 ##' @details \code{fitted_pars_lambda()} also needs the element \code{proj} in
 ##'   \code{dat}: 1 if the densities are also computed for new data, and 0
@@ -16,7 +15,7 @@
 ##'
 ##' @inheritParams prior_sample
 ##' @return a \code{character} vector with the names of the parameters.
-##' @author lcgodoy
+##' @author Anonymous
 get_fitted_pars <- function(dat, model = "drm") {
   stopifnot(inherits(dat, "list"))
   stopifnot(length(model) == 1)
@@ -36,8 +35,6 @@ fitted_pars_drm <- function(dat) {
   output <- c(output, "phi")
   if (dat$movement == 1)
     output <- c(output, "zeta")
-  if (dat$rec_dd < 2)
-    output <- c(output, "kappa")
   if (dat$est_surv == 1)
     output <- c(output, "beta_s")
   if (dat$ar_re > 0)
@@ -81,12 +78,8 @@ fitted_pars_lambda <- function(dat) {
     output <- c(output, "beta_s")
   if (dat$movement == 1)
     output <- c(output, "zeta")
-  if (dat$rec_dd < 2)
-    output <- c(output, "kappa")
   if (dat$est_init == 1)
     output <- c(output, "log_init")
-  if (dat$minit == 2 && dat$rec_dd < 2)
-    output <- c(output, "log_init_scale")
   return(output)
 }
 

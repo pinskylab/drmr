@@ -13,5 +13,5 @@ A \code{list} containing the default arguments for the NUTS algorithm.
 Returns default for NUTS
 }
 \author{
-lcgodoy
+Anonymous
 }

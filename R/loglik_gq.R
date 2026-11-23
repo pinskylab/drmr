@@ -5,7 +5,7 @@
 ##'   function evaluated at each data point given each sample from the
 ##'   posterior.
 ##' @name loglik
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 log_lik <- function(x, cores = 1) UseMethod("log_lik", x)
 

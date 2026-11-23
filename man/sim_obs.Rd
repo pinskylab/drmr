@@ -25,5 +25,5 @@ Each value is zero with probability \code{rho}. Otherwise, it comes
 from the family that \code{likelihood} selects.
 }
 \author{
-lcgodoy
+Anonymous
 }

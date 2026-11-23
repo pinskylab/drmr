@@ -19,5 +19,5 @@ island, gets a row and a column of zeros.
 Generates an adjacency matrix
 }
 \author{
-lcgodoy
+Anonymous
 }

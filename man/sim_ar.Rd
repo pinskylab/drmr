@@ -23,5 +23,5 @@ independent standard normal draws. The first value does not come from
 the stationary distribution.
 }
 \author{
-lcgodoy
+Anonymous
 }

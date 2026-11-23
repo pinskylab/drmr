@@ -2,7 +2,7 @@
 ##'
 ##' @title Default priors' hyperparameters
 ##' @return A \code{list} containing the default hyperparameter values for the priors.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 default_priors <- function() {
   list(pr_phi_a = 2,
@@ -24,18 +24,14 @@ default_priors <- function() {
        pr_beta_s_mu = numeric(0),
        pr_beta_s_sd = numeric(0),
        pr_beta_r_mu = 0,
-       pr_beta_r_sd = 1,
-       pr_kappa_mu = -2,
-       pr_kappa_sd = 1,
-       pr_linit_scale_mu = 0,
-       pr_linit_scale_sd = .5)
+       pr_beta_r_sd = 1)
 }
 
 ##' Returns default toggles for the DRM model.
 ##'
 ##' @title Default toggles
 ##' @return A \code{list} containing the default values for model toggles.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 default_toggles <- function() {
   list(rho_mu = 1,
@@ -46,16 +42,14 @@ default_toggles <- function() {
        minit = 0,
        ar_re = 0,
        iid_re = 0,
-       sp_re = 0,
-       rec_dd = 2,
-       acc_dd = 0)
+       sp_re = 0)
 }
 
 ##' Returns default for NUTS
 ##'
 ##' @title Default NUTS arguments
 ##' @return A \code{list} containing the default arguments for the NUTS algorithm.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 default_nuts <- function() {
   list(chains = 4,
@@ -88,7 +82,7 @@ default_nuts <- function() {
 ##'
 ##' @title Default VB arguments
 ##' @return A \code{list} containing the default arguments for the Variational Bayes algorithm.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 default_vb <- function() {
   list(threads = NULL,
@@ -112,7 +106,7 @@ default_vb <- function() {
 ##'
 ##' @title Default Pathfinder arguments
 ##' @return A \code{list} containing the default arguments for the Pathfinder algorithm.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 default_pf <- function() {
   list(opencl_ids = NULL,
@@ -141,7 +135,7 @@ default_pf <- function() {
 ##'
 ##' @title Default Laplace arguments
 ##' @return A \code{list} containing the default arguments for the Laplace algorithm.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 default_laplace <- function() {
   list(threads = NULL,
@@ -159,7 +153,7 @@ default_laplace <- function() {
 ##'
 ##' @title Default Optimization arguments
 ##' @return A \code{list} containing the default arguments for the Optimization algorithm.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 default_opt <- function() {
   list(threads = NULL,
@@ -184,7 +178,7 @@ default_opt <- function() {
 ##' @title Default arguments for inference algorithm
 ##' @inheritParams fit_drm
 ##' @return A \code{list} containing the default arguments for the specified algorithm.
-##' @author lcgodoy
+##' @author Anonymous
 ##' @export
 default_algo <- function(algorithm = "nuts",
                          algo_args = list()) {

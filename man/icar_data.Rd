@@ -34,5 +34,5 @@ note on intrinsic conditional autoregressive models for disconnected
 graphs. \emph{Spatial and Spatio-temporal Epidemiology}, 26, 25-34.
 }
 \author{
-lcgodoy
+Anonymous
 }

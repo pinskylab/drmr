@@ -13,5 +13,5 @@ A \code{list} containing the default arguments for the Laplace algorithm.
 Returns default for Laplace
 }
 \author{
-lcgodoy
+Anonymous
 }

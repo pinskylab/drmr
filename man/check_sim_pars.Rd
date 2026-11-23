@@ -20,5 +20,5 @@ not fit the model that \code{dat} defines.
 Check the parameters of a simulation
 }
 \author{
-lcgodoy
+Anonymous
 }

@@ -23,5 +23,5 @@ its code. A valid code passes unchanged. Any other value, including
 toggle is not ignored.
 }
 \author{
-lcgodoy
+Anonymous
 }

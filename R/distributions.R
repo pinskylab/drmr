@@ -17,7 +17,7 @@
 ##' @return A \code{numeric vector} of length \code{n} containing random numbers
 ##'   drawn from the specified truncated t distribution.
 ##' @seealso [stats::rt()], [stats::qt()]
-##' @author lcgodoy
+##' @author Anonymous
 rtt <- function(n, mean = 0, sd = 1,
                 df = 3, range = c(0, Inf)) {
   ll <- stats::pt(q = min(range - mean) / sd, df = df)
@@ -36,7 +36,7 @@ rtt <- function(n, mean = 0, sd = 1,
 ##' @return A \code{numeric vector} of length \code{n} containing random numbers
 ##'   drawn from the specified truncated normal distribution.
 ##' @seealso [stats::rnorm()], [stats::qnorm()]
-##' @author lcgodoy
+##' @author Anonymous
 rtn <- function(n, mean = 0, sd = 1, range = c(0, Inf)) {
   lo <- min(range)
   hi <- max(range)

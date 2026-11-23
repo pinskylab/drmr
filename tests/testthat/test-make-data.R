@@ -494,37 +494,6 @@ test_that("make_data() stops when ages_movement is given without movement", {
   expect_error(do.call(make_data, args))
 })
 
-## amat and weight
-test_that("make_data() stops when amat has the wrong length", {
-  skip("No input check yet")
-  args <- drm_args()
-  args$amat <- 1
-  expect_error(do.call(make_data, args))
-})
-
-test_that("make_data() stops when amat is outside [0, 1]", {
-  skip("No input check yet")
-  args <- drm_args()
-  args$amat <- c(-1, 1)
-  expect_error(do.call(make_data, args))
-  args$amat <- c(0.5, 2)
-  expect_error(do.call(make_data, args))
-})
-
-test_that("make_data() stops when weight has the wrong length", {
-  skip("No input check yet")
-  args <- drm_args()
-  args$weight <- c(1, 1, 1)
-  expect_error(do.call(make_data, args))
-})
-
-test_that("make_data() stops when weight is negative", {
-  skip("No input check yet")
-  args <- drm_args()
-  args$weight <- c(-1, 1)
-  expect_error(do.call(make_data, args))
-})
-
 ## init_data
 test_that("make_data() stops when init_data has the wrong length", {
   args <- drm_args()
@@ -652,24 +621,13 @@ test_that("make_data() stops when .toggles is NULL", {
   expect_error(do.call(make_data, args))
 })
 
-test_that("make_data() stops when minit is not 0, 1, or 2", {
+test_that("make_data() stops when minit is not 0 or 1", {
   args <- drm_args()
-  args$.toggles <- list(minit = 3)
-  expect_error(do.call(make_data, args), "'minit' must be 0, 1, or 2.",
-               fixed = TRUE)
-})
-
-test_that("make_data() stops when minit is 2 without density dependence", {
-  args <- drm_args()
-  args$.toggles <- list(minit = 2)
-  expect_error(do.call(make_data, args),
-               "'minit = 2' needs density-dependent recruitment")
-})
-
-test_that("make_data() stops when rec_dd is not a known value", {
-  args <- drm_args()
-  args$.toggles <- list(rec_dd = "foo")
-  expect_error(do.call(make_data, args), "'rec_dd' must be one of")
+  for (bad in c(2, 3)) {
+    args$.toggles <- list(minit = bad)
+    expect_error(do.call(make_data, args), "'minit' must be 0 or 1.",
+                 fixed = TRUE)
+  }
 })
 
 test_that("make_data() stops when ar_re is not a known value", {
@@ -741,13 +699,6 @@ test_that("make_data() stops when cloglog is character", {
   skip("No input check yet")
   args <- drm_args()
   args$.toggles <- list(cloglog = "yes")
-  expect_error(do.call(make_data, args))
-})
-
-test_that("make_data() stops when acc_dd is not 0 or 1", {
-  skip("No input check yet")
-  args <- drm_args()
-  args$.toggles <- list(acc_dd = 5)
   expect_error(do.call(make_data, args))
 })
 

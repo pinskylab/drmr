@@ -13,5 +13,5 @@ A \code{list} containing the default arguments for the Optimization algorithm.
 Returns default for Optimization
 }
 \author{
-lcgodoy
+Anonymous
 }

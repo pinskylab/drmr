@@ -18,5 +18,5 @@ from \code{dat}.
 Check a data list before a simulation
 }
 \author{
-lcgodoy
+Anonymous
 }

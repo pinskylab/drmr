@@ -29,5 +29,5 @@ posterior.
 Computing the log-likelihood function fot \code{adrm} and \code{sdm} objets.
 }
 \author{
-lcgodoy
+Anonymous
 }

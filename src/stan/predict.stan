@@ -19,8 +19,6 @@ data {
   int<lower = 0, upper = 3> sp_re;
   int<lower = 0, upper = 1> movement;
   int<lower = 0, upper = 1> est_surv; // estimate mortality?
-  int<lower = 0, upper = 2> rec_dd;   // 0 for Ricker, 1 for Beverton-Holt, 2 for none
-  int<lower = 0, upper = 1> acc_dd;
   int<lower = 0, upper = 1> cloglog; // use cloglog instead of logit for rho
   int<lower = 1, upper = 3> likelihood; // (1 = repar LN, 2 = Gamma,
                                         // 3 = loglogistic)
@@ -38,8 +36,6 @@ data {
   vector<lower = 0>[n_sites] areas; // patch areas (A = diag(areas))
   array[movement ? n_ages : 0] int ages_movement;
   vector[n_ages] selectivity_at_age;
-  vector[n_ages] amat;
-  vector[n_ages] weight;
   //--- environmental data ----
   //--- * for mortality ----
   array[est_surv ? 1 : 0] int<lower = 1> K_m;
@@ -87,8 +83,6 @@ parameters {
   array[1] real phi;
   //--- movement ----
   array[movement] real zeta;
-  //--- density-dependence ---
-  array[rec_dd < 2 ? 1 : 0] real kappa;
   //--- reg for mortality ---
   array[est_surv] vector[est_surv ? K_m[1] : 0] beta_s;
   //--- parameters from AR process ----
@@ -173,70 +167,32 @@ generated quantities {
     }
     if (movement) {
       //--- movement matrix ---
-      if (rec_dd < 2) {
-        lambda_proj =
-          forecast_pop_rec_dd_movement(n_sites,
-                                       n_time,
-                                       n_ages,
-                                       f,
-                                       current_m,
-                                       to_matrix(log_rec,
-                                                 n_time,
-                                                 n_sites),
-                                       lambda,
-                                       f_past,
-                                       past_m,
-                                       amat, weight,
-                                       kappa[1], rec_dd,
-                                       zeta[1], w_adj, v_adj, u_adj,
-                                       ages_movement,
-                                       acc_dd, areas);
-      } else {
-        lambda_proj =
-          forecast_simplest_movement(n_sites,
-                                     n_time,
-                                     n_ages,
-                                     f,
-                                     current_m,
-                                     to_matrix(log_rec,
-                                               n_time,
-                                               n_sites),
-                                     lambda,
-                                     f_past,
-                                     past_m,
-                                     zeta[1], w_adj, v_adj, u_adj,
-                                     ages_movement);
-      }
+      lambda_proj =
+        forecast_simplest_movement(n_sites,
+                                   n_time,
+                                   n_ages,
+                                   f,
+                                   current_m,
+                                   to_matrix(log_rec,
+                                             n_time,
+                                             n_sites),
+                                   lambda,
+                                   f_past,
+                                   past_m,
+                                   zeta[1], w_adj, v_adj, u_adj,
+                                   ages_movement);
     } else {
-      if (rec_dd < 2) {
-        lambda_proj =
-          forecast_pop_rec_dd(n_sites,
-                              n_time,
-                              n_ages,
-                              f,
-                              current_m,
-                              to_matrix(log_rec,
-                                        n_time,
-                                        n_sites),
-                              lambda,
-                              f_past,
-                              past_m,
-                              amat, weight,
-                              kappa[1], rec_dd,
-                              acc_dd, areas);
-      } else {
-        lambda_proj = forecast_simplest(n_sites,
-                                        n_time,
-                                        n_ages,
-                                        f,
-                                        current_m,
-                                        to_matrix(log_rec,
-                                                  n_time,
-                                                  n_sites),
-                                        lambda,
-                                        f_past,
-                                        past_m);
-      }
+      lambda_proj = forecast_simplest(n_sites,
+                                      n_time,
+                                      n_ages,
+                                      f,
+                                      current_m,
+                                      to_matrix(log_rec,
+                                                n_time,
+                                                n_sites),
+                                      lambda,
+                                      f_past,
+                                      past_m);
     }
     //--- mu_proj calculations ----
     matrix[n_time, n_sites] mu_aux =

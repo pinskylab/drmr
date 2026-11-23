@@ -35,9 +35,8 @@ Lists the parameters to take from the draws of a fitted DRM
 \code{get_fitted_pars()} gives. \code{predict()} uses the same list,
 but for a DRM it drops \code{sigma_i}, which \code{predict.stan} does
 not need. \code{fitted_pars_lambda()} gives the inputs that
-\code{ages_edens()} and \code{get_adults()} need, and
-\code{fitted_pars_ll()} gives the inputs that \code{log_lik()} and
-\code{fitted()} need.
+\code{ages_edens()} needs, and \code{fitted_pars_ll()} gives the inputs
+that \code{log_lik()} and \code{fitted()} need.
 }
 \details{
 \code{fitted_pars_lambda()} also needs the element \code{proj} in
@@ -45,5 +44,5 @@ not need. \code{fitted_pars_lambda()} gives the inputs that
 otherwise.
 }
 \author{
-lcgodoy
+Anonymous
 }

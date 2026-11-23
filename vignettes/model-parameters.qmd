@@ -1,6 +1,6 @@
 ---
 title: "Model parameters and priors"
-author: Lucas da Cunha Godoy
+author: Anonymous
 format:
   html:
     html-math-method: mathjax
@@ -26,7 +26,6 @@ The priors use these distributions:
 
 - $\mathrm{N}(m, s)$: the normal distribution with mean $m$ and standard
   deviation (SD) $s$. As in Stan, the second argument is an SD, not a variance.
-- $\mathrm{N}^{+}(m, s)$: $\mathrm{N}(m, s)$ truncated to positive values.
 - $\mathrm{Gamma}(a, b)$: the gamma distribution with shape $a$ and rate $b$.
   Its mean is $a / b$.
 - $\mathrm{Beta}(a, b)$: the beta distribution with shape parameters $a$ and
@@ -44,12 +43,10 @@ overview](#model-overview).
 | $\boldsymbol{\beta}_t$ | `beta_t`         | Absence probability coefficients |
 | $\xi$                  | `xi`             | Effect of $\log \mu$ on absence  |
 | $\boldsymbol{\beta}_r$ | `beta_r`         | Recruitment coefficients         |
-| $\kappa$               | `kappa`          | Density-dependence coefficient   |
 | $\boldsymbol{\beta}_s$ | `beta_s`         | Survival coefficients            |
 | $\zeta$                | `zeta`           | Probability of staying in place  |
 | $\log \lambda_{a,1}$   | `log_init`       | Initial log-density at age $a$   |
-| $\log d$               | `log_init_scale` | Log of the initial-density scale |
-| $\phi$                 | `phi`            | Dispersion parameter             |
+| $\phi$                | `phi`            | Dispersion parameter             |
 | $\alpha$               | `alpha`          | AR(1) temporal correlation       |
 | $\sigma_t$             | `sigma_t`        | AR(1) conditional SD             |
 | $z_t$                  | `z_t`            | AR(1) temporal random effects    |
@@ -78,9 +75,6 @@ distribution, and the second name sets the second argument.
 | $\boldsymbol{\beta}_r \sim \mathrm{N}(0, 1)$  | `pr_beta_r_mu`,      |
 |                                               | `pr_beta_r_sd`       |
 +-----------------------------------------------+----------------------+
-| $\kappa \sim \mathrm{N}^{+}(-2, 1)$           | `pr_kappa_mu`,       |
-|                                               | `pr_kappa_sd`        |
-+-----------------------------------------------+----------------------+
 | $\boldsymbol{\beta}_s \sim \mathrm{N}(0, 1)$  | `pr_beta_s_mu`,      |
 |                                               | `pr_beta_s_sd`       |
 +-----------------------------------------------+----------------------+
@@ -88,9 +82,6 @@ distribution, and the second name sets the second argument.
 |                                               | `pr_zeta_b`          |
 +-----------------------------------------------+----------------------+
 | $\log \lambda_{a,1} \sim \mathrm{N}(0, 1)$    | None (fixed)         |
-+-----------------------------------------------+----------------------+
-| $\log d \sim \mathrm{N}(0, 0.5)$              | `pr_linit_scale_mu`, |
-|                                               | `pr_linit_scale_sd`  |
 +-----------------------------------------------+----------------------+
 | $\phi \sim \mathrm{Gamma}(2, 1)$              | `pr_phi_a`,          |
 |                                               | `pr_phi_b`           |
@@ -127,8 +118,5 @@ Notes on the default priors:
   informative. Each one puts about 95% of its mass between 0.08 and 0.22.
 - The default prior on $\alpha$ puts about 95% of its mass between $-0.90$ and
   $0.90$.
-- The default prior on $\kappa$ favors small values. Its mean is about 0.37.
-  The scale of $\kappa$ depends on the units of the SSB density, so check this
-  prior against your data.
 - With `family = "loglogistic"`, the prior on $\phi$ is truncated to
   $\phi > 1$.

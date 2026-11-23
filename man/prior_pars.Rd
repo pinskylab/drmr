@@ -22,5 +22,5 @@ block of \code{drm.stan}. The names and scales are the ones that
 \code{\link[=pp_sim]{pp_sim()}}, \code{\link[=sim_drm]{sim_drm()}}
 }
 \author{
-lcgodoy
+Anonymous
 }

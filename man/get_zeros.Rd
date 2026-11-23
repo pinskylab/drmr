@@ -17,5 +17,5 @@ and nonzeros in the response variable.
 Zeros and nonzeros
 }
 \author{
-lcgodoy
+Anonymous
 }

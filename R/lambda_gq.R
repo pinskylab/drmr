@@ -9,7 +9,7 @@
 ##'   deviation from the training data. A factor must have the same levels as
 ##'   in the training data.
 ##'
-##' @author lcgodoy
+##' @author Anonymous
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for forecasting.

@@ -20,5 +20,5 @@ Two sites are neighbors if either entry of \code{adj} for
 the pair is positive. The diagonal is ignored.
 }
 \author{
-lcgodoy
+Anonymous
 }

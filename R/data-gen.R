@@ -7,7 +7,7 @@
 ##' @param alpha autocorrelation parameter, between -1 and 1.
 ##' @param sigma conditional standard deviation.
 ##' @return a \code{numeric} vector of length \code{n_time}.
-##' @author lcgodoy
+##' @author Anonymous
 sim_ar <- function(n_time, alpha, sigma) {
   w <- stats::rnorm(n_time)
   out <- numeric(n_time)
@@ -25,7 +25,7 @@ sim_ar <- function(n_time, alpha, sigma) {
 ##' @param sigma marginal standard deviation.
 ##' @return a \code{numeric} vector of length \code{n_sites} that sums to
 ##'   zero.
-##' @author lcgodoy
+##' @author Anonymous
 sim_iid <- function(n_sites, sigma) {
   stopifnot(n_sites > 1)
   e <- stats::rnorm(n_sites, sd = sigma * sqrt(n_sites / (n_sites - 1)))
@@ -47,7 +47,7 @@ sim_iid <- function(n_sites, sigma) {
 ##' @param sigma standard deviation parameter (\code{sigma_s}).
 ##' @param scaling one scaling factor per site, from [icar_data()].
 ##' @return a \code{numeric} vector of length \code{n_sites}.
-##' @author lcgodoy
+##' @author Anonymous
 sim_icar <- function(neighbors, n_sites, sigma, scaling) {
   prec <- matrix(0, nrow = n_sites, ncol = n_sites)
   for (k in seq_len(NCOL(neighbors))) {
@@ -72,104 +72,15 @@ sim_icar <- function(neighbors, n_sites, sigma, scaling) {
   return(sigma * w / sqrt(scaling))
 }
 
-##' @title Density-dependent recruitment as in drm.stan
-##' @param psi log-recruitment linear predictor at one time point, one value
-##'   per site.
-##' @param ssb spawning stock biomass at the previous time point, one value
-##'   per site.
-##' @inheritParams dd_init_eq
-##' @return a \code{numeric} vector of expected recruits. Recruits are zero
-##'   where \code{ssb} is not above \code{1e-10}.
-##' @author lcgodoy
-dd_rec <- function(psi, ssb, kappa, rec_dd) {
-  out <- numeric(length(ssb))
-  ## a NaN SSB gives zero recruits, as in Stan
-  ok <- !is.na(ssb) & ssb > 1e-10
-  s <- ssb[ok]
-  log_dd <- if (rec_dd == 0) -kappa * s else -log(kappa + s)
-  out[ok] <- exp(psi[ok] + log(s) + log_dd)
-  return(out)
-}
-
-##' @title Equilibrium age structure with density-dependent recruitment
-##'
-##' @description Computes the expected densities at the first time point for
-##'   a population at equilibrium. The function follows the Stan function
-##'   \code{dd_init_eq} in \code{age_struct.stanfunctions}.
-##'
-##' @details The function uses the survival and recruitment rates of the
-##'   first time point, and it ignores movement. The survivorship
-##'   \eqn{\ell_{a, i}} is the fraction of recruits at site \eqn{i} that
-##'   survive to age \eqn{a}. The spawning biomass per recruit is the sum of
-##'   \eqn{m_a w_a \ell_{a, i}} over the ages. The equilibrium recruitment
-##'   \eqn{R} solves \eqn{R = h(\textrm{sbpr} \times R)}, where \eqn{h} is
-##'   the Ricker or the Beverton-Holt function. If the population cannot
-##'   persist, \eqn{R = 0}.
-##'
-##' @param log_rec1 a \code{numeric} vector with the log-recruitment linear
-##'   predictor at the first time point. It has one value for each site.
-##' @param log_surv1 a \code{numeric} vector with the log-survival at the
-##'   first time point. It has one value for each site.
-##' @param f1 a \code{numeric} vector with the fishing mortality rates at the
-##'   first time point. It has one value for each age.
-##' @param mat_weight a \code{numeric} vector with the maturity times the
-##'   weight at each age.
-##' @param kappa density-dependence parameter.
-##' @param rec_dd 0 for Ricker and 1 for Beverton-Holt.
-##' @param acc_dd 1 to use the area-weighted mean SSB density of the whole
-##'   region, and 0 to use the SSB density of each site.
-##' @param areas a positive \code{numeric} vector with the area of each site.
-##' @return a \code{n_ages} by \code{n_sites} \code{matrix} with the expected
-##'   densities.
-##' @author lcgodoy
-dd_init_eq <- function(log_rec1, log_surv1, f1, mat_weight, kappa, rec_dd,
-                       acc_dd, areas) {
-  n_ages <- length(f1)
-  n_sites <- length(log_rec1)
-  ## survivorship to each age (rows) at each site (columns)
-  l_a <- matrix(1, nrow = n_ages, ncol = n_sites)
-  for (a in seq_len(n_ages)[-1]) {
-    l_a[a, ] <- l_a[a - 1, ] * exp(log_surv1 - f1[a - 1])
-  }
-  sbpr <- colSums(l_a * mat_weight)
-  rec_max <- exp(log_rec1)
-  r_eq <- numeric(n_sites)
-  if (acc_dd == 1) {
-    ## area-weighted mean of sbpr * exp(psi)
-    prod_reg <- sum(sbpr * rec_max * areas) / sum(areas)
-    if (rec_dd == 0 && prod_reg > 1) {
-      r_eq <- rec_max * log(prod_reg) / (kappa * prod_reg)
-    } else if (rec_dd == 1 && prod_reg > kappa) {
-      r_eq <- rec_max * (1 - kappa / prod_reg)
-    }
-  } else {
-    pos <- sbpr > 0
-    r_eq[pos] <- if (rec_dd == 0) {
-      (log_rec1[pos] + log(sbpr[pos])) / (kappa * sbpr[pos])
-    } else {
-      rec_max[pos] - kappa / sbpr[pos]
-    }
-    r_eq <- pmax(r_eq, 0)
-  }
-  sweep(l_a, 2, r_eq, "*")
-}
-
 ##' @title Simulate population dynamics
 ##'
 ##' @description Computes the expected density by age, time, and site. The
-##'   function follows the Stan functions \code{simplest},
-##'   \code{simplest_movement}, \code{pop_rec_dd}, and
-##'   \code{pop_rec_dd_movement} in \code{age_struct.stanfunctions}.
+##'   function follows the Stan functions \code{simplest} and
+##'   \code{simplest_movement} in \code{age_struct.stanfunctions}.
 ##'
 ##' @details These details follow the Stan code on purpose:
 ##'   \itemize{
-##'   \item Without density dependence, recruitment at the first time point
-##'   is \code{exp(log_rec[1, ])}.
-##'   \item With density dependence, \code{minit = 1} starts from the
-##'   equilibrium age structure (see [dd_init_eq()]), \code{minit = 2}
-##'   multiplies that age structure by \code{init_scale}, and
-##'   \code{minit = 0} takes the densities of ages 1 to \code{n_ages} from
-##'   \code{init}.
+##'   \item Recruitment at the first time point is \code{exp(log_rec[1, ])}.
 ##'   \item Movement is \code{zeta * x + (1 - zeta) * solve(A) \%*\% t(W)
 ##'   \%*\% A \%*\% x}, where \code{W} is the row-standardized adjacency
 ##'   matrix and \code{A} is \code{diag(areas)}. So the \code{(1 - zeta)}
@@ -179,8 +90,6 @@ dd_init_eq <- function(log_rec1, log_surv1, f1, mat_weight, kappa, rec_dd,
 ##'   the same.
 ##'   For a site with no neighbors, \code{W} has a 1 on the diagonal, so its
 ##'   individuals stay there.
-##'   \item With \code{acc_dd = 1}, the SSB is the mean SSB density of the
-##'   sites, weighted by \code{areas}.
 ##'   }
 ##'
 ##' @param log_rec a \code{n_time} by \code{n_sites} \code{matrix} with the
@@ -189,20 +98,10 @@ dd_init_eq <- function(log_rec1, log_surv1, f1, mat_weight, kappa, rec_dd,
 ##'   log-survival (\eqn{\log s_{t, i}}).
 ##' @param f a \code{n_ages} by \code{n_time} \code{matrix} with the
 ##'   instantaneous fishing mortality rates.
-##' @param init a \code{numeric} vector with the log-densities at the first
-##'   time point: ages 2 to \code{n_ages} without density dependence, and
-##'   ages 1 to \code{n_ages} with it.
+##' @param init a \code{numeric} vector with the log-densities of ages 2 to
+##'   \code{n_ages} at the first time point.
 ##' @param minit 1 to start from the age structure that survival implies at
-##'   the first time point (with density dependence, the equilibrium age
-##'   structure), and 0 to use \code{init}. With density dependence, 2 starts
-##'   from the equilibrium age structure times \code{init_scale}.
-##' @param init_scale a positive scale for the equilibrium densities. The
-##'   function uses it only if \code{minit = 2}.
-##' @param rec_dd 0 for Ricker, 1 for Beverton-Holt, and 2 for no density
-##'   dependence.
-##' @inheritParams dd_init_eq kappa acc_dd
-##' @param amat maturity-at-age vector.
-##' @param weight weight-at-age vector.
+##'   the first time point, and 0 to use \code{init}.
 ##' @param zeta probability of staying at the same site. \code{NULL} means no
 ##'   movement.
 ##' @param adj_mat a \code{n_sites} by \code{n_sites} adjacency
@@ -213,15 +112,9 @@ dd_init_eq <- function(log_rec1, log_surv1, f1, mat_weight, kappa, rec_dd,
 ##'   \code{NULL} means 1 for each site.
 ##' @return an \code{array} of expected densities with dimensions
 ##'   \code{n_ages}, \code{n_time}, and \code{n_sites}.
-##' @author lcgodoy
+##' @author Anonymous
 pop_dyn <- function(log_rec, log_surv, f, init,
                     minit = 0,
-                    init_scale = 1,
-                    rec_dd = 2,
-                    kappa = NULL,
-                    amat = NULL,
-                    weight = NULL,
-                    acc_dd = 0,
                     zeta = NULL,
                     adj_mat = NULL,
                     ages_movement = NULL,
@@ -233,8 +126,7 @@ pop_dyn <- function(log_rec, log_surv, f, init,
   stopifnot(NROW(log_surv) == n_time,
             NCOL(log_surv) == n_sites,
             NCOL(f) == n_time,
-            use_minit || length(init) == n_init(n_ages, rec_dd),
-            minit < 2 || (length(init_scale) == 1 && init_scale > 0))
+            use_minit || length(init) == n_ages - 1)
   if (is.null(areas)) {
     areas <- rep(1, n_sites)
   }
@@ -257,35 +149,16 @@ pop_dyn <- function(log_rec, log_surv, f, init,
     adj_std <- t(adj_std) * outer(1 / areas, areas)
   }
   lambda <- array(0, dim = c(n_ages, n_time, n_sites))
-  mat_weight <- amat * weight
-  if (rec_dd < 2) {
-    lambda[, 1, ] <- if (use_minit) {
-      scale <- if (minit == 2) init_scale else 1
-      scale * dd_init_eq(log_rec[1, ], log_surv[1, ], f[, 1], mat_weight,
-                         kappa, rec_dd, acc_dd, areas)
+  lambda[1, 1, ] <- exp(log_rec[1, ])
+  for (a in seq_len(n_ages)[-1]) {
+    lambda[a, 1, ] <- if (use_minit) {
+      lambda[a - 1, 1, ] * exp(log_surv[1, ] - f[a - 1, 1])
     } else {
-      matrix(exp(init), nrow = n_ages, ncol = n_sites)
-    }
-  } else {
-    lambda[1, 1, ] <- exp(log_rec[1, ])
-    for (a in seq_len(n_ages)[-1]) {
-      lambda[a, 1, ] <- if (use_minit) {
-        lambda[a - 1, 1, ] * exp(log_surv[1, ] - f[a - 1, 1])
-      } else {
-        exp(init[a - 1])
-      }
+      exp(init[a - 1])
     }
   }
   for (i in seq_len(n_time)[-1]) {
-    if (rec_dd == 2) {
-      lambda[1, i, ] <- exp(log_rec[i, ])
-    } else {
-      ssb <- colSums(matrix(lambda[, i - 1, ], nrow = n_ages) * mat_weight)
-      if (acc_dd == 1) {
-        ssb <- rep(sum(ssb * areas) / sum(areas), n_sites)
-      }
-      lambda[1, i, ] <- dd_rec(log_rec[i, ], ssb, kappa, rec_dd)
-    }
+    lambda[1, i, ] <- exp(log_rec[i, ])
     if (movement && ages_movement[1] == 1) {
       lambda[1, i, ] <- zeta * lambda[1, i, ] +
         (1 - zeta) * as.numeric(adj_std %*% lambda[1, i, ])
@@ -311,7 +184,7 @@ pop_dyn <- function(log_rec, log_surv, f, init,
 ##' @param likelihood 1 (log-normal), 2 (gamma), or 3 (log-logistic).
 ##' @param phi the additional parameter of the likelihood.
 ##' @return a \code{numeric} vector with the same length as \code{mu}.
-##' @author lcgodoy
+##' @author Anonymous
 sim_obs <- function(mu, rho, likelihood, phi) {
   y <- numeric(length(mu))
   pos <- which(stats::rbinom(length(mu), size = 1, prob = rho) == 0)
@@ -334,7 +207,7 @@ sim_obs <- function(mu, rho, likelihood, phi) {
 ##' @inheritParams check_sim_pars
 ##' @return \code{dat}, invisibly. The function stops if it cannot simulate
 ##'   from \code{dat}.
-##' @author lcgodoy
+##' @author Anonymous
 check_sim_dat <- function(dat) {
   panel <- identical(as.numeric(dat$time),
                      as.numeric(rep(seq_len(dat$n_time), dat$n_sites))) &&
@@ -347,9 +220,6 @@ check_sim_dat <- function(dat) {
   if (NROW(dat$f) != dat$n_ages || NCOL(dat$f) != dat$n_time) {
     stop("'f_mort' must have one row per age and one column per time ",
          "point.")
-  }
-  if (length(dat$amat) != dat$n_ages || length(dat$weight) != dat$n_ages) {
-    stop("'amat' and 'weight' must have one value per age.")
   }
   re_codes <- c(dat$ar_re, dat$iid_re, dat$sp_re)
   if (any(re_codes == 2) && dat$est_surv == 0) {
@@ -365,16 +235,14 @@ check_sim_dat <- function(dat) {
 ##'   element of a [fit_drm()] output.
 ##' @return \code{pars}, invisibly. The function stops if \code{pars} does
 ##'   not fit the model that \code{dat} defines.
-##' @author lcgodoy
+##' @author Anonymous
 check_sim_pars <- function(pars, dat) {
   need <- c("beta_r", "beta_t",
             "phi",
             if (dat$est_surv == 1) "beta_s",
             if (dat$rho_mu == 1) "xi",
-            if (dat$rec_dd < 2) "kappa",
             if (dat$movement == 1) "zeta",
             if (dat$est_init == 1) "log_init",
-            if (dat$minit == 2 && dat$rec_dd < 2) "init_scale",
             if (dat$ar_re > 0 && is.null(pars$z_t)) c("alpha", "sigma_t"),
             if (dat$iid_re > 0 && is.null(pars$z_i)) "sigma_i",
             if (dat$sp_re > 0 && is.null(pars$z_s)) "sigma_s")
@@ -382,7 +250,7 @@ check_sim_pars <- function(pars, dat) {
   if (length(miss) > 0) {
     stop("'pars' must contain: ", paste(miss, collapse = ", "), ".")
   }
-  scalars <- c("xi", "phi", "kappa", "zeta", "init_scale",
+  scalars <- c("xi", "phi", "zeta",
                "alpha", "sigma_t", "sigma_i", "sigma_s")
   for (p in intersect(scalars, names(pars))) {
     if (length(pars[[p]]) != 1) {
@@ -395,11 +263,8 @@ check_sim_pars <- function(pars, dat) {
     dat$est_surv == 0 || length(pars$beta_s) == dat$K_m[1],
     dat$rho_mu == 0 || (length(pars$xi) == 1 && pars$xi < 0),
     pars$phi > as.numeric(dat$likelihood == 3),
-    dat$rec_dd == 2 || pars$kappa > 0,
     dat$movement == 0 || (pars$zeta >= 0 && pars$zeta <= 1),
-    dat$est_init == 0 ||
-      length(pars$log_init) == n_init(dat$n_ages, dat$rec_dd),
-    !(dat$minit == 2 && dat$rec_dd < 2) || pars$init_scale > 0,
+    dat$est_init == 0 || length(pars$log_init) == dat$n_ages - 1,
     is.null(pars$z_t) || length(pars$z_t) == dat$n_time,
     dat$ar_re == 0 || !is.null(pars$z_t) ||
       (abs(pars$alpha) < 1 && pars$sigma_t > 0),
@@ -447,7 +312,7 @@ check_sim_pars <- function(pars, dat) {
 ##'   \code{drm.stan}, unless \code{pars} already contains them.
 ##' @inheritParams check_sim_pars
 ##' @return \code{pars} with the random effects added.
-##' @author lcgodoy
+##' @author Anonymous
 draw_re <- function(pars, dat) {
   if (dat$ar_re > 0 && is.null(pars$z_t)) {
     pars$z_t <- sim_ar(dat$n_time, pars$alpha, pars$sigma_t)
@@ -467,7 +332,7 @@ draw_re <- function(pars, dat) {
 ##' @param target 1 for recruitment, 2 for survival, and 3 for density.
 ##' @return a \code{numeric} vector with one value for each row of
 ##'   \code{dat}.
-##' @author lcgodoy
+##' @author Anonymous
 re_at <- function(pars, dat, target) {
   out <- numeric(dat$N)
   if (dat$ar_re == target) {
@@ -489,16 +354,9 @@ re_at <- function(pars, dat, target) {
 ##' @inheritParams check_sim_pars
 ##' @return a named \code{list} of parameters.
 ##' @seealso [pp_sim()], [sim_drm()]
-##' @author lcgodoy
+##' @author Anonymous
 prior_pars <- function(dat) {
   rn <- function(n, mu, sd) stats::rnorm(n, mean = mu, sd = sd)
-  ## normal truncated below at 0; sampling the upper tail stays finite when
-  ## most of the mass is below 0
-  rn_pos <- function(mu, sd) {
-    p_up <- stats::pnorm(0, mean = mu, sd = sd, lower.tail = FALSE)
-    stats::qnorm(stats::runif(1, min = 0, max = p_up),
-                 mean = mu, sd = sd, lower.tail = FALSE)
-  }
   out <- list(beta_r = rn(dat$K_r, dat$pr_beta_r_mu, dat$pr_beta_r_sd),
               beta_t = rn(dat$K_t, dat$pr_beta_t_mu, dat$pr_beta_t_sd))
   if (dat$est_surv == 1) {
@@ -514,18 +372,11 @@ prior_pars <- function(dat) {
   out$phi <- stats::qgamma(stats::runif(1, min = 0, max = p_up),
                            shape = dat$pr_phi_a, rate = dat$pr_phi_b,
                            lower.tail = FALSE)
-  if (dat$rec_dd < 2) {
-    out$kappa <- rn_pos(dat$pr_kappa_mu, dat$pr_kappa_sd)
-  }
   if (dat$movement == 1) {
     out$zeta <- stats::rbeta(1, dat$pr_zeta_a, dat$pr_zeta_b)
   }
   if (dat$est_init == 1) {
-    out$log_init <- stats::rnorm(n_init(dat$n_ages, dat$rec_dd))
-  }
-  if (dat$minit == 2 && dat$rec_dd < 2) {
-    out$init_scale <- exp(rn(1, dat$pr_linit_scale_mu,
-                             dat$pr_linit_scale_sd))
+    out$log_init <- stats::rnorm(dat$n_ages - 1)
   }
   if (dat$ar_re > 0) {
     out$alpha <- tanh(rn(1, dat$pr_alpha_mu, dat$pr_alpha_sd))
@@ -564,7 +415,7 @@ prior_pars <- function(dat) {
 ##'   \item \code{pars}: \code{pars} plus the random effects drawn.
 ##'   }
 ##' @importFrom rlang .data
-##' @author lcgodoy
+##' @author Anonymous
 model_sim <- function(dat, pars) {
   check_sim_dat(dat)
   check_sim_pars(pars, dat)
@@ -582,16 +433,6 @@ model_sim <- function(dat, pars) {
                     f = dat$f,
                     init = init,
                     minit = dat$minit,
-                    init_scale = if (dat$minit == 2 && dat$rec_dd < 2) {
-                      pars$init_scale
-                    } else {
-                      1
-                    },
-                    rec_dd = dat$rec_dd,
-                    kappa = pars$kappa,
-                    amat = dat$amat,
-                    weight = dat$weight,
-                    acc_dd = dat$acc_dd,
                     zeta = if (dat$movement == 1) pars$zeta,
                     adj_mat = dat$adj_mat,
                     ages_movement = dat$ages_movement,
@@ -622,7 +463,7 @@ model_sim <- function(dat, pars) {
 ##' @return The output of [model_sim()], plus \code{hyper_pars}: the prior
 ##'   hyperparameters.
 ##' @seealso [prior_pars()], [model_sim()]
-##' @author lcgodoy
+##' @author Anonymous
 pp_sim <- function(dat) {
   out <- model_sim(dat, prior_pars(dat))
   out$hyper_pars <- dat[grepl("^pr_", names(dat))]
@@ -644,21 +485,17 @@ pp_sim <- function(dat) {
 ##'
 ##'   Give \code{pars} on the natural scale: standard deviations, not their
 ##'   logarithms, and \code{alpha}, not its inverse hyperbolic tangent. The
-##'   exception is \code{log_init}, which holds the log-densities at the
-##'   first time point: ages 2 to \code{n_ages} without density dependence,
-##'   and ages 1 to \code{n_ages} with it. The elements that you need depend
-##'   on the toggles:
+##'   exception is \code{log_init}, which holds the log-densities of ages 2
+##'   to \code{n_ages} at the first time point. The elements that you need
+##'   depend on the toggles:
 ##'   \itemize{
 ##'   \item \code{beta_r} and \code{beta_t}: always.
 ##'   \item \code{phi}: always.
 ##'   \item \code{beta_s}: when \code{est_surv = 1}.
 ##'   \item \code{xi} (negative): when \code{rho_mu = 1}.
-##'   \item \code{kappa}: when \code{rec_dd} is \code{"ricker"} or
-##'   \code{"bh"}.
 ##'   \item \code{zeta}: when \code{movement = 1}.
 ##'   \item \code{log_init}: when \code{est_init = 1}. Otherwise, the
 ##'   simulation uses \code{init_data} from [make_data()].
-##'   \item \code{init_scale} (positive): when \code{minit = 2}.
 ##'   \item \code{alpha} and \code{sigma_t}: when \code{ar_re} is not
 ##'   \code{"none"}.
 ##'   \item \code{sigma_i}: when \code{iid_re} is not \code{"none"}.
@@ -682,8 +519,8 @@ pp_sim <- function(dat) {
 ##' @param ... passed on to [make_data()]. For example: \code{n_ages},
 ##'   \code{f_mort} (one row per age and one column per time point),
 ##'   \code{m}, \code{init_data}, \code{age_selectivity},
-##'   \code{ages_movement}, \code{adj_mat}, \code{areas}, \code{amat},
-##'   \code{weight}, and \code{.toggles}.
+##'   \code{ages_movement}, \code{adj_mat}, \code{areas}, and
+##'   \code{.toggles}.
 ##' @return A \code{list} with four elements:
 ##'   \itemize{
 ##'   \item \code{data}: \code{.data} sorted by site and time, with the
@@ -711,7 +548,7 @@ pp_sim <- function(dat) {
 ##'                pars = list(beta_r = c(1, 0.5), beta_s = 1,
 ##'                            beta_t = -2, phi = 5))
 ##' head(sim$data)
-##' @author lcgodoy
+##' @author Anonymous
 sim_drm <- function(.data,
                     time_col,
                     site_col,
@@ -767,7 +604,7 @@ sim_drm <- function(.data,
 ##'   \code{data.frame}
 ##' @param lbd a 3-dimensional \code{array}
 ##' @return return a \code{data.frame}.
-##' @author lcgodoy
+##' @author Anonymous
 lambda2df <- function(lbd) {
   dim_lambdas <- dim(lbd)
   dimnames(lbd) <-
@@ -796,7 +633,7 @@ lambda2df <- function(lbd) {
 ## ##' @return A \code{list} containing samples drawn from the prior distributions
 ## ##'   of the model parameters.
 ## ##' @seealso [prior_inits()] [pps_aux()]
-## ##' @author lcgodoy
+## ##' @author Anonymous
 ## prior_predictive_sim <- function(n, dat, model,
 ##                                  selectivity,
 ##                                  ...) {

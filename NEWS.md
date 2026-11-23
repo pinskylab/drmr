@@ -35,15 +35,11 @@
   at a site with no neighbors now stay there.  Before, the share $1 - \zeta$ of
   them was lost every year.
 
-- With `acc_dd = 1`, the regional SSB is now the area-weighted mean SSB density
-  of the sites. Before, it was the sum of the SSB densities.
-
-- Results for models with `movement = 1`, or with density dependence and `acc_dd
-  = 1`, differ from those of earlier versions, even with equal areas. Refit
-  these models. For fits from earlier versions, `predict()`, `ages_edens()`, and
-  `get_adults()` still run, with an area of 1 for each site. But they apply the
-  new movement and regional SSB to the old draws, so their results do not match
-  the old fit.
+- Results for models with `movement = 1` differ from those of earlier
+  versions, even with equal areas. Refit these models. For fits from earlier
+  versions, `predict()` and `ages_edens()` still run, with an area of 1 for
+  each site. But they apply the new movement to the old draws, so their
+  results do not match the old fit.
 
 - Changes to the ICAR random effects (`sp_re`). Results of models with `sp_re`
   change, so refit them.
@@ -73,7 +69,7 @@
   far in the tail of its prior.
 
 - Clearer errors for wrong toggles and priors:
-  - A misspelled toggle value, such as `rec_dd = "Ricker"`, or a value of
+  - A misspelled toggle value, such as `ar_re = "Rec"`, or a value of
     `TRUE` or `FALSE`, now gives an error. Before, a misspelled value kept
     the default without any message.
   - An unknown toggle or prior name now gives an error that names it.
@@ -101,11 +97,6 @@
   truncated-Normal logliks.
 
 # drmr 1.1.0
-
-- Density dependence also support SSB for the whole region (as opposed to local
-  SSB).
-
-- added support for density dependence.
 
 - Minor bug in the `log_lik` function was corrected.
 
@@ -448,8 +439,8 @@
   $\log(\phi)$ is a Student's t with 3 degrees of freedom, mean `pr_phi_mu` and
   SD `pr_phi_sd`.
    
-* Selectivity in `make_data` was fixed, thanks to Mark. Before, it was not being
-  used when users input it.
+* Selectivity in `make_data` was fixed. Before, it was not being used when
+  users input it.
 
 # drmr 0.0.21
 

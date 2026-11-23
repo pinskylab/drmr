@@ -13,5 +13,5 @@ A \code{list} containing the default arguments for the Pathfinder algorithm.
 Returns default for Pathfinder
 }
 \author{
-lcgodoy
+Anonymous
 }

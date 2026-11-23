@@ -22,5 +22,5 @@ a \code{numeric} vector with one value for each row of
 Random effects for one target process
 }
 \author{
-lcgodoy
+Anonymous
 }

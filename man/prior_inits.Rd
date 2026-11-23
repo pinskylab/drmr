@@ -29,5 +29,5 @@ in starting the MCMC chains from different points in the parameter space.
 \code{\link[=prior_sample]{prior_sample()}}
 }
 \author{
-lcgodoy
+Anonymous
 }

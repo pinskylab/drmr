@@ -40,5 +40,5 @@ to retrieve the samples from the posterior distribution of the models'
 parameters.
 }
 \author{
-lcgodoy
+Anonymous
 }

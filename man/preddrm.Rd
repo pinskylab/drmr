@@ -71,5 +71,5 @@ data.
 \code{\link[=fit_drm]{fit_drm()}}
 }
 \author{
-lcgodoy
+Anonymous
 }

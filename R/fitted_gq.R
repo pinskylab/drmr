@@ -6,7 +6,7 @@
 ##'
 ##' @inheritParams preddrm
 ##'
-##' @author lcgodoy
+##' @author Anonymous
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for the observed data.
@@ -54,7 +54,7 @@ fitted.adrm <- function(object,
 ##' @inheritParams predict.sdm object
 ##' @inheritParams preddrm
 ##'
-##' @author lcgodoy
+##' @author Anonymous
 ##'
 ##' @return an object of class \code{"CmdStanGQ"} containing samples for the
 ##'   posterior predictive distribution for the observed data.

@@ -1,6 +1,6 @@
 ---
 title: "Get Started"
-author: Lucas da Cunha Godoy
+author: Anonymous
 bibliography: [notes.bib, zim.bib]
 execute:
   eval: true
@@ -90,13 +90,13 @@ summary(my_drm)
 
 In the output above, the column `variable` represents the model parameters (for
 the details on the model parameters see the
-[Theory](pinskylab.github.io/drmr/theory.html) vignette), while `mean` and `sd`,
-respectively, are the mean and standard deviation of the respective posterior
-distributions. The `rhat` and `ess_bulk` are diagnostic statistics. In general,
-`rhat < 1.01` suggests convergence, but one should also look into traceplots to
-further assess convergence. The `ess_bulk` is the effective sample size in the
-bulk of the posterior. The columns starting with `q` represent percentiles of
-the posterior distribution.
+[Model parameters and priors](model-parameters.html) vignette), while `mean` and
+`sd`, respectively, are the mean and standard deviation of the respective
+posterior distributions. The `rhat` and `ess_bulk` are diagnostic statistics.
+In general, `rhat < 1.01` suggests convergence, but one should also look into
+traceplots to further assess convergence. The `ess_bulk` is the effective
+sample size in the bulk of the posterior. The columns starting with `q`
+represent percentiles of the posterior distribution.
 
 
 

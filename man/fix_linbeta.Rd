@@ -27,5 +27,5 @@ regression coefficient associated with the linear term as if the variable
 was not centered.
 }
 \author{
-Lucas Godoy
+Anonymous
 }

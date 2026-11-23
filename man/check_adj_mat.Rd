@@ -20,5 +20,5 @@ are missing, infinite, or negative.
 Check an adjacency matrix
 }
 \author{
-lcgodoy
+Anonymous
 }

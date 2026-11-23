@@ -32,5 +32,5 @@ transformed parameters block of \code{drm.stan} and the random number
 generator \code{drmsdm_rng}.
 }
 \author{
-lcgodoy
+Anonymous
 }

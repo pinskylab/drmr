@@ -29,5 +29,5 @@ Calculates the log-likelihood associated to a \code{sdm}
 obkect.
 }
 \author{
-lcgodoy
+Anonymous
 }

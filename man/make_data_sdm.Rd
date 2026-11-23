@@ -75,5 +75,5 @@ model.
 The function sorts the data by site and then by time.
 }
 \author{
-lcgodoy
+Anonymous
 }

@@ -173,7 +173,7 @@ summary.drmrmodels <- function(object, probs = c(0.05, 0.5, 0.95), ...) {
 ##'   \code{$summary()} method of the underlying \code{cmdstanr} object.
 ##'   \code{summary()} ignores them.
 ##'
-##' @author lcgodoy
+##' @author Anonymous
 ##' @return \code{mcmc_diag()} returns an object of class \code{"drmrdiag"}.
 ##'   \code{summary()} prints the parameters with possible convergence
 ##'   problems and returns them invisibly, as a \code{list}.
@@ -279,7 +279,7 @@ print.summary.drmrmodels <- function(x, ...) {
 ##'   documentation](https://mc-stan.org/cmdstanr/reference/fit-method-draws.html).
 ##' @param ... currently ignored.
 ##'
-##' @author lcgodoy
+##' @author Anonymous
 ##' @return an object of class \code{"draws"} containing the posterior samples
 ##'   from specified parameters.
 ##' @name draws

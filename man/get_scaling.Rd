@@ -17,5 +17,5 @@ A \code{scalar} representing the scaling factor.
 Using results from Rue and Held 2005 and Morris et al. 2019.
 }
 \author{
-lcgodoy
+Anonymous
 }

@@ -24,5 +24,5 @@ Gives one hyperparameter for each column of a design
 matrix. A single value applies to all the columns.
 }
 \author{
-lcgodoy
+Anonymous
 }

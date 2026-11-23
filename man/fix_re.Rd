@@ -24,5 +24,5 @@ A \code{numeric} scalar.
 Random effects verbose to code
 }
 \author{
-lcgodoy
+Anonymous
 }

@@ -23,5 +23,5 @@ A \code{list} containing the default arguments for the specified algorithm.
 Returns default for a given algorithm
 }
 \author{
-lcgodoy
+Anonymous
 }

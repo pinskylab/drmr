@@ -20,5 +20,5 @@ Draws a sum-to-zero vector with marginal standard deviation
 \code{sigma}. This is the prior on \code{z_i} in \code{drm.stan}.
 }
 \author{
-lcgodoy
+Anonymous
 }

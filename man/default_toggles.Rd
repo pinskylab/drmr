@@ -13,5 +13,5 @@ A \code{list} containing the default values for model toggles.
 Returns default toggles for the DRM model.
 }
 \author{
-lcgodoy
+Anonymous
 }

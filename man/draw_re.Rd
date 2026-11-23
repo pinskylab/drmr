@@ -20,5 +20,5 @@ Draws \code{z_t}, \code{z_i}, and \code{z_s} as in
 \code{drm.stan}, unless \code{pars} already contains them.
 }
 \author{
-lcgodoy
+Anonymous
 }

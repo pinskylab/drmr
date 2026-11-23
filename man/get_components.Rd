@@ -17,5 +17,5 @@ An \code{integer} vector with the component of each site.
 Connected components of a graph
 }
 \author{
-lcgodoy
+Anonymous
 }
