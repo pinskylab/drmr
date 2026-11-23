@@ -4,12 +4,18 @@
 \alias{fix_re}
 \title{Random effects verbose to code}
 \usage{
-fix_re(x, name = "random effect toggle")
+fix_re(
+  x,
+  name = "random effect toggle",
+  codes = c(none = 0, rec = 1, surv = 2, dens = 3)
+)
 }
 \arguments{
 \item{x}{a \code{character} or \code{numeric} scalar.}
 
 \item{name}{the name of the toggle, for the error message.}
+
+\item{codes}{a named \code{numeric} vector with the valid codes.}
 }
 \value{
 A \code{numeric} scalar.

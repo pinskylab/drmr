@@ -39,7 +39,9 @@ Suggests:
   gridExtra,
   quarto,
   loo,
-  bayesplot
+  bayesplot,
+  testthat (>= 3.0.0)
+Config/testthat/edition: 3
 Config/Needs/website:
   ggplot2,
   r-lib/pkgdown,

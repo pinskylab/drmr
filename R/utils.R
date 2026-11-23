@@ -6,9 +6,12 @@
 ##' @param original a named \code{list} with "original" parameters.
 ##' @param replacements a named \code{list} containing elements to be modified
 ##'   in the \code{original} \code{list}.
+##' @param re_codes a named \code{numeric} vector with the valid codes of the
+##'   random effect toggles (\code{ar_re}, \code{iid_re}, and \code{sp_re}).
 ##' @return The updated \code{original} list.
 ##' @author lcgodoy
-safe_modify <- function(original, replacements) {
+safe_modify <- function(original, replacements,
+                        re_codes = c(none = 0, rec = 1, surv = 2, dens = 3)) {
   if (!missing(replacements)) {
     bad <- setdiff(names(replacements), names(original))
     if (length(bad) > 0) {
@@ -18,7 +21,7 @@ safe_modify <- function(original, replacements) {
     }
     for (re in c("ar_re", "iid_re", "sp_re")) {
       if (re %in% names(replacements)) {
-        replacements[[re]] <- fix_re(replacements[[re]], re)
+        replacements[[re]] <- fix_re(replacements[[re]], re, re_codes)
       }
     }
     if ("rec_dd" %in% names(replacements)) {
@@ -58,8 +61,9 @@ toggle_code <- function(x, codes, name) {
 ##' @inheritParams toggle_code
 ##' @return A \code{numeric} scalar.
 ##' @author lcgodoy
-fix_re <- function(x, name = "random effect toggle") {
-  toggle_code(x, c(none = 0, rec = 1, surv = 2, dens = 3), name)
+fix_re <- function(x, name = "random effect toggle",
+                   codes = c(none = 0, rec = 1, surv = 2, dens = 3)) {
+  toggle_code(x, codes, name)
 }
 
 ##' @title Density dependence verbose to code
@@ -81,6 +85,30 @@ fix_dd <- function(x) {
 ##' @author lcgodoy
 n_init <- function(n_ages, rec_dd) {
   if (rec_dd < 2) n_ages else n_ages - 1
+}
+
+##' @title Match prior hyperparameters to the coefficients
+##' @description Gives one hyperparameter for each column of a design
+##'   matrix. A single value applies to all the columns.
+##' @param x a \code{numeric} vector of hyperparameters.
+##' @param k the number of columns of the design matrix.
+##' @param default the value to use when \code{x} is empty.
+##' @param name the name of the prior, for the error message.
+##' @return A \code{numeric} vector with \code{k} elements. When \code{k}
+##'   is 1, it is an \code{array} of size 1, as Stan needs.
+##' @author lcgodoy
+fix_beta_prior <- function(x, k, default, name) {
+  if (length(x) == 0)
+    x <- default
+  if (length(x) == 1)
+    x <- rep(x, k)
+  if (length(x) != k) {
+    stop("'", name, "' must have 1 or ", k, " values, one for each ",
+         "column of the design matrix.", call. = FALSE)
+  }
+  if (k == 1)
+    x <- array(x, dim = 1)
+  return(x)
 }
 
 ##' @title Zeros and nonzeros

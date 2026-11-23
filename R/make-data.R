@@ -100,7 +100,10 @@
 ##'   following values: "none" no ICAR random effect, "rec" ICAR random effect
 ##'   for recruitment, "surv" ICAR random effect for survival (only works when
 ##'   \code{est_surv} is on), "dens" ICAR random effect for density.}
-##' @param .priors a \code{list} of priors hyperparameters.
+##' @param .priors a \code{list} of priors hyperparameters. A prior of the
+##'   regression coefficients (\code{pr_beta_*}) takes one value, which
+##'   applies to all the coefficients, or one value for each column of its
+##'   design matrix.
 ##' @inheritParams fit_drm
 ##' @return A \code{list} containing the data and settings to be used as input
 ##'   for the Stan model.
@@ -232,16 +235,10 @@ make_data <- function(y,
     m <- numeric(0)
     x_m <- x_m[my_ord, , drop = FALSE]
     K_m <- array(NCOL(x_m), dim = 1)
-    if (length(priors$pr_beta_s_mu) < K_m)
-      priors$pr_beta_s_mu <- rep(0, K_m)
-    if (length(priors$pr_beta_s_sd) < K_m )
-      priors$pr_beta_s_sd <- rep(1, K_m)
-    if (K_m == 1) {
-      priors$pr_beta_s_mu <- array(priors$pr_beta_s_mu,
-                                   dim = 1)
-      priors$pr_beta_s_sd <- array(priors$pr_beta_s_sd,
-                                   dim = 1)
-    }
+    priors$pr_beta_s_mu <- fix_beta_prior(priors$pr_beta_s_mu, K_m, 0,
+                                          "pr_beta_s_mu")
+    priors$pr_beta_s_sd <- fix_beta_prior(priors$pr_beta_s_sd, K_m, 1,
+                                          "pr_beta_s_sd")
   }
   if (missing(x_r)) {
     x_r <- matrix(1, nrow = n_time * n_sites)
@@ -249,16 +246,10 @@ make_data <- function(y,
   } else {
     K_r <- ncol(x_r)
     x_r <- x_r[my_ord, , drop = FALSE]
-    if (length(priors$pr_beta_r_mu) < K_r)
-      priors$pr_beta_r_mu <- rep(0, K_r)
-    if (length(priors$pr_beta_r_sd) < K_r)
-      priors$pr_beta_r_sd <- rep(1, K_r)
-    if (K_r == 1) {
-      priors$pr_beta_r_mu <- array(priors$pr_beta_r_mu,
-                                   dim = 1)
-      priors$pr_beta_r_sd <- array(priors$pr_beta_r_sd,
-                                   dim = 1)
-    }
+    priors$pr_beta_r_mu <- fix_beta_prior(priors$pr_beta_r_mu, K_r, 0,
+                                          "pr_beta_r_mu")
+    priors$pr_beta_r_sd <- fix_beta_prior(priors$pr_beta_r_sd, K_r, 1,
+                                          "pr_beta_r_sd")
   }
   if (missing(x_t)) {
     x_t <- matrix(1, nrow = n_time * n_sites)
@@ -266,16 +257,10 @@ make_data <- function(y,
   } else {
     K_t <- ncol(x_t)
     x_t <- x_t[my_ord, , drop = FALSE]
-    if (length(priors$pr_beta_t_mu) < K_t)
-      priors$pr_beta_t_mu <- rep(0, K_t)
-    if (length(priors$pr_beta_t_sd) < K_t)
-      priors$pr_beta_t_sd <- rep(1, K_t)
-    if (K_t == 1) {
-      priors$pr_beta_t_mu <- array(priors$pr_beta_t_mu,
-                                   dim = 1)
-      priors$pr_beta_t_sd <- array(priors$pr_beta_t_sd,
-                                   dim = 1)
-    }
+    priors$pr_beta_t_mu <- fix_beta_prior(priors$pr_beta_t_mu, K_t, 0,
+                                          "pr_beta_t_mu")
+    priors$pr_beta_t_sd <- fix_beta_prior(priors$pr_beta_t_sd, K_t, 1,
+                                          "pr_beta_t_sd")
   }
   if (!toggles$est_init) {
     len_init <- n_init(n_ages, toggles$rec_dd)
@@ -387,14 +372,8 @@ make_data_sdm <- function(y,
                   sp_re = 0,
                   iid_re = 0,
                   cloglog = 0) |>
-    safe_modify(.toggles) |>
+    safe_modify(.toggles, re_codes = c(none = 0, rec = 1)) |>
     c(list(likelihood = likelihood))
-  for (re in c("ar_re", "iid_re", "sp_re")) {
-    if (toggles[[re]] > 1) {
-      stop("In an SDM, '", re, "' must be 0 or 1 (\"none\" or \"rec\").",
-           call. = FALSE)
-    }
-  }
   ## getting the default priors and using user options
   priors <- default_priors() |>
     safe_modify(.priors)
@@ -417,16 +396,10 @@ make_data_sdm <- function(y,
   } else {
     K_x <- ncol(x)
     x <- x[my_ord, , drop = FALSE]
-    if (length(priors$pr_beta_r_mu) < K_x)
-      priors$pr_beta_r_mu <- rep(0, K_x)
-    if (length(priors$pr_beta_r_sd) < K_x)
-      priors$pr_beta_r_sd <- rep(1, K_x)
-    if (K_x == 1) {
-      priors$pr_beta_r_mu <- array(priors$pr_beta_r_mu,
-                                   dim = 1)
-      priors$pr_beta_r_sd <- array(priors$pr_beta_r_sd,
-                                   dim = 1)
-    }
+    priors$pr_beta_r_mu <- fix_beta_prior(priors$pr_beta_r_mu, K_x, 0,
+                                          "pr_beta_r_mu")
+    priors$pr_beta_r_sd <- fix_beta_prior(priors$pr_beta_r_sd, K_x, 1,
+                                          "pr_beta_r_sd")
   }
   if (missing(x_t)) {
     x_t <- matrix(1, nrow = n_time * n_sites)
@@ -434,16 +407,10 @@ make_data_sdm <- function(y,
   } else {
     K_z <- ncol(x_t)
     x_t <- x_t[my_ord, , drop = FALSE]
-    if (length(priors$pr_beta_t_mu) < K_z)
-      priors$pr_beta_t_mu <- rep(0, K_z)
-    if (length(priors$pr_beta_t_sd) < K_z)
-      priors$pr_beta_t_sd <- rep(1, K_z)
-    if (K_z == 1) {
-      priors$pr_beta_t_mu <- array(priors$pr_beta_t_mu,
-                                   dim = 1)
-      priors$pr_beta_t_sd <- array(priors$pr_beta_t_sd,
-                                   dim = 1)
-    }
+    priors$pr_beta_t_mu <- fix_beta_prior(priors$pr_beta_t_mu, K_z, 0,
+                                          "pr_beta_t_mu")
+    priors$pr_beta_t_sd <- fix_beta_prior(priors$pr_beta_t_sd, K_z, 1,
+                                          "pr_beta_t_sd")
   }
   if (toggles$sp_re > 0) {
     check_adj_mat(adj_mat, n_sites)

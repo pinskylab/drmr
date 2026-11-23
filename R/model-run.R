@@ -107,10 +107,6 @@ fit_drm <- function(.data,
   }
   site_levels <- model_dat$site_levels
   model_dat$site_levels <- NULL
-  model <- instantiate::stan_package_model(
-                            name = "drm",
-                            package = "drmr"
-                        )
   .algo_args <- default_algo(algorithm, algo_args)
   if (init == "cmdstan_default") {
     drm_init <- NULL
@@ -122,7 +118,9 @@ fit_drm <- function(.data,
   } else {
     drm_init <- init
   }
-
+  model <-
+    instantiate::stan_package_model(name = "drm",
+                                    package = "drmr")
   my_args <- c(list(
       data = model_dat,
       seed = seed,
@@ -199,6 +197,7 @@ fit_sdm <- function(.data,
                     ...) {
   cl <- match.call()
   stopifnot(length(init) == 1)
+  stopifnot(length(algorithm) == 1)
   if (is.character(init))
     stopifnot(init %in% c("cmdstan_default", "prior"))
   x_t <- stats::model.matrix.lm(formula_zero, data = .data,
@@ -214,10 +213,6 @@ fit_sdm <- function(.data,
                              ...)
   site_levels <- model_dat$site_levels
   model_dat$site_levels <- NULL
-  model <- instantiate::stan_package_model(
-                            name = "sdm",
-                            package = "drmr"
-                        )
   .algo_args <- default_algo(algorithm, algo_args)
   if (init == "cmdstan_default") {
     sdm_init <- NULL
@@ -229,6 +224,9 @@ fit_sdm <- function(.data,
   } else {
     sdm_init <- init
   }
+  model <-
+    instantiate::stan_package_model(name = "sdm",
+                                    package = "drmr")
   my_args <- c(list(
       data = model_dat,
       seed = seed,

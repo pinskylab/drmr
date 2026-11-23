@@ -4,9 +4,12 @@
 
 PKG_NAME=$(shell grep -i ^package DESCRIPTION | cut -d : -d \  -f 2)
 
-.PHONY: render_md build_site build build_no_vignettes install install_no_vignettes clean docs check check_cran
+.PHONY: render_md build_site build build_no_vignettes install install_no_vignettes clean docs test check check_cran
 
 default: build
+
+test:
+	Rscript -e "devtools::test()"
 
 check:
 	Rscript -e "devtools::check()"

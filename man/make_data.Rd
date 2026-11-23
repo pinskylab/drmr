@@ -141,7 +141,10 @@ following values: "none" no ICAR random effect, "rec" ICAR random effect
 for recruitment, "surv" ICAR random effect for survival (only works when
 \code{est_surv} is on), "dens" ICAR random effect for density.}}
 
-\item{.priors}{a \code{list} of priors hyperparameters.}
+\item{.priors}{a \code{list} of priors hyperparameters. A prior of the
+regression coefficients (\code{pr_beta_*}) takes one value, which
+applies to all the coefficients, or one value for each column of its
+design matrix.}
 
 \item{family}{a \code{character} specifying the family of the probability
 distribution assumed for density. The options are: \itemize{ \item

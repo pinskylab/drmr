@@ -50,7 +50,10 @@ specific IID random effect to density and 0 otherwise. \item \code{sp_re}:
 1 to incorporate a site specific ICAR random effect to density and 0
 otherwise.}}
 
-\item{.priors}{a \code{list} of priors hyperparameters.}
+\item{.priors}{a \code{list} of priors hyperparameters. A prior of the
+regression coefficients (\code{pr_beta_*}) takes one value, which
+applies to all the coefficients, or one value for each column of its
+design matrix.}
 
 \item{family}{a \code{character} specifying the family of the probability
 distribution assumed for density. The options are: \itemize{ \item

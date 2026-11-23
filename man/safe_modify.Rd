@@ -4,13 +4,20 @@
 \alias{safe_modify}
 \title{Modifying a named list}
 \usage{
-safe_modify(original, replacements)
+safe_modify(
+  original,
+  replacements,
+  re_codes = c(none = 0, rec = 1, surv = 2, dens = 3)
+)
 }
 \arguments{
 \item{original}{a named \code{list} with "original" parameters.}
 
 \item{replacements}{a named \code{list} containing elements to be modified
 in the \code{original} \code{list}.}
+
+\item{re_codes}{a named \code{numeric} vector with the valid codes of the
+random effect toggles (\code{ar_re}, \code{iid_re}, and \code{sp_re}).}
 }
 \value{
 The updated \code{original} list.
