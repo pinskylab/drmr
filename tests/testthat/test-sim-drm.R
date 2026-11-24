@@ -268,12 +268,12 @@ test_that("sim_drm() stops when phi is not positive", {
   expect_error(do.call(sim_drm, args))
 })
 
-test_that("sim_drm() stops when phi is below 1 for the log-logistic", {
+test_that("sim_drm() accepts phi below 1 for the log-logistic", {
   set.seed(2026)
   args <- sim_args()
   args$family <- "loglogistic"
   args$pars$phi <- 0.5
-  expect_error(do.call(sim_drm, args))
+  expect_type(do.call(sim_drm, args), "list")
 })
 
 test_that("sim_drm() stops when phi has two values", {
@@ -315,6 +315,19 @@ test_that("sim_drm() stops when alpha or sigma_t is out of range", {
   expect_error(do.call(sim_drm, args))
   args <- toggle_args(list(ar_re = "rec"), list(alpha = 1.2, sigma_t = 0.3))
   expect_error(do.call(sim_drm, args))
+})
+
+test_that("sim_drm() accepts alpha of -1 or 1 and xi of 0", {
+  ## in drm.stan, alpha can round to -1 or 1, and xi can round to -0
+  for (alpha in c(-1, 1)) {
+    set.seed(2026)
+    args <- toggle_args(list(ar_re = "rec"),
+                        list(alpha = alpha, sigma_t = 0.3))
+    expect_type(do.call(sim_drm, args), "list")
+  }
+  set.seed(2026)
+  args <- toggle_args(list(rho_mu = 1), list(xi = 0))
+  expect_type(do.call(sim_drm, args), "list")
 })
 
 test_that("sim_drm() stops when z_i does not sum to zero", {

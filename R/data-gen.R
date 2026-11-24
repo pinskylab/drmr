@@ -257,17 +257,19 @@ check_sim_pars <- function(pars, dat) {
       stop("'", p, "' must be a single value.")
     }
   }
+  ## xi <= 0 and abs(alpha) <= 1, not strict: in drm.stan, xi = -exp(lxi)
+  ## and alpha = tanh(atanh_alpha) can round to -0 and to -1 or 1
   stopifnot(
     length(pars$beta_r) == dat$K_r,
     length(pars$beta_t) == dat$K_t,
     dat$est_surv == 0 || length(pars$beta_s) == dat$K_m[1],
-    dat$rho_mu == 0 || (length(pars$xi) == 1 && pars$xi < 0),
-    pars$phi > as.numeric(dat$likelihood == 3),
+    dat$rho_mu == 0 || (length(pars$xi) == 1 && pars$xi <= 0),
+    pars$phi > 0,
     dat$movement == 0 || (pars$zeta >= 0 && pars$zeta <= 1),
     dat$est_init == 0 || length(pars$log_init) == dat$n_ages - 1,
     is.null(pars$z_t) || length(pars$z_t) == dat$n_time,
     dat$ar_re == 0 || !is.null(pars$z_t) ||
-      (abs(pars$alpha) < 1 && pars$sigma_t > 0),
+      (abs(pars$alpha) <= 1 && pars$sigma_t > 0),
     dat$iid_re == 0 || !is.null(pars$z_i) || pars$sigma_i > 0,
     dat$sp_re == 0 || !is.null(pars$z_s) || pars$sigma_s > 0
   )
@@ -353,7 +355,7 @@ re_at <- function(pars, dat, target) {
 ##'   [sim_drm()] expects.
 ##' @inheritParams check_sim_pars
 ##' @return a named \code{list} of parameters.
-##' @seealso [pp_sim()], [sim_drm()]
+##' @seealso [prior_pred_drm()], [sim_drm()]
 ##' @author Anonymous
 prior_pars <- function(dat) {
   rn <- function(n, mu, sd) stats::rnorm(n, mean = mu, sd = sd)
@@ -365,13 +367,10 @@ prior_pars <- function(dat) {
   if (dat$rho_mu == 1) {
     out$xi <- -exp(rn(1, dat$pr_lmxi_mu, dat$pr_lmxi_sd))
   }
-  ## the log-logistic requires phi > 1, as in drm.stan
-  lower <- as.numeric(dat$likelihood == 3)
-  p_up <- stats::pgamma(lower, shape = dat$pr_phi_a, rate = dat$pr_phi_b,
-                        lower.tail = FALSE)
-  out$phi <- stats::qgamma(stats::runif(1, min = 0, max = p_up),
-                           shape = dat$pr_phi_a, rate = dat$pr_phi_b,
-                           lower.tail = FALSE)
+  ## same prior for all families, as in drm.stan. A small shape can make
+  ## rgamma() return 0, and check_sim_pars() needs phi > 0.
+  out$phi <- max(stats::rgamma(1, shape = dat$pr_phi_a, rate = dat$pr_phi_b),
+                 sqrt(.Machine$double.eps))
   if (dat$movement == 1) {
     out$zeta <- stats::rbeta(1, dat$pr_zeta_a, dat$pr_zeta_b)
   }
@@ -395,9 +394,9 @@ prior_pars <- function(dat) {
 
 ##' @title Simulate from a DRM given a data list and parameters
 ##'
-##' @description The engine behind [sim_drm()] and [pp_sim()]. It follows the
-##'   transformed parameters block of \code{drm.stan} and the random number
-##'   generator \code{drmsdm_rng}.
+##' @description The engine behind [sim_drm()] and [prior_pred_drm()]. It
+##'   follows the transformed parameters block of \code{drm.stan} and the
+##'   random number generator \code{drmsdm_rng}.
 ##'
 ##' @param dat a \code{list} created by [make_data()]. The function ignores
 ##'   the response \code{y}.
@@ -456,18 +455,45 @@ model_sim <- function(dat, pars) {
               pars = pars))
 }
 
-##' @title Simulate from the prior predictive distribution of a DRM
-##' @description Draws one set of parameters from the priors in
-##'   \code{drm.stan}. Then it simulates data with [model_sim()].
-##' @inheritParams check_sim_pars
-##' @return The output of [model_sim()], plus \code{hyper_pars}: the prior
-##'   hyperparameters.
-##' @seealso [prior_pars()], [model_sim()]
+##' @title Build the model data for a simulation
+##' @description Checks that the survival formula agrees with the
+##'   \code{est_surv} toggle, builds the design matrices from \code{.data},
+##'   and calls [make_data()]. The response is a placeholder, so the output
+##'   holds no data on densities.
+##' @inheritParams sim_drm
+##' @return a \code{list} created by [make_data()].
+##' @seealso [sim_drm()]
 ##' @author Anonymous
-pp_sim <- function(dat) {
-  out <- model_sim(dat, prior_pars(dat))
-  out$hyper_pars <- dat[grepl("^pr_", names(dat))]
-  return(out)
+build_sim_data <- function(.data,
+                           time_col,
+                           site_col,
+                           family,
+                           formula_zero,
+                           formula_rec,
+                           formula_surv,
+                           ...) {
+  est_surv <- list(...)[[".toggles"]][["est_surv"]]
+  if (isTRUE(est_surv == 1) && is.null(formula_surv)) {
+    stop("'.toggles = list(est_surv = 1)' needs 'formula_surv'.")
+  }
+  mm <- function(f) {
+    stats::model.matrix.lm(f, data = .data, na.action = stats::na.fail)
+  }
+  args <- list(y = rep(1, NROW(.data)),
+               time = .data[[time_col]],
+               site = .data[[site_col]],
+               family = family,
+               x_t = mm(formula_zero),
+               x_r = mm(formula_rec))
+  if (!is.null(formula_surv)) {
+    args$x_m <- mm(formula_surv)
+  }
+  dat <- do.call(make_data, c(args, list(...)))
+  if (!is.null(formula_surv) && dat$est_surv == 0) {
+    stop("'formula_surv' needs '.toggles = list(est_surv = 1)'. ",
+         "Otherwise, make_data() fixes survival at exp(-m).")
+  }
+  return(dat)
 }
 
 ##' @title Simulate data from a dynamic range model
@@ -559,27 +585,14 @@ sim_drm <- function(.data,
                     formula_surv = NULL,
                     y_col = "y",
                     ...) {
-  est_surv <- list(...)[[".toggles"]][["est_surv"]]
-  if (isTRUE(est_surv == 1) && is.null(formula_surv)) {
-    stop("'.toggles = list(est_surv = 1)' needs 'formula_surv'.")
-  }
-  mm <- function(f) {
-    stats::model.matrix.lm(f, data = .data, na.action = stats::na.fail)
-  }
-  args <- list(y = rep(1, NROW(.data)),
-               time = .data[[time_col]],
-               site = .data[[site_col]],
-               family = family,
-               x_t = mm(formula_zero),
-               x_r = mm(formula_rec))
-  if (!is.null(formula_surv)) {
-    args$x_m <- mm(formula_surv)
-  }
-  dat <- do.call(make_data, c(args, list(...)))
-  if (!is.null(formula_surv) && dat$est_surv == 0) {
-    stop("'formula_surv' needs '.toggles = list(est_surv = 1)'. ",
-         "Otherwise, make_data() fixes survival at exp(-m).")
-  }
+  dat <- build_sim_data(.data,
+                        time_col = time_col,
+                        site_col = site_col,
+                        family = family,
+                        formula_zero = formula_zero,
+                        formula_rec = formula_rec,
+                        formula_surv = formula_surv,
+                        ...)
   sim <- model_sim(dat, pars)
   ord <- order(.data[[site_col]], .data[[time_col]])
   out <- .data[ord, , drop = FALSE]
@@ -598,6 +611,217 @@ sim_drm <- function(.data,
               latent = latent,
               lambda = sim$lambda,
               pars = sim$pars))
+}
+
+##' @title Name the parameters of a simulation as in drm.stan
+##' @description Turns a \code{list} of parameters into a named
+##'   \code{numeric} vector. The names are the ones in the draws of a
+##'   [fit_drm()] output. For example, \code{phi} becomes \code{"phi[1]"},
+##'   because \code{drm.stan} declares it as an array of size 1. Also,
+##'   \code{beta_s} becomes \code{"beta_s[1,1]"}, \code{"beta_s[1,2]"}, and so
+##'   on, because \code{drm.stan} declares it as an array of one vector.
+##' @param pars a named \code{list} of parameters, as in the \code{pars}
+##'   element of [model_sim()].
+##' @return a named \code{numeric} vector.
+##' @author Anonymous
+stan_par_names <- function(pars) {
+  ## array[1] real in drm.stan
+  arr <- c("phi", "xi", "zeta", "alpha", "sigma_t", "sigma_i", "sigma_s")
+  ## array[1] vector in drm.stan
+  arr_vec <- c("beta_s", "z_i")
+  out <- lapply(names(pars), function(p) {
+    v <- as.numeric(pars[[p]])
+    idx <- if (p %in% arr) {
+      "1"
+    } else if (p %in% arr_vec) {
+      paste0("1,", seq_along(v))
+    } else {
+      seq_along(v)
+    }
+    stats::setNames(v, sprintf("%s[%s]", p, idx))
+  })
+  return(unlist(out))
+}
+
+##' @title Simulate from the prior predictive distribution of a DRM
+##' @export
+##' @description Simulates densities from the prior predictive distribution
+##'   of the DRM that [fit_drm()] fits. Use it for prior predictive checks:
+##'   before you fit the model, compare the simulated densities with the
+##'   observed densities, or with what you know about the species. The data,
+##'   column, family, formula, and \code{...} arguments are the same as in
+##'   [fit_drm()].
+##'
+##' @details For each draw, the function draws one set of parameters from the
+##'   priors in \code{drm.stan}. Then it simulates densities as [sim_drm()]
+##'   does. The function builds the model data with [make_data()], so
+##'   \code{.priors} in \code{...} sets the priors. It does not use the
+##'   observed densities. Call [set.seed()] first to make the results
+##'   reproducible.
+##'
+##'   Priors with heavy tails can give extreme draws. Such a draw can
+##'   overflow and give \code{Inf}, \code{NaN}, or \code{NA} values. The
+##'   function does not stop for these draws. It flags them in
+##'   \code{nonfinite} and gives one warning with their number.
+##'
+##'   The data must have one row for each site and time point, and the time
+##'   points must be consecutive integers. The function is for the DRM only.
+##'
+##' @inheritParams sim_drm
+##' @param n_draws number of draws from the prior predictive distribution.
+##' @param ... passed on to [make_data()]. For example: \code{n_ages},
+##'   \code{f_mort} (one row per age and one column per time point),
+##'   \code{m}, \code{init_data}, \code{age_selectivity},
+##'   \code{ages_movement}, \code{adj_mat}, \code{areas}, \code{.toggles},
+##'   and \code{.priors}.
+##' @return An object of class \code{prior_pred_drm}: a \code{list} with
+##'   seven elements.
+##'   \itemize{
+##'   \item \code{y_rep}: a \code{matrix} of simulated densities, with one
+##'   row per draw and one column per row of \code{data}. You can use it as
+##'   the \code{yrep} argument of the \code{ppc_*} functions in the
+##'   \pkg{bayesplot} package.
+##'   \item \code{pars}: a \code{draws_df} object (see
+##'   [posterior::as_draws_df()]) with one row per draw. It holds the
+##'   parameters on their natural scale and the random effects. The names
+##'   are the ones in the draws of a [fit_drm()] output, for example
+##'   \code{"phi[1]"} and \code{"beta_s[1,1]"}.
+##'   \item \code{data}: \code{.data} sorted by site and time.
+##'   \item \code{nonfinite}: a \code{logical} vector with one value per
+##'   draw. A value is \code{TRUE} when the draw has an \code{Inf},
+##'   \code{NaN}, or \code{NA} value in its simulated densities, expected
+##'   densities, or probabilities of a zero.
+##'   \item \code{priors}: a named \code{list} with the prior
+##'   hyperparameters.
+##'   \item \code{formulas}: a named \code{list} with \code{formula_zero},
+##'   \code{formula_rec}, and \code{formula_surv}.
+##'   \item \code{model_data}: the \code{list} that [make_data()] created,
+##'   as in the \code{data} element of a [fit_drm()] output.
+##'   }
+##'   To plot how recruitment, survival, or the probability of absence
+##'   changes with a covariate under the priors, use [effects_drm()] on this
+##'   object.
+##' @seealso [sim_drm()], [fit_drm()], [effects_drm()]
+##' @examples
+##' set.seed(2026)
+##' pp <- prior_pred_drm(sum_fl,
+##'                      time_col = "year",
+##'                      site_col = "patch",
+##'                      n_draws = 100,
+##'                      formula_zero = ~ 1 + c_stemp,
+##'                      formula_rec = ~ 1 + c_btemp,
+##'                      n_ages = 4)
+##' dim(pp$y_rep)
+##' ## proportion of zeros in each draw and in the data
+##' summary(rowMeans(pp$y_rep == 0))
+##' mean(pp$data$dens == 0)
+##' ## recruitment as a function of bottom temperature, under the priors
+##' plot(effects_drm(pp, process = "rec", variable = "c_btemp"))
+##' @author Anonymous
+prior_pred_drm <- function(.data,
+                           time_col,
+                           site_col,
+                           n_draws = 100,
+                           family = "gamma",
+                           formula_zero = ~ 1,
+                           formula_rec = ~ 1,
+                           formula_surv = NULL,
+                           ...) {
+  if (length(n_draws) != 1 || !is.numeric(n_draws) || is.na(n_draws) ||
+        n_draws < 1 || n_draws != round(n_draws)) {
+    stop("'n_draws' must be a single whole number of 1 or more.")
+  }
+  dat <- build_sim_data(.data,
+                        time_col = time_col,
+                        site_col = site_col,
+                        family = family,
+                        formula_zero = formula_zero,
+                        formula_rec = formula_rec,
+                        formula_surv = formula_surv,
+                        ...)
+  y_rep <- matrix(NA_real_, nrow = n_draws, ncol = dat$N)
+  pars <- vector("list", n_draws)
+  nonfinite <- logical(n_draws)
+  ## warnings from the flagged draws are replaced by one warning below. The
+  ## other warnings are given again after the loop.
+  other_warnings <- character(0)
+  for (s in seq_len(n_draws)) {
+    msgs <- character(0)
+    sim <- withCallingHandlers(
+      model_sim(dat, prior_pars(dat)),
+      warning = function(w) {
+        msgs <<- c(msgs, conditionMessage(w))
+        invokeRestart("muffleWarning")
+      }
+    )
+    y_rep[s, ] <- sim$y
+    pars[[s]] <- stan_par_names(sim$pars)
+    nonfinite[s] <- !all(is.finite(c(sim$y, sim$mu, sim$rho)))
+    if (!nonfinite[s]) {
+      other_warnings <- c(other_warnings, msgs)
+    }
+  }
+  for (msg in unique(other_warnings)) {
+    warning(msg, call. = FALSE)
+  }
+  if (any(nonfinite)) {
+    warning(sum(nonfinite), " of ", n_draws, " draws have Inf, NaN, or NA ",
+            "values. See 'nonfinite' in the output.", call. = FALSE)
+  }
+  ord <- order(.data[[site_col]], .data[[time_col]])
+  sorted <- .data[ord, , drop = FALSE]
+  rownames(sorted) <- NULL
+  pars <- posterior::as_draws_df(
+    posterior::as_draws_matrix(do.call(rbind, pars))
+  )
+  out <- list(y_rep = y_rep,
+              pars = pars,
+              data = sorted,
+              nonfinite = nonfinite,
+              priors = dat[grepl("^pr_", names(dat))],
+              formulas = list(formula_zero = formula_zero,
+                              formula_rec = formula_rec,
+                              formula_surv = formula_surv),
+              model_data = dat)
+  class(out) <- "prior_pred_drm"
+  return(out)
+}
+
+##' @title Print a prior_pred_drm object
+##' @description Prints a short summary of the output of [prior_pred_drm()]:
+##'   the number of draws, the formulas, the data, the parameters, and the
+##'   elements of the object.
+##' @param x an object of class \code{prior_pred_drm}.
+##' @param ... not used.
+##' @return \code{x}, invisibly.
+##' @seealso [prior_pred_drm()]
+##' @export
+##' @author Anonymous
+print.prior_pred_drm <- function(x, ...) {
+  dat <- x$model_data
+  cat("Prior predictive draws from a DRM\n")
+  cat(sprintf("\nDraws: %d (%d with Inf, NaN, or NA values)\n",
+              NROW(x$y_rep), sum(x$nonfinite)))
+  cat("\nFormulas:\n")
+  labels <- c(formula_zero = "Zeros",
+              formula_rec = "Recruitment",
+              formula_surv = "Survival")
+  for (n in names(labels)) {
+    if (!is.null(x$formulas[[n]])) {
+      cat(sprintf("  %s: ", labels[[n]]))
+      print(x$formulas[[n]], showEnv = FALSE)
+    }
+  }
+  ## make_data() codes the families as 1, 2, and 3
+  families <- c("lognormal", "gamma", "loglogistic")
+  cat("\nData:\n")
+  cat(sprintf("  Time points: %d\n", dat$n_time))
+  cat(sprintf("  Sites: %d\n", dat$n_sites))
+  cat(sprintf("  Non-zero density family: %s\n", families[dat$likelihood]))
+  pars <- unique(sub("\\[.*$", "", posterior::variables(x$pars)))
+  cat(sprintf("\nParameters: %s\n", paste(pars, collapse = ", ")))
+  cat(sprintf("Elements: %s\n", paste(names(x), collapse = ", ")))
+  invisible(x)
 }
 
 ##' @title Turn an array of density per age, time, and patch/site into a
@@ -620,26 +844,3 @@ lambda2df <- function(lbd) {
               site = as.integer(out[["site"]]))
   return(out)
 }
-
-## ##' @title Generate samples from the prior predictive distribution of model
-## ##'   parameters
-## ##' @description Generates samples from the prior distributions of the model
-## ##'   parameters. This is primarily used for prior predictive checks or to
-## ##'   generate initial values for MCMC.
-## ##' @param n a \code{integer} representing the number of samples form the
-## ##'   posterior predictive distribution.
-## ##' @inheritParams model_sim
-## ##' @param ... parameters passed to [pop_dyn()].
-## ##' @return A \code{list} containing samples drawn from the prior distributions
-## ##'   of the model parameters.
-## ##' @seealso [prior_inits()] [pps_aux()]
-## ##' @author Anonymous
-## prior_predictive_sim <- function(n, dat, model,
-##                                  selectivity,
-##                                  ...) {
-##   out <-
-##     replicate(n, pps_aux(dat, model,
-##                          selectivity, ...),
-##               simplify = FALSE)
-##   return(out)
-## }

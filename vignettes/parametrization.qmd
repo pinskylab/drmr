@@ -107,7 +107,8 @@ $$
 
 The density of a Log-logistic is:
 $$
-g(y) = \frac{(\mu / \phi)(y / \phi)^{\mu - 1}}{1 + (x / \mu)^{\phi}},
+g(y) = \frac{(\phi / \mu)(y / \mu)^{\phi - 1}}{\left(1 + (y /
+\mu)^{\phi}\right)^2},
 $$
 where $\mu$ is the median of $Y$. The mean of this distribution is
 $$
@@ -115,10 +116,8 @@ E[Y] = \frac{\mu \pi / \phi}{\sin (\pi / \phi)}, \text{ for } \phi > 1,
 $$
 while the variance is:
 $$
-V[Y] = \mu^2 \left(\frac{(2 \pi / \phi)}{\sin (2 \pi / \phi)} - 
-\frac{(\pi / \phi)^2}{\sin^2 (\pi / \phi)} \right), \text{ for } \phi > 2.
+V[Y] = \mu^2 \left(\frac{(2 \pi / \phi)}{\sin (2 \pi / \phi)} - \frac{(\pi /
+\phi)^2}{\sin^2 (\pi / \phi)} \right), \text{ for } \phi > 2.
 $$
 When $\phi < 1$ both the mean and variance are $\infty$, and when $\phi \in (1,
 2)$ the variance is $\infty$.
-
-## References

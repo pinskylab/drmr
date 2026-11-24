@@ -149,7 +149,9 @@ real drmsdm_rng(real mu,
  * Mean of the non-zero part of the density, E[Y | Y > 0].
  *
  * For the log-normal and gamma likelihoods, mu is already the mean. For the
- * log-logistic, mu is the median and phi (> 1) the shape.
+ * log-logistic, mu is the median and phi the shape. Its mean is finite only
+ * when phi > 1. When phi <= 1, the function returns infinity, or 0 when
+ * mu = 0 (all the mass is at 0).
  *
  * @param mu location parameter, as passed to the likelihood
  * @param phi additional likelihood parameter
@@ -159,9 +161,32 @@ real drmsdm_rng(real mu,
  */
 real cond_mean(real mu, real phi, data int likelihood) {
   if (likelihood == 3) {
+    if (phi <= 1) {
+      return mu > 0 ? positive_infinity() : 0.0;
+    }
     real aux = pi() / phi;
     return mu * aux / sin(aux);
   } else {
     return mu;
   }
+}
+
+/**
+ * Mean of the zero-inflated density, E[Y] = (1 - rho) E[Y | Y > 0].
+ *
+ * When rho = 1, Y is 0 with probability 1, and the function returns 0. So
+ * an infinite E[Y | Y > 0] does not give 0 * Inf = NaN.
+ *
+ * @param mu location parameter, as passed to the likelihood
+ * @param rho probability of a zero
+ * @param phi additional likelihood parameter
+ * @param likelihood likelihood code
+ *
+ * @return E[Y]
+ */
+real zi_mean(real mu, real rho, real phi, data int likelihood) {
+  if (rho >= 1) {
+    return 0.0;
+  }
+  return (1 - rho) * cond_mean(mu, phi, likelihood);
 }

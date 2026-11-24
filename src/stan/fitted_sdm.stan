@@ -58,9 +58,7 @@ generated quantities {
       }
     } else if (type == 1) {
       for (n in 1:N) {
-        y_pp[n] = (1 - rho[n]) *
-          cond_mean(mu[n], phi[1],
-                    likelihood);
+        y_pp[n] = zi_mean(mu[n], rho[n], phi[1], likelihood);
       }
     } else if (type == 2) {
       for (n in 1:N) {

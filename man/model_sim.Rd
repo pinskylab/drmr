@@ -27,9 +27,9 @@ order of \code{dat}: by site, then by time. \itemize{
 }
 }
 \description{
-The engine behind \code{\link[=sim_drm]{sim_drm()}} and \code{\link[=pp_sim]{pp_sim()}}. It follows the
-transformed parameters block of \code{drm.stan} and the random number
-generator \code{drmsdm_rng}.
+The engine behind \code{\link[=sim_drm]{sim_drm()}} and \code{\link[=prior_pred_drm]{prior_pred_drm()}}. It
+follows the transformed parameters block of \code{drm.stan} and the
+random number generator \code{drmsdm_rng}.
 }
 \author{
 Anonymous

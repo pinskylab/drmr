@@ -121,5 +121,5 @@ Notes on the default priors:
   12.7.
 - The default prior on $\alpha$ puts about 95% of its mass between $-0.90$ and
   $0.90$.
-- With `family = "loglogistic"`, the prior on $\phi$ is truncated to
-  $\phi > 1$.
+- The prior on $\phi$ is the same for all families. With
+  `family = "loglogistic"`, the mean density is finite only when $\phi > 1$.

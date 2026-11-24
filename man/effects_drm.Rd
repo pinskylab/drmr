@@ -3,7 +3,8 @@
 \name{effects_drm}
 \alias{effects_drm}
 \alias{effects_drm.adrm}
-\title{Effects_Drminal Relationships with Covariates}
+\alias{effects_drm.prior_pred_drm}
+\title{Relationships between covariates and demographic processes}
 \usage{
 effects_drm(object, ...)
 
@@ -17,9 +18,20 @@ effects_drm(object, ...)
   prob = 0.9,
   ...
 )
+
+\method{effects_drm}{prior_pred_drm}(
+  object,
+  process = c("rec", "surv", "pabs"),
+  variable,
+  newdata = NULL,
+  n_pts = 100,
+  summary = TRUE,
+  prob = 0.9,
+  ...
+)
 }
 \arguments{
-\item{object}{The output from the \code{\link[=fit_drm]{fit_drm()}} function.}
+\item{object}{The output of \code{\link[=fit_drm]{fit_drm()}} or of \code{\link[=prior_pred_drm]{prior_pred_drm()}}.}
 
 \item{...}{Additional arguments passed to methods.}
 
@@ -53,14 +65,30 @@ specified process. If \code{summary = TRUE}, it also receives the class
 \code{eff_drm} to enable automated plotting.
 }
 \description{
-Evaluates and summarizes the effects_drminal relationships between
+Evaluates and summarizes the relationships between
 explanatory variables and recruitment, survival, or absence probability
-from a fitted DRM model.
+from a fitted DRM model, or from the prior draws of \code{\link[=prior_pred_drm]{prior_pred_drm()}}.
 }
 \details{
-The \code{effects_drm} function computes the predicted relationships
-across a sequence of values for a focal variable (or variables), holding
-all other non-focal variables in the model matrix at zero.
+The \code{effects_drm} function computes the predicted
+relationships across a sequence of values for a focal variable (or
+variables), holding all other non-focal variables in the model matrix at
+zero.
+
+For \code{process = "pabs"}, the function uses the link function of the
+model: the logit link, or the complementary log-log link when the model
+has \code{cloglog = 1}. When the model has \code{rho_mu = 1} (the
+default), the probability of absence also depends on the expected
+density \eqn{\mu} through the term \eqn{\xi \log(\mu)}. The function
+leaves out this term, so the curve is the probability of absence when
+\eqn{\mu = 1}.
+
+For \code{process = "surv"}, the model must have \code{est_surv = 1}.
+
+For the output of \code{\link[=prior_pred_drm]{prior_pred_drm()}}, the function uses the prior draws
+of the coefficients, so the intervals are prior intervals. It uses all
+the draws, including those that \code{nonfinite} flags: their parameter
+values are valid draws from the priors.
 
 When \code{summary = TRUE}, the function calculates an equal-tailed
 credible interval and the median using \code{\link[posterior]{quantile2}},

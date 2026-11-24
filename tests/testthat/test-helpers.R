@@ -115,6 +115,15 @@ test_that("prior_inits() stops when chains is not a whole number", {
   expect_error(prior_inits(dat, chains = 2.7))
 })
 
+## prior_sample() and prior_pars(): phi
+test_that("the prior draws of phi are not truncated for the log-logistic", {
+  ## with the default Gamma(2, 1) prior, P(phi < 1) is about 0.26
+  set.seed(2026)
+  dat <- do.call(make_data, c(drm_args(), list(family = "loglogistic")))
+  expect_true(any(replicate(200, prior_sample(dat)$phi) < 1))
+  expect_true(any(replicate(200, prior_pars(dat)$phi) < 1))
+})
+
 ## dat
 test_that("the helpers stop when dat is a data.frame", {
   expect_error(prior_inits(sum_fl, chains = 2))

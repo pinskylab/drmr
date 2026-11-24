@@ -15,8 +15,8 @@
 ##'   \code{"gamma"} (default): gamma parametrized in terms of its mean; \item
 ##'   \code{"lognormal"}: log-normal parametrized in terms of its mean; \item
 ##'   \code{"loglogistic"}: log-logistic parametrized in terms of its median
-##'   (usual parametrization), with shape \code{phi} > 1 so its mean is
-##'   finite.}
+##'   (usual parametrization) and shape \code{phi}. Its mean is finite only
+##'   when \code{phi} > 1.}
 ##' @param formula_zero A \code{formula} specifying the model for the zero
 ##'   inflation component. Defaults to `~ 1` (intercept only).
 ##' @param formula_rec A \code{formula} specifying the model for the recruitment

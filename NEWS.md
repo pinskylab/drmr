@@ -3,6 +3,11 @@
 - Fixed a bug in `effects_drm`. The documented default and code were not
   matching.
 
+- `effects_drm()` now uses the complementary log-log link for
+  `process = "pabs"` when the model has `cloglog = 1`. Before, it always
+  used the logit link. With `process = "surv"`, it now stops with a clear
+  message when the model has `est_surv = 0`.
+
 - Removed `lambda_drm()`, `predict_drm()`, and `predict_sdm()`. They were
   deprecated in 0.3.1. Use `ages_edens()` and `predict()` instead.
 
@@ -35,6 +40,13 @@
     `pr_sigma_i_scale`.
   - `pr_lsigma_s_mu` and `pr_lsigma_s_sd` are now `pr_sigma_s_loc` and
     `pr_sigma_s_scale`.
+
+- With `family = "loglogistic"`, the prior on $\phi$ is no longer truncated
+  to $\phi > 1$. The prior is now the same gamma distribution for all
+  families, in the Stan models, in `prior_sample()`, and in `prior_inits()`.
+  The mean of the log-logistic distribution is finite only when $\phi > 1$.
+  So `fitted()` and `predict()` with `type = "expected"` now return `Inf`
+  for draws with $\phi \leq 1$.
 
 - New `areas` argument of `make_data()` (and so of `fit_drm()`) for the area of
   each site. The default is 1 for each site. A warning tells you when the model
@@ -96,6 +108,13 @@
 
 - New `sim_drm()` simulates data from a DRM for known parameter values, for
   parameter-recovery and other simulation studies.
+
+- New `prior_pred_drm()` simulates data from the prior predictive
+  distribution of a DRM, for prior predictive checks. It returns the
+  simulated densities as a matrix that you can use with the `ppc_*()`
+  functions of `bayesplot`, and the parameter draws as a `draws_df` object.
+  Use `effects_drm()` on its output to plot how recruitment, survival, or the
+  probability of absence changes with a covariate under the priors.
 
 - `drmr` now requires R 4.3.0 or later.
 

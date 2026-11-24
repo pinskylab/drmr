@@ -2,7 +2,7 @@
 % Please edit documentation in R/marg.R
 \name{plot.eff_drm}
 \alias{plot.eff_drm}
-\title{Plot Effects_Drminal Relationships for ADRM Objects}
+\title{Plot the relationships computed by effects_drm()}
 \usage{
 \method{plot}{eff_drm}(x, rug_data = NULL, ...)
 }
@@ -16,9 +16,9 @@ to add a rug plot to the x-axis.}
 \item{...}{Additional arguments passed to the underlying plotting functions.}
 }
 \description{
-Automatically plots the effects_drminal relationship computed by
-\code{effects_drm()}. If \code{ggplot2} is installed, it returns a ggplot object;
-otherwise, it falls back to base R graphics.
+Automatically plots the relationship computed by
+\code{effects_drm()}. If \code{ggplot2} is installed, it returns a
+ggplot object; otherwise, it falls back to base R graphics.
 }
 \details{
 This default plotting method is restricted to outputs where exactly
