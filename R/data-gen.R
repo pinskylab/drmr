@@ -708,15 +708,15 @@ stan_par_names <- function(pars) {
 ##'                      time_col = "year",
 ##'                      site_col = "patch",
 ##'                      n_draws = 100,
-##'                      formula_zero = ~ 1 + c_stemp,
-##'                      formula_rec = ~ 1 + c_btemp,
+##'                      formula_zero = ~ 1 + c_hauls,
+##'                      formula_rec = ~ 1 + c_stemp + I(c_stemp * c_stemp),
 ##'                      n_ages = 4)
 ##' dim(pp$y_rep)
 ##' ## proportion of zeros in each draw and in the data
 ##' summary(rowMeans(pp$y_rep == 0))
 ##' mean(pp$data$dens == 0)
 ##' ## recruitment as a function of bottom temperature, under the priors
-##' plot(effects_drm(pp, process = "rec", variable = "c_btemp"))
+##' plot(effects_drm(pp, process = "rec", variable = "c_stemp"))
 ##' @author Anonymous
 prior_pred_drm <- function(.data,
                            time_col,

@@ -116,6 +116,9 @@
   Use `effects_drm()` on its output to plot how recruitment, survival, or the
   probability of absence changes with a covariate under the priors.
 
+- New vignette "Prior predictive checks" shows how to use `prior_pred_drm()`
+  and `effects_drm()` to check the priors before you fit a model.
+
 - `drmr` now requires R 4.3.0 or later.
 
 # drmr 1.1.2

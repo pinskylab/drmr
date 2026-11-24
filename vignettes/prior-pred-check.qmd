@@ -1,0 +1,160 @@
+---
+title: "Prior predictive checks"
+author: Anonymous
+execute:
+  eval: true
+vignette: >
+  %\VignetteIndexEntry{Prior predictive checks}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+A prior predictive check tells you if the priors of a model give plausible
+data. The `prior_pred_drm()` function draws parameters from the priors of the
+dynamic range model (DRM). Then it simulates densities from these parameters.
+You compare the simulated densities with the observed densities, or with what
+you know about the species. One can perform this check before fitting their
+models with `fit_drm()`.
+
+```{r}
+#| label: setup
+
+library(drmr)
+data(sum_fl)
+```
+
+## Simulate densities from the priors
+
+The `prior_pred_drm()` function takes the same data, column, family, and formula
+arguments as `fit_drm()`. It does not take `y_col`, because it does not use the
+observed densities. The `n_draws` argument sets the number of simulated data
+sets. Call `set.seed()` first to make the results reproducible.
+
+
+In this example, the probability of absence depends on the number of hauls
+(`c_hauls`). Recruitment depends on sea surface temperature (`c_stemp`) through
+a quadratic function.
+
+```{r}
+#| label: prior-pred
+
+set.seed(2026)
+pp <- prior_pred_drm(sum_fl,
+                     time_col = "year",
+                     site_col = "patch",
+                     n_draws = 100,
+                     formula_zero = ~ 1 + c_hauls,
+                     formula_rec = ~ 1 + c_stemp + I(c_stemp * c_stemp),
+                     n_ages = 4)
+pp
+```
+
+The printed output shows the number of draws (from the prior and prior
+predictive distributions), the formulas, the data, and the parameters. The main
+elements of `pp` are:
+
+- `y_rep`: a matrix of simulated densities. It has one row for each draw and one
+  column for each row of `pp$data`.
+- `data`: the data, sorted by site and time. The columns of `y_rep` follow this
+  order.
+- `pars`: the parameter values of each draw.
+- `nonfinite`: `TRUE` for each draw with `Inf`, `NaN`, or `NA` values. We may
+  get `Inf`, `NaN`, or `NA` due to numeric overflow.
+
+```{r}
+#| label: dim
+
+dim(pp$y_rep)
+```
+
+Priors with heavy tails can give extreme draws. If some draws overflow, the
+function gives a warning. Remove these draws before you compare the densities:
+
+```{r}
+#| label: drop-nonfinite
+
+y_rep <- pp$y_rep[!pp$nonfinite, , drop = FALSE]
+```
+
+## Compare the simulated and observed densities
+
+Choose summary statistics that are important for your species. Then compare
+their values in the simulated data sets with their values in the observed
+data. The code below gives the proportion of zeros in each simulated data set,
+and then in the observed data:
+
+```{r}
+#| label: prop-zero
+
+summary(rowMeans(y_rep == 0))
+mean(pp$data$dens == 0)
+```
+
+Also compare the scale of the densities. The code below gives quantiles of the
+largest density in each simulated data set, and then the largest observed
+density:
+
+```{r}
+#| label: max-dens
+
+quantile(apply(y_rep, 1, max), probs = c(0.05, 0.5, 0.95))
+max(pp$data$dens)
+```
+
+Use these results as follows:
+
+- If the observed value is outside the range of the simulated values, the
+  priors can exclude plausible data.
+- If many simulated values are not possible for the species, the priors can be
+  too wide.
+
+## Look at the covariate effects under the priors
+
+The `effects_drm()` function also accepts the output of `prior_pred_drm()`.  The
+code below shows how recruitment changes with sea surface temperature under the
+priors. The function uses the quadratic term of the formula. The band is a 90%
+prior interval.
+
+```{r}
+#| label: effects
+
+eff <- effects_drm(pp, process = "rec", variable = "c_stemp")
+plot(eff)
+```
+
+Use `process = "pabs"` for the probability of absence. Use `process = "surv"`
+for survival, when the model has `.toggles = list(est_surv = 1)`.
+
+## Change the priors
+
+Use the `.priors` argument to change a prior, as in `fit_drm()`. For the names
+of the priors, see the [Model parameters and priors](model-parameters.html)
+vignette. A prior for regression coefficients takes one value for all the
+coefficients, or one value for each column of the design matrix.
+
+
+The default prior for the recruitment coefficients is a normal distribution with
+mean 0 and standard deviation 1. With a quadratic term, this prior can give very
+large or very small recruitment at extreme temperatures. Moreover, the
+relationship between temperature and recruitment is usually bell-shaped. Thus,
+it makes sense to have the beta associated with the quadratic term negative. The
+code below keeps the default prior for the intercept and the linear term. It
+sets the SD to 0.5 for the quadratic term, and its mean to $-1$.
+```{r}
+#| label: new-priors
+
+set.seed(2026)
+pp2 <- prior_pred_drm(sum_fl,
+                      time_col = "year",
+                      site_col = "patch",
+                      n_draws = 500,
+                      formula_zero = ~ 1 + c_hauls,
+                      formula_rec = ~ 1 + c_stemp + I(c_stemp * c_stemp),
+                      n_ages = 4,
+                      .priors = list(pr_beta_r_mu = c(0, 0, -1),
+                                     pr_beta_r_sd = c(1, 1, .5)))
+plot(effects_drm(pp2, process = "rec", variable = "c_stemp"))
+```
+
+When the priors pass the check, use the same priors in `fit_drm()`. Add
+`y_col` to give the observed densities.
